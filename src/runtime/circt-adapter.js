@@ -1,4 +1,4 @@
-import { CIRCT_FORK_REPO, getCirctRuntimeConfig } from './circt-config.js';
+import { CIRCT_FORK_REPO, getCirctRuntimeConfig, Z3_SCRIPT_URL } from './circt-config.js';
 import COCOTB_SHIM from './cocotb-shim.py?raw';
 
 function filename(path) {
@@ -977,7 +977,7 @@ async function getZ3Module() {
   if (!_z3ModPromise) {
     _z3ModPromise = (async () => {
       if (!globalThis.initZ3) {
-        await loadScriptOnce('/z3/z3-built.js');
+        await loadScriptOnce(Z3_SCRIPT_URL);
       }
       return globalThis.initZ3();
     })();
@@ -996,7 +996,7 @@ async function getZ3Module() {
  */
 async function getFreshZ3Module() {
   if (!globalThis.initZ3) {
-    await loadScriptOnce('/z3/z3-built.js');
+    await loadScriptOnce(Z3_SCRIPT_URL);
   }
   return globalThis.initZ3();
 }

@@ -1,6 +1,8 @@
 export const CIRCT_FORK_REPO = 'git@github.com:thomasnormal/circt.git';
 
 const BASE = import.meta.env.BASE_URL;
+
+export const Z3_SCRIPT_URL = `${BASE}z3/z3-built.js`;
 const DEFAULT_TOOLCHAIN = {
   verilog: {
     js: `${BASE}circt/circt-verilog.js`,

@@ -1,0 +1,8 @@
+<p>Sampled value functions compare a signal's value at the current clock edge against the previous one:</p>
+<ul>
+  <li><code>$rose(sig)</code> — true when <code>sig</code> just transitioned <code>0&rarr;1</code></li>
+  <li><code>$fell(sig)</code> — true when <code>sig</code> just transitioned <code>1&rarr;0</code></li>
+</ul>
+<p>These are more precise than a bare level check: <code>$rose(req)</code> triggers once per rising edge, not on every cycle that <code>req</code> stays high.</p>
+<p>Open <code>edge_check.sv</code>. The spec is: <em>when chip-select <code>cs_n</code> falls (goes active-low), <code>ack</code> must rise within 1–2 clock cycles.</em></p>
+<p>Complete the property using <code>$fell(cs_n) |=> ##[0:1] $rose(ack)</code>.</p>

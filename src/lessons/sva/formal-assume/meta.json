@@ -1,0 +1,6 @@
+{
+  "title": "assume property",
+  "waveform": "optional",
+  "focus": "/src/top.sv",
+  "runner": "both"
+}

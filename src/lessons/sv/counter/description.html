@@ -1,0 +1,7 @@
+<p>A counter is the canonical example of sequential logic with state. It uses the same <code>always_ff</code> pattern as a flip-flop, but adds an enable signal and an incrementing expression.</p>
+<p>Open <code>counter.sv</code> and implement an 8-bit up-counter:</p>
+<ul>
+  <li>Synchronous reset: when <code>!rst_n</code>, set <code>count</code> to zero</li>
+  <li>Count up: when <code>en</code> is high, add 1 each cycle</li>
+</ul>
+<blockquote><p>Notice that <code>else if</code> naturally gives reset higher priority than enable — a common and intentional idiom in RTL.</p></blockquote>

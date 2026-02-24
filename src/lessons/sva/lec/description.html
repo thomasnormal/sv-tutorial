@@ -1,0 +1,10 @@
+            <p><strong>Logical Equivalence Checking (LEC)</strong> proves that two circuit implementations produce identical outputs for every possible input — without running any simulation.</p>
+            <p>Open <code>top.sv</code>. It contains two modules:</p>
+            <ul>
+              <li><code>Spec</code> — the golden reference: a NAND gate <code>~(a &amp; b)</code></li>
+              <li><code>Impl</code> — your implementation, currently wrong</li>
+            </ul>
+            <p>By <strong>De Morgan's law</strong>, <code>~(a &amp; b)</code> is logically equivalent to <code>~a | ~b</code>. The <code>Impl</code> module has a bug — it is missing the inversion on <code>b</code>. Fix it:</p>
+            <pre>assign y = ~a | ~b;</pre>
+            <p>Click <strong>verify</strong> to run LEC. The tool encodes both modules as SMT constraints and asks a solver whether any input can make them differ. If no such input exists, the answer is <strong>unsat</strong> — the circuits are equivalent.</p>
+            <blockquote><p>LEC is essential in chip design: it proves that logic synthesis, optimisation, and place-and-route have not changed the circuit's behaviour.</p></blockquote>

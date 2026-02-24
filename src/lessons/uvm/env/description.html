@@ -1,0 +1,16 @@
+              <p>The <strong>environment</strong> (<code>uvm_env</code>) is the container that assembles agents and scoreboards. Its two key phases:</p>
+              <ul>
+                <li><code>build_phase</code> — creates child components top-down with <code>type_id::create("name", this)</code></li>
+                <li><code>connect_phase</code> — wires TLM ports between components bottom-up</li>
+              </ul>
+              <pre>function void build_phase(uvm_phase phase);
+  super.build_phase(phase);
+  agent = adder_agent::type_id::create("agent", this);
+  scbd  = adder_scoreboard::type_id::create("scbd",  this);
+endfunction
+
+function void connect_phase(uvm_phase phase);
+  agent.mon.ap.connect(scbd.analysis_export);
+endfunction</pre>
+              <p>Open <code>adder_env.sv</code> and complete both phases. All other components are provided — this is the final piece that makes the full testbench run end-to-end.</p>
+              <blockquote><p>The <code>this</code> argument in <code>create("name", this)</code> sets the UVM hierarchy parent. This determines the component's path in the tree, which scopes config_db lookups and reporting output.</p></blockquote>

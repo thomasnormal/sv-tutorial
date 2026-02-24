@@ -1,0 +1,4 @@
+<p>Modules communicate through <strong>ports</strong>. Each port has a direction (<code>input</code>, <code>output</code>, or <code>inout</code>) and a type.</p>
+<p>The most common type is <code>logic</code> — a 4-state value that can be <code>0</code>, <code>1</code>, <code>X</code> (unknown), or <code>Z</code> (high-impedance). Vectors use a range: <code>logic [7:0]</code> is 8 bits wide.</p>
+<p>Combinational logic can be driven with a continuous <code>assign</code> statement. Open <code>adder.sv</code> and add the missing line:</p>
+<pre>assign sum = a + b;</pre>

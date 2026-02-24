@@ -1,0 +1,9 @@
+              <p>An <code>always_comb</code> block models combinational logic. It re-evaluates automatically whenever any of its inputs change — no sensitivity list needed.</p>
+              <p>Inside it you can use procedural statements like <code>if</code> and <code>case</code>. The <code>case</code> statement is often cleaner than a chain of <code>if-else</code> for multi-way selection.</p>
+              <p>Open <code>mux.sv</code> and fill in the four <code>case</code> branches to build a 4-to-1 multiplexer:</p>
+              <pre>case (sel)
+  2'b00: y = a;
+  2'b01: y = b;
+  2'b10: y = c;
+  2'b11: y = d;
+endcase</pre>

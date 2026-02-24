@@ -1,0 +1,5 @@
+{
+  "title": "Implication: |-> and |=>",
+  "waveform": "required",
+  "focus": "/src/implication.sv"
+}

@@ -1,0 +1,6 @@
+{
+  "title": "Clock and Timing",
+  "waveform": "off",
+  "runner": "cocotb",
+  "focus": "/src/test_counter.py"
+}

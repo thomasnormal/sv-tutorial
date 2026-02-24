@@ -1,0 +1,14 @@
+<p>An <strong>interface</strong> bundles related signals into a single named port. Instead of passing each signal individually between modules, both the design and testbench connect through one handle:</p>
+<pre>interface adder_if (input logic clk);
+  logic [7:0] a, b, sum;
+  logic       carry;
+endinterface
+
+module adder (adder_if.slave bus);
+  assign {bus.carry, bus.sum} = bus.a + bus.b;
+endmodule</pre>
+<p>A <strong>modport</strong> restricts which signals each side may drive. The <code>.slave</code> suffix enforces that the adder can only drive <code>sum</code> and <code>carry</code> — it cannot accidentally write to <code>a</code> or <code>b</code>:</p>
+<pre>modport master(output a, b, input  clk, sum, carry);
+modport slave (input  a, b, output sum, carry);</pre>
+<p>Open <code>adder_if.sv</code> and add the two <code>modport</code> lines.</p>
+<blockquote><p>In a UVM testbench the driver holds a <code>virtual adder_if</code> — a reference to the interface instance created in <code>tb_top</code>. The <code>virtual</code> keyword is what lets a class-based component (which has no ports) reach down into the actual signal wires.</p></blockquote>

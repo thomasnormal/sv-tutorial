@@ -1,0 +1,5 @@
+{
+  "title": "Bins and ignore_bins",
+  "waveform": "optional",
+  "focus": "/src/cov_bins.sv"
+}

@@ -1,0 +1,9 @@
+<p>The <strong>consecutive repetition</strong> operator requires a signal to hold true for a contiguous run of clock cycles:</p>
+<ul>
+  <li><code>sig[*m]</code> — exactly <em>m</em> consecutive cycles</li>
+  <li><code>sig[*m:n]</code> — between <em>m</em> and <em>n</em> consecutive cycles</li>
+  <li><code>sig[*0:$]</code> — zero or more cycles</li>
+</ul>
+<p>For example, <code>start |=> valid[*4]</code> means: after <code>start</code>, <code>valid</code> must be high for 4 cycles in a row.</p>
+<p>Open <code>hold_check.sv</code>. The spec is: <em>after a <code>start</code> pulse, <code>busy</code> must stay high for exactly 3 consecutive cycles.</em></p>
+<p>Complete the property using <code>busy[*3]</code>.</p>

@@ -1,0 +1,7 @@
+<p>A single coverpoint can look perfect while interactions between signals are still untested. <strong>Cross coverage</strong> tracks combinations.</p>
+<p>Define two coverpoints, then cross them:</p>
+<pre>cp_op:   coverpoint op;
+cp_mode: coverpoint mode;
+op_x_mode: cross cp_op, cp_mode;</pre>
+<p>Open <code>cov_cross.sv</code> and add the missing cross definition so operation × mode combinations are measured.</p>
+<blockquote><p>Crosses can explode combinatorially. Cross only the dimensions that represent meaningful risk.</p></blockquote>

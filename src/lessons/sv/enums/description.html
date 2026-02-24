@@ -1,0 +1,13 @@
+              <p>Magic numbers in state machines are hard to read and easy to mistype. SystemVerilog <strong>enumerations</strong> give each state a readable name and let the compiler catch invalid assignments:</p>
+              <pre>typedef enum logic [1:0] {
+  IDLE, RUNNING, DONE, ERROR
+} status_t;</pre>
+              <p>Declare signals with the enum type and use named constants in <code>case</code> statements:</p>
+              <pre>status_t state;
+...
+case (state)
+  IDLE:    if (start) state &lt;= RUNNING;
+  RUNNING: if (stop)  state &lt;= DONE;
+endcase</pre>
+              <p>Open <code>status.sv</code> and fill in the two active <code>case</code> branches using the named constants <code>RUNNING</code> and <code>ERROR</code>.</p>
+              <blockquote><p>With <code>unique case</code> or in strict-mode tools, an unhandled enum value raises a warning. Add a <code>default</code> branch to catch any encoding bugs.</p></blockquote>

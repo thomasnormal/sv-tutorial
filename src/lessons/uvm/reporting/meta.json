@@ -1,0 +1,5 @@
+{
+  "title": "The First UVM Test",
+  "waveform": "optional",
+  "focus": "/src/my_test.sv"
+}

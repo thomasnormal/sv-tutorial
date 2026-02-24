@@ -1,0 +1,8 @@
+<p>The <strong>clock delay</strong> operator <code>##</code> is what makes sequence expressions temporal. It shifts evaluation forward by one or more clock cycles.</p>
+<ul>
+  <li><code>##m</code> — exactly <em>m</em> cycles later</li>
+  <li><code>##[m:n]</code> — between <em>m</em> and <em>n</em> cycles later</li>
+  <li><code>##[1:$]</code> — one or more cycles (<code>$</code> means unbounded)</li>
+</ul>
+<p>Open <code>delay_check.sv</code>. The spec is: <em>after a memory request (<code>mem_req</code>), the response (<code>mem_ack</code>) must arrive within 2 to 5 clock cycles.</em></p>
+<p>Complete the property body using <code>|-> ##[2:5]</code>.</p>

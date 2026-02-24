@@ -1,0 +1,12 @@
+<p>The implication operator splits a property into two parts:</p>
+<ul>
+  <li>The <strong>antecedent</strong> (left side) — the trigger condition</li>
+  <li>The <strong>consequent</strong> (right side) — what must hold after the trigger</li>
+</ul>
+<p>There are two forms. Both say "if the left side matches, then the right side must hold" — they differ only in <em>when</em> the consequent starts:</p>
+<ul>
+  <li><code>ant |-> con</code> — <strong>overlapping</strong>: consequent starts at the same cycle as the antecedent match</li>
+  <li><code>ant |=> con</code> — <strong>non-overlapping</strong>: consequent starts 1 cycle later (equivalent to <code>|-> ##1</code>)</li>
+</ul>
+<p>Open <code>implication.sv</code> and complete both property bodies.</p>
+<blockquote><p>If the antecedent never matches, the property passes <em>vacuously</em>. Use <code>cover property</code> to confirm the antecedent was actually exercised.</p></blockquote>

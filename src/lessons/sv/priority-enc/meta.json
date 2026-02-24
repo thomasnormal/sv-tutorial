@@ -1,0 +1,5 @@
+{
+  "title": "Priority Encoder",
+  "waveform": "optional",
+  "focus": "/src/priority_enc.sv"
+}

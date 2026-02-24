@@ -1,0 +1,14 @@
+<p>Random stimulus without a stopping condition is unpredictable — you may run far more cycles than needed, or stop before all bins are hit. <strong>Coverage-driven verification</strong> closes this loop: the test keeps generating stimulus until coverage reaches its target, then stops.</p>
+<p>The pattern uses <code>get_coverage()</code> on the covergroup to query current progress:</p>
+<pre>task run_phase(uvm_phase phase);
+  phase.raise_objection(this);
+  while (env.cov.adder_cg.get_coverage() &lt; 100.0) begin
+    adder_seq seq = adder_seq::type_id::create("seq");
+    seq.start(env.agent.seqr);
+    `uvm_info("TEST", $sformatf("coverage = %.1f%%",
+      env.cov.adder_cg.get_coverage()), UVM_LOW)
+  end
+  phase.drop_objection(this);
+endtask</pre>
+<p>Open <code>adder_test.sv</code> and replace the single <code>seq.start()</code> call with the <code>while</code> loop above.</p>
+<blockquote><p>Always add a maximum-iteration guard to prevent infinite loops when a coverage bin is unreachable. A good practice: if coverage has not improved after N batches, print a warning and break — then investigate which bin is stuck and why.</p></blockquote>

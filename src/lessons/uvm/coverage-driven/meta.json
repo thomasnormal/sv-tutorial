@@ -1,0 +1,5 @@
+{
+  "title": "Coverage-Driven Verification",
+  "waveform": "off",
+  "focus": "/src/adder_test.sv"
+}

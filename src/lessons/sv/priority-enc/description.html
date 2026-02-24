@@ -1,0 +1,8 @@
+              <p><code>casez</code> treats <code>?</code> as a don't-care bit, making it ideal for priority logic where only the <em>highest-set</em> bit matters.</p>
+              <p>Open <code>priority_enc.sv</code> and add four <code>casez</code> branches. The highest-index asserted bit in <code>req</code> wins. If no bit is set, output <code>valid = 0</code>.</p>
+              <pre>casez (req)
+  4'b1???: begin grant = 2'd3; valid = 1'b1; end
+  4'b01??: begin grant = 2'd2; valid = 1'b1; end
+  ...
+endcase</pre>
+              <blockquote><p>Always-combinational blocks should have a <strong>default assignment</strong> before the <code>casez</code> to avoid unintended latches if no branch matches.</p></blockquote>

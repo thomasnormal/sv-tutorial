@@ -1,0 +1,14 @@
+              <p>A <strong>sequence item</strong> is the transaction data object that flows through a UVM testbench. It extends <code>uvm_sequence_item</code> and holds the stimulus fields.</p>
+              <p>Fields marked <code>rand</code> are randomizable. <strong>Constraints</strong> narrow the random space to legal values. The <strong>factory registration macro</strong> enables type overrides and auto-generates <code>print()</code>, <code>copy()</code>, and <code>compare()</code>:</p>
+              <pre>class adder_item extends uvm_sequence_item;
+  `uvm_object_utils_begin(adder_item)
+    `uvm_field_int(a, UVM_ALL_ON)
+    `uvm_field_int(b, UVM_ALL_ON)
+  `uvm_object_utils_end
+
+  rand logic [7:0] a, b;
+  constraint small_c { a &lt; 100; b &lt; 100; }
+  ...
+endclass</pre>
+              <p>Open <code>adder_item.sv</code> and add the <code>rand</code> declarations, field macros, and constraint.</p>
+              <blockquote><p>Always create items through the factory: <code>adder_item::type_id::create("item")</code> — not with <code>new</code> directly. Factory creation enables test-level type substitution without changing any sequence code.</p></blockquote>

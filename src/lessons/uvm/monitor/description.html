@@ -1,0 +1,14 @@
+              <p>The <strong>monitor</strong> passively observes DUT signals and broadcasts completed transactions via a <code>uvm_analysis_port</code>. It does not drive anything.</p>
+              <p>The <strong>scoreboard</strong> subscribes using a <code>uvm_analysis_imp</code> and a <code>write()</code> method. Every time the monitor broadcasts, <code>write()</code> is called automatically:</p>
+              <pre>// In the scoreboard:
+uvm_analysis_imp #(adder_item, adder_scoreboard) analysis_export;
+...
+function void write(adder_item item);
+  logic [8:0] expected = 9'(item.a) + 9'(item.b);
+  if (item.sum === expected[7:0] && item.carry === expected[8])
+    pass_count++;
+  else
+    `uvm_error("SCBD", "Mismatch!")
+endfunction</pre>
+              <p>Open <code>adder_scoreboard.sv</code> and complete the <code>write()</code> function.</p>
+              <blockquote><p>The analysis port is one-to-many: the monitor does not know how many subscribers are connected. Attach a coverage collector alongside the scoreboard by connecting both to the same <code>ap</code> — the monitor code does not change.</p></blockquote>

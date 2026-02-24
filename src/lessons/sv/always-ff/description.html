@@ -1,0 +1,8 @@
+              <p><code>always_ff</code> models edge-triggered sequential logic. Unlike <code>always_comb</code>, it only updates when a clock edge occurs.</p>
+              <p>Use <strong>non-blocking assignment</strong> (<code>&lt;=</code>) inside <code>always_ff</code>. All right-hand sides are evaluated first, then all assignments happen simultaneously at the clock edge — this prevents race conditions.</p>
+              <p>Open <code>dff.sv</code> and implement the flip-flop body:</p>
+              <pre>always_ff @(posedge clk) begin
+  if (!rst_n) q &lt;= 1'b0;
+  else        q &lt;= d;
+end</pre>
+              <blockquote><p>Active-low reset (<code>rst_n</code>) is conventional in RTL: the signal name ends in <code>_n</code> and asserts at 0.</p></blockquote>

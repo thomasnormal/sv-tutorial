@@ -1,0 +1,21 @@
+<p>
+  Clock generation is so common in cocotb that it ships a helper. <code>Clock</code> drives a signal
+  at a given period; <code>cocotb.start_soon()</code> launches it as a background task, running
+  concurrently with the rest of your test.
+</p>
+<p>
+  <code>RisingEdge(dut.clk)</code> is the Python equivalent of <code>@(posedge clk)</code>.
+  <code>ClockCycles(dut.clk, n)</code> waits for <em>n</em> rising edges — the equivalent of
+  <code>repeat(n) @(posedge clk)</code>. The full test is in <code>test_counter.py</code>.
+</p>
+<p>
+  Open <code>counter.sv</code> and implement the 4-bit up-counter with synchronous reset.
+  When <code>rst</code> is high, <code>count</code> must clear to zero on the next rising edge.
+</p>
+<blockquote>
+  <p>
+    <code>cocotb.start_soon()</code> is how cocotb models concurrent activity — the Python analogue
+    of launching an <code>always</code> block. Any number of coroutines can run concurrently in a
+    single test.
+  </p>
+</blockquote>

@@ -1,0 +1,9 @@
+              <p>A <strong>local variable</strong> in a sequence captures a signal's value at one clock edge and carries it forward to a later comparison — something you cannot do with plain signal references:</p>
+              <pre>property pipe_p;
+  int v;
+  @(posedge clk)
+    (valid_in, v = in_data) |=> ##2 (out_data == v);
+endproperty</pre>
+              <p>The comma operator <code>(cond, v = expr)</code> simultaneously checks the trigger condition and assigns to the local variable. The variable retains its value across the subsequent clock-delay cycles.</p>
+              <p>Open <code>pipeline_check.sv</code>. Capture <code>in_data</code> when <code>valid_in</code> is high, then verify that <code>out_data</code> equals it exactly 3 cycles later.</p>
+              <blockquote><p>Local variables are thread-local: every concurrent evaluation of the sequence gets its own copy, so overlapping in-flight transactions are checked independently.</p></blockquote>

@@ -1,0 +1,15 @@
+              <p>A <strong>Moore FSM</strong> uses two always-blocks: one for the state register, one for combinational next-state and output logic. Keeping them separate makes both halves easier to read and verify:</p>
+              <pre>// 1. State register
+always_ff @(posedge clk)
+  state &lt;= (!rst_n) ? S0 : next;
+
+// 2. Next-state + output (combinational)
+always_comb begin
+  next = state;  // default: hold
+  case (state)
+    S0: if (din) next = S1;
+    ...
+  endcase
+end</pre>
+              <p>This module detects the sequence <strong>1 → 0 → 1</strong> on serial input <code>din</code>. Open <code>seq_det.sv</code> and fill in the four <code>case</code> branches inside the <code>always_comb</code> block.</p>
+              <blockquote><p>The default assignment <code>next = state</code> at the top of the <code>always_comb</code> block means "stay in the current state unless a branch overrides it." This eliminates latches and makes every unspecified transition explicit.</p></blockquote>

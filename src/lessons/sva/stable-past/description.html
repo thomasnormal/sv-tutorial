@@ -1,0 +1,8 @@
+<p>Two more sampled value functions for tracking signal history:</p>
+<ul>
+  <li><code>$stable(sig)</code> — true when <code>sig</code> did <em>not</em> change between the previous and current clock edge</li>
+  <li><code>$past(sig)</code> — the value of <code>sig</code> from exactly 1 cycle ago; <code>$past(sig, n)</code> goes back <code>n</code> cycles</li>
+</ul>
+<p>Open <code>stable_check.sv</code>. The spec is: <em>while <code>valid</code> is high and <code>ready</code> is low, <code>data</code> must not change on the next cycle.</em></p>
+<p>Complete the property body using <code>(valid && !ready) |=> $stable(data)</code>.</p>
+<blockquote><p><code>$stable(data)</code> is equivalent to writing <code>data == $past(data)</code> — use whichever reads more naturally for your spec.</p></blockquote>

@@ -1,0 +1,5 @@
+{
+  "title": "Request / Acknowledge",
+  "waveform": "required",
+  "focus": "/src/req_ack.sv"
+}

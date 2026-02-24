@@ -1,0 +1,20 @@
+<p>Assertions answer <em>"did something illegal happen?"</em> — functional coverage answers <em>"did we exercise the scenarios we care about?"</em>. Without coverage, passing simulation only means no bugs were triggered by the stimulus you happened to run.</p>
+<p>In UVM, coverage lives in a <strong><code>uvm_subscriber</code></strong> — a component with a built-in analysis export. Every transaction written to it calls <code>write()</code>, which samples the covergroup:</p>
+<pre>class adder_coverage extends uvm_subscriber #(adder_item);
+  adder_item item;
+
+  covergroup adder_cg;
+    cp_a: coverpoint item.a {
+      bins lo  = {[0:85]};
+      bins mid = {[86:170]};
+      bins hi  = {[171:255]};
+    }
+  endgroup
+
+  function void write(adder_item t);
+    item = t;
+    adder_cg.sample();
+  endfunction
+endclass</pre>
+<p>Open <code>adder_coverage.sv</code> and add the two coverpoints <code>cp_a</code> and <code>cp_b</code>, each with three bins splitting the 8-bit range into thirds.</p>
+<blockquote><p>The <code>small_c</code> constraint from earlier lessons has been removed so that randomization can reach all three bins. Coverage holes are most often found by removing or widening constraints and re-running.</p></blockquote>

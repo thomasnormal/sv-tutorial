@@ -1,0 +1,5 @@
+{
+  "title": "Goto Repetition [->m]",
+  "waveform": "required",
+  "focus": "/src/multi_ack.sv"
+}

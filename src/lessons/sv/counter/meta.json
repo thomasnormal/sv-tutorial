@@ -1,0 +1,5 @@
+{
+  "title": "Up-Counter",
+  "waveform": "optional",
+  "focus": "/src/counter.sv"
+}

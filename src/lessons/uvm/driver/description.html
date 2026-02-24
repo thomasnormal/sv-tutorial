@@ -1,0 +1,17 @@
+              <p>The <strong>driver</strong> is where the UVM world meets RTL. It pulls transactions from the sequencer, converts them to pin-level stimulus, and signals completion:</p>
+              <pre>task run_phase(uvm_phase phase);
+  adder_item req;
+  forever begin
+    seq_item_port.get_next_item(req);  // pull; blocks if empty
+    @(posedge vif.clk);
+    vif.a &lt;= req.a;
+    vif.b &lt;= req.b;
+    @(posedge vif.clk);
+    seq_item_port.item_done();         // unblocks finish_item
+  end
+endtask</pre>
+              <p>The DUT is accessed through a <strong>virtual interface</strong> handle retrieved from <code>uvm_config_db</code> in <code>build_phase</code>:</p>
+              <pre>if (!uvm_config_db #(virtual adder_if)::get(this, "", "vif", vif))
+  `uvm_fatal("NOVIF", "Virtual interface not found")</pre>
+              <p>Open <code>adder_driver.sv</code> and complete <code>build_phase</code> (config_db get) and <code>run_phase</code> (drive the interface).</p>
+              <blockquote><p>The virtual interface is the only bridge from the dynamic class world into the static module world. It must be <code>set</code> in <code>tb_top</code> before <code>run_test()</code> is called, and <code>get</code> by every component that needs DUT access.</p></blockquote>

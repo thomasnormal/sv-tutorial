@@ -1,0 +1,5 @@
+{
+  "title": "disable iff — Reset Handling",
+  "waveform": "required",
+  "focus": "/src/reset_check.sv"
+}

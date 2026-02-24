@@ -1,0 +1,18 @@
+<p>SystemVerilog has two kinds of reusable subprograms:</p>
+<ul>
+  <li><strong>function</strong> — combinational; returns a value; cannot contain timing controls (<code>@</code>, <code>#</code>, <code>wait</code>).</li>
+  <li><strong>task</strong> — can consume simulation time; used for stimulus sequences that must wait for clock edges.</li>
+</ul>
+<pre>function automatic logic parity(input logic [7:0] d);
+  return ^d;   // reduction XOR: 1 if odd number of set bits
+endfunction
+
+task automatic send(input logic [7:0] d);
+  tx_data  = d;
+  tx_valid = 1;
+  @(posedge clk); #1;
+  tx_valid = 0;
+endtask</pre>
+<p>The <code>automatic</code> keyword gives each call its own stack frame. Without it, local variables are static and shared between concurrent invocations — a common source of testbench bugs when tasks are called from multiple threads.</p>
+<p>Open <code>tb.sv</code> and fill in both subprograms.</p>
+<blockquote><p>In UVM, the <code>run_phase</code> of a driver is essentially a <code>task</code>: it loops forever, pulling items from the sequencer and calling a transaction-level send task for each one.</p></blockquote>

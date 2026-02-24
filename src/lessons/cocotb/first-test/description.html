@@ -1,0 +1,21 @@
+<p>
+  <a href="https://docs.cocotb.org" target="_blank">cocotb</a> (Coroutine-based Co-simulation Testbench)
+  lets you write testbenches in Python rather than SystemVerilog. The simulator runs your DUT exactly
+  as before; Python drives signals and checks outputs through an <code>async</code> coroutine.
+</p>
+<p>
+  A test is any <code>async</code> function decorated with <code>@cocotb.test()</code>. The <code>dut</code>
+  argument gives you handles to every port — assign <code>.value</code> to drive, read <code>.value</code>
+  to observe. <code>await Timer(2, units="ns")</code> suspends the coroutine until combinational logic
+  settles — the Python equivalent of <code>#2;</code> in SystemVerilog.
+</p>
+<p>
+  The testbench in <code>test_adder.py</code> checks four input combinations. Open
+  <code>adder.sv</code> and add the missing <code>assign</code> to make all checks pass.
+</p>
+<blockquote>
+  <p>
+    The in-browser simulator runs a SystemVerilog translation of the cocotb testbench.
+    Open <code>tb.sv</code> to see the equivalent.
+  </p>
+</blockquote>

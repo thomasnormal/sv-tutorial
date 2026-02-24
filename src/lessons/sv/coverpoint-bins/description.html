@@ -1,0 +1,9 @@
+<p>Coverpoints can be partitioned into named <strong>bins</strong> so you can track meaningful categories instead of raw values.</p>
+<p>You can also exclude uninteresting values with <code>ignore_bins</code>:</p>
+<pre>coverpoint burst {
+  bins low = {0,1};
+  bins high = {2};
+  ignore_bins idle = {3};
+}</pre>
+<p>Open <code>cov_bins.sv</code> and add the two bins and one <code>ignore_bins</code> entry.</p>
+<blockquote><p>Use bins to encode intent. A reviewer should be able to infer the verification goal from bin names alone.</p></blockquote>

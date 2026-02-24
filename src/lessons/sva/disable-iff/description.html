@@ -1,0 +1,8 @@
+              <p>During reset, the design is in an undefined state and assertions will fire spuriously. The <code>disable iff</code> clause suppresses an entire property whenever a condition is true.</p>
+              <pre>property p;
+  @(posedge clk) disable iff (!rst_n)
+    req |=> ack;
+endproperty</pre>
+              <p>While <code>!rst_n</code> is true, the property evaluates as vacuously true — no failure is reported.</p>
+              <p>Open <code>reset_check.sv</code> and add <code>disable iff (!rst_n)</code> to the property, between the clock specification and the implication.</p>
+              <blockquote><p><code>disable iff</code> is asynchronous: the property is disabled the moment the condition becomes true, not at the next clock edge.</p></blockquote>

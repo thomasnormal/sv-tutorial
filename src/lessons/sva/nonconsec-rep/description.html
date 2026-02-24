@@ -1,0 +1,6 @@
+<p>The <strong>goto repetition</strong> operator <code>[->m]</code> requires a condition to be true exactly <em>m</em> times — but the occurrences do not need to be consecutive. Any number of false cycles may separate them:</p>
+<pre>req |=> ack[->3] ##1 done</pre>
+<p>This reads: after <code>req</code>, wait for <code>ack</code> to go high 3 separate times (non-consecutively), then check that <code>done</code> is high immediately after the third.</p>
+<p>Compare with consecutive repetition: <code>ack[*3]</code> requires 3 cycles in a row, while <code>ack[->3]</code> allows gaps between pulses.</p>
+<p>Open <code>multi_ack.sv</code> and complete the property body using <code>ack[->3] ##1 done</code>.</p>
+<blockquote><p>The related operator <code>[=m]</code> is similar but does not require the sequence to end on the last match — the window can extend further. For most protocol checks, <code>[->m]</code> is what you want.</p></blockquote>

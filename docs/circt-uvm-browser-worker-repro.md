@@ -19,9 +19,16 @@ npm run sync:circt
 node scripts/repro-uvm-browser-worker-assert.mjs
 ```
 
+Optional:
+
+```bash
+# Use an already-running dev server instead of spawning one.
+REPRO_BASE_URL=http://127.0.0.1:4174 node scripts/repro-uvm-browser-worker-assert.mjs
+```
+
 ## What it does
 
-- starts Vite dev server on `http://127.0.0.1:4173` (`--strictPort`)
+- starts Vite dev server on `http://127.0.0.1:43173` (`--strictPort`)
 - opens Chromium headless via Playwright
 - imports `createCirctWasmAdapter` from `/src/runtime/circt-adapter.js`
 - runs compile-only (`simulate: false`) on minimal UVM files:

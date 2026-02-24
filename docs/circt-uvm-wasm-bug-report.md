@@ -24,6 +24,16 @@ circt-verilog --resource-guard=false --ir-llhd --timescale 1ns/1ns \
   --top tb_top -o /workspace/out/design.llhd.mlir /workspace/src/tb_top.sv
 ```
 
+Standalone browser-worker repro in this repo:
+
+```sh
+node scripts/repro-uvm-browser-worker-assert.mjs
+```
+
+This launches a headless Chromium page, imports `createCirctWasmAdapter` from
+`/src/runtime/circt-adapter.js`, runs compile-only (`simulate: false`) on a
+minimal `tb_top + my_test` UVM input, and reproduces the same assert.
+
 `tb_top.sv`:
 
 ```systemverilog

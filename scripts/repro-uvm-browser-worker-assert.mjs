@@ -5,8 +5,8 @@ import { constants as fsConstants } from 'node:fs';
 import { chromium } from '@playwright/test';
 
 const HOST = process.env.REPRO_HOST || '127.0.0.1';
-const PORT = Number(process.env.REPRO_PORT || '4173');
-const BASE_URL = `http://${HOST}:${PORT}`;
+const DEFAULT_PORT = Number(process.env.REPRO_PORT || '43173');
+const BASE_URL_OVERRIDE = (process.env.REPRO_BASE_URL || '').trim();
 const SERVER_READY_TIMEOUT_MS = 45_000;
 const COMPILE_TIMEOUT_MS = 180_000;
 
@@ -65,12 +65,15 @@ async function requireArtifacts() {
   }
 }
 
-function startViteDevServer() {
+function startViteDevServer(baseUrl, port) {
+  // Start Vite directly to avoid npm wrapper processes that are harder to
+  // terminate from this script.
   const child = spawn(
-    'npm',
-    ['run', 'dev', '--', '--host', HOST, '--port', String(PORT), '--strictPort'],
+    process.execPath,
+    ['./node_modules/vite/bin/vite.js', '--host', HOST, '--port', String(port), '--strictPort'],
     {
-      stdio: ['ignore', 'pipe', 'pipe']
+      stdio: ['ignore', 'pipe', 'pipe'],
+      detached: true
     }
   );
 
@@ -85,7 +88,7 @@ function startViteDevServer() {
     const onData = (buf) => {
       const text = String(buf);
       output += text;
-      if (!ready && text.includes('Local:') && text.includes(BASE_URL)) {
+      if (!ready && text.includes('Local:') && text.includes(baseUrl)) {
         ready = true;
         clearTimeout(timer);
         resolve();
@@ -107,16 +110,21 @@ function startViteDevServer() {
 }
 
 async function stopProcess(child) {
-  if (!child || child.killed) return;
-  child.kill('SIGTERM');
+  if (!child || child.exitCode !== null) return;
+  try {
+    // Kill the whole process group (Vite + any children).
+    process.kill(-child.pid, 'SIGTERM');
+  } catch {}
   for (let i = 0; i < 30; i += 1) {
     if (child.exitCode !== null) return;
     await sleep(100);
   }
-  child.kill('SIGKILL');
+  try {
+    process.kill(-child.pid, 'SIGKILL');
+  } catch {}
 }
 
-async function runBrowserWorkerCompile() {
+async function runBrowserWorkerCompile(baseUrl) {
   const browser = await chromium.launch({
     headless: true,
     channel: 'chromium',
@@ -129,7 +137,7 @@ async function runBrowserWorkerCompile() {
   });
 
   try {
-    const page = await browser.newPage({ baseURL: BASE_URL });
+    const page = await browser.newPage({ baseURL: baseUrl });
     await page.goto('/');
 
     const evaluatePromise = page.evaluate(async ({ files }) => {
@@ -152,11 +160,19 @@ async function runBrowserWorkerCompile() {
       };
     }, { files: UVM_FILES });
 
+    let timer = null;
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error(`compile timed out after ${COMPILE_TIMEOUT_MS}ms`)), COMPILE_TIMEOUT_MS);
+      timer = setTimeout(
+        () => reject(new Error(`compile timed out after ${COMPILE_TIMEOUT_MS}ms`)),
+        COMPILE_TIMEOUT_MS
+      );
     });
 
-    return await Promise.race([evaluatePromise, timeoutPromise]);
+    try {
+      return await Promise.race([evaluatePromise, timeoutPromise]);
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
   } finally {
     await browser.close();
   }
@@ -182,12 +198,17 @@ function analyzeLogs(payload) {
   try {
     await requireArtifacts();
 
-    console.log(`# Starting Vite dev server at ${BASE_URL}`);
-    server = startViteDevServer();
-    await server.readyPromise;
+    const baseUrl = BASE_URL_OVERRIDE || `http://${HOST}:${DEFAULT_PORT}`;
+    if (!BASE_URL_OVERRIDE) {
+      console.log(`# Starting Vite dev server at ${baseUrl}`);
+      server = startViteDevServer(baseUrl, DEFAULT_PORT);
+      await server.readyPromise;
+    } else {
+      console.log(`# Using existing dev server at ${baseUrl}`);
+    }
 
     console.log('# Running minimal browser-worker UVM compile via createCirctWasmAdapter');
-    const payload = await runBrowserWorkerCompile();
+    const payload = await runBrowserWorkerCompile(baseUrl);
     const analysis = analyzeLogs(payload);
 
     console.log('--- Repro Summary ---');

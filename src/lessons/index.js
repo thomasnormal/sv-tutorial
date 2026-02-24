@@ -7,14 +7,31 @@ const htmls     = import.meta.glob('./*/*/description.html',                    
 const starters  = import.meta.glob(['./*/*/*.{sv,py}', '!./*/*/*.sol.sv'],               { query: '?raw', import: 'default', eager: true });
 const solutions = import.meta.glob('./*/*/*.sol.sv',                                      { query: '?raw', import: 'default', eager: true });
 const metas     = import.meta.glob('./*/*/meta.json',                      { eager: true,   import: 'default' });
+const images    = import.meta.glob('./*/*/*.{png,jpg,jpeg,gif,svg,webp}',  { query: '?url', import: 'default', eager: true });
 
 function buildLessonMap() {
   const map = {};
   const entry = (slug) => { map[slug] ??= { files: { a: {}, b: {} } }; return map[slug]; };
 
+  // Build per-lesson image URL map (Vite-processed paths, base-URL-aware)
+  const imageMap = {};
+  for (const [path, url] of Object.entries(images)) {
+    const m = path.match(/^\.\/([\w-]+)\/([\w-]+)\/(.+)$/);
+    if (m) {
+      const [, p, l, file] = m;
+      imageMap[`${p}/${l}`] ??= {};
+      imageMap[`${p}/${l}`][file] = url;
+    }
+  }
+
   for (const [path, html] of Object.entries(htmls)) {
     const [, p, l] = path.match(/^\.\/([\w-]+)\/([\w-]+)\//);
-    entry(`${p}/${l}`).html = html;
+    const slug = `${p}/${l}`;
+    const imgs = imageMap[slug];
+    // Rewrite relative image src attributes to Vite-resolved URLs
+    entry(slug).html = imgs
+      ? html.replace(/src="([^"]+)"/g, (match, filename) => imgs[filename] ? `src="${imgs[filename]}"` : match)
+      : html;
   }
 
   for (const [path, meta] of Object.entries(metas)) {

@@ -86,6 +86,11 @@ export default defineConfig({
     // so the package works in browser / Web Worker contexts.
     global: 'globalThis'
   },
+  build: {
+    // Single chunk is ~218 kB gzipped (CodeMirror + Svelte + CIRCT adapter).
+    // The raw size exceeds Rollup's 500 kB default but gzip makes it fine.
+    chunkSizeWarningLimit: 800
+  },
   server: {
     headers: {
       // Required for SharedArrayBuffer (used by z3-solver's threaded WASM).

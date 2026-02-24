@@ -1,17 +1,18 @@
 export const CIRCT_FORK_REPO = 'git@github.com:thomasnormal/circt.git';
 
+const BASE = import.meta.env.BASE_URL;
 const DEFAULT_TOOLCHAIN = {
   verilog: {
-    js: '/circt/circt-verilog.js',
-    wasm: '/circt/circt-verilog.wasm'
+    js: `${BASE}circt/circt-verilog.js`,
+    wasm: `${BASE}circt/circt-verilog.wasm`
   },
   sim: {
-    js: '/circt/circt-sim.js',
-    wasm: '/circt/circt-sim.wasm'
+    js: `${BASE}circt/circt-sim.js`,
+    wasm: `${BASE}circt/circt-sim.wasm`
   },
   bmc: {
-    js: '/circt/circt-bmc.js',
-    wasm: '/circt/circt-bmc.wasm'
+    js: `${BASE}circt/circt-bmc.js`,
+    wasm: `${BASE}circt/circt-bmc.wasm`
   }
 };
 
@@ -20,12 +21,12 @@ const DEFAULT_SIM_ARGS = ['--resource-guard=false'];
 const DEFAULT_BMC_ARGS = [
   '--resource-guard=false',
   '-b',
-  '3',
+  '20',
   '--module',
   '{top}',
   '--emit-smtlib',
   '-o',
-  '-',
+  '/workspace/out/check.smt2',
   '{input}'
 ];
 

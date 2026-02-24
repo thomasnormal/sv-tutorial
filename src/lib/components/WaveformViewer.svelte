@@ -7,12 +7,14 @@
   let iframeLoaded = $state(false);
   let surferReady = $state(false);
   let signalsReady = $state(false);
+  let waveReadySource = $state('none');
   // null = checking, true = available, false = not installed
   let surferAvailable = $state(null);
 
   let _blobUrl = null;
   let _cmdBlobUrl = null;
   let _retryTimers = [];
+  let _readyFallbackTimer = null;
   // sendVcd() is only called once surferReady=true (engine-ready received),
   // so Surfer's WASM is already initialised. Two quick retries are enough to
   // handle any lingering race between the message queue and the WASM runtime.
@@ -21,6 +23,13 @@
   function clearLoadRetries() {
     for (const t of _retryTimers) clearTimeout(t);
     _retryTimers = [];
+  }
+
+  function clearReadyFallback() {
+    if (_readyFallbackTimer) {
+      clearTimeout(_readyFallbackTimer);
+      _readyFallbackTimer = null;
+    }
   }
 
   function clearWaveBlobs() {
@@ -34,10 +43,12 @@
     }
   }
 
+  const BASE = import.meta.env.BASE_URL;
+
   // Probe surfer.js (a real asset) rather than index.html — Vite's SPA fallback
   // would serve a false-positive 200 for index.html in dev mode.
   $effect(() => {
-    fetch('/surfer/surfer.js', { method: 'HEAD' })
+    fetch(`${BASE}surfer/surfer.js`, { method: 'HEAD' })
       .then(r => { surferAvailable = r.ok; })
       .catch(() => { surferAvailable = false; });
   });
@@ -56,8 +67,10 @@
   $effect(() => {
     if (vcd) return;
     clearLoadRetries();
+    clearReadyFallback();
     clearWaveBlobs();
     signalsReady = false;
+    waveReadySource = 'none';
   });
 
   // App warm palette — must stay in sync with src/app.css custom color tokens.
@@ -96,8 +109,10 @@
 
   function sendVcd(el, text) {
     clearLoadRetries();
+    clearReadyFallback();
     clearWaveBlobs();
     signalsReady = false;
+    waveReadySource = 'none';
 
     const blob = new Blob([text], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -131,12 +146,19 @@
       // Fire after the last load retry + parse time (VCDs are tiny, <20ms to parse).
       }, cmdDelay);
       _retryTimers.push(t);
-      // Dismiss the loading overlay after signals have had time to render.
-      const tReady = setTimeout(() => { signalsReady = true; }, cmdDelay + 400);
-      _retryTimers.push(tReady);
+      // Keep the UI responsive if an older Surfer build does not emit
+      // waves-loaded integration events.
+      _readyFallbackTimer = setTimeout(() => {
+        signalsReady = true;
+        waveReadySource = 'fallback';
+        _readyFallbackTimer = null;
+      }, cmdDelay + 2000);
     } else {
-      // No root scope found — nothing to load, dismiss overlay immediately.
-      signalsReady = true;
+      _readyFallbackTimer = setTimeout(() => {
+        signalsReady = true;
+        waveReadySource = 'fallback';
+        _readyFallbackTimer = null;
+      }, 2000);
     }
   }
 
@@ -161,6 +183,11 @@
     if (data.type === 'listener-ready' || data.type === 'engine-ready') {
       surferReady = true;
     }
+    if (data.type === 'waves-loaded') {
+      clearReadyFallback();
+      signalsReady = true;
+      waveReadySource = 'surfer';
+    }
   }
 
   onMount(() => {
@@ -172,6 +199,7 @@
 
   onDestroy(() => {
     clearLoadRetries();
+    clearReadyFallback();
     clearWaveBlobs();
   });
 </script>
@@ -185,16 +213,22 @@
 
 {:else if surferAvailable}
   {#if vcd}
-    <div class="relative w-full h-full">
+    <div
+      data-testid="waveform-frame-wrapper"
+      data-wave-state={signalsReady ? 'ready' : 'loading'}
+      data-wave-ready-source={waveReadySource}
+      class="relative w-full h-full"
+    >
       <iframe
         bind:this={iframeEl}
-        src="/surfer/index.html?svtutorial=20260223#dev"
+        src="{BASE}surfer/index.html?svtutorial=20260223#dev"
         title="Surfer Waveform Viewer"
         onload={onIframeLoad}
+        data-testid="waveform-iframe"
         class="w-full h-full border-none rounded-[10px]"
       ></iframe>
       {#if !signalsReady}
-        <div class="absolute inset-0 flex items-center justify-center
+        <div data-testid="waveform-loading-overlay" class="absolute inset-0 flex items-center justify-center
                     bg-surface text-muted-foreground text-sm rounded-[10px]
                     pointer-events-none">
           Loading waveform…
@@ -202,7 +236,7 @@
       {/if}
     </div>
   {:else}
-    <div class="h-full flex items-center justify-center text-muted-foreground text-sm text-center p-4">
+    <div data-testid="no-waveform-message" class="h-full flex items-center justify-center text-muted-foreground text-sm text-center p-4">
       <span>{hasRun ? 'no waveform vcd found' : 'Run the simulation to generate waveform data.'}</span>
     </div>
   {/if}

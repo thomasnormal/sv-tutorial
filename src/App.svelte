@@ -1,7 +1,7 @@
 <script>
   import { lessons, parts } from './tutorial-data.js';
   import { createCirctWasmAdapter } from './runtime/circt-adapter.js';
-  import { CIRCT_FORK_REPO } from './runtime/circt-config.js';
+  import { afterUpdate, onMount } from 'svelte';
   import { Button } from '$lib/components/ui/button';
   import { Tabs, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
   import CodeEditor from '$lib/components/CodeEditor.svelte';
@@ -10,7 +10,7 @@
   const circt = createCirctWasmAdapter();
 
   let hSplit = 33;  // lesson pane % of main section width
-  let vSplit = 50;  // editor pane % of lab section height
+  let vSplit = 65;  // editor pane % of lab section height
 
   let lessonIndex = 0;
   let lesson = lessons[0];
@@ -22,6 +22,7 @@
   let logs = lessonBootLogs(lesson.title);
   let activeRuntimeTab = 'logs'; // 'logs' | 'waves'
   let running = false;
+  let runMode = 'sim';   // 'sim' | 'bmc' | 'lec' — which button triggered the current run
   let runPhase = 'idle'; // 'idle' | 'compiling' | 'running'
   let checkingRuntime = false;
   let runtimeOk = null;
@@ -29,6 +30,58 @@
   let hasRunOnce = false;
   let sidebarOpen = true;
   let expandedChapters = new Set([lessons[0].chapterTitle]);
+  let sidebarInnerEl;
+  let copyEnabled = false;
+  let showCopyModal = false;
+  let copyEnableChecked = false;
+
+  afterUpdate(() => {
+    sidebarInnerEl?.querySelector('[data-active="true"]')?.scrollIntoView({ block: 'nearest' });
+  });
+
+  onMount(() => {
+    if (sessionStorage.getItem('copyEnabled') === 'true') copyEnabled = true;
+
+    const params = new URLSearchParams(window.location.search);
+    const n = Number(params.get('lesson'));
+    if (Number.isFinite(n) && n >= 1 && n <= lessons.length) {
+      lessonIndex = n - 1;
+      ensureChapterVisible(n - 1);
+    }
+  });
+
+  function handleCopy(e) {
+    if (!copyEnabled && e.target?.closest('.lesson-body')) {
+      e.preventDefault();
+      copyEnableChecked = false;
+      showCopyModal = true;
+    }
+  }
+
+  function onCopyModalOk() {
+    if (copyEnableChecked) {
+      copyEnabled = true;
+      sessionStorage.setItem('copyEnabled', 'true');
+    }
+    showCopyModal = false;
+  }
+
+  $: {
+    const url = new URL(window.location.href);
+    if (lessonIndex === 0) {
+      url.searchParams.delete('lesson');
+    } else {
+      url.searchParams.set('lesson', String(lessonIndex + 1));
+    }
+    history.replaceState(null, '', url.toString());
+  }
+
+  function onKeydown(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      runSim();
+    }
+  }
 
   $: lesson = lessons[lessonIndex];
   $: starterFiles = cloneFiles(lesson.files.a);
@@ -36,6 +89,8 @@
   $: hasSolution = Object.keys(lesson.files.b).length > 0;
   $: completed = hasSolution && filesEqual(workspace, solutionFiles);
   $: breadcrumbs = `${lesson.partTitle} / ${lesson.chapterTitle} / ${lesson.title}`;
+  $: hasWaveform = typeof lastWaveform?.text === 'string' && lastWaveform.text.length > 0;
+  $: if (!hasWaveform && activeRuntimeTab === 'waves') activeRuntimeTab = 'logs';
 
   $: {
     lesson;
@@ -52,8 +107,8 @@
     return JSON.parse(JSON.stringify(files));
   }
 
-  function lessonBootLogs(title) {
-    return [`Loaded lesson: ${title}`, `[circt] configured fork: ${CIRCT_FORK_REPO}`];
+  function lessonBootLogs(_title) {
+    return [];
   }
 
   function mergeFiles(a, b) {
@@ -124,6 +179,20 @@
     workspace = { ...workspace, [selectedFile]: newValue };
   }
 
+  function isStdoutEntry(entry) {
+    return typeof entry === 'string' && entry.startsWith('[stdout] ');
+  }
+
+  function isStderrEntry(entry) {
+    return typeof entry === 'string' && entry.startsWith('[stderr] ');
+  }
+
+  function stripStreamPrefix(entry) {
+    if (isStdoutEntry(entry)) return entry.slice('[stdout] '.length);
+    if (isStderrEntry(entry)) return entry.slice('[stderr] '.length);
+    return entry;
+  }
+
   function startHResize(e) {
     e.preventDefault();
     const section = e.currentTarget.parentElement;
@@ -158,47 +227,64 @@
     window.addEventListener('pointerup', onUp);
   }
 
-  async function runSim() {
+  async function runSim(mode = 'sim') {
     if (running) return;
     running = true;
+    runMode = mode;
     runPhase = 'compiling';
     lastWaveform = null;
+    logs = []; // clear terminal on each new run
 
-    logs = [...logs, '[circt] compile started'];
+    const useBmc = mode === 'bmc';
+    const useLec = mode === 'lec';
 
     try {
-      const seenStatuses = new Set();
-      const result = await circt.run({
-        files: workspace,
-        top: topNameFromFocus(lesson.focus),
-        waveform: lesson.waveform,
-        focusFile: lesson.focus,
-        onStatus: (status) => {
-          if (status === 'compiling') {
-            runPhase = 'compiling';
-            if (!seenStatuses.has('compiling')) {
-              seenStatuses.add('compiling');
-              logs = [...logs, '[circt] compiling...'];
-            }
-            return;
-          }
-          if (status === 'running') {
-            runPhase = 'running';
-            if (!seenStatuses.has('running')) {
-              seenStatuses.add('running');
-              logs = [...logs, '[circt] running...'];
-            }
-          }
+      const onStatus = (status) => {
+        if (status === 'compiling') {
+          runPhase = 'compiling';
+          return;
         }
-      });
+        if (status === 'running') {
+          runPhase = 'running';
+        }
+      };
 
-      logs = [...logs, ...result.logs];
-      lastWaveform = result.waveform;
-
-
+      if (lesson.runner === 'cocotb') {
+        const result = await circt.runCocotb({
+          files: workspace,
+          top: topNameFromFocus(lesson.focus),
+          onStatus
+        });
+        logs = [...logs, ...result.logs];
+      } else if (mode === 'lec') {
+        const result = await circt.runLec({
+          files: workspace,
+          module1: lesson.module1 || 'Spec',
+          module2: lesson.module2 || 'Impl',
+          onStatus
+        });
+        logs = [...logs, ...result.logs];
+      } else if (useBmc) {
+        const result = await circt.runBmc({
+          files: workspace,
+          top: topNameFromFocus(lesson.focus),
+          onStatus
+        });
+        logs = [...logs, ...result.logs];
+      } else {
+        const result = await circt.run({
+          files: workspace,
+          top: topNameFromFocus(lesson.focus),
+          simulate: lesson.simulate,
+          onStatus
+        });
+        logs = [...logs, ...result.logs];
+        lastWaveform = result.waveform;
+      }
     } finally {
       hasRunOnce = true;
       running = false;
+      runMode = 'sim';
       runPhase = 'idle';
     }
   }
@@ -217,7 +303,8 @@
   }
 </script>
 
-<main class="h-dvh p-4 flex flex-col gap-[0.8rem] font-sans overflow-hidden">
+<svelte:window on:keydown={onKeydown} on:copy={handleCopy} />
+<main class="h-dvh p-3 flex flex-col gap-[0.7rem] font-sans overflow-hidden">
   <header class="bg-surface border border-border rounded-[14px] px-4 py-[0.9rem] shadow-app flex justify-between gap-4 items-center flex-wrap">
     <div class="flex items-center gap-3">
       <button
@@ -248,7 +335,7 @@
     <div class="flex items-center gap-[0.7rem] flex-wrap">
       <Button variant="outline" size="sm" onclick={() => step(-1)} disabled={lessonIndex === 0}>prev</Button>
       <Button variant="outline" size="sm" onclick={() => step(1)} disabled={lessonIndex === lessons.length - 1}>next</Button>
-      <Button variant="outline" size="sm" onclick={toggleSolve} disabled={!hasSolution}>
+      <Button variant="outline" size="sm" onclick={toggleSolve} disabled={!hasSolution} data-testid="solve-button">
         {completed ? 'reset' : 'solve'}
       </Button>
     </div>
@@ -258,9 +345,9 @@
     <!-- Lesson sidebar -->
     <nav
       class="overflow-hidden bg-surface border border-border rounded-[14px] shadow-app flex-shrink-0 min-h-0"
-      style="width: {sidebarOpen ? '220px' : '0'}; margin-right: {sidebarOpen ? '0.8rem' : '0'}; opacity: {sidebarOpen ? '1' : '0'}; border-width: {sidebarOpen ? '1px' : '0'}; transition: width 0.2s ease, margin-right 0.2s ease, opacity 0.15s ease"
+      style="width: {sidebarOpen ? '220px' : '0'}; margin-right: {sidebarOpen ? '0.7rem' : '0'}; opacity: {sidebarOpen ? '1' : '0'}; border-width: {sidebarOpen ? '1px' : '0'}; transition: width 0.2s ease, margin-right 0.2s ease, opacity 0.15s ease"
     >
-      <div class="w-[220px] h-full overflow-y-auto p-2 flex flex-col">
+      <div bind:this={sidebarInnerEl} class="w-[220px] h-full overflow-y-auto p-2 flex flex-col">
         {#each parts as part, pi}
           {#if pi > 0}<div class="border-t border-border mx-1 my-2"></div>{/if}
           <div class="text-[0.6rem] font-bold uppercase tracking-widest text-muted-foreground px-2 py-[0.3rem] mt-1 select-none">
@@ -281,6 +368,7 @@
                 {@const idx = lessons.findIndex(l => l.slug === item.slug)}
                 <button
                   class="w-full text-left text-[0.79rem] pl-[1.1rem] pr-2 py-[0.22rem] rounded-[7px] transition-colors leading-snug {idx === lessonIndex ? 'bg-tab-selected-bg text-teal font-medium' : 'text-foreground hover:bg-surface-2'}"
+                  data-active={idx === lessonIndex}
                   on:click={() => { lessonIndex = idx; ensureChapterVisible(idx); }}
                 >
                   {idx + 1}. {item.title}
@@ -294,7 +382,8 @@
 
     <section class="flex-1 min-h-0 flex max-narrow:flex-col">
     <article style="flex: 0 0 {hSplit}%; min-width: 200px"
-             class="bg-surface border border-border rounded-[14px] shadow-app min-h-0 flex flex-col p-[0.9rem] gap-3 overflow-auto">
+             class="bg-surface border border-border rounded-[14px] shadow-app min-h-0 flex flex-col p-[0.9rem] gap-3 overflow-y-auto [scrollbar-gutter:stable]">
+      <h2 class="m-0 text-[1.15rem] font-bold leading-tight text-foreground">{lesson.title}</h2>
       <div class="lesson-body">
         {@html lesson.html}
       </div>
@@ -302,10 +391,10 @@
 
     <!-- Horizontal drag handle — hidden on narrow -->
     <div role="separator" aria-label="Resize panels" aria-orientation="vertical"
-         class="max-narrow:hidden flex-none w-[0.8rem] flex items-center justify-center cursor-col-resize select-none group"
+         class="max-narrow:hidden flex-none w-[0.7rem] flex items-center justify-center cursor-col-resize select-none group"
          style="touch-action:none"
          on:pointerdown={startHResize}>
-      <div class="w-[2px] h-10 rounded-full bg-border group-hover:bg-teal transition-colors"></div>
+      <div class="w-[2px] h-8 rounded-full bg-border group-hover:bg-teal transition-colors"></div>
     </div>
 
     <section style="flex: 1 1 0%; min-width: 300px" class="min-h-0 flex flex-col">
@@ -313,9 +402,9 @@
       <!-- Editor pane -->
       <div style="flex: 0 0 {vSplit}%; min-height: 150px"
            class="bg-surface border border-border rounded-[14px] shadow-app min-h-0 overflow-hidden grid grid-rows-[auto_1fr]">
-        <div class="px-[0.5rem] pt-[0.4rem] pb-[0.3rem]">
+        <div class="px-[0.5rem] pt-[0.4rem] pb-[0.3rem] overflow-x-auto">
           <Tabs value={selectedFile} onValueChange={(v) => (selectedFile = v)}>
-            <TabsList class="h-auto flex-wrap gap-[0.35rem] bg-transparent p-0">
+            <TabsList class="h-auto flex-nowrap gap-[0.35rem] bg-transparent p-0 w-max">
               {#each Object.keys(workspace) as filename}
                 <TabsTrigger
                   value={filename}
@@ -333,10 +422,10 @@
 
       <!-- Vertical drag handle -->
       <div role="separator" aria-label="Resize panels" aria-orientation="horizontal"
-           class="flex-none h-[0.8rem] flex items-center justify-center cursor-row-resize select-none group"
+           class="flex-none h-[0.7rem] flex items-center justify-center cursor-row-resize select-none group"
            style="touch-action:none"
            on:pointerdown={startVResize}>
-        <div class="h-[2px] w-10 rounded-full bg-border group-hover:bg-teal transition-colors"></div>
+        <div class="h-[2px] w-8 rounded-full bg-border group-hover:bg-teal transition-colors"></div>
       </div>
 
       <!-- Runtime pane -->
@@ -345,50 +434,88 @@
 
         <!-- Header: tab switcher + action buttons -->
         <div class="flex justify-between items-center gap-[0.7rem] px-[0.5rem] py-[0.35rem]">
-          {#if lesson.waveform !== 'off'}
+          {#if hasWaveform}
             <Tabs value={activeRuntimeTab} onValueChange={(v) => (activeRuntimeTab = v)}>
               <TabsList class="h-auto gap-[0.35rem] bg-transparent p-0">
-                <TabsTrigger value="logs"
+                <TabsTrigger value="logs" data-testid="runtime-tab-logs"
                   class="text-[0.8rem] rounded-[10px] border border-border data-[state=active]:border-teal data-[state=active]:text-teal data-[state=active]:bg-tab-selected-bg data-[state=inactive]:bg-surface-2">
                   Logs
                 </TabsTrigger>
-                <TabsTrigger value="waves"
+                <TabsTrigger value="waves" data-testid="runtime-tab-waves"
                   class="text-[0.8rem] rounded-[10px] border border-border data-[state=active]:border-teal data-[state=active]:text-teal data-[state=active]:bg-tab-selected-bg data-[state=inactive]:bg-surface-2">
                   Waves
                 </TabsTrigger>
               </TabsList>
             </Tabs>
           {:else}
-            <h2 class="m-0">Runtime</h2>
+            <div></div>
           {/if}
 
           <div class="flex gap-[0.4rem]">
-            <Button variant="outline" size="sm" onclick={selfCheckRuntime} disabled={checkingRuntime || running}>
-              {checkingRuntime ? 'checking...' : 'self-check'}
-            </Button>
-            <Button variant="outline" size="sm" onclick={runSim} disabled={running}>
-              {#if !running}
-                run
-              {:else if runPhase === 'compiling'}
-                compiling...
-              {:else if runPhase === 'running'}
-                running...
-              {:else}
-                running...
-              {/if}
-            </Button>
+            {#if lesson.runner !== 'bmc' && lesson.runner !== 'lec'}
+              <Button variant="outline" size="sm" onclick={() => runSim('sim')} disabled={running} data-testid="run-button">
+                {#if running && runMode === 'sim'}
+                  {runPhase === 'running' ? (lesson.runner === 'cocotb' ? 'testing...' : 'running...') : 'compiling...'}
+                {:else}
+                  {lesson.runner === 'cocotb' ? 'test' : 'run'}
+                {/if}
+              </Button>
+            {/if}
+            {#if lesson.runner === 'bmc' || lesson.runner === 'both'}
+              <Button variant="outline" size="sm" onclick={() => runSim('bmc')} disabled={running} data-testid="verify-button">
+                {#if running && runMode === 'bmc'}
+                  {runPhase === 'running' ? 'verifying...' : 'compiling...'}
+                {:else}
+                  verify
+                {/if}
+              </Button>
+            {/if}
+            {#if lesson.runner === 'lec'}
+              <Button variant="outline" size="sm" onclick={() => runSim('lec')} disabled={running} data-testid="verify-button">
+                {#if running && runMode === 'lec'}
+                  {runPhase === 'running' ? 'verifying...' : 'compiling...'}
+                {:else}
+                  verify (LEC)
+                {/if}
+              </Button>
+            {/if}
           </div>
         </div>
 
         <!-- Logs tab content -->
-        <pre class="m-0 bg-logs-bg text-logs-text p-[0.6rem] overflow-auto font-mono text-[0.78rem]
-                    {activeRuntimeTab === 'waves' ? 'hidden' : 'flex-1 min-h-0'}">{logs.join('\n')}</pre>
+        <div
+          data-testid="runtime-logs"
+          class="m-0 bg-logs-bg text-logs-text p-[0.6rem] overflow-auto font-mono text-[0.78rem]
+                 {activeRuntimeTab === 'waves' ? 'hidden' : 'flex-1 min-h-0'}"
+        >
+          {#if logs.length === 0}
+            <div class="text-muted-foreground">no output yet</div>
+          {:else}
+            <div class="flex flex-col gap-2">
+              {#each logs as entry}
+                {#if isStdoutEntry(entry)}
+                  <details open>
+                    <summary class="cursor-pointer select-none text-logs-text">stdout</summary>
+                    <pre class="m-0 mt-1 whitespace-pre-wrap break-words">{stripStreamPrefix(entry)}</pre>
+                  </details>
+                {:else if isStderrEntry(entry)}
+                  <details open>
+                    <summary class="cursor-pointer select-none text-logs-text">stderr</summary>
+                    <pre class="m-0 mt-1 whitespace-pre-wrap break-words">{stripStreamPrefix(entry)}</pre>
+                  </details>
+                {:else}
+                  <div class="whitespace-pre-wrap break-words">{entry}</div>
+                {/if}
+              {/each}
+            </div>
+          {/if}
+        </div>
 
         <!-- Waves tab content — always mounted so Surfer doesn't reload on tab switch -->
-        {#if lesson.waveform !== 'off'}
+        {#if hasWaveform}
           <div class="{activeRuntimeTab === 'waves' ? 'flex-1 min-h-0' : 'hidden'}">
             <WaveformViewer
-              vcd={typeof lastWaveform?.text === 'string' ? lastWaveform.text : null}
+              vcd={lastWaveform.text}
               hasRun={hasRunOnce}
             />
           </div>
@@ -398,4 +525,26 @@
     </section>
   </section>
   </div>
+
+  {#if showCopyModal}
+    <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+    <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+         on:click|self={onCopyModalOk}>
+      <div class="bg-surface rounded-[14px] shadow-xl p-8 max-w-[440px] mx-4 flex flex-col gap-4 border border-border">
+        <h2 class="m-0 text-[1.2rem] font-semibold leading-snug">Copy is currently disabled!</h2>
+        <p class="m-0 text-[0.88rem] text-muted-foreground leading-relaxed">
+          We recommend typing the code into the editor to complete each exercise,
+          as this results in better retention and understanding.
+        </p>
+        <label class="flex items-center gap-2 text-[0.87rem] cursor-pointer select-none">
+          <input type="checkbox" bind:checked={copyEnableChecked} class="w-4 h-4 accent-teal" />
+          enable copy for the duration of this session
+        </label>
+        <button
+          on:click={onCopyModalOk}
+          class="self-start px-6 py-[0.45rem] bg-teal text-white rounded-[8px] font-medium text-[0.9rem] hover:opacity-90 transition-opacity"
+        >OK</button>
+      </div>
+    </div>
+  {/if}
 </main>

@@ -436,7 +436,7 @@
 
 <section class="flex-1 min-h-0 flex max-narrow:flex-col">
   <article bind:this={lessonArticleEl} style="flex: 0 0 {hSplit}%; min-width: 200px"
-           class="bg-surface border border-border rounded-[14px] shadow-app min-h-0 flex flex-col p-[0.9rem] gap-3 overflow-y-auto [scrollbar-gutter:stable] max-narrow:border-0 max-narrow:shadow-none max-narrow:rounded-none">
+           class="bg-surface border border-border rounded-[14px] shadow-app min-h-0 flex flex-col p-[0.9rem] gap-3 overflow-y-auto [scrollbar-gutter:stable]">
     <h2 data-testid="lesson-title" class="m-0 text-[1.15rem] font-bold leading-tight text-foreground">{lesson.title}</h2>
     <div class="lesson-body">
       {@html lesson.html}
@@ -532,7 +532,7 @@
 
     <!-- Editor pane -->
     <div style="flex: 0 0 {vSplit}%; min-height: 150px"
-         class="bg-surface border border-border rounded-[14px] shadow-app min-h-0 overflow-hidden max-narrow:border-0 max-narrow:shadow-none max-narrow:rounded-none {splitView && canSplit ? 'flex flex-row' : 'grid grid-rows-[auto_1fr]'}">
+         class="bg-surface border border-border rounded-[14px] shadow-app min-h-0 overflow-hidden {splitView && canSplit ? 'flex flex-row' : 'grid grid-rows-[auto_1fr]'}">
 
       {#if splitView && canSplit}
         <!-- Split view: two editors side by side -->
@@ -627,7 +627,7 @@
 
     <!-- Runtime pane -->
     <div style="flex: 1 1 0%; min-height: 220px"
-         class="bg-surface border border-border rounded-[14px] shadow-app min-h-0 overflow-hidden flex flex-col max-narrow:border-0 max-narrow:shadow-none max-narrow:rounded-none">
+         class="bg-surface border border-border rounded-[14px] shadow-app min-h-0 overflow-hidden flex flex-col">
 
       <!-- Header: tab switcher + action buttons -->
       <div class="flex justify-between items-center gap-[0.7rem] px-[0.5rem] py-[0.35rem]">

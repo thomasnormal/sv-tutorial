@@ -1,7 +1,7 @@
 <script>
   import { onDestroy, onMount } from 'svelte';
 
-  let { vcd = null, hasRun = false } = $props();
+  let { vcd = null, hasRun = false, darkMode = false } = $props();
 
   let iframeEl = $state(null);
   let iframeLoaded = $state(false);
@@ -15,9 +15,7 @@
   let _cmdBlobUrl = null;
   let _retryTimers = [];
   let _readyFallbackTimer = null;
-  // sendVcd() is only called once surferReady=true (engine-ready received),
-  // so Surfer's WASM is already initialised. Two quick retries are enough to
-  // handle any lingering race between the message queue and the WASM runtime.
+  // Two quick retries absorb transient startup races on slower hosts.
   const LOAD_RETRY_MS = [0, 500];
 
   function clearLoadRetries() {
@@ -45,11 +43,15 @@
 
   const BASE = import.meta.env.BASE_URL;
 
-  // Probe surfer.js (a real asset) rather than index.html — Vite's SPA fallback
-  // would serve a false-positive 200 for index.html in dev mode.
+  // Probe surfer.js with GET and MIME check. Vite preview can return SPA fallback
+  // HTML with a false-positive 200 for missing assets.
   $effect(() => {
-    fetch(`${BASE}surfer/surfer.js`, { method: 'HEAD' })
-      .then(r => { surferAvailable = r.ok; })
+    fetch(`${BASE}surfer/surfer.js`, { method: 'GET', cache: 'no-store' })
+      .then((r) => {
+        const contentType = (r.headers.get('content-type') || '').toLowerCase();
+        const isScriptMime = /javascript|ecmascript/.test(contentType);
+        surferAvailable = r.ok && isScriptMime;
+      })
       .catch(() => { surferAvailable = false; });
   });
 
@@ -58,7 +60,7 @@
     const text = vcd;
     const el = iframeEl;
     const loaded = iframeLoaded;
-    if (!text || !el || !loaded || !surferReady) return;
+    if (!text || !el || !loaded) return;
     sendVcd(el, text);
   });
 
@@ -94,7 +96,7 @@
     cw.postMessage({ command: 'InjectMessage', message: JSON.stringify(msg) }, '*');
   }
 
-  function applyChrome(cw) {
+  function applyChrome(cw, dark = false) {
     // All messages are idempotent — safe to call on every retry.
     surferMsg(cw, { SetMenuVisible: false });
     surferMsg(cw, { SetToolbarVisible: false });
@@ -102,9 +104,12 @@
     surferMsg(cw, { SetSidePanelVisible: false });
     // Increase UI zoom so signal rows are readable at typical pane heights.
     surferMsg(cw, { SetUIZoomFactor: 1.5 });
-    // Apply warm theme to match the app's color palette.
-    surferMsg(cw, { SelectTheme: 'light+' });
-    surferMsg(cw, { SetConfigFromString: SURFER_THEME });
+    if (dark) {
+      surferMsg(cw, { SelectTheme: 'dark+' });
+    } else {
+      surferMsg(cw, { SelectTheme: 'light+' });
+      surferMsg(cw, { SetConfigFromString: SURFER_THEME });
+    }
   }
 
   function sendVcd(el, text) {
@@ -120,11 +125,12 @@
 
     // Progressive retries absorb Surfer's WASM init time on slower hosts.
     // Chrome-hiding messages are sent alongside LoadUrl on each attempt.
+    const dark = darkMode;
     for (const ms of LOAD_RETRY_MS) {
       const t = setTimeout(() => {
         const cw = el?.contentWindow;
         if (!cw) return;
-        applyChrome(cw);
+        applyChrome(cw, dark);
         cw.postMessage({ command: 'LoadUrl', url }, '*');
       }, ms);
       _retryTimers.push(t);
@@ -170,10 +176,18 @@
     for (const ms of [0, 600, 1800]) {
       setTimeout(() => {
         const cw = iframeEl?.contentWindow;
-        if (cw) applyChrome(cw);
+        if (cw) applyChrome(cw, darkMode);
       }, ms);
     }
   }
+
+  // Re-apply theme when dark mode is toggled while the iframe is alive.
+  $effect(() => {
+    const dark = darkMode;
+    const cw = iframeEl?.contentWindow;
+    if (!cw || !surferReady) return;
+    applyChrome(cw, dark);
+  });
 
   function onParentMessage(event) {
     const frameWindow = iframeEl?.contentWindow;

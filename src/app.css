@@ -174,8 +174,6 @@
     font-weight: 600;
     margin: 1.1rem 0 0.35rem;
     color: rgb(var(--foreground));
-    border-bottom: 1px solid rgb(var(--border));
-    padding-bottom: 0.25rem;
   }
 
   .lesson-body h3 {
@@ -183,5 +181,11 @@
     font-weight: 600;
     margin: 0.9rem 0 0.25rem;
     color: rgb(var(--foreground));
+  }
+
+  .lesson-body hr {
+    border: none;
+    border-top: 1px solid rgb(var(--border));
+    margin: 1rem 0;
   }
 }

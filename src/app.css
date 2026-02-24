@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "tailwindcss-animate";
 
 @theme {
   /* App color palette — direct color tokens */
@@ -60,6 +61,16 @@
   --color-border:               rgb(var(--border));
   --color-input:                rgb(var(--input));
   --color-ring:                 rgb(var(--ring));
+
+  /* Sidebar tokens — map to our app palette so the Sidebar component is themed */
+  --color-sidebar:                      var(--color-surface);
+  --color-sidebar-foreground:           var(--color-ink);
+  --color-sidebar-border:               rgb(var(--border));
+  --color-sidebar-accent:               var(--color-surface-2);
+  --color-sidebar-accent-foreground:    var(--color-ink);
+  --color-sidebar-primary:              var(--color-teal);
+  --color-sidebar-primary-foreground:   var(--color-surface);
+  --color-sidebar-ring:                 var(--color-teal);
 }
 
 @layer base {

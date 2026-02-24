@@ -4,7 +4,7 @@
 // slug to the structure below.
 
 const htmls     = import.meta.glob('./*/*/description.html',                              { query: '?raw', import: 'default', eager: true });
-const starters  = import.meta.glob(['./*/*/*.{sv,py}', '!./*/*/*.sol.sv'],               { query: '?raw', import: 'default', eager: true });
+const starters  = import.meta.glob(['./*/*/*.{sv,py}', '!./*/*/*.sol.sv', '!./*/*/tb.sv'], { query: '?raw', import: 'default', eager: true });
 const solutions = import.meta.glob('./*/*/*.sol.sv',                                      { query: '?raw', import: 'default', eager: true });
 const metas     = import.meta.glob('./*/*/meta.json',                      { eager: true,   import: 'default' });
 const images    = import.meta.glob('./*/*/*.{png,jpg,jpeg,gif,svg,webp}',  { query: '?url', import: 'default', eager: true });
@@ -101,6 +101,7 @@ export const parts = [
     title: 'cocotb',
     chapters: [
       { title: 'cocotb Basics', lessons: [L('cocotb/first-test'), L('cocotb/clock-and-timing')] },
+      { title: 'Triggers & Clocks', lessons: [L('cocotb/edge-triggers'), L('cocotb/clockcycles-patterns')] },
     ],
   },
 ];

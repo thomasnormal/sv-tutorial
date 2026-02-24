@@ -1,0 +1,19 @@
+<p>
+  This lesson focuses on cycle-accurate test writing. Instead of waiting fixed nanoseconds,
+  the test drives a pulse pattern and checks state on every clock edge.
+</p>
+<p>
+  Open <code>pulse_counter.sv</code> and implement a 4-bit counter that increments only when
+  <code>pulse</code> is high. Reset is synchronous.
+</p>
+<p>
+  The test (<code>test_pulse_counter.py</code>) uses:
+</p>
+<ul>
+  <li><code>Clock</code> to run a free-running clock in the background</li>
+  <li><code>ClockCycles</code> for compact reset sequencing</li>
+  <li><code>RisingEdge</code> in a loop to check expected state each cycle</li>
+</ul>
+<p>
+  This is the same style used in larger cocotb environments: drive, await edge, assert.
+</p>

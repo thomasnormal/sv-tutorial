@@ -2,7 +2,7 @@
 # Download and install the Surfer waveform viewer web build.
 #
 # Usage:
-#   scripts/setup-surfer.sh           # installs to public/surfer (default)
+#   scripts/setup-surfer.sh           # installs to static/surfer (default)
 #   scripts/setup-surfer.sh <dir>     # installs to a custom directory
 
 set -euo pipefail
@@ -10,7 +10,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/scripts/toolchain.lock.sh"
 
-DEST="${1:-public/surfer}"
+DEST="${1:-static/surfer}"
 ARTIFACT_URL="${SURFER_ARTIFACT_URL:-$SURFER_ARTIFACT_URL_LOCKED}"
 ARTIFACT_SHA256="${SURFER_ARTIFACT_SHA256:-$SURFER_ARTIFACT_SHA256_LOCKED}"
 

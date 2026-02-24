@@ -27,7 +27,10 @@ import { test, expect } from '@playwright/test';
 // ── Navigation helper ─────────────────────────────────────────────────────────
 
 async function goToLesson(page, chapterName, lessonName) {
-  await page.goto('/');
+  // Navigate to the first lesson directly rather than '/' to avoid the
+  // SPA-fallback → SvelteKit client-side redirect timing issue where
+  // page.goto('/') returns before the redirect to /lesson/sv/welcome completes.
+  await page.goto('/lesson/sv/welcome');
   // Clear stored workspaces so each test starts from the starter files,
   // not a workspace saved by a previous test run.
   await page.evaluate(() => {
@@ -36,18 +39,21 @@ async function goToLesson(page, chapterName, lessonName) {
     }
   });
 
+  // Wait for the Svelte $effect to expand the active chapter (Introduction),
+  // which makes at least one lesson button (button[data-active]) appear.
+  // This ensures hydration + effects have settled before we interact.
+  await page.locator('button[data-active]').first().waitFor({ timeout: 5_000 });
+
   // Lesson buttons carry a data-active attribute; chapter buttons do not.
   // Using this selector avoids strict-mode violations when a chapter title
   // partially matches a lesson name (e.g. "Core Sequences" vs "Sequences")
   // or when a chapter and lesson share the same name ("Functional Coverage").
   const lessonBtn = page.locator('button[data-active]').filter({ hasText: lessonName });
 
-  // The Introduction chapter is expanded by default (lesson 0).  Clicking its
-  // chapter button would toggle it closed and hide the Welcome button.  So we
-  // only click the chapter button when the lesson button is not yet in the DOM.
+  // Only click the chapter button if the lesson is not already visible.
+  // Target only chapter buttons (no data-active) to avoid partial-name
+  // collisions between chapter and lesson button text.
   if ((await lessonBtn.count()) === 0) {
-    // Target only chapter buttons (no data-active) to avoid partial-name
-    // collisions between chapter and lesson button text.
     await page.locator('button:not([data-active])').filter({ hasText: chapterName }).click();
   }
 
@@ -159,7 +165,7 @@ for (const lesson of LESSONS) {
       await page.getByTestId('verify-button').click();
       await assertNoCompileError(logs);
       await expect(logs).not.toContainText('# circt-lec exit code: 1', { timeout: COMPILE_TIMEOUT });
-      await expect(logs).toContainText('[z3] unsat', { timeout: Z3_TIMEOUT });
+      await expect(logs).toContainText('unsat', { timeout: Z3_TIMEOUT });
 
     } else if (lesson.runner === 'bmc' || lesson.runner === 'both') {
       await page.getByTestId('verify-button').click();

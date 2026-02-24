@@ -11,11 +11,11 @@ const SERVER_READY_TIMEOUT_MS = 45_000;
 const COMPILE_TIMEOUT_MS = 180_000;
 
 const REQUIRED_FILES = [
-  'public/circt/circt-verilog.js',
-  'public/circt/circt-verilog.wasm',
-  'public/circt/circt-sim.js',
-  'public/circt/circt-sim.wasm',
-  'public/circt/uvm-core/uvm-manifest.json'
+  'static/circt/circt-verilog.js',
+  'static/circt/circt-verilog.wasm',
+  'static/circt/circt-sim.js',
+  'static/circt/circt-sim.wasm',
+  'static/circt/uvm-core/uvm-manifest.json'
 ];
 
 const UVM_FILES = {
@@ -50,6 +50,35 @@ const UVM_FILES = {
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function parseArgs(argv) {
+  const out = {
+    expect: 'fail',
+    simulate: false
+  };
+
+  for (const arg of argv) {
+    if (arg === '--expect-pass') {
+      out.expect = 'pass';
+      continue;
+    }
+    if (arg === '--expect-fail') {
+      out.expect = 'fail';
+      continue;
+    }
+    if (arg === '--simulate') {
+      out.simulate = true;
+      continue;
+    }
+    if (arg === '--no-simulate') {
+      out.simulate = false;
+      continue;
+    }
+    throw new Error(`unknown argument: ${arg}`);
+  }
+
+  return out;
 }
 
 async function requireArtifacts() {
@@ -124,7 +153,7 @@ async function stopProcess(child) {
   } catch {}
 }
 
-async function runBrowserWorkerCompile(baseUrl) {
+async function runBrowserWorkerCompile(baseUrl, simulate) {
   const browser = await chromium.launch({
     headless: true,
     channel: 'chromium',
@@ -138,27 +167,51 @@ async function runBrowserWorkerCompile(baseUrl) {
 
   try {
     const page = await browser.newPage({ baseURL: baseUrl });
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle');
 
-    const evaluatePromise = page.evaluate(async ({ files }) => {
-      const { createCirctWasmAdapter } = await import('/src/runtime/circt-adapter.js');
-      const circt = createCirctWasmAdapter();
+    const runEvaluate = async () =>
+      page.evaluate(async ({ files, simulate }) => {
+        const { createCirctWasmAdapter } = await import('/src/runtime/circt-adapter.js');
+        const circt = createCirctWasmAdapter();
 
-      const streamed = [];
-      const result = await circt.run({
-        files,
-        top: 'tb_top',
-        simulate: false,
-        onStatus: (status) => streamed.push(`#status ${status}`),
-        onLog: (line) => streamed.push(String(line ?? ''))
-      });
+        const streamed = [];
+        const result = await circt.run({
+          files,
+          top: 'tb_top',
+          simulate,
+          onStatus: (status) => streamed.push(`#status ${status}`),
+          onLog: (line) => streamed.push(String(line ?? ''))
+        });
 
-      return {
-        ok: !!result.ok,
-        streamed,
-        resultLogs: Array.isArray(result.logs) ? result.logs : []
-      };
-    }, { files: UVM_FILES });
+        return {
+          ok: !!result.ok,
+          streamed,
+          resultLogs: Array.isArray(result.logs) ? result.logs : []
+        };
+      }, { files: UVM_FILES, simulate });
+
+    const evaluatePromise = (async () => {
+      let lastError;
+      for (let attempt = 1; attempt <= 6; attempt += 1) {
+        try {
+          return await runEvaluate();
+        } catch (error) {
+          const text = String(error && error.stack ? error.stack : error);
+          const isContextReset =
+            text.includes('Execution context was destroyed') ||
+            text.includes('Cannot find context with specified id');
+          if (!isContextReset || attempt === 6) {
+            throw error;
+          }
+          lastError = error;
+          await page.goto('/', { waitUntil: 'domcontentloaded' }).catch(() => {});
+          await page.waitForLoadState('networkidle').catch(() => {});
+          await sleep(250);
+        }
+      }
+      throw lastError;
+    })();
 
     let timer = null;
     const timeoutPromise = new Promise((_, reject) => {
@@ -194,8 +247,10 @@ function analyzeLogs(payload) {
 }
 
 (async () => {
+  let options;
   let server;
   try {
+    options = parseArgs(process.argv.slice(2));
     await requireArtifacts();
 
     const baseUrl = BASE_URL_OVERRIDE || `http://${HOST}:${DEFAULT_PORT}`;
@@ -208,7 +263,8 @@ function analyzeLogs(payload) {
     }
 
     console.log('# Running minimal browser-worker UVM compile via createCirctWasmAdapter');
-    const payload = await runBrowserWorkerCompile(baseUrl);
+    console.log(`# mode: expect-${options.expect}, simulate=${options.simulate}`);
+    const payload = await runBrowserWorkerCompile(baseUrl, options.simulate);
     const analysis = analyzeLogs(payload);
 
     console.log('--- Repro Summary ---');
@@ -220,6 +276,22 @@ function analyzeLogs(payload) {
     console.log('--- Repro Logs (first 400 lines) ---');
     const firstLines = analysis.merged.split('\n').slice(0, 400).join('\n');
     console.log(firstLines);
+
+    if (options.expect === 'pass') {
+      const ok =
+        analysis.ok &&
+        !analysis.hasMalformed &&
+        !analysis.hasAbort &&
+        (!options.simulate || analysis.hasSim);
+      if (!ok) {
+        console.error('ERROR: expected browser-worker UVM compile to pass');
+        process.exitCode = 1;
+        return;
+      }
+
+      console.log('PASS: browser-worker UVM compile completed without malformed-attribute abort');
+      return;
+    }
 
     const reproduced = !analysis.ok && analysis.hasMalformed && analysis.hasAbort && !analysis.hasSim;
     if (!reproduced) {

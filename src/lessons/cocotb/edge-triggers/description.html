@@ -1,0 +1,20 @@
+<p>
+  Real cocotb tests are usually synchronized to clock edges, not fixed delays.
+  This lesson uses the same quickstart style pattern:
+  <code>cocotb.start_soon(Clock(...).start())</code> plus
+  <code>await RisingEdge(...)</code>.
+</p>
+<p>
+  Open <code>reg_en.sv</code> and implement a 4-bit register with synchronous reset and enable:
+  on each rising edge, reset should clear <code>q</code>, otherwise <code>q</code> should load
+  <code>d</code> only when <code>en</code> is high.
+</p>
+<p>
+  The Python test (<code>test_reg_en.py</code>) checks:
+</p>
+<ul>
+  <li>reset behavior on a rising edge</li>
+  <li>hold behavior when <code>en=0</code></li>
+  <li>load behavior when <code>en=1</code></li>
+  <li>edge-based waiting with <code>RisingEdge</code>, <code>FallingEdge</code>, and <code>ClockCycles</code></li>
+</ul>

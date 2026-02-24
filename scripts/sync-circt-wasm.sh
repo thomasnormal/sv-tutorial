@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SRC_DIR="${1:-vendor/circt/build-wasm/bin}"
-DST_DIR="${2:-public/circt}"
+DST_DIR="${2:-static/circt}"
 UVM_SRC_DIR="${3:-vendor/circt/lib/Runtime/uvm-core/src}"
 UVM_DST_DIR="$DST_DIR/uvm-core/src"
 UVM_MANIFEST_PATH="$DST_DIR/uvm-core/uvm-manifest.json"

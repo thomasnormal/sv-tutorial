@@ -17,6 +17,12 @@
   let _readyFallbackTimer = null;
   // Two quick retries absorb transient startup races on slower hosts.
   const LOAD_RETRY_MS = [0, 500];
+  // Extra chrome-hiding passes after iframe load — WASM may still be initialising.
+  const CHROME_HIDE_RETRY_MS = [0, 600, 1800];
+  // Extra wait after last load retry before sending the scope command file.
+  const CMD_EXTRA_DELAY_MS = 500;
+  // Fallback delay to mark signals ready if Surfer never emits waves-loaded.
+  const READY_FALLBACK_MS = 2000;
 
   function clearLoadRetries() {
     for (const t of _retryTimers) clearTimeout(t);
@@ -41,7 +47,9 @@
     }
   }
 
-  const BASE = import.meta.env.BASE_URL;
+  import { base } from '$app/paths';
+  // Ensure surfer paths are always absolute regardless of base ('' vs '/foo').
+  const BASE = base ? `${base}/` : '/';
 
   // Probe surfer.js with GET and MIME check. Vite preview can return SPA fallback
   // HTML with a false-positive 200 for missing assets.
@@ -144,7 +152,7 @@
       const cmd = `scope_add_recursive ${rootScope}\nzoom_fit\n`;
       _cmdBlobUrl = URL.createObjectURL(new Blob([cmd], { type: 'text/plain' }));
       const cmdUrl = _cmdBlobUrl;
-      const cmdDelay = LOAD_RETRY_MS[LOAD_RETRY_MS.length - 1] + 500;
+      const cmdDelay = LOAD_RETRY_MS[LOAD_RETRY_MS.length - 1] + CMD_EXTRA_DELAY_MS;
       const t = setTimeout(() => {
         const cw = el?.contentWindow;
         if (!cw) return;
@@ -158,13 +166,13 @@
         signalsReady = true;
         waveReadySource = 'fallback';
         _readyFallbackTimer = null;
-      }, cmdDelay + 2000);
+      }, cmdDelay + READY_FALLBACK_MS);
     } else {
       _readyFallbackTimer = setTimeout(() => {
         signalsReady = true;
         waveReadySource = 'fallback';
         _readyFallbackTimer = null;
-      }, 2000);
+      }, READY_FALLBACK_MS);
     }
   }
 
@@ -173,7 +181,7 @@
     surferReady = false;
     // Hide chrome as soon as possible after load, even before VCD arrives.
     // Retried because WASM may not be ready yet.
-    for (const ms of [0, 600, 1800]) {
+    for (const ms of CHROME_HIDE_RETRY_MS) {
       setTimeout(() => {
         const cw = iframeEl?.contentWindow;
         if (cw) applyChrome(cw, darkMode);

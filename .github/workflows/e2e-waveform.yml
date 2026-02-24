@@ -37,13 +37,13 @@ jobs:
       - name: Ensure CIRCT wasm artifacts
         id: circt_artifacts
         run: |
-          mkdir -p public/circt
+          mkdir -p static/circt
 
           have_all_artifacts() {
-            [ -f public/circt/circt-verilog.js ] && \
-            [ -f public/circt/circt-verilog.wasm ] && \
-            [ -f public/circt/circt-sim.js ] && \
-            [ -f public/circt/circt-sim.wasm ]
+            [ -f static/circt/circt-verilog.js ] && \
+            [ -f static/circt/circt-verilog.wasm ] && \
+            [ -f static/circt/circt-sim.js ] && \
+            [ -f static/circt/circt-sim.wasm ]
           }
 
           if have_all_artifacts; then
@@ -54,7 +54,7 @@ jobs:
           echo "Local CIRCT wasm artifacts missing; trying release 'circt-wasm'..."
           if gh release download circt-wasm \
                --repo "$GITHUB_REPOSITORY" \
-               -D public/circt \
+               -D static/circt \
                --clobber 2>/dev/null; then
             if have_all_artifacts; then
               echo "ready=true" >> "$GITHUB_OUTPUT"
@@ -63,7 +63,7 @@ jobs:
           fi
 
           echo "ready=false" >> "$GITHUB_OUTPUT"
-          echo "::notice::Skipping waveform E2E: CIRCT wasm artifacts are missing (expected under public/circt or release circt-wasm)."
+          echo "::notice::Skipping waveform E2E: CIRCT wasm artifacts are missing (expected under static/circt or release circt-wasm)."
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

@@ -87,3 +87,45 @@ test('surfer renders waveform when WebGL2 is available', async ({ page }) => {
   );
   await expect(crashBannerInIframe.first()).not.toBeVisible();
 });
+
+test('concurrent-sim SVA assertion signal appears in VCD', async ({ page }) => {
+  // Intercept URL.createObjectURL to capture the text of any VCD blob sent to Surfer.
+  await page.addInitScript(() => {
+    window._vcdTexts = [];
+    const origCreate = URL.createObjectURL.bind(URL);
+    URL.createObjectURL = function (blob) {
+      if (blob.type === 'text/plain') {
+        blob.text().then((t) => { if (t.includes('$var')) window._vcdTexts.push(t); });
+      }
+      return origCreate(blob);
+    };
+  });
+
+  await page.goto('/lesson/sva/concurrent-sim');
+  await page.evaluate(() => {
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith('svt:')) localStorage.removeItem(key);
+    }
+  });
+
+  const logs = page.getByTestId('runtime-logs');
+  await page.getByTestId('solve-button').click();
+  await page.getByTestId('run-button').click();
+
+  // The testbench has a missing-grant scenario that fires the assertion.
+  // circt-sim exits with code 1 on assertion failure — that is expected and correct.
+  await expect(logs).toContainText('SVA assertion failed', { timeout: 90_000 });
+  await expect(logs).not.toContainText('# circt-verilog exit code: 1');
+
+  // The Waves tab should appear (VCD was produced).
+  await expect(page.getByTestId('runtime-tab-waves')).toBeVisible();
+
+  // Verify the VCD blob sent to Surfer contains at least one SVA assertion signal.
+  // Use poll() to handle the async blob.text() microtask.
+  await expect.poll(
+    () => page.evaluate(() =>
+      window._vcdTexts.some((t) => t.includes('__sva__'))
+    ),
+    { timeout: 10_000, message: 'VCD should contain at least one __sva__ signal' }
+  ).toBe(true);
+});

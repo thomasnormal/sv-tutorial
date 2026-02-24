@@ -1,5 +1,7 @@
 import { CIRCT_FORK_REPO, getCirctRuntimeConfig, Z3_SCRIPT_URL } from './circt-config.js';
 import COCOTB_SHIM from './cocotb-shim.py?raw';
+import { COCOTB_WORKER_SOURCE } from './cocotb-worker-source.js';
+import { WORKER_RUNTIME_HELPERS_SOURCE } from './worker-runtime-helpers-source.js';
 
 function filename(path) {
   const idx = path.lastIndexOf('/');
@@ -175,6 +177,17 @@ function forceInterpretSimMode(args) {
   return out;
 }
 
+function isWasmOomText(text) {
+  return /Aborted\(OOM\)|out of memory|Cannot enlarge memory|cannot grow memory/i.test(
+    String(text || '')
+  );
+}
+
+function isRetryableSimAbortText(text) {
+  const value = String(text || '');
+  return /Aborted\(/.test(value) || isWasmOomText(value);
+}
+
 const UVM_FS_ROOT = '/circt/uvm-core';
 const UVM_INCLUDE_ROOT = `${UVM_FS_ROOT}/src`;
 
@@ -296,20 +309,7 @@ function readWorkspaceFiles(FS, paths) {
   return out;
 }
 
-// Minimal POSIX path shim — used as the return value of require('path') for
-// Emscripten builds that call require('path') unconditionally at module level.
-var PATH_SHIM = {
-  sep: '/',
-  isAbsolute: function(p) { return String(p).charAt(0) === '/'; },
-  normalize: function(p) { return String(p).replace(/\/+/g, '/').replace(/(.)\/$/, '$1') || '/'; },
-  dirname: function(p) { var s = String(p); var i = s.lastIndexOf('/'); return i <= 0 ? '/' : s.slice(0, i); },
-  basename: function(p, ext) { var b = String(p).split('/').pop() || ''; return ext && b.slice(-ext.length) === ext ? b.slice(0, -ext.length) : b; },
-  extname: function(p) { var b = String(p).split('/').pop() || ''; var i = b.lastIndexOf('.'); return i <= 0 ? '' : b.slice(i); },
-  join: function() { return Array.prototype.slice.call(arguments).join('/').replace(/\/+/g, '/'); },
-  join2: function(a, b) { return (String(a) + '/' + String(b)).replace(/\/+/g, '/'); },
-  resolve: function() { return Array.prototype.slice.call(arguments).join('/').replace(/\/+/g, '/'); },
-};
-PATH_SHIM.posix = PATH_SHIM;
+${WORKER_RUNTIME_HELPERS_SOURCE}
 
 // In-memory filesystem for Emscripten NODERAWFS builds (like circt-sim.js).
 // NODERAWFS replaces the entire Emscripten FS layer with direct Node.js fs calls.
@@ -693,98 +693,25 @@ self.onmessage = async (event) => {
       }
     };
 
-    // Fetch the tool JS source to detect whether it was compiled with NODERAWFS=1.
-    // NODERAWFS builds call require('path') unconditionally and fail in browser workers
-    // unless we emulate a Node.js environment with an in-memory filesystem.
-    let toolScript = null;
-    try {
-      const r = await fetch(req.jsUrl);
-      if (r.ok) toolScript = await r.text();
-    } catch (_) {}
-
-    const isNoderawfs = !!toolScript && (
-      toolScript.indexOf('NODERAWFS is currently only supported') >= 0 ||
-      toolScript.indexOf('var nodePath=require(') >= 0
-    );
-
     let inMemFS = null;
-    if (isNoderawfs && toolScript) {
-      // Emulate Node.js so ENVIRONMENT_IS_NODE=true, passing the NODERAWFS guard.
-      // Provide an in-memory fs via require('fs') so all file I/O works in memory.
-      console.log('[circt-worker] NODERAWFS detected, setting up Node.js emulation');
-      inMemFS = makeInMemFS(
-        (text) => appendStreamText('stdout', text),
-        (text) => appendStreamText('stderr', text)
-      );
-      if (typeof self.__dirname === 'undefined') self.__dirname = '/';
-      if (typeof self.__filename === 'undefined') self.__filename = '/tool.js';
-      const proc = (typeof self.process === 'undefined' || self.process === null) ? {} : self.process;
-      if (!proc.versions || typeof proc.versions !== 'object') proc.versions = {};
-      if (!proc.versions.node) proc.versions.node = '18.0.0';
-      if (typeof proc.version !== 'string') proc.version = 'v18.0.0';
-      if (typeof proc.platform !== 'string') proc.platform = 'linux';
-      if (!Array.isArray(proc.argv)) proc.argv = ['node', '/tool'];
-      if (!proc.type) proc.type = 'worker';
-      if (typeof proc.exitCode !== 'number') proc.exitCode = 0;
-      // Emscripten calls process.exit(code) in Node.js mode on completion.
-      // Throw an ExitStatus-shaped error so isExitException() catches it.
-      if (typeof proc.exit !== 'function') {
-        proc.exit = function(code) {
-          throw { name: 'ExitStatus', message: 'exit(' + (code | 0) + ')', status: (code | 0) };
-        };
-      }
-      if (typeof proc.on !== 'function') proc.on = function() { return proc; };
-      if (!proc.stdout || typeof proc.stdout !== 'object') proc.stdout = {};
-      if (!proc.stderr || typeof proc.stderr !== 'object') proc.stderr = {};
-      proc.stdout.write = function(s) { appendStreamText('stdout', s); };
-      proc.stdout.isTTY = false;
-      proc.stderr.write = function(s) { appendStreamText('stderr', s); };
-      proc.stderr.isTTY = false;
-      proc.stdin = proc.stdin || null;
-      if (!proc.env || typeof proc.env !== 'object') proc.env = {};
-      if (typeof proc.cwd !== 'function') proc.cwd = function() { return '/workspace'; };
-      proc.binding = function(name) {
-        if (name === 'constants') {
-          return {
-            fs: {
-              O_APPEND: 1024,
-              O_CREAT: 64,
-              O_EXCL: 128,
-              O_NOCTTY: 256,
-              O_RDONLY: 0,
-              O_RDWR: 2,
-              O_SYNC: 4096,
-              O_TRUNC: 512,
-              O_WRONLY: 1,
-              O_NOFOLLOW: 131072
-            }
-          };
-        }
-        throw new Error('process.binding(' + String(name) + ') is not available');
-      };
-      self.process = proc;
-      if (typeof self.global === 'undefined') self.global = self;
-      self.require = function(mod) {
-        if (mod === 'path') return PATH_SHIM;
-        if (mod === 'fs') return inMemFS.nodeApi;
-        if (mod === 'crypto') return { randomBytes: function(n) { return crypto.getRandomValues(new Uint8Array(n)); } };
-        if (mod === 'child_process') return { spawnSync: function() { return { status: 1, stdout: '', stderr: '' }; } };
-        throw new Error('require(\'' + mod + '\') is not available in browser worker');
-      };
-      // eval in global scope (equivalent to importScripts for non-module scripts).
-      console.log('[circt-worker] starting eval of tool script');
-      (0, eval)(toolScript);
-      console.log('[circt-worker] eval complete');
-    } else {
-      // Standard browser-worker mode. Add a path shim in case of unconditional require('path').
-      if (typeof self.require === 'undefined') {
-        self.require = function(mod) {
-          if (mod === 'path') return PATH_SHIM;
-          throw new Error('require(\'' + mod + '\') is not available in browser worker');
-        };
-      }
-      importScripts(req.jsUrl);
-    }
+    await loadEmscriptenTool({
+      jsUrl: req.jsUrl,
+      pathShim: WORKER_PATH_SHIM,
+      makeFs: function() {
+        // NODERAWFS builds call require('path') / require('fs') at module scope.
+        // Provide a Node-like fs backed by memory so tool I/O stays in-worker.
+        console.log('[circt-worker] NODERAWFS detected, setting up Node.js emulation');
+        inMemFS = makeInMemFS(
+          (text) => appendStreamText('stdout', text),
+          (text) => appendStreamText('stderr', text)
+        );
+        return inMemFS;
+      },
+      onStdout: function(s) { appendStreamText('stdout', s); },
+      onStderr: function(s) { appendStreamText('stderr', s); },
+      beforeEval: function() { console.log('[circt-worker] starting eval of tool script'); },
+      afterEval: function() { console.log('[circt-worker] eval complete'); }
+    });
 
     console.log('[circt-worker] waiting for runtime...');
     const module = await waitForRuntime();
@@ -1008,13 +935,16 @@ async function getFreshZ3Module() {
 async function evalSmtlib(smtlibText, { produceModels = false, em: emOverride = null } = {}) {
   const em = emOverride ?? await getZ3Module();
   const cfg = em.ccall('Z3_mk_config', 'number', [], []);
-  if (produceModels) {
-    em.ccall('Z3_set_param_value', null, ['number', 'string', 'string'], [cfg, 'model', 'true']);
-  }
   const ctx = em.ccall('Z3_mk_context', 'number', ['number'], [cfg]);
   em.ccall('Z3_del_config', null, ['number'], [cfg]);
+  // Z3_eval_smtlib2_string creates its own internal solver and ignores C-API
+  // config params.  The only reliable way to enable model production is to
+  // inject the SMT-LIB option into the text itself.
+  const text = produceModels
+    ? `(set-option :produce-models true)\n${smtlibText}`
+    : smtlibText;
   try {
-    return em.ccall('Z3_eval_smtlib2_string', 'string', ['number', 'string'], [ctx, smtlibText]);
+    return em.ccall('Z3_eval_smtlib2_string', 'string', ['number', 'string'], [ctx, text]);
   } finally {
     em.ccall('Z3_del_context', null, ['number'], [ctx]);
   }
@@ -1049,804 +979,6 @@ function getUvmManifestUrl() {
 // require('path') at module level.  We detect this and fall back to eval()
 // with a fake Node.js environment backed by an in-memory filesystem, exactly
 // like WORKER_SOURCE does for the regular circt-sim.
-
-const COCOTB_WORKER_SOURCE = String.raw`
-var VPI = {
-  cbValueChange: 1,
-  cbStartOfSimulation: 11,
-  cbEndOfSimulation: 12,
-  cbAfterDelay: 9,
-  vpiFinish: 66,
-  vpiIntVal: 1,
-  vpiSimTime: 1,
-};
-
-function wsWriteString(M, str) {
-  var bytes = new TextEncoder().encode(str + '\0');
-  var ptr = M._malloc(bytes.length);
-  M.HEAPU8.set(bytes, ptr);
-  return ptr;
-}
-
-function wsMakeVpiTime(M, fsBI) {
-  var ps = BigInt(fsBI) / 1000n;
-  var hi = Number(ps >> 32n) >>> 0;
-  var lo = Number(ps & 0xFFFFFFFFn) >>> 0;
-  var ptr = M._malloc(20);
-  M.setValue(ptr +  0, VPI.vpiSimTime, 'i32');
-  M.setValue(ptr +  4, hi,             'i32');
-  M.setValue(ptr +  8, lo,             'i32');
-  M.setValue(ptr + 12, 0.0,            'double');
-  return ptr;
-}
-
-function wsMakeCbData(M, reason, cbRtn, obj, time, userData) {
-  var ptr = M._malloc(28);
-  M.setValue(ptr +  0, reason   || 0, 'i32');
-  M.setValue(ptr +  4, cbRtn    || 0, 'i32');
-  M.setValue(ptr +  8, obj      || 0, 'i32');
-  M.setValue(ptr + 12, time     || 0, 'i32');
-  M.setValue(ptr + 16, 0,             'i32');
-  M.setValue(ptr + 20, 0,             'i32');
-  M.setValue(ptr + 24, userData || 0, 'i32');
-  return ptr;
-}
-
-function wsMakeVpiValue(M, intVal) {
-  var ptr = M._malloc(12);
-  M.setValue(ptr + 0, VPI.vpiIntVal, 'i32');
-  M.setValue(ptr + 4, intVal || 0,   'i32');
-  M.setValue(ptr + 8, 0,             'i32');
-  return ptr;
-}
-
-function wsReadVpiIntValue(M, ptr) {
-  return M.getValue(ptr + 4, 'i32');
-}
-
-function wsRegisterVpiTrigger(M, spec, cbFnPtr) {
-  if (spec.type === 'timer') {
-    var timePtr = wsMakeVpiTime(M, BigInt(spec.fs));
-    var cbData = wsMakeCbData(M, VPI.cbAfterDelay, cbFnPtr, 0, timePtr, spec.id);
-    var handle = M._vpi_register_cb(cbData);
-    M._free(timePtr);
-    M._free(cbData);
-    return handle;
-  }
-  if (spec.type === 'rising_edge' || spec.type === 'falling_edge') {
-    var namePtr = wsWriteString(M, spec.signal);
-    var sigHandle = M._vpi_handle_by_name(namePtr, 0);
-    M._free(namePtr);
-    var cbData2 = wsMakeCbData(M, VPI.cbValueChange, cbFnPtr, sigHandle, 0, spec.id);
-    var handle2 = M._vpi_register_cb(cbData2);
-    M._free(cbData2);
-    return handle2;
-  }
-  return 0;
-}
-
-function wsVpiGetSignalValue(M, name) {
-  var namePtr = wsWriteString(M, name);
-  var handle = M._vpi_handle_by_name(namePtr, 0);
-  M._free(namePtr);
-  if (!handle) return 0;
-  var vp = wsMakeVpiValue(M, 0);
-  M._vpi_get_value(handle, vp);
-  var result = wsReadVpiIntValue(M, vp);
-  M._free(vp);
-  return result;
-}
-
-function wsVpiSetSignalValue(M, name, val) {
-  var namePtr = wsWriteString(M, name);
-  var handle = M._vpi_handle_by_name(namePtr, 0);
-  M._free(namePtr);
-  if (!handle) return;
-  var vp = wsMakeVpiValue(M, val);
-  M._vpi_put_value(handle, vp, 0, 0);
-  M._free(vp);
-}
-
-function isExitException(err) {
-  var t = String((err && err.message) || err || '');
-  return t.includes('ExitStatus') || t.includes('Program terminated') || t.includes('exit(');
-}
-
-// ── NODERAWFS shims ──────────────────────────────────────────────────────────
-// Used when circt-sim-vpi is built with -sNODERAWFS=1.
-
-var SIM_PATH_SHIM = {
-  sep: '/',
-  isAbsolute: function(p) { return String(p).charAt(0) === '/'; },
-  normalize: function(p) { return String(p).replace(/\/+/g, '/').replace(/(.)\/$/, '$1') || '/'; },
-  dirname: function(p) { var s = String(p); var i = s.lastIndexOf('/'); return i <= 0 ? '/' : s.slice(0, i); },
-  basename: function(p, ext) { var b = String(p).split('/').pop() || ''; return ext && b.slice(-ext.length) === ext ? b.slice(0, -ext.length) : b; },
-  extname: function(p) { var b = String(p).split('/').pop() || ''; var i = b.lastIndexOf('.'); return i <= 0 ? '' : b.slice(i); },
-  join: function() { return Array.prototype.slice.call(arguments).join('/').replace(/\/+/g, '/'); },
-  join2: function(a, b) { return (String(a) + '/' + String(b)).replace(/\/+/g, '/'); },
-  resolve: function() { return Array.prototype.slice.call(arguments).join('/').replace(/\/+/g, '/'); },
-};
-SIM_PATH_SHIM.posix = SIM_PATH_SHIM;
-
-function makeSimInMemFS(stdout, stderr) {
-  var store = {};
-  var symlinks = {};
-  var dirs = new Set(['/', '/dev', '/workspace', '/workspace/src', '/workspace/out']);
-  var fds = {};
-  var nextFd = 3;
-
-  function ensureParentDir(path) {
-    var parts = String(path).split('/').filter(Boolean);
-    var cur = '';
-    for (var i = 0; i < parts.length - 1; i++) { cur += '/' + parts[i]; dirs.add(cur); }
-  }
-
-  function makeStat(path) {
-    path = String(path);
-    if (symlinks[path]) {
-      return { ino: 3, mode: 0o120777, size: symlinks[path].length, dev: 1, nlink: 1, uid: 0, gid: 0, rdev: 0,
-               blksize: 4096, blocks: 1, atime: new Date(), mtime: new Date(), ctime: new Date(),
-               isDirectory: function(){return false;}, isFile: function(){return false;},
-               isSymbolicLink: function(){return true;} };
-    }
-    if (dirs.has(path)) {
-      return { ino: 1, mode: 0o40755, size: 0, dev: 1, nlink: 1, uid: 0, gid: 0, rdev: 0,
-               blksize: 4096, blocks: 0, atime: new Date(), mtime: new Date(), ctime: new Date(),
-               isDirectory: function(){return true;}, isFile: function(){return false;},
-               isSymbolicLink: function(){return false;} };
-    }
-    if (store[path]) {
-      return { ino: 2, mode: 0o100644, size: store[path].length, dev: 1, nlink: 1, uid: 0, gid: 0, rdev: 0,
-               blksize: 4096, blocks: Math.ceil(store[path].length / 512),
-               atime: new Date(), mtime: new Date(), ctime: new Date(),
-               isDirectory: function(){return false;}, isFile: function(){return true;},
-               isSymbolicLink: function(){return false;} };
-    }
-    var e = new Error('ENOENT: no such file or directory, stat \'' + path + '\'');
-    e.code = 'ENOENT'; throw e;
-  }
-
-  var nodeApi = {
-    readFileSync: function(path, opts) {
-      path = String(path);
-      if (!store[path]) { var e = new Error('ENOENT: ' + path); e.code = 'ENOENT'; throw e; }
-      var enc = (typeof opts === 'string') ? opts : (opts && opts.encoding);
-      return enc ? new TextDecoder().decode(store[path]) : store[path];
-    },
-    existsSync: function(p) { return dirs.has(p) || !!store[p] || !!symlinks[p]; },
-    statSync: makeStat,
-    lstatSync: makeStat,
-    realpathSync: function(p) {
-      var path = String(p);
-      return symlinks[path] || path;
-    },
-    readlinkSync: function(p) {
-      var path = String(p);
-      if (symlinks[path]) return symlinks[path];
-      var e = new Error('EINVAL: invalid argument, readlink \'' + path + '\'');
-      e.code = 'EINVAL';
-      throw e;
-    },
-    symlinkSync: function(target, path) {
-      var link = String(path);
-      ensureParentDir(link);
-      symlinks[link] = String(target);
-    },
-    fstatSync: function(fd) {
-      var f = fds[fd]; if (!f) { var e = new Error('EBADF'); e.code = 'EBADF'; throw e; }
-      return makeStat(f.path);
-    },
-    readdirSync: function(path) {
-      if (!dirs.has(path)) { var e = new Error('ENOENT: ' + path); e.code = 'ENOENT'; throw e; }
-      var prefix = path === '/' ? '/' : path + '/';
-      var entries = new Set();
-      dirs.forEach(function(d) {
-        if (d !== path && d.startsWith(prefix)) {
-          var rel = d.slice(prefix.length);
-          if (rel.indexOf('/') < 0) entries.add(rel);
-        }
-      });
-      Object.keys(store).forEach(function(f) {
-        if (f.startsWith(prefix)) {
-          var rel = f.slice(prefix.length);
-          if (rel.indexOf('/') < 0) entries.add(rel);
-        }
-      });
-      return Array.from(entries);
-    },
-    mkdirSync: function(p) { dirs.add(String(p)); },
-    rmdirSync: function(p) { dirs.delete(p); },
-    unlinkSync: function(p) { delete store[p]; delete symlinks[p]; },
-    renameSync: function(from, to) {
-      if (store[from]) { store[to] = store[from]; delete store[from]; }
-      if (symlinks[from]) { symlinks[to] = symlinks[from]; delete symlinks[from]; }
-    },
-    chmodSync: function() {}, chownSync: function() {}, utimesSync: function() {}, fsyncSync: function() {},
-    ftruncateSync: function(fd, len) {
-      var f = fds[fd]; var d = store[f.path] || new Uint8Array(0);
-      store[f.path] = len <= d.length ? d.subarray(0, len) : (function(){ var g = new Uint8Array(len); g.set(d); return g; })();
-    },
-    openSync: function(path, flags) {
-      path = String(path);
-      var writable;
-      if (typeof flags === 'string') {
-        writable = flags.indexOf('w') >= 0 || flags.indexOf('a') >= 0 || flags.indexOf('+') >= 0;
-      } else {
-        var numericFlags = Number(flags) || 0;
-        var accessMode = numericFlags & 3; // O_RDONLY=0, O_WRONLY=1, O_RDWR=2
-        writable = accessMode !== 0 || !!(numericFlags & 64) || !!(numericFlags & 512) || !!(numericFlags & 1024);
-      }
-      if (writable) { store[path] = new Uint8Array(0); ensureParentDir(path); }
-      else if (!store[path] && !dirs.has(path)) { var e = new Error('ENOENT: ' + path); e.code = 'ENOENT'; throw e; }
-      var fd = nextFd++; fds[fd] = { path: path, pos: 0 }; return fd;
-    },
-    closeSync: function(fd) { delete fds[fd]; },
-    readSync: function(fd, buf, bufOffset, length, position) {
-      if (fd === 0) return 0;
-      var f = fds[fd]; var data = store[f.path] || new Uint8Array(0);
-      var pos = position != null ? position : f.pos;
-      var avail = Math.min(length, data.length - pos);
-      if (avail <= 0) return 0;
-      buf.set(data.subarray(pos, pos + avail), bufOffset);
-      if (position == null) f.pos += avail;
-      return avail;
-    },
-    writeSync: function(fd, buf, bufOffset, length, position) {
-      var src;
-      if (typeof buf === 'string') {
-        src = new TextEncoder().encode(buf);
-      } else if (ArrayBuffer.isView(buf)) {
-        src = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
-      } else if (buf instanceof ArrayBuffer) {
-        src = new Uint8Array(buf);
-      } else {
-        src = new Uint8Array(0);
-      }
-      var start = Number.isFinite(bufOffset) ? Number(bufOffset) : 0;
-      if (start < 0) start = 0;
-      var writeLen = Number.isFinite(length) ? Number(length) : (src.length - start);
-      if (writeLen < 0) writeLen = 0;
-      var end = Math.min(src.length, start + writeLen);
-      var chunk = src.subarray(start, end);
-      if (fd === 1) { stdout.push(new TextDecoder().decode(chunk)); return chunk.length; }
-      if (fd === 2) { stderr.push(new TextDecoder().decode(chunk)); return chunk.length; }
-      var f = fds[fd]; var pos = position != null ? position : f.pos;
-      var data = store[f.path] || new Uint8Array(0);
-      var needed = pos + chunk.length;
-      if (needed > data.length) { var g = new Uint8Array(needed); g.set(data); data = g; }
-      data.set(chunk, pos); store[f.path] = data;
-      if (position == null) f.pos += chunk.length;
-      return chunk.length;
-    },
-  };
-
-  return {
-    nodeApi: nodeApi,
-    // Write a text file before the module loads (used to pre-populate MLIR).
-    writeTextFile: function(path, text) {
-      var bytes = new TextEncoder().encode(text);
-      ensureParentDir(path);
-      store[path] = bytes;
-    },
-  };
-}
-
-self.onmessage = async function(event) {
-  var req = event.data || {};
-  var simJsUrl   = req.simJsUrl;
-  var simWasmUrl = req.simWasmUrl;
-  var pyodideUrl = req.pyodideUrl;
-  var mlir       = req.mlir;
-  var topModule  = req.topModule;
-  var pyCode     = req.pyCode;
-  var shimCode   = req.shimCode;
-  var maxTimeNs  = req.maxTimeNs || 1000000;
-
-  var simStdout = [];
-  var simStderr = [];
-  var logs = [];
-  function onLog(msg) {
-    var line = String(msg);
-    logs.push(line);
-    self.postMessage({ type: 'log', line: line });
-  }
-
-  try {
-    // ── 1. Load the VPI circt-sim WASM ───────────────────────────────────────
-    // Fetch the JS source first so we can detect NODERAWFS=1 (recognisable by
-    // the unconditional require('path') / require('fs') calls at module level).
-    onLog('[cocotb] Loading simulator...');
-    var simScript = null;
-    try {
-      var r = await fetch(simJsUrl);
-      if (r.ok) simScript = await r.text();
-    } catch(_) {}
-
-    var isNoderawfs = !!simScript && (
-      simScript.indexOf('NODERAWFS is currently only supported') >= 0 ||
-      simScript.indexOf('var nodePath=require(') >= 0
-    );
-
-    var simInMemFS = null;
-    var simReady = false;
-    self.Module = {
-      noInitialRun: true,
-      onRuntimeInitialized: function() { simReady = true; },
-      print:    function(line) { onLog('[sim] ' + line); },
-      printErr: function(line) { onLog('[sim] ' + line); },
-      locateFile: function(path) { return path.endsWith('.wasm') ? simWasmUrl : path; },
-      instantiateWasm: function(imports, callback) {
-        // Wrap _circt_vpi_wasm_yield (import 'r') with Asyncify.handleAsync so
-        // WASM calls to the yield import trigger Asyncify unwind/rewind instead
-        // of running synchronously (instrumentWasmImports is never called by the
-        // compiled artifact's createWasm(), so we must wrap here ourselves).
-        if (typeof Asyncify !== 'undefined' && imports && imports.a && typeof imports.a.r === 'function') {
-          var _origYield = imports.a.r;
-          imports.a.r = function() {
-            var _args = arguments;
-            return Asyncify.handleAsync(function() { return _origYield.apply(null, _args); });
-          };
-        }
-        WebAssembly.instantiateStreaming(fetch(simWasmUrl), imports)
-          .then(function(r) { callback(r.instance, r.module); })
-          .catch(function() {
-            fetch(simWasmUrl)
-              .then(function(r) { return r.arrayBuffer(); })
-              .then(function(buf) { return WebAssembly.instantiate(buf, imports); })
-              .then(function(r) { callback(r.instance, r.module); });
-          });
-        return {};
-      }
-    };
-
-    if (isNoderawfs && simScript) {
-      simInMemFS = makeSimInMemFS(simStdout, simStderr);
-      if (typeof self.__dirname === 'undefined') self.__dirname = '/';
-      if (typeof self.__filename === 'undefined') self.__filename = '/tool.js';
-      var proc = (typeof self.process === 'undefined' || self.process === null) ? {} : self.process;
-      if (!proc.versions || typeof proc.versions !== 'object') proc.versions = {};
-      if (!proc.versions.node) proc.versions.node = '18.0.0';
-      if (typeof proc.version !== 'string') proc.version = 'v18.0.0';
-      if (typeof proc.platform !== 'string') proc.platform = 'linux';
-      if (!Array.isArray(proc.argv)) proc.argv = ['node', '/tool'];
-      if (!proc.type) proc.type = 'worker';
-      if (typeof proc.exitCode !== 'number') proc.exitCode = 0;
-      if (typeof proc.exit !== 'function') {
-        proc.exit = function(code) {
-          throw { name: 'ExitStatus', message: 'exit(' + (code | 0) + ')', status: (code | 0) };
-        };
-      }
-      if (typeof proc.on !== 'function') proc.on = function() { return proc; };
-      if (!proc.stdout || typeof proc.stdout !== 'object') proc.stdout = {};
-      if (!proc.stderr || typeof proc.stderr !== 'object') proc.stderr = {};
-      proc.stdout.write = function(s) { simStdout.push(String(s)); };
-      proc.stdout.isTTY = false;
-      proc.stderr.write = function(s) { simStderr.push(String(s)); };
-      proc.stderr.isTTY = false;
-      proc.stdin = proc.stdin || null;
-      if (!proc.env || typeof proc.env !== 'object') proc.env = {};
-      if (typeof proc.cwd !== 'function') proc.cwd = function() { return '/workspace'; };
-      proc.binding = function(name) {
-        if (name === 'constants') {
-          return {
-            fs: {
-              O_APPEND: 1024,
-              O_CREAT: 64,
-              O_EXCL: 128,
-              O_NOCTTY: 256,
-              O_RDONLY: 0,
-              O_RDWR: 2,
-              O_SYNC: 4096,
-              O_TRUNC: 512,
-              O_WRONLY: 1,
-              O_NOFOLLOW: 131072
-            }
-          };
-        }
-        throw new Error('process.binding(' + String(name) + ') is not available');
-      };
-      self.process = proc;
-      if (typeof self.global === 'undefined') self.global = self;
-      self.require = function(mod) {
-        if (mod === 'path') return SIM_PATH_SHIM;
-        if (mod === 'fs') return simInMemFS.nodeApi;
-        if (mod === 'crypto') return { randomBytes: function(n) { return crypto.getRandomValues(new Uint8Array(n)); } };
-        if (mod === 'child_process') return { spawnSync: function() { return { status: 1, stdout: '', stderr: '' }; } };
-        throw new Error('require(\'' + mod + '\') is not available in browser worker');
-      };
-      (0, eval)(simScript);
-    } else {
-      if (typeof self.require === 'undefined') {
-        self.require = function(mod) {
-          if (mod === 'path') return SIM_PATH_SHIM;
-          throw new Error('require(\'' + mod + '\') is not available in browser worker');
-        };
-      }
-      importScripts(simJsUrl);
-    }
-
-    // Wait for the runtime to initialize and VPI exports to be ready.
-    var simModule = await new Promise(function(resolve, reject) {
-      var start = Date.now();
-      function tick() {
-        try {
-          var m = self.Module;
-          if (m && typeof m.callMain !== 'function' && typeof self.callMain === 'function') {
-            m.callMain = self.callMain;
-          }
-          if (simReady && m && typeof m.callMain === 'function') {
-            resolve(m); return;
-          }
-          if (Date.now() - start >= 45000) {
-            reject(new Error('VPI sim module did not become ready in time'));
-            return;
-          }
-          setTimeout(tick, 25);
-        } catch(e) { reject(e); }
-      }
-      tick();
-    });
-
-    // ── 1b. Patch Module to expose Emscripten internals needed by VPI helpers ─
-    // circt-sim-vpi.js assigns _malloc/_free to module-level globals but not to
-    // Module["_malloc"] / Module["_free"].  setValue/getValue and HEAPU8 are
-    // absent from EXPORTED_RUNTIME_METHODS for this build.  After importScripts
-    // (or indirect eval) these become worker-scope globals we can forward.
-    if (typeof simModule._malloc !== 'function') {
-      simModule._malloc = function(size) { return _malloc(size); };
-    }
-    if (typeof simModule._free !== 'function') {
-      simModule._free = function(ptr) { _free(ptr); };
-    }
-    if (typeof simModule.getValue !== 'function') {
-      simModule.getValue = function(ptr, type) {
-        if (type === 'i32')    return HEAP32[ptr >>> 2];
-        if (type === 'double') return HEAPF64[ptr >>> 3];
-        return 0;
-      };
-    }
-    if (typeof simModule.setValue !== 'function') {
-      simModule.setValue = function(ptr, value, type) {
-        if (type === 'i32')    { HEAP32[ptr >>> 2] = value | 0; }
-        else if (type === 'double') { HEAPF64[ptr >>> 3] = +value; }
-      };
-    }
-    if (!simModule.HEAPU8) {
-      Object.defineProperty(simModule, 'HEAPU8', {
-        get: function() { return HEAPU8; },
-        configurable: true
-      });
-    }
-    if (!simModule.FS && typeof FS !== 'undefined') {
-      simModule.FS = FS;
-    }
-
-    // ── 2. Write MLIR to the virtual FS ──────────────────────────────────────
-    var mlirPath = '/workspace/out/design.llhd.mlir';
-    if (simInMemFS) {
-      // NODERAWFS mode: pre-populate the store so callMain can read the file.
-      simInMemFS.writeTextFile(mlirPath, mlir);
-    } else if (simModule.FS && typeof simModule.FS.writeFile === 'function') {
-      try { simModule.FS.mkdir('/workspace'); } catch(_) {}
-      try { simModule.FS.mkdir('/workspace/out'); } catch(_) {}
-      simModule.FS.writeFile(mlirPath, mlir, { encoding: 'utf8' });
-    }
-
-    // Debug: print MLIR content (first 2000 chars)
-    onLog('[cocotb] MLIR (first 2000 chars): ' + mlir.slice(0, 2000));
-
-    // ── 3. Load Pyodide ───────────────────────────────────────────────────────
-    onLog('[cocotb] Loading Pyodide...');
-    importScripts(pyodideUrl);
-    var pyodide = await loadPyodide({ stdout: onLog, stderr: onLog });
-    onLog('[cocotb] Pyodide ready');
-
-    // ── 4. Install JS→Python bridge on the worker global scope ───────────────
-    var _pendingRegistrations = [];
-    var _triggerSpecs = {};   // id -> spec, kept for edge-direction filtering
-    var _testsDone = false;
-    var _testsOk   = false;
-
-    self._cocotb_register_trigger = function(jsonStr) {
-      var spec = JSON.parse(jsonStr);
-      _pendingRegistrations.push(spec);
-      _triggerSpecs[spec.id] = spec;
-    };
-    self._cocotb_get_signal = function(name) {
-      return wsVpiGetSignalValue(simModule, String(name));
-    };
-    self._cocotb_set_signal = function(name, val) {
-      wsVpiSetSignalValue(simModule, String(name), Number(val));
-    };
-    self._cocotb_log = function(msg) { onLog(String(msg)); };
-    // Python passes allPassed as a boolean; Pyodide converts it to JS boolean.
-    self._cocotb_tests_done = function(allPassed) { _testsDone = true; _testsOk = !!allPassed; };
-
-    // ── 5. Install the cocotb shim into Pyodide ───────────────────────────────
-    pyodide.runPython(shimCode);
-    pyodide.runPython("import sys; sys.modules['cocotb'] = sys.modules[__name__]");
-
-    // ── 6. Run the user's Python test file ───────────────────────────────────
-    try {
-      pyodide.runPython(pyCode);
-    } catch(e) {
-      onLog('[cocotb] Python error in test file: ' + String(e));
-      self.postMessage({ ok: false, logs: logs });
-      return;
-    }
-
-    // ── 7. Create a no-op cb_rtn function pointer for VPI callbacks ──────────
-    // VPIRuntime::registerCb rejects null cb_rtn (returns 0 without storing).
-    // We need a valid WASM (i32)->i32 function pointer for the cb_rtn field.
-    // Compile a tiny WASM module and insert its export into circt-sim's table.
-    // Fallback to WebAssembly.Function (Chrome 97+) or placeholder value 1.
-    var noopCbPtr = 0;
-    function addFunctionToTable(wasmBytes) {
-      try {
-        var mod = new WebAssembly.Module(wasmBytes);
-        var inst = new WebAssembly.Instance(mod);
-        var tbl = (typeof wasmTable !== 'undefined') ? wasmTable : null;
-        if (!tbl) return 0;
-        // Scan the tail of the table for a null (empty) slot; avoid grow()
-        // since Emscripten may compile with a fixed table maximum.
-        var slot = -1;
-        var len = tbl.length;
-        for (var i = Math.max(1, len - 512); i < len; i++) {
-          if (tbl.get(i) === null) { slot = i; break; }
-        }
-        if (slot < 0) {
-          // Full scan as last resort.
-          for (var j = 1; j < len && slot < 0; j++) {
-            if (tbl.get(j) === null) slot = j;
-          }
-        }
-        if (slot < 0) {
-          // Table is completely full — try growing.
-          try { slot = tbl.length; tbl.grow(1); } catch(_g) { return 0; }
-        }
-        tbl.set(slot, inst.exports.f);
-        return slot;
-      } catch(e) { return 0; }
-    }
-    // WASM: (i32) -> (i32), returns 0
-    noopCbPtr = addFunctionToTable(new Uint8Array([
-      0x00,0x61,0x73,0x6d, 0x01,0x00,0x00,0x00, // magic + version
-      0x01,0x06,0x01,0x60,0x01,0x7f,0x01,0x7f,  // type section: (i32) -> (i32)
-      0x03,0x02,0x01,0x00,                       // function section: func 0 : type 0
-      0x07,0x05,0x01,0x01,0x66,0x00,0x00,        // export "f" = func 0
-      0x0a,0x06,0x01,0x04,0x00,0x41,0x00,0x0b   // code section: i32.const 0, end
-    ]));
-    if (!noopCbPtr) { try {
-      var cFn = new WebAssembly.Function({parameters:['i32'], results:['i32']}, function(){return 0;});
-      var tbl = wasmTable; var s = tbl.length; tbl.grow(1); tbl.set(s, cFn); noopCbPtr = s;
-    } catch(_) {} }
-    // Last resort: value 1 — registerCb only checks non-zero; the patched
-    // _circt_vpi_wasm_yield wraps the table call in try-catch.
-    var cbRtn = noopCbPtr || 1;
-
-    // ── 8. Install a VPI startup routine in the WASM function table ──────────
-    // VPIRuntime::active starts false and is set to true inside callMain.
-    // Calling _vpi_register_cb before callMain always returns 0 (no-op).
-    //
-    // Fix: compile a tiny WASM module (type ()->()) that imports one JS function
-    // "r" and calls it. Insert the export into a null slot in the WASM table,
-    // then call _vpi_startup_register(slot). circt-sim invokes startup routines
-    // via invoke_v(slot) inside callMain once active=true, so "r" runs and can
-    // call _vpi_register_cb successfully to register cbStartOfSimulation.
-    //
-    // Non-zero slot avoids null-pointer guards in VPIRuntime::runStartupRoutines.
-    // WASM module is <60 bytes — synchronous compile is allowed in web workers.
-    var _vpiStartupSlot = 0;
-    (function() {
-      try {
-        var _tbl = (typeof wasmTable !== 'undefined') ? wasmTable : null;
-        if (!_tbl) { onLog('[cocotb] Warning: wasmTable not available'); return; }
-        // Scan for a null slot (non-zero) — start from tail to find unused slots.
-        var _slot = -1;
-        var _len = _tbl.length;
-        for (var _i = Math.max(1, _len - 512); _i < _len && _slot < 0; _i++) {
-          if (_tbl.get(_i) === null) _slot = _i;
-        }
-        if (_slot < 0) {
-          for (var _j = 1; _j < _len && _slot < 0; _j++) {
-            if (_tbl.get(_j) === null) _slot = _j;
-          }
-        }
-        if (_slot < 0) { onLog('[cocotb] Warning: no null slot in wasmTable for VPI startup'); return; }
-
-        // WAT:
-        //   (type (func))
-        //   (import "env" "r" (func $r))
-        //   (func $f (export "f") (call $r))
-        var _startupBytes = new Uint8Array([
-          0x00,0x61,0x73,0x6d, 0x01,0x00,0x00,0x00,  // magic + version
-          0x01,0x04, 0x01,0x60,0x00,0x00,             // type: ()->()
-          0x02,0x09, 0x01, 0x03,0x65,0x6e,0x76, 0x01,0x72, 0x00,0x00, // import "env"."r"
-          0x03,0x02, 0x01,0x00,                        // func section: func1 type0
-          0x07,0x05, 0x01, 0x01,0x66, 0x00,0x01,      // export "f" = func1
-          0x0a,0x06, 0x01,0x04, 0x00,0x10,0x00,0x0b   // code: call r(), end
-        ]);
-        var _startupMod = new WebAssembly.Module(_startupBytes);
-        var _startupInst = new WebAssembly.Instance(_startupMod, {
-          env: {
-            r: function() {
-              // Called inside callMain with VPIRuntime::active=true.
-              // Errors must not propagate back into invoke_v (would rethrow).
-              try {
-                var _ptr = simModule._malloc(28);
-                simModule.setValue(_ptr +  0, VPI.cbStartOfSimulation, 'i32');
-                simModule.setValue(_ptr +  4, cbRtn,                   'i32');
-                simModule.setValue(_ptr +  8, 0, 'i32');
-                simModule.setValue(_ptr + 12, 0, 'i32');
-                simModule.setValue(_ptr + 16, 0, 'i32');
-                simModule.setValue(_ptr + 20, 0, 'i32');
-                simModule.setValue(_ptr + 24, 0, 'i32');
-                var _h = (simModule._vpi_register_cb(_ptr)) | 0;
-                simModule._free(_ptr);
-                onLog('[cocotb] startup: _vpi_register_cb(cbStartOfSimulation) handle=' + _h);
-              } catch(_e) { /* swallow */ }
-            }
-          }
-        });
-        _tbl.set(_slot, _startupInst.exports.f);
-        _vpiStartupSlot = _slot;
-        onLog('[cocotb] VPI startup function installed at table[' + _slot + ']');
-      } catch(e) {
-        onLog('[cocotb] Warning: VPI startup install failed: ' + e);
-      }
-    })();
-
-    if (typeof simModule._vpi_startup_register === 'function') {
-      if (_vpiStartupSlot) {
-        // Happy path: startup function runs inside callMain with active=true.
-        simModule._vpi_startup_register(_vpiStartupSlot);
-      } else {
-        // Fallback: enable VPI subsystem with null marker, then try direct
-        // registration (will return 0 if active=false, but worth attempting).
-        simModule._vpi_startup_register(0);
-        var _startCbData = wsMakeCbData(simModule, VPI.cbStartOfSimulation, cbRtn, 0, 0, 0);
-        var _cbHandle = (simModule._vpi_register_cb(_startCbData)) | 0;
-        simModule._free(_startCbData);
-        if (_cbHandle) {
-          onLog('[cocotb] Registered cbStartOfSimulation (direct), handle=' + _cbHandle);
-        } else {
-          onLog('[cocotb] Warning: _vpi_register_cb returned 0 — VPI callbacks will not fire');
-        }
-      }
-    }
-
-    // ── 9. Set up the Asyncify yield hook ─────────────────────────────────────
-    // _circt_vpi_wasm_yield (in circt-sim-vpi.js) calls:
-    //   await globalThis.circtSimVpiYieldHook(cbFuncPtr, cbDataPtr)
-    //   try { wasmTable.get(cbFuncPtr)(cbDataPtr) } catch(e) {}  [patched]
-    // Our hook handles all Python dispatch; cbRtn=1 satisfies registerCb's
-    // non-null cb_rtn check; the table[1] call is caught by the try-catch patch.
-    self.circtSimVpiYieldHook = async function(cbFuncPtr, cbDataPtr) {
-      var reason    = simModule.getValue(cbDataPtr +  0, 'i32');
-      var triggerId = simModule.getValue(cbDataPtr + 24, 'i32');
-      onLog('[cocotb] yield hook: reason=' + reason + ' cbFuncPtr=' + cbFuncPtr + ' triggerId=' + triggerId);
-
-      if (reason === VPI.cbStartOfSimulation) {
-        onLog('[cocotb] cbStartOfSimulation fired — starting tests');
-        // Debug: check VPI signal handles
-        try {
-          var _dnames = ['A', 'B', 'X', 'adder.A', 'adder.B', 'adder.X'];
-          for (var _dn = 0; _dn < _dnames.length; _dn++) {
-            var _dnp = wsWriteString(simModule, _dnames[_dn]);
-            var _dh = simModule._vpi_handle_by_name ? (simModule._vpi_handle_by_name(_dnp, 0)|0) : -1;
-            simModule._free(_dnp);
-            onLog('[cocotb] vpi_handle("' + _dnames[_dn] + '")=' + _dh);
-          }
-        } catch(_de) { onLog('[cocotb] vpi_handle debug error: ' + _de); }
-        try { pyodide.runPython('_start_tests_sync()'); } catch(e) { onLog('[cocotb] _start_tests_sync error: ' + e); }
-        onLog('[cocotb] _start_tests_sync returned, pendingRegs=' + _pendingRegistrations.length);
-        try { onLog('[cocotb] ntests=' + pyodide.runPython('len(_tests)')); } catch(e) { onLog('[cocotb] ntests error: ' + e); }
-        for (var i = 0; i < 50; i++) {
-          try {
-            await pyodide.runPythonAsync('await __import__("asyncio").sleep(0)');
-          } catch(e) {
-            onLog('[cocotb] runPythonAsync error at i=' + i + ': ' + e);
-            break;
-          }
-          onLog('[cocotb] sleep ' + i + ' done, pendingRegs=' + _pendingRegistrations.length + ' testsDone=' + _testsDone);
-          if (_pendingRegistrations.length > 0 || _testsDone) break;
-        }
-      } else if (reason !== VPI.cbEndOfSimulation) {
-        // A value-change or delay trigger fired.
-        // For edge triggers, filter by direction before waking Python.
-        // cbValueChange fires on every transition; RisingEdge/FallingEdge must
-        // only wake when the actual edge direction matches.
-        var spec = _triggerSpecs[triggerId];
-        var edgeMismatch = false;
-        if (spec && (spec.type === 'rising_edge' || spec.type === 'falling_edge')) {
-          var currentVal = wsVpiGetSignalValue(simModule, spec.signal);
-          edgeMismatch = (spec.type === 'rising_edge')  ? (currentVal === 0)
-                       : (spec.type === 'falling_edge') ? (currentVal !== 0)
-                       : false;
-        }
-        if (edgeMismatch) {
-          // Wrong edge — re-register the same trigger and skip waking Python.
-          _pendingRegistrations.push(spec);
-        } else {
-          delete _triggerSpecs[triggerId];
-          pyodide.runPython('_vpi_event(' + triggerId + ')');
-          for (var i = 0; i < 20; i++) {
-            await pyodide.runPythonAsync('await __import__("asyncio").sleep(0)');
-            if (_pendingRegistrations.length > 0 || _testsDone) break;
-          }
-        }
-      }
-
-      if (_testsDone) {
-        simModule._vpi_control(VPI.vpiFinish, 0);
-        return;
-      }
-
-      // Register any new VPI callbacks queued by Python.
-      var regs = _pendingRegistrations;
-      _pendingRegistrations = [];
-      for (var j = 0; j < regs.length; j++) {
-        wsRegisterVpiTrigger(simModule, regs[j], cbRtn);
-      }
-    };
-
-    // ── 10. cbStartOfSimulation registered by startup function ───────────────
-    // The JS function installed at table[0] (step 8) calls _vpi_register_cb
-    // from within callMain when VPIRuntime::active=true. Calling here (before
-    // callMain) always fails because active=false at this point.
-
-    // ── 11. Run the simulation ────────────────────────────────────────────────
-    // callMain is synchronous. If Asyncify is enabled, the first VPI yield
-    // causes WASM to unwind back to callMain (which returns EXITSTATUS).
-    // We then await Asyncify.whenDone() to wait for the full simulation cycle
-    // (all subsequent yields are handled by wakeUp → doRewind inside the
-    // Asyncify machinery until the simulation completes and currData == null).
-    var maxTimePs = maxTimeNs * 1000;
-    var simArgs = [
-      '--resource-guard=false',
-      '--mode', 'interpret',
-      '--max-time=' + maxTimePs,
-      '--top', topModule,
-      mlirPath
-    ];
-    onLog('[cocotb] Starting simulation...');
-    try {
-      simModule.callMain(simArgs);
-    } catch(e) {
-      if (!isExitException(e)) {
-        onLog('[cocotb] Simulation error: ' + String(e && e.message || e));
-      }
-    }
-    // If Asyncify triggered (currData is non-null after callMain), wait for the
-    // full async simulation to complete before proceeding with cleanup.
-    if (typeof Asyncify !== 'undefined' && Asyncify.currData) {
-      try {
-        await Asyncify.whenDone();
-      } catch(e) {
-        if (!isExitException(e)) {
-          onLog('[cocotb] Simulation error: ' + String(e && e.message || e));
-        }
-      }
-    }
-
-    // Merge any stdout/stderr that went through the NODERAWFS path.
-    var fsOut = simStdout.join('').trim();
-    var fsErr = simStderr.join('').trim();
-    if (fsOut) {
-      fsOut.split(/\r?\n/).forEach(function(line) { onLog('[sim] ' + line); });
-    }
-    if (fsErr) {
-      fsErr.split(/\r?\n/).forEach(function(line) { onLog('[sim] ' + line); });
-    }
-
-    onLog('[cocotb] Simulation complete');
-    self.postMessage({ type: 'result', ok: _testsOk, logs: logs });
-
-  } catch(e) {
-    self.postMessage({ type: 'result', ok: false, logs: [...logs, '# cocotb error: ' + String(e && e.message || e)] });
-  }
-};
-`;
 
 let cocotbWorkerBlobUrl = null;
 
@@ -2087,30 +1219,51 @@ export class CirctWasmAdapter {
         };
       }
 
-      const simArgs = forceInterpretSimMode([...this.config.simArgs]);
-      for (const topName of topModules) {
-        simArgs.push('--top', topName);
-      }
-      // Always request a VCD. UI decides whether to expose Waves based on
-      // whether a valid VCD with signal definitions was actually produced.
-      simArgs.push('--vcd', wavePath);
-      // Trace all signals (default is ports only; @tb has no ports).
-      simArgs.push('--trace-all');
-      simArgs.push(mlirPath);
-
-      emitLog(formatCommand('circt-sim', simArgs));
-
       if (typeof onStatus === 'function') onStatus('running');
       const simStream = makeToolOutputHandler();
-      const sim = await this._invokeTool('sim', {
-        args: simArgs,
-        files: {
-          [mlirPath]: loweredMlir
-        },
-        readFiles: [wavePath],
-        createDirs: ['/workspace/out'],
-        onOutput: simStream.onOutput
-      });
+      const runSimAttempt = async ({ withTraceAll, withVcd }) => {
+        const simArgs = forceInterpretSimMode([...this.config.simArgs]);
+        for (const topName of topModules) {
+          simArgs.push('--top', topName);
+        }
+        if (withVcd) simArgs.push('--vcd', wavePath);
+        if (withTraceAll) simArgs.push('--trace-all');
+        simArgs.push(mlirPath);
+
+        emitLog(formatCommand('circt-sim', simArgs));
+        const sim = await this._invokeTool('sim', {
+          args: simArgs,
+          files: {
+            [mlirPath]: loweredMlir
+          },
+          readFiles: withVcd ? [wavePath] : [],
+          createDirs: ['/workspace/out'],
+          onOutput: simStream.onOutput
+        });
+        if (sim.exitCode !== 0 && isRetryableSimAbortText(sim.stderr)) {
+          throw new Error(String(sim.stderr || `circt-sim exited ${sim.exitCode}`));
+        }
+        return { sim, withVcd };
+      };
+
+      let simResult;
+      try {
+        simResult = await runSimAttempt({ withTraceAll: true, withVcd: true });
+      } catch (error) {
+        const retryable = isRetryableSimAbortText(error?.message || error);
+        if (!retryable) throw error;
+        emitLog('# circt-sim: runtime abort with --trace-all; retrying without --trace-all');
+        try {
+          simResult = await runSimAttempt({ withTraceAll: false, withVcd: true });
+        } catch (retryError) {
+          const retryableNoTrace = isRetryableSimAbortText(retryError?.message || retryError);
+          if (!retryableNoTrace) throw retryError;
+          emitLog('# circt-sim: runtime abort while writing VCD; retrying without waveform capture');
+          simResult = await runSimAttempt({ withTraceAll: false, withVcd: false });
+        }
+      }
+
+      const sim = simResult.sim;
 
       if (!simStream.sawStream()) {
         if (sim.stdout) emitLog(`[stdout] ${sim.stdout}`);
@@ -2118,7 +1271,7 @@ export class CirctWasmAdapter {
       }
       appendNonZeroExit(logs, 'circt-sim', sim.exitCode, emitLog);
 
-      const rawVcdText = sim.files?.[wavePath] || null;
+      const rawVcdText = simResult.withVcd ? sim.files?.[wavePath] || null : null;
       const cleanedVcdText = removeInlinedPortsFromVcd(rawVcdText);
       const vcdText = hasVcdSignalDefinitions(cleanedVcdText) ? cleanedVcdText : null;
 
@@ -2539,10 +1692,11 @@ export class CirctWasmAdapter {
         return { ok: false, logs };
       }
 
+      emitLog(`$ z3 ${smtPath}`);
       const z3out = await evalSmtlib(smtlibText);
 
       const z3lines = (z3out || '').trim().split('\n').filter(Boolean);
-      for (const line of z3lines) emitLog(`[z3] ${line}`);
+      for (const line of z3lines) emitLog(line);
 
       // unsat → no input makes the circuits differ → equivalent.
       // sat   → a distinguishing input exists → not equivalent.
@@ -2556,22 +1710,45 @@ export class CirctWasmAdapter {
         // instance throw "Program terminated with exit(1)". A fresh instance
         // has no such state. (~50 ms overhead; WASM is cached by the browser.)
         try {
+          emitLog(`$ z3 -model ${smtPath} | grep define-fun`);
           const freshEm = await getFreshZ3Module();
-          const modelOut = await evalSmtlib(smtlibText + '\n(get-model)\n', { produceModels: true, em: freshEm });
+          // Insert (get-model) before (reset) — circt-lec SMT-LIB ends with
+          // (reset) which clears solver state; appending after it loses the model.
+          const resetIdx = smtlibText.lastIndexOf('(reset)');
+          const smtWithModel = resetIdx >= 0
+            ? smtlibText.slice(0, resetIdx) + '(get-model)\n' + smtlibText.slice(resetIdx)
+            : smtlibText + '\n(get-model)\n';
+          const modelOut = await evalSmtlib(smtWithModel, { produceModels: true, em: freshEm });
           // Collapse whitespace so multi-line define-fun entries match as one unit.
           const modelFlat = (modelOut || '').replace(/\s+/g, ' ');
           const assignments = [];
           // BitVec: (define-fun |name| () (_ BitVec N) #xVAL)
-          const bvRe = /\(define-fun\s+\|?(\S+?)\|?\s+\(\)\s+\(_\s+BitVec\s+\d+\)\s+(#x[0-9a-fA-F]+|#b[01]+)\s*\)/g;
+          const bvRe = /\(define-fun\s+\|?(\S+?)\|?\s+\(\)\s+\(_\s+BitVec\s+(\d+)\)\s+(#x[0-9a-fA-F]+|#b[01]+)\s*\)/g;
           let m;
           while ((m = bvRe.exec(modelFlat)) !== null) {
-            const [, name, val] = m;
-            const num = val.startsWith('#x') ? parseInt(val.slice(2), 16) : parseInt(val.slice(2), 2);
-            assignments.push(`${name}=${num}`);
+            const [, name, widthStr, val] = m;
+            // Emit the raw define-fun line (what grep would show).
+            emitLog(`  (define-fun ${name} () (_ BitVec ${widthStr}) ${val})`);
+            // Skip circuit-specific output variables (c1_…, c2_…) — show only inputs.
+            if (/^c\d+_/.test(name)) continue;
+            const width = parseInt(widthStr, 10);
+            const raw = val.startsWith('#x') ? parseInt(val.slice(2), 16) : parseInt(val.slice(2), 2);
+            // CIRCT encodes N-bit SV signals as 2N-bit SMT bitvectors: the lower N
+            // bits are "unknown" flags and the upper N bits are the logic values.
+            // Decode to the plain N-bit value when all unknown bits are zero.
+            let displayVal = raw;
+            if (width % 2 === 0) {
+              const half = width / 2;
+              const unknownMask = (1 << half) - 1;
+              if ((raw & unknownMask) === 0) displayVal = (raw >> half) & unknownMask;
+            }
+            assignments.push(`${name}=${displayVal}`);
           }
           // Bool: (define-fun |name| () Bool true/false)
           const boolRe = /\(define-fun\s+\|?(\S+?)\|?\s+\(\)\s+Bool\s+(true|false)\s*\)/g;
           while ((m = boolRe.exec(modelFlat)) !== null) {
+            emitLog(`  (define-fun ${m[1]} () Bool ${m[2]})`);
+            if (/^c\d+_/.test(m[1])) continue;
             assignments.push(`${m[1]}=${m[2] === 'true' ? 1 : 0}`);
           }
           if (assignments.length > 0) {
@@ -2604,4 +1781,10 @@ export class CirctWasmAdapter {
 
 export function createCirctWasmAdapter() {
   return new CirctWasmAdapter();
+}
+
+let _adapter = null;
+export function getCirctWasmAdapter() {
+  _adapter ??= createCirctWasmAdapter();
+  return _adapter;
 }

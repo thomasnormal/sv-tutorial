@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 import fs from 'fs';
@@ -9,7 +9,30 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const Z3_BUILT_JS = path.resolve(__dirname, 'node_modules/z3-solver/build/z3-built.js');
 const Z3_BUILT_WASM = path.resolve(__dirname, 'node_modules/z3-solver/build/z3-built.wasm');
-const COI_SW_JS = path.resolve(__dirname, 'node_modules/coi-serviceworker/coi-serviceworker.js');
+
+const COOP_COEP_HEADERS = {
+  'Cross-Origin-Opener-Policy': 'same-origin',
+  'Cross-Origin-Embedder-Policy': 'require-corp',
+};
+
+/**
+ * Vite plugin that injects COOP/COEP headers into the preview server.
+ * Needed for SharedArrayBuffer (z3-solver WASM) to work in `vite preview`
+ * (the server used by Playwright e2e tests).  Without these headers
+ * window.crossOriginIsolated is false and coi-serviceworker.js triggers
+ * a reload mid-test, destroying Playwright's execution context.
+ */
+function previewHeadersPlugin() {
+  return {
+    name: 'preview-coop-coep-headers',
+    configurePreviewServer(server) {
+      server.middlewares.use((_req, res, next) => {
+        for (const [k, v] of Object.entries(COOP_COEP_HEADERS)) res.setHeader(k, v);
+        next();
+      });
+    },
+  };
+}
 
 /**
  * Vite plugin that serves z3-built.js as an unbundled static file.
@@ -49,38 +72,8 @@ function serveZ3Plugin() {
   };
 }
 
-/**
- * Serves coi-serviceworker.js so GitHub Pages (which cannot set custom
- * response headers) can still use SharedArrayBuffer via a service worker
- * that injects Cross-Origin-Opener-Policy / Cross-Origin-Embedder-Policy.
- */
-function serveCOIPlugin() {
-  return {
-    name: 'serve-coi-serviceworker',
-
-    configureServer(server) {
-      server.middlewares.use('/coi-serviceworker.js', (_req, res) => {
-        res.setHeader('Content-Type', 'application/javascript');
-        fs.createReadStream(COI_SW_JS).pipe(res);
-      });
-    },
-
-    generateBundle() {
-      this.emitFile({
-        type: 'asset',
-        fileName: 'coi-serviceworker.js',
-        source: fs.readFileSync(COI_SW_JS)
-      });
-    }
-  };
-}
-
 export default defineConfig({
-  base: process.env.VITE_BASE ?? '/',
-  plugins: [svelte(), tailwindcss(), serveZ3Plugin(), serveCOIPlugin()],
-  resolve: {
-    alias: { '$lib': path.resolve(__dirname, './src/lib') }
-  },
+  plugins: [sveltekit(), tailwindcss(), previewHeadersPlugin(), serveZ3Plugin()],
   define: {
     // z3-solver references the Node.js `global` object; alias it to globalThis
     // so the package works in browser / Web Worker contexts.
@@ -122,6 +115,15 @@ export default defineConfig({
   server: {
     headers: {
       // Required for SharedArrayBuffer (used by z3-solver's threaded WASM).
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp'
+    }
+  },
+  preview: {
+    headers: {
+      // Same headers for `vite preview` (used by e2e tests).
+      // Without these, window.crossOriginIsolated is false and coi-serviceworker.js
+      // triggers a page reload mid-test, destroying Playwright's execution context.
       'Cross-Origin-Opener-Policy': 'same-origin',
       'Cross-Origin-Embedder-Policy': 'require-corp'
     }

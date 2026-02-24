@@ -3,10 +3,21 @@
  */
 import { test, expect } from '@playwright/test';
 
-async function goToLesson(page, chapterName, lessonName) {
-  await page.goto('/');
-  await page.getByRole('button', { name: chapterName }).click();
-  await page.getByRole('button', { name: new RegExp(lessonName) }).click();
+const UVM_ROUTES = {
+  'The First UVM Test': '/lesson/uvm/reporting',
+  'Sequence Items': '/lesson/uvm/seq-item',
+  'Sequences': '/lesson/uvm/sequence',
+  'The Driver': '/lesson/uvm/driver',
+  'Monitor and Scoreboard': '/lesson/uvm/monitor',
+  'Environment and Test': '/lesson/uvm/env'
+};
+
+async function goToLesson(page, lessonName) {
+  const route = UVM_ROUTES[lessonName];
+  if (!route) {
+    throw new Error(`No UVM route mapping found for lesson "${lessonName}"`);
+  }
+  await page.goto(route);
   await expect(page.getByRole('heading', { level: 2, name: lessonName })).toBeVisible();
 }
 
@@ -25,41 +36,41 @@ async function expectCleanUvmRun(logs) {
 }
 
 test('UVM Foundations: The First UVM Test', async ({ page }) => {
-  await goToLesson(page, 'UVM Foundations', 'The First UVM Test');
+  await goToLesson(page, 'The First UVM Test');
   await page.getByTestId('run-button').click();
   await expectCleanUvmRun(page.getByTestId('runtime-logs'));
 });
 
 test('UVM Foundations: Sequence Items — solution compiles and runs', async ({ page }) => {
-  await goToLesson(page, 'UVM Foundations', 'Sequence Items');
+  await goToLesson(page, 'Sequence Items');
   await page.getByTestId('solve-button').click();
   await page.getByTestId('run-button').click();
   await expectCleanUvmRun(page.getByTestId('runtime-logs'));
 });
 
 test('Stimulus: Sequences — solution compiles and runs', async ({ page }) => {
-  await goToLesson(page, 'Stimulus', 'Sequences');
+  await goToLesson(page, 'Sequences');
   await page.getByTestId('solve-button').click();
   await page.getByTestId('run-button').click();
   await expectCleanUvmRun(page.getByTestId('runtime-logs'));
 });
 
 test('Stimulus: The Driver — solution compiles and runs', async ({ page }) => {
-  await goToLesson(page, 'Stimulus', 'The Driver');
+  await goToLesson(page, 'The Driver');
   await page.getByTestId('solve-button').click();
   await page.getByTestId('run-button').click();
   await expectCleanUvmRun(page.getByTestId('runtime-logs'));
 });
 
 test('Checking: Monitor and Scoreboard — solution compiles and runs', async ({ page }) => {
-  await goToLesson(page, 'Checking', 'Monitor and Scoreboard');
+  await goToLesson(page, 'Monitor and Scoreboard');
   await page.getByTestId('solve-button').click();
   await page.getByTestId('run-button').click();
   await expectCleanUvmRun(page.getByTestId('runtime-logs'));
 });
 
 test('Checking: Environment and Test — solution compiles and runs', async ({ page }) => {
-  await goToLesson(page, 'Checking', 'Environment and Test');
+  await goToLesson(page, 'Environment and Test');
   await page.getByTestId('solve-button').click();
   await page.getByTestId('run-button').click();
   await expectCleanUvmRun(page.getByTestId('runtime-logs'));

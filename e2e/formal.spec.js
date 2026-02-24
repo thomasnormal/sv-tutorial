@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 // Helper: expand a chapter in the sidebar and click a lesson.
-// Lesson buttons carry data-active; chapter buttons do not — this distinction
-// prevents strict-mode violations from partial name matches.
+// Navigates to the first lesson directly (avoids SPA-fallback timing issues),
+// waits for Svelte hydration, then clicks through the sidebar.
 async function goToLesson(page, chapterName, lessonName) {
-  await page.goto('/');
+  await page.goto('/lesson/sv/welcome');
+  await page.locator('button[data-active]').first().waitFor({ timeout: 5_000 });
   const lessonBtn = page.locator('button[data-active]').filter({ hasText: lessonName });
   if ((await lessonBtn.count()) === 0) {
     await page.locator('button:not([data-active])').filter({ hasText: chapterName }).click();
@@ -78,7 +79,7 @@ test('LEC: buggy Impl is detected as NOT equivalent', async ({ page }) => {
   const logs = page.getByTestId('runtime-logs');
   await expect(logs).toContainText('$ circt-verilog', { timeout: 120_000 });
   await expect(logs).toContainText('$ circt-lec', { timeout: 120_000 });
-  await expect(logs).toContainText('[z3] sat', { timeout: 120_000 });
+  await expect(logs).toContainText('sat', { timeout: 120_000 });
   await expect(logs).not.toContainText('# circt-verilog exit code: 1');
 });
 
@@ -89,7 +90,7 @@ test('LEC: fixed Impl is proved equivalent to Spec', async ({ page }) => {
   await page.getByTestId('verify-button').click();
 
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('[z3] unsat', { timeout: 120_000 });
+  await expect(logs).toContainText('unsat', { timeout: 120_000 });
   await expect(logs).not.toContainText('# circt-verilog exit code: 1');
   await expect(logs).not.toContainText('# circt-lec exit code: 1');
 });

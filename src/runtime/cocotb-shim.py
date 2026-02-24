@@ -16,7 +16,7 @@ JS calls into Python:
     _vpi_event(trigger_id)        # fires the trigger with that ID
     _start_tests_sync()           # kicks off the test coroutines
 
-Python calls into JS (via 'js' module, set up by cocotb-adapter.js):
+Python calls into JS (via 'js' module, set up by the browser cocotb runtime):
     js._cocotb_register_trigger(json)  # register a VPI trigger, returns ID
     js._cocotb_get_signal(name)        # read signal value
     js._cocotb_set_signal(name, val)   # write signal value

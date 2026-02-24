@@ -1,0 +1,5 @@
+{
+  "title": "ClockCycles and Patterns",
+  "runner": "cocotb",
+  "focus": "/src/pulse_counter.sv"
+}

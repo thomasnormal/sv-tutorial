@@ -40,17 +40,17 @@ jobs:
         # Artifacts are stored in a GitHub Release named 'circt-wasm'.
         # To publish them locally, run:
         #   gh release create circt-wasm --title "CIRCT WASM artifacts" \
-        #     public/circt/circt-{bmc,sim,verilog}.{js,wasm}
+        #     static/circt/circt-{bmc,sim,verilog}.{js,wasm}
         # The build proceeds without them; simulation features will be
         # unavailable but the rest of the tutorial still works.
         run: |
-          mkdir -p public/circt
+          mkdir -p static/circt
           if gh release download circt-wasm \
                --repo "$GITHUB_REPOSITORY" \
-               -D public/circt \
+               -D static/circt \
                --clobber 2>/dev/null; then
             echo "CIRCT artifacts downloaded from release 'circt-wasm'"
-            ls -lh public/circt/
+            ls -lh static/circt/
           else
             echo "::notice::No 'circt-wasm' release found; simulation features will be unavailable."
           fi

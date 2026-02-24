@@ -1,6 +1,12 @@
 export const CIRCT_FORK_REPO = 'git@github.com:thomasnormal/circt.git';
 
-const BASE = import.meta.env.BASE_URL;
+function normalizeBaseUrl(raw) {
+  const base = raw || '/';
+  const withLeadingSlash = base.startsWith('/') ? base : `/${base}`;
+  return withLeadingSlash.endsWith('/') ? withLeadingSlash : `${withLeadingSlash}/`;
+}
+
+const BASE = normalizeBaseUrl(import.meta.env.BASE_URL);
 
 export const Z3_SCRIPT_URL = `${BASE}z3/z3-built.js`;
 const DEFAULT_TOOLCHAIN = {

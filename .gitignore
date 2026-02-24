@@ -3,10 +3,11 @@ node_modules
 dist
 .vite
 vendor
+.svelte-kit
 
 # Downloaded/built artifacts (run scripts/setup-*.sh to populate)
-public/circt/
-public/surfer/
+static/circt/
+static/surfer/
 
 # Dev screenshots and test artifacts
 *.png

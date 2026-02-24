@@ -6,8 +6,16 @@
             </ul>
             <p>By <strong>De Morgan's law</strong>, <code>~(a &amp; b)</code> is logically equivalent to <code>~a | ~b</code>. The <code>Impl</code> module has a bug — it is missing the inversion on <code>b</code>. Fix it:</p>
             <pre>assign y = ~a | ~b;</pre>
-            <p>Click <strong>verify</strong> to run LEC on the buggy code first. The tool encodes both modules as SMT constraints and asks a solver whether any input can make them differ. Because the bug is real, the solver finds one — it reports <strong>sat</strong> and shows a counterexample:</p>
-            <pre># counterexample: a=1 b=1</pre>
-            <p>You can verify this by hand: with <code>a=1, b=1</code>, Spec produces <code>~(1 &amp; 1) = 0</code> while the buggy Impl produces <code>~1 | 1 = 1</code> — they disagree.</p>
+            <p>Click <strong>verify</strong> to run LEC on the buggy code first. The tool encodes both modules as SMT constraints and asks a solver whether any input can make them differ. Because the bug is real, the solver finds one — it reports <strong>sat</strong> and shows how the model was extracted:</p>
+            <pre>$ z3 /workspace/out/check.smt2
+sat
+$ z3 -model /workspace/out/check.smt2 | grep define-fun
+  (define-fun b () (_ BitVec 2) #b00)
+  (define-fun a () (_ BitVec 2) #b10)
+  (define-fun c1_out0 () (_ BitVec 2) #b10)
+  (define-fun c2_out0 () (_ BitVec 2) #b00)
+# counterexample: b=0 a=1</pre>
+            <p>Reading the model output: <code>(define-fun b () (_ BitVec 2) #b00)</code> means <code>b=0</code>, and the next line means <code>a=1</code>. (This is a four-state encoding: <code>#b00</code>=logic 0, <code>#b10</code>=logic 1, <code>#b01</code>=Z, <code>#b11</code>=X.) The <code>c1_out0</code> and <code>c2_out0</code> lines are the output values of each circuit.</p>
+            <p>You can verify that <code>a=1, b=0</code> proves the models are different: Spec produces <code>~(1 &amp; 0) = 1</code> while the buggy Impl produces <code>~1 | 0 = 0</code>.</p>
             <p>Fix the bug, then click <strong>verify</strong> again. With no distinguishing input, the solver reports <strong>unsat</strong> — the circuits are equivalent for every possible input.</p>
             <blockquote><p>LEC is essential in chip design: it proves that logic synthesis, optimisation, and place-and-route have not changed the circuit's behaviour.</p></blockquote>

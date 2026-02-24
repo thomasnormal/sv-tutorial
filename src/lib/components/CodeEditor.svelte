@@ -3,10 +3,11 @@
   import { EditorState, Compartment } from '@codemirror/state';
   import { StreamLanguage, syntaxHighlighting, HighlightStyle } from '@codemirror/language';
   import { verilog } from '@codemirror/legacy-modes/mode/verilog';
+  import { python } from '@codemirror/legacy-modes/mode/python';
   import { tags } from '@lezer/highlight';
   import { untrack } from 'svelte';
 
-  let { value, onchange, vimMode = false, darkMode = false } = $props();
+  let { value, onchange, filePath = '', vimMode = false, darkMode = false } = $props();
   let container;
 
   // Dark-mode syntax highlight palette — colours tuned for the dark green background.
@@ -54,9 +55,15 @@
   }
 
   const themeCompartment = new Compartment();
+  const languageCompartment = new Compartment();
   const highlightCompartment = new Compartment();
   const vimCompartment = new Compartment();
-  const VIM_MODULE_SPEC = '@replit/codemirror-vim';
+
+  function languageExtensionForPath(path) {
+    const lower = String(path || '').toLowerCase();
+    if (lower.endsWith('.py')) return StreamLanguage.define(python);
+    return StreamLanguage.define(verilog);
+  }
 
   // Setup — runs once. untrack(value) avoids re-creating editor on every keystroke.
   $effect(() => {
@@ -67,9 +74,9 @@
     let vimExtension = [];
     const setupVim = async () => {
       try {
-        const { vim } = await import(VIM_MODULE_SPEC);
+        const { vim } = await import('@replit/codemirror-vim');
         if (initialVimMode) vimExtension = vim();
-      } catch {}
+      } catch (e) { console.error('vim load error:', e); }
     };
 
     let view;
@@ -81,7 +88,7 @@
           doc: initial,
           extensions: [
             basicSetup,
-            StreamLanguage.define(verilog),
+            languageCompartment.of(languageExtensionForPath(filePath)),
             themeCompartment.of(makeTheme(darkMode)),
             highlightCompartment.of(darkMode ? syntaxHighlighting(darkHighlight) : []),
             vimCompartment.of(vimExtension),
@@ -93,6 +100,13 @@
         parent: el,
       });
       el._cmView = view;
+      // `value` may have changed while vim was loading asynchronously (e.g.
+      // onMount populated the workspace after this effect started). Sync now
+      // so the editor doesn't open empty.
+      const latestValue = value;
+      if (latestValue !== initial) {
+        view.dispatch({ changes: { from: 0, to: initial.length, insert: latestValue } });
+      }
     });
 
     return () => {
@@ -125,6 +139,14 @@
     ]});
   });
 
+  // Reconfigure syntax highlighting based on selected file extension.
+  $effect(() => {
+    const path = filePath;
+    const v = container?._cmView;
+    if (!v) return;
+    v.dispatch({ effects: languageCompartment.reconfigure(languageExtensionForPath(path)) });
+  });
+
   // Toggle vim mode dynamically without recreating the editor.
   // Read `vimMode` BEFORE the null guard AND outside the async so Svelte 5 tracks it.
   $effect(() => {
@@ -135,9 +157,9 @@
       let ext = [];
       if (enableVim) {
         try {
-          const { vim } = await import(VIM_MODULE_SPEC);
+          const { vim } = await import('@replit/codemirror-vim');
           ext = vim();
-        } catch {}
+        } catch (e) { console.error('vim load error:', e); }
       }
       v.dispatch({ effects: vimCompartment.reconfigure(ext) });
     })();

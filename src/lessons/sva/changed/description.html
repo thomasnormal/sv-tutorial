@@ -1,0 +1,6 @@
+<p><code>$changed(sig)</code> returns true when a signal's sampled value differs from its value at the previous clock edge — a concise way to write <code>sig !== $past(sig)</code>:</p>
+<pre>update |=> $changed(data)</pre>
+<p>The companion function <code>$sampled(expr)</code> returns the value of an expression as sampled in the preponed region (the settled value at the clock edge). It is most useful inside action blocks to print what the checker actually saw:</p>
+<pre>else $error("data unchanged: 0x%0h", $sampled(data));</pre>
+<p>Open <code>toggle_check.sv</code> and complete the property body: while <code>update</code> is high, <code>data</code> must change every cycle.</p>
+<blockquote><p><code>$changed</code> uses four-state inequality (<code>!==</code>) so it is also true when a signal transitions to or from X. To ignore X transitions use <code>data != $past(data)</code> (two-state inequality) instead.</p></blockquote>

@@ -1,0 +1,10 @@
+<p>Sometimes an in-progress property should be terminated early — either because an abort condition renders the check irrelevant, or because its occurrence should itself be flagged as a failure. SVA provides two operators for this:</p>
+<ul>
+  <li><code>reject_on(cond) prop</code> — if <code>cond</code> becomes true while <code>prop</code> is being evaluated, <strong>fail</strong> immediately.</li>
+  <li><code>accept_on(cond) prop</code> — if <code>cond</code> becomes true, <strong>pass</strong> immediately (abort without failure).</li>
+</ul>
+<p>Both have synchronous variants — <code>sync_reject_on</code> and <code>sync_accept_on</code> — that only sample <code>cond</code> at the property's clock edge instead of asynchronously.</p>
+<p>Example: a burst transfer should normally complete with <code>ack</code> within 4 cycles, but if an error fires mid-burst the property should immediately fail:</p>
+<pre>start |=> reject_on(err) (##[1:4] ack)</pre>
+<p>Open <code>abort_check.sv</code> and complete the property body using <code>reject_on</code>.</p>
+<blockquote><p><code>reject_on(cond) seq</code> is equivalent to <code>(!cond) throughout seq</code> — both fail when <code>cond</code> goes true during the sequence window. <code>reject_on</code> is more expressive because it also applies to composite properties, not just sequences.</p></blockquote>

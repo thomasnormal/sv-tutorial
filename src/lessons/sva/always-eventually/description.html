@@ -1,0 +1,17 @@
+<p>SVA provides two operators for reasoning about entire future traces rather than bounded windows:</p>
+<ul>
+  <li><code>s_eventually prop</code> — <strong>strong eventually</strong>: <code>prop</code> must become true at some future clock tick. Fails if the trace ends without it occurring.</li>
+  <li><code>always prop</code> — <code>prop</code> must hold at <em>every</em> clock tick from now on.</li>
+</ul>
+<p>The <em>strong</em> vs <em>weak</em> distinction matters for formal tools: a weak property (<code>eventually</code>) is satisfied vacuously by a finite trace that never reaches the condition, while a strong property (<code>s_eventually</code>) demands the condition eventually occurs:</p>
+<pre>// After POR, the lock signal must eventually assert
+property p_lock_live;
+  @(posedge clk) $rose(rst_n) |-> s_eventually lock;
+endproperty
+
+// Once locked, it stays locked
+property p_lock_stable;
+  @(posedge clk) lock |-> always lock;
+endproperty</pre>
+<p>Open <code>liveness.sv</code> and fill in both property bodies.</p>
+<blockquote><p><code>s_eventually</code> and <code>always</code> used as property operators are <strong>IEEE 1800-2012</strong> features. They express Linear Temporal Logic (LTL) properties and require a formal tool that supports unbounded reasoning. Bounded model checking can only falsify them within its bound, not fully prove them.</p></blockquote>

@@ -1,0 +1,12 @@
+<p>The <strong><code>until</code></strong> family of operators expresses "hold this condition while waiting for that one":</p>
+<ul>
+  <li><code>p until q</code> — weak: <code>p</code> holds at every tick until <code>q</code> becomes true. If <code>q</code> never occurs the property still holds (vacuously).</li>
+  <li><code>p s_until q</code> — strong: same as above but <code>q</code> <em>must</em> eventually occur.</li>
+  <li><code>p until_with q</code> — inclusive: <code>p</code> is also required to hold on the same cycle that <code>q</code> first becomes true.</li>
+</ul>
+<p>A common use: a valid signal must stay high until a done pulse arrives:</p>
+<pre>property p_valid_holds;
+  @(posedge clk) valid |-> valid s_until done;
+endproperty</pre>
+<p>Open <code>hold_check.sv</code> and complete both properties: one using <code>s_until</code> and one using <code>until_with</code>.</p>
+<blockquote><p>The <code>nexttime</code> operator is the single-step companion: <code>nexttime p</code> requires <code>p</code> to hold at the very next clock tick. <code>s_nexttime p</code> is the strong variant (fails if there is no next tick). These combine naturally with <code>until</code> to build recursive temporal patterns.</p></blockquote>

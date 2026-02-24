@@ -1,0 +1,7 @@
+<p>The <strong><code>throughout</code></strong> operator requires an expression to hold true at <em>every</em> clock tick for the entire duration of a sequence:</p>
+<pre>expr throughout seq</pre>
+<p>At each evaluation step of <code>seq</code>, <code>expr</code> is checked. If <code>expr</code> ever goes false while <code>seq</code> is still running, the sequence fails.</p>
+<p>A typical use is mode/enable stability: chip-select must stay asserted for an entire 8-clock SPI transfer:</p>
+<pre>$fell(cs_n) |=> (!cs_n) throughout (mosi[*8])</pre>
+<p>Open <code>spi_check.sv</code> and complete the property using the pattern above.</p>
+<blockquote><p><code>(!cs_n) throughout seq</code> is equivalent to writing <code>sync_reject_on(cs_n) seq</code> — both fail as soon as <code>cs_n</code> rises mid-transfer. <code>throughout</code> is usually more readable for the stability idiom.</p></blockquote>

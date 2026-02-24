@@ -1,0 +1,15 @@
+<p>A <strong><code>checker</code></strong> is a named, encapsulated block of assertions that can be instantiated anywhere a module instance is legal — and also inside procedural blocks. Unlike a module, a checker is automatically excluded from synthesis and can take clocking events as formal arguments.</p>
+<pre>checker handshake_check(input logic clk, req, ack);
+  property p;
+    @(posedge clk) req |=> ##[1:3] ack;
+  endproperty
+  req_ack_a: assert property (p);
+endchecker
+
+module top(input logic clk, req1, ack1, req2, ack2);
+  // Reuse the same checker for two independent channels
+  handshake_check c1(clk, req1, ack1);
+  handshake_check c2(clk, req2, ack2);
+endmodule</pre>
+<p>Open <code>top.sv</code> and complete the property inside the <code>handshake_check</code> checker.</p>
+<blockquote><p>Checkers can also accept <code>sequence</code>, <code>property</code>, and <code>event</code> typed formal arguments, making them fully parameterisable assertion bundles — the SVA equivalent of generic verification IP.</p></blockquote>

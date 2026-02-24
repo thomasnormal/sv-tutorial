@@ -1,0 +1,7 @@
+<p>A <strong>recursive property</strong> is a property that refers to itself in its own body, creating a self-referential temporal statement. They must use the non-overlapping implication <code>|=&gt;</code> (never <code>|-&gt;</code>) to avoid zero-time loops:</p>
+<pre>property p_hold(logic sig, logic release_cond);
+  @(posedge clk) sig && !release_cond |=> p_hold(sig, release_cond);
+endproperty</pre>
+<p>This reads: "if <code>sig</code> is high and <code>release_cond</code> is not, then one cycle later the same condition must hold again." The recursion unrolls until <code>release_cond</code> becomes true.</p>
+<p>Open <code>lock_check.sv</code> and complete the recursive property that asserts <code>lock</code> stays high until <code>unlock</code> is asserted.</p>
+<blockquote><p>Recursive properties can only appear as the <em>consequent</em> of an implication — never on the antecedent side. They are powerful for expressing "hold until" invariants without needing to know the bound in advance, and formal tools can often prove them by induction.</p></blockquote>

@@ -73,12 +73,13 @@ export const parts = [
     title: 'SystemVerilog Assertions',
     chapters: [
       { title: 'Your First Assertion',      lessons: [L('sva/immediate-assert'), L('sva/sequence-basics')] },
-      { title: 'Clock Delay & Sequences',   lessons: [L('sva/clock-delay'), L('sva/consecutive-rep'), L('sva/nonconsec-rep')] },
-      { title: 'Properties & Implication',  lessons: [L('sva/implication'), L('sva/req-ack'), L('sva/disable-iff'), L('sva/vacuous-pass')] },
-      { title: 'Sampled Value Functions',   lessons: [L('sva/rose-fell'), L('sva/stable-past')] },
+      { title: 'Clock Delay & Sequences',   lessons: [L('sva/clock-delay'), L('sva/consecutive-rep'), L('sva/nonconsec-rep'), L('sva/nonconsec-eq')] },
+      { title: 'Sequence Operators',        lessons: [L('sva/throughout'), L('sva/sequence-ops')] },
+      { title: 'Properties & Implication',  lessons: [L('sva/implication'), L('sva/req-ack'), L('sva/disable-iff'), L('sva/vacuous-pass'), L('sva/abort')] },
+      { title: 'Sampled Value Functions',   lessons: [L('sva/rose-fell'), L('sva/stable-past'), L('sva/isunknown'), L('sva/changed')] },
       { title: 'Coverage',                  lessons: [L('sva/cover-property')] },
-      { title: 'Advanced Properties',       lessons: [L('sva/local-vars'), L('sva/onehot')] },
-      { title: 'Formal Verification',       lessons: [L('sva/formal-intro'), L('sva/formal-assume'), L('sva/lec')] },
+      { title: 'Advanced Properties',       lessons: [L('sva/local-vars'), L('sva/onehot'), L('sva/triggered'), L('sva/checker'), L('sva/recursive')] },
+      { title: 'Formal Verification',       lessons: [L('sva/formal-intro'), L('sva/formal-assume'), L('sva/always-eventually'), L('sva/until'), L('sva/lec')] },
     ],
   },
   {

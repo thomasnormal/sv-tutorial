@@ -1,0 +1,12 @@
+<p>SVA provides four operators for composing two sequences:</p>
+<ul>
+  <li><code>s1 and s2</code> — both must match; they start together but may end at different cycles</li>
+  <li><code>s1 or s2</code> — at least one must match</li>
+  <li><code>s1 intersect s2</code> — both must match <em>and</em> end at exactly the same cycle</li>
+  <li><code>s1 within s2</code> — <code>s1</code> starts and ends entirely inside <code>s2</code>'s window</li>
+</ul>
+<p><code>intersect</code> is the most useful for bus protocols: it checks that two independent conditions hold simultaneously for the same duration:</p>
+<pre>valid |-> (valid[*4]) intersect (ready[*4])</pre>
+<p>This says: if <code>valid</code> is high, then both <code>valid</code> and <code>ready</code> must stay high for exactly 4 consecutive cycles — they must be in lock-step.</p>
+<p>Open <code>bus_check.sv</code> and complete the property using <code>intersect</code>.</p>
+<blockquote><p>Use <code>and</code> when two conditions must both eventually be satisfied but may take different amounts of time. Use <code>intersect</code> when they must finish together — common for data/valid or valid/ready handshake verification.</p></blockquote>

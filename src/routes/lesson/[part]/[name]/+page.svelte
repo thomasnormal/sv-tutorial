@@ -8,7 +8,6 @@
   import { completedSlugs } from '$lib/stores/completed.js';
   import { cloneFiles, mergeFiles, normalize, topNameFromFocus } from '$lib/lesson-utils.js';
   import { termCard } from '$lib/actions/term-card.js';
-  import { Tabs, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
   import CodeEditor from '$lib/components/CodeEditor.svelte';
   import WaveformViewer from '$lib/components/WaveformViewer.svelte';
 
@@ -709,18 +708,16 @@
         <div class="flex-1 min-h-0 min-w-0 grid grid-rows-[auto_1fr]">
           <div class="flex items-center gap-2 px-[0.5rem] pt-[0.4rem] pb-[0.3rem]">
             <div class="flex-1 overflow-x-auto">
-              <Tabs value={selectedFile} onValueChange={(v) => (selectedFile = v)}>
-                <TabsList class="h-auto flex-nowrap gap-[0.35rem] bg-transparent p-0 w-max">
-                  {#each Object.keys(workspace) as filename}
-                    <TabsTrigger
-                      value={filename}
-                      class="font-mono text-[0.8rem] rounded-[10px] border border-border data-[state=active]:border-teal data-[state=active]:text-teal data-[state=active]:bg-tab-selected-bg data-[state=inactive]:bg-surface-2"
-                    >
-                      {filename}
-                    </TabsTrigger>
-                  {/each}
-                </TabsList>
-              </Tabs>
+              <div role="tablist" class="flex flex-nowrap gap-[0.35rem] w-max">
+                {#each Object.keys(workspace) as filename}
+                  <button
+                    role="tab"
+                    aria-selected={selectedFile === filename}
+                    onclick={() => (selectedFile = filename)}
+                    class="inline-flex items-center font-mono text-[0.8rem] rounded-[10px] border px-2 py-1 whitespace-nowrap transition-colors {selectedFile === filename ? 'border-teal text-teal bg-tab-selected-bg' : 'border-border bg-surface-2'}"
+                  >{filename}</button>
+                {/each}
+              </div>
             </div>
             {#if canSplit}
               <button
@@ -757,18 +754,18 @@
       <!-- Header: Logs/Waves tab switcher + waveform toolbar -->
       {#if hasWaveform}
         <div class="flex items-center gap-[0.4rem] px-[0.5rem] py-[0.35rem]">
-          <Tabs value={activeRuntimeTab} onValueChange={(v) => (activeRuntimeTab = v)}>
-            <TabsList class="h-auto gap-[0.35rem] bg-transparent p-0">
-              <TabsTrigger value="logs" data-testid="runtime-tab-logs"
-                class="text-[0.8rem] rounded-[10px] border border-border data-[state=active]:border-teal data-[state=active]:text-teal data-[state=active]:bg-tab-selected-bg data-[state=inactive]:bg-surface-2">
-                Logs
-              </TabsTrigger>
-              <TabsTrigger value="waves" data-testid="runtime-tab-waves"
-                class="text-[0.8rem] rounded-[10px] border border-border data-[state=active]:border-teal data-[state=active]:text-teal data-[state=active]:bg-tab-selected-bg data-[state=inactive]:bg-surface-2">
-                Waves
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <div role="tablist" class="flex gap-[0.35rem]">
+            <button role="tab" aria-selected={activeRuntimeTab === 'logs'}
+              onclick={() => (activeRuntimeTab = 'logs')}
+              data-testid="runtime-tab-logs"
+              class="inline-flex items-center text-[0.8rem] rounded-[10px] border px-2 py-1 whitespace-nowrap transition-colors {activeRuntimeTab === 'logs' ? 'border-teal text-teal bg-tab-selected-bg' : 'border-border bg-surface-2'}"
+            >Logs</button>
+            <button role="tab" aria-selected={activeRuntimeTab === 'waves'}
+              onclick={() => (activeRuntimeTab = 'waves')}
+              data-testid="runtime-tab-waves"
+              class="inline-flex items-center text-[0.8rem] rounded-[10px] border px-2 py-1 whitespace-nowrap transition-colors {activeRuntimeTab === 'waves' ? 'border-teal text-teal bg-tab-selected-bg' : 'border-border bg-surface-2'}"
+            >Waves</button>
+          </div>
           {#if activeRuntimeTab === 'waves'}
             <div class="wave-toolbar">
               <button class="wtb-btn" onclick={() => waveformRef?.sendCmd('goto_start')}           title="Go to start"           disabled={!waveSignalsReady}>⏮</button>

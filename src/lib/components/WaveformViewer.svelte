@@ -307,25 +307,38 @@
       // may still be processing), so we poll with retries.
       const firstVar = firstTransitioningVar(text);
       const focusTimer = setTimeout(async () => {
-        if (!firstVar || typeof el?.contentWindow?.id_of_name !== 'function') return;
+        if (!firstVar) return;
+        const cw = el?.contentWindow;
+        if (!cw) return;
+        // id_of_name  → DisplayedItemRef (for SetItemSelected)
+        // index_of_name → VisibleItemIndex (for FocusItem — keyboard nav)
+        const hasIndexFn = typeof cw.index_of_name === 'function';
+        const hasIdFn    = typeof cw.id_of_name    === 'function';
+        if (!hasIndexFn && !hasIdFn) return;
 
         // Poll until scope_add_recursive has finished adding signals to the display.
         for (let attempt = 0; attempt < 16; attempt++) {
           if (attempt > 0) await new Promise((r) => setTimeout(r, 250));
-          const cw = el?.contentWindow;
-          if (!cw) return;
+          const cw2 = el?.contentWindow;
+          if (!cw2) return;
           try {
-            const itemId = await cw.id_of_name(firstVar.fullPath);
-            if (itemId !== undefined) {
-              // FocusItem sets keyboard focus — required for transition_next/prev.
-              // The DisplayedItemRef value equals the VisibleItemIndex in this build.
-              surferMsg(cw, { FocusItem: itemId });
-              // SetItemSelected gives the visual blue highlight so users can see
-              // which signal is being navigated.
-              surferMsg(cw, { SetItemSelected: { item: itemId, selected: true } });
-              selectedSignal = firstVar.name;
-              return;
-            }
+            // Use index_of_name for FocusItem (VisibleItemIndex).
+            // Fall back to id_of_name if index_of_name is unavailable (older Surfer builds
+            // where DisplayedItemRef happened to equal VisibleItemIndex for flat scopes).
+            const visibleIdx = hasIndexFn
+              ? await cw2.index_of_name(firstVar.fullPath)
+              : await cw2.id_of_name(firstVar.fullPath);
+            if (visibleIdx === undefined) continue;
+            // FocusItem sets keyboard focus — required for transition_next/prev.
+            surferMsg(cw2, { FocusItem: visibleIdx });
+            // SetItemSelected gives the visual blue highlight.
+            // Prefer id_of_name (DisplayedItemRef) for SetItemSelected when available.
+            const itemRef = hasIdFn
+              ? (await cw2.id_of_name(firstVar.fullPath) ?? visibleIdx)
+              : visibleIdx;
+            surferMsg(cw2, { SetItemSelected: { item: itemRef, selected: true } });
+            selectedSignal = firstVar.name;
+            return;
           } catch { /* keep polling */ }
         }
       }, cmdDelay + 400);

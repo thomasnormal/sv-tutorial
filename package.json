@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "vite build && node -e \"require('fs').copyFileSync('build/404.html','build/index.html')\"",
     "preview": "vite preview --outDir build",
     "check:req": "./scripts/check-requirements.sh",
     "check:req:wasm": "./scripts/check-requirements.sh --with-wasm",
@@ -39,7 +39,9 @@
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/kit": "^2.53.0",
     "coi-serviceworker": "^0.1.7",
+    "compression": "^1.8.1",
     "vite": "^6.0.0",
+    "vite-plugin-compression2": "^2.4.0",
     "vitest": "^4.0.18"
   }
 }

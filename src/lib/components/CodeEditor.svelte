@@ -1,7 +1,7 @@
 <script>
   import { EditorView, basicSetup } from 'codemirror';
   import { EditorState, Compartment } from '@codemirror/state';
-  import { StreamLanguage, syntaxHighlighting, HighlightStyle } from '@codemirror/language';
+  import { StreamLanguage, syntaxHighlighting, HighlightStyle, indentUnit } from '@codemirror/language';
   import { linter, lintGutter, setDiagnostics } from '@codemirror/lint';
   import { verilog } from '@codemirror/legacy-modes/mode/verilog';
   import { python } from '@codemirror/legacy-modes/mode/python';
@@ -66,12 +66,19 @@
   const themeCompartment = new Compartment();
   const languageCompartment = new Compartment();
   const highlightCompartment = new Compartment();
+  const indentCompartment = new Compartment();
   const vimCompartment = new Compartment();
 
   function languageExtensionForPath(path) {
     const lower = String(path || '').toLowerCase();
     if (lower.endsWith('.py')) return StreamLanguage.define(python);
     return StreamLanguage.define(verilog);
+  }
+
+  function indentExtensionForPath(path) {
+    const lower = String(path || '').toLowerCase();
+    if (lower.endsWith('.py')) return indentUnit.of('    ');
+    return [];
   }
 
   // Setup — runs once. untrack(value) avoids re-creating editor on every keystroke.
@@ -82,9 +89,10 @@
 
     let vimExtension = [];
     const setupVim = async () => {
+      if (!initialVimMode) return;
       try {
         const { vim } = await import('@replit/codemirror-vim');
-        if (initialVimMode) vimExtension = vim();
+        vimExtension = vim();
       } catch (e) { console.error('vim load error:', e); }
     };
 
@@ -100,6 +108,7 @@
             linter(() => []),
             lintGutter(),
             languageCompartment.of(languageExtensionForPath(filePath)),
+            indentCompartment.of(indentExtensionForPath(filePath)),
             themeCompartment.of(makeTheme(darkMode)),
             highlightCompartment.of(darkMode ? syntaxHighlighting(darkHighlight) : []),
             vimCompartment.of(vimExtension),
@@ -155,7 +164,10 @@
     const path = filePath;
     const v = container?._cmView;
     if (!v) return;
-    v.dispatch({ effects: languageCompartment.reconfigure(languageExtensionForPath(path)) });
+    v.dispatch({ effects: [
+      languageCompartment.reconfigure(languageExtensionForPath(path)),
+      indentCompartment.reconfigure(indentExtensionForPath(path)),
+    ]});
   });
 
   // Push diagnostics (errors/warnings from simulator) into the editor.

@@ -71,6 +71,9 @@ function patchIndex(path) {
     if (!names.includes('waves_loaded')) {
       names.push('waves_loaded');
     }
+    if (!names.includes('index_of_name')) {
+      names.push('index_of_name');
+    }
     return `import { ${names.join(', ')} } from './surfer.js';`;
   });
 
@@ -80,6 +83,13 @@ function patchIndex(path) {
       throw new Error(`could not find draw_text_arrow assignment in ${path}`);
     }
     src = src.replace(anchor, `${anchor}\n        window.waves_loaded = waves_loaded;`);
+  }
+
+  if (!src.includes('window.index_of_name = index_of_name;')) {
+    const anchor = 'window.id_of_name = id_of_name;';
+    if (src.includes(anchor)) {
+      src = src.replace(anchor, `${anchor}\n        window.index_of_name = index_of_name;`);
+    }
   }
 
   fs.writeFileSync(path, src);

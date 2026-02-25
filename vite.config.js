@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
+import { compression } from 'vite-plugin-compression2';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -73,7 +74,17 @@ function serveZ3Plugin() {
 }
 
 export default defineConfig({
-  plugins: [sveltekit(), tailwindcss(), previewHeadersPlugin(), serveZ3Plugin()],
+  plugins: [
+    sveltekit(),
+    tailwindcss(),
+    previewHeadersPlugin(),
+    serveZ3Plugin(),
+    // Pre-compress JS/CSS/HTML assets at build time.
+    // Served automatically by nginx (gzip_static on) or any CDN that looks for
+    // .gz sidecar files. GitHub Pages compresses on the fly via its CDN.
+    compression({ algorithm: 'gzip',   include: /\.(js|css|html|svg)$/ }),
+    compression({ algorithm: 'brotliCompress', include: /\.(js|css|html|svg)$/, threshold: 1024 }),
+  ],
   define: {
     // z3-solver references the Node.js `global` object; alias it to globalThis
     // so the package works in browser / Web Worker contexts.

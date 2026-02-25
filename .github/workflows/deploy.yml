@@ -43,17 +43,38 @@ jobs:
         # Artifacts are stored in a GitHub Release named 'circt-wasm'.
         # To publish them locally, run:
         #   gh release create circt-wasm --title "CIRCT WASM artifacts" \
-        #     static/circt/circt-{bmc,sim,sim-vpi,verilog,lec}.{js,wasm}
+        #     static/circt/circt-{bmc,sim,sim-vpi,verilog,lec}.{js,wasm} \
+        #     /tmp/uvm-core.tar.gz
+        # where /tmp/uvm-core.tar.gz is created by:
+        #   tar -czf /tmp/uvm-core.tar.gz -C static/circt uvm-core
         # The build proceeds without them; simulation features will be
         # unavailable but the rest of the tutorial still works.
         run: |
           mkdir -p static/circt
+
+          unpack_uvm_bundle_if_present() {
+            if [ -f static/circt/uvm-core.tar.gz ]; then
+              rm -rf static/circt/uvm-core
+              tar -xzf static/circt/uvm-core.tar.gz -C static/circt
+            fi
+          }
+
+          have_uvm_bundle() {
+            [ -f static/circt/uvm-core/uvm-manifest.json ]
+          }
+
           if gh release download circt-wasm \
                --repo "$GITHUB_REPOSITORY" \
                -D static/circt \
                --clobber 2>/dev/null; then
+            unpack_uvm_bundle_if_present
             echo "CIRCT artifacts downloaded from release 'circt-wasm'"
             ls -lh static/circt/
+            if have_uvm_bundle; then
+              echo "UVM runtime bundle found"
+            else
+              echo "::notice::UVM runtime bundle missing (uvm-manifest.json not found); UVM lessons may fail."
+            fi
           else
             echo "::notice::No 'circt-wasm' release found; simulation features will be unavailable."
           fi

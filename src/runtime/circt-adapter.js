@@ -1,4 +1,4 @@
-import { CIRCT_FORK_REPO, getCirctRuntimeConfig, Z3_SCRIPT_URL } from './circt-config.js';
+import { CIRCT_FORK_REPO, getCirctRuntimeConfig, getRuntimeBasePath, Z3_SCRIPT_URL } from './circt-config.js';
 import COCOTB_SHIM from './cocotb-shim.py?raw';
 import { COCOTB_WORKER_SOURCE } from './cocotb-worker-source.js';
 import { WORKER_RUNTIME_HELPERS_SOURCE } from './worker-runtime-helpers-source.js';
@@ -71,6 +71,32 @@ function compileRootSourcePaths(files) {
 
   const roots = svPaths.filter((path) => !includedSources.has(path));
   return roots.length ? roots : svPaths;
+}
+
+function bundleCompileRoots(files, compileRoots, { enabled = false, force = false } = {}) {
+  if (!enabled || !Array.isArray(compileRoots) || compileRoots.length === 0) {
+    return { files, roots: compileRoots, bundled: false, rootCount: compileRoots?.length || 0 };
+  }
+  if (!force && compileRoots.length <= 1) {
+    return { files, roots: compileRoots, bundled: false, rootCount: compileRoots?.length || 0 };
+  }
+
+  const bundlePath = '/__svt_uvm_bundle.sv';
+  const includeLines = compileRoots.map((path) => {
+    const normalized = normalizePath(path);
+    const relative = normalized.startsWith('/workspace/')
+      ? normalized.slice('/workspace/'.length)
+      : normalized.replace(/^\/+/, '');
+    return `\`include "${relative}"`;
+  });
+
+  return {
+    files: { ...files, [bundlePath]: `${includeLines.join('\n')}\n` },
+    roots: [bundlePath],
+    bundled: true,
+    rootCount: compileRoots.length,
+    bundlePath: normalizePath(bundlePath)
+  };
 }
 
 function containsPath(files, basename) {
@@ -150,6 +176,17 @@ function appendNonZeroExit(logs, tool, exitCode, onLog = null) {
   }
 }
 
+function cocotbWorkerLogToStreamEntry(entry) {
+  const text = String(entry ?? '');
+  if (text.startsWith('[stdout] ') || text.startsWith('[stderr] ')) return text;
+  const t = text.trim();
+  const isError = /^FAIL\b/.test(t) ||
+    /^ERROR\b/.test(t) ||
+    /^Traceback\b/.test(t) ||
+    /^\w*Error\b/.test(t);
+  return `[${isError ? 'stderr' : 'stdout'}] ${text}`;
+}
+
 function removeFlag(args, flag) {
   return (args || []).filter((arg) => arg !== flag);
 }
@@ -188,8 +225,14 @@ function isRetryableSimAbortText(text) {
   return /Aborted\(/.test(value) || isWasmOomText(value);
 }
 
+function isRetryableVerilogCrashText(text) {
+  const value = String(text || '');
+  return /memory access out of bounds|Malformed attribute storage object|Aborted\(/i.test(value);
+}
+
 const UVM_FS_ROOT = '/circt/uvm-core';
 const UVM_INCLUDE_ROOT = `${UVM_FS_ROOT}/src`;
+const UVM_SIM_MAX_TIME_FS = '1000000';
 
 function pickTopModules(files, fallbackTop) {
   const moduleNames = moduleNamesFromWorkspace(files);
@@ -580,27 +623,61 @@ function makeInMemFS(onStdoutChunk = null, onStderrChunk = null) {
 
 var circtWorkerRuntimeReady = false;
 
+function getModuleValue(module, name) {
+  if (!module) return null;
+  const descriptor = Object.getOwnPropertyDescriptor(module, name);
+  if (!descriptor || !Object.prototype.hasOwnProperty.call(descriptor, 'value')) return null;
+  return descriptor.value;
+}
+
+function resolveMain(module) {
+  const moduleMain = getModuleValue(module, '_main');
+  if (typeof moduleMain === 'function') return moduleMain;
+  if (typeof self._main === 'function') return self._main;
+  if (typeof globalThis._main === 'function') return globalThis._main;
+  return null;
+}
+
+function resolveFS(module) {
+  const moduleFS = getModuleValue(module, 'FS');
+  if (moduleFS && typeof moduleFS.writeFile === 'function' && typeof moduleFS.readFile === 'function') {
+    return moduleFS;
+  }
+  if (self.FS && typeof self.FS.writeFile === 'function' && typeof self.FS.readFile === 'function') {
+    return self.FS;
+  }
+  if (globalThis.FS && typeof globalThis.FS.writeFile === 'function' && typeof globalThis.FS.readFile === 'function') {
+    return globalThis.FS;
+  }
+  return null;
+}
+
+function resolveCallMain(module) {
+  const moduleCallMain = getModuleValue(module, 'callMain');
+  if (typeof moduleCallMain === 'function') return moduleCallMain;
+  if (typeof self.__svt_callMain === 'function') return self.__svt_callMain;
+  if (typeof globalThis.__svt_callMain === 'function') return globalThis.__svt_callMain;
+  if (typeof self.callMain === 'function') return self.callMain;
+  if (typeof globalThis.callMain === 'function') return globalThis.callMain;
+  return null;
+}
+
 function waitForRuntime(timeoutMs = 45000) {
   const start = Date.now();
   return new Promise((resolve, reject) => {
     const tick = () => {
       try {
         const module = self.Module;
-        if (module && typeof self.callMain === 'function' && typeof module.callMain !== 'function') {
-          module.callMain = self.callMain;
-        }
-        if (module && !module.FS && self.FS) {
-          module.FS = self.FS;
-        }
+        const callMain = resolveCallMain(module);
+        const main = resolveMain(module);
+        const fsApi = resolveFS(module);
 
         if (
           circtWorkerRuntimeReady &&
           module &&
-          typeof module.callMain === 'function' &&
-          typeof module._main === 'function' &&
-          module.FS &&
-          typeof module.FS.writeFile === 'function' &&
-          typeof module.FS.readFile === 'function'
+          !!callMain &&
+          !!main &&
+          !!fsApi
         ) {
           resolve(module);
           return;
@@ -715,6 +792,10 @@ self.onmessage = async (event) => {
 
     console.log('[circt-worker] waiting for runtime...');
     const module = await waitForRuntime();
+    const fsApi = resolveFS(module);
+    if (!fsApi) {
+      throw new Error('Emscripten FS runtime did not become ready');
+    }
     if (typeof req.uvmManifestUrl === 'string' && req.uvmManifestUrl.length > 0) {
       const response = await fetch(req.uvmManifestUrl, { cache: 'force-cache' });
       if (!response.ok) {
@@ -741,13 +822,13 @@ self.onmessage = async (event) => {
           inMemFS.writeTextFile(fsPath, srcText);
           continue;
         }
-        if (module.FS && typeof module.FS.createLazyFile === 'function') {
+        if (typeof fsApi.createLazyFile === 'function') {
           const idx = fsPath.lastIndexOf('/');
           const parent = idx <= 0 ? '/' : fsPath.slice(0, idx);
           const base = idx === -1 ? fsPath : fsPath.slice(idx + 1);
-          ensureDir(module.FS, parent);
+          ensureDir(fsApi, parent);
           try {
-            module.FS.createLazyFile(parent, base, sourceUrl, true, false);
+            fsApi.createLazyFile(parent, base, sourceUrl, true, false);
           } catch {
             // Ignore duplicate registrations.
           }
@@ -763,16 +844,20 @@ self.onmessage = async (event) => {
         inMemFS.ensureDir(String(dir));
       }
     } else {
-      writeWorkspaceFiles(module.FS, req.files || {});
+      writeWorkspaceFiles(fsApi, req.files || {});
       for (const dir of req.createDirs || []) {
-        ensureDir(module.FS, dir);
+        ensureDir(fsApi, dir);
       }
     }
 
     console.log('[circt-worker] calling callMain with args:', req.args);
     let exitCode = 0;
     try {
-      const ret = module.callMain(Array.isArray(req.args) ? req.args : []);
+      const callMain = resolveCallMain(module);
+      if (!callMain) {
+        throw new Error('CIRCT runtime is missing callMain entrypoint');
+      }
+      const ret = callMain(Array.isArray(req.args) ? req.args : []);
       if (typeof ret === 'number' && Number.isFinite(ret)) {
         exitCode = ret;
       }
@@ -789,7 +874,7 @@ self.onmessage = async (event) => {
             .map((path) => [String(path), inMemFS.readTextFile(String(path))])
             .filter(([, content]) => typeof content === 'string')
         )
-      : readWorkspaceFiles(module.FS, req.readFiles || []);
+      : readWorkspaceFiles(fsApi, req.readFiles || []);
     self.postMessage({
       type: 'result',
       ok: true,
@@ -967,7 +1052,7 @@ function toAbsoluteUrl(rawUrl) {
 }
 
 function getUvmManifestUrl() {
-  return toAbsoluteUrl(`${import.meta.env.BASE_URL}circt/uvm-core/uvm-manifest.json`);
+  return toAbsoluteUrl(`${getRuntimeBasePath()}circt/uvm-core/uvm-manifest.json`);
 }
 
 // ── Cocotb worker ─────────────────────────────────────────────────────────────
@@ -995,6 +1080,7 @@ function runCocotbInWorker({
   pyodideUrl,
   mlir,
   topModule,
+  pyPath,
   pyCode,
   shimCode,
   maxTimeNs,
@@ -1031,7 +1117,18 @@ function runCocotbInWorker({
       reject(new Error(String(event?.message || 'cocotb worker crashed')));
     };
 
-    worker.postMessage({ simJsUrl, simWasmUrl, pyodideUrl, mlir, topModule, pyCode, shimCode, maxTimeNs });
+    worker.postMessage({
+      simJsUrl,
+      simWasmUrl,
+      pyodideUrl,
+      pageUrl: window.location.href,
+      mlir,
+      topModule,
+      pyPath,
+      pyCode,
+      shimCode,
+      maxTimeNs
+    });
   });
 }
 
@@ -1122,25 +1219,54 @@ export class CirctWasmAdapter {
         };
       }
 
-      const compileRoots = compileRootSourcePaths(files);
       const topModules = pickTopModules(files, top);
-      const normalizedSvPaths = compileRoots.map((path) => normalizePath(path));
       const mlirPath = '/workspace/out/design.llhd.mlir';
       const wavePath = '/workspace/out/waves.vcd';
       const useFullUvm = needsUvmLibrary(files);
-      const workspaceFiles = files;
       const uvmManifestUrl = useFullUvm ? getUvmManifestUrl() : null;
 
-      const compileArgs = useFullUvm
-        ? removeFlag(this.config.verilogArgs, '--single-unit')
-        : [...this.config.verilogArgs];
-      if (useFullUvm) {
-        compileArgs.push('--uvm-path', UVM_FS_ROOT, '-I', UVM_INCLUDE_ROOT);
-      }
-      for (const topName of topModules) {
-        compileArgs.push('--top', topName);
-      }
-      compileArgs.push('-o', mlirPath, ...normalizedSvPaths);
+      const compileRootPaths = compileRootSourcePaths(files);
+      const buildCompilePlan = ({ forceBundle, singleUnit, label }) => {
+        const bundledCompile = bundleCompileRoots(files, compileRootPaths, {
+          enabled: useFullUvm,
+          force: useFullUvm ? forceBundle : false
+        });
+        const compileRoots = (bundledCompile.roots || []).map((path) => normalizePath(path));
+        let compileArgs = [...this.config.verilogArgs];
+        compileArgs = singleUnit
+          ? (compileArgs.includes('--single-unit') ? compileArgs : [...compileArgs, '--single-unit'])
+          : removeFlag(compileArgs, '--single-unit');
+        if (useFullUvm) {
+          compileArgs.push('--uvm-path', UVM_FS_ROOT, '-I', UVM_INCLUDE_ROOT);
+        }
+        for (const topName of topModules) {
+          compileArgs.push('--top', topName);
+        }
+        compileArgs.push('-o', mlirPath, ...compileRoots);
+        return {
+          label,
+          bundledCompile,
+          compileArgs,
+          workspaceFiles: Object.fromEntries(
+            Object.entries(bundledCompile.files).map(([path, content]) => [normalizePath(path), content])
+          )
+        };
+      };
+
+      const compilePlans = useFullUvm
+        ? [
+            buildCompilePlan({ forceBundle: true, singleUnit: true, label: 'bundled single-unit mode' }),
+            buildCompilePlan({ forceBundle: false, singleUnit: false, label: 'native root mode' }),
+            buildCompilePlan({ forceBundle: true, singleUnit: false, label: 'bundled non-single-unit mode' }),
+            buildCompilePlan({ forceBundle: false, singleUnit: true, label: 'single-unit mode' }),
+          ]
+        : [
+            buildCompilePlan({
+              forceBundle: false,
+              singleUnit: this.config.verilogArgs.includes('--single-unit'),
+              label: 'default mode'
+            })
+          ];
 
       const logs = [];
       const emitLog = (entry) => {
@@ -1158,50 +1284,75 @@ export class CirctWasmAdapter {
         };
       };
 
-      emitLog(formatCommand('circt-verilog', compileArgs));
-
       if (typeof onStatus === 'function') onStatus('compiling');
-      let compile;
-      const compileStream = makeToolOutputHandler();
-      try {
-        compile = await this._invokeTool('verilog', {
-          args: compileArgs,
-          files: Object.fromEntries(
-            Object.entries(workspaceFiles).map(([path, content]) => [normalizePath(path), content])
-          ),
-          readFiles: [mlirPath],
-          createDirs: ['/workspace/out'],
-          uvmManifestUrl,
-          onOutput: compileStream.onOutput
-        });
-      } catch (error) {
-        const text = String(error?.message || error || '');
-        if (useFullUvm && text.includes('Aborted(OOM)')) {
-          emitLog('# circt-verilog: out of memory compiling UVM — rebuild wasm with larger heap');
-          if (typeof onStatus === 'function') onStatus('done');
-          return { ok: false, logs, waveform: null };
+      let compile = null;
+      let loweredMlir = null;
+      for (let attempt = 0; attempt < compilePlans.length; attempt += 1) {
+        const plan = compilePlans[attempt];
+        if (attempt > 0) {
+          emitLog(`# circt-verilog: retrying in ${plan.label}`);
         }
-        throw error;
-      }
-      if (!compileStream.sawStream()) {
-        if (compile.stdout) emitLog(`[stdout] ${compile.stdout}`);
-        if (compile.stderr) emitLog(`[stderr] ${compile.stderr}`);
-      }
-      appendNonZeroExit(logs, 'circt-verilog', compile.exitCode, emitLog);
+        if (plan.bundledCompile.bundled) {
+          emitLog(
+            `# bundled ${plan.bundledCompile.rootCount} roots into ${plan.bundledCompile.bundlePath} ` +
+            'for stable UVM compilation'
+          );
+        }
+        emitLog(formatCommand('circt-verilog', plan.compileArgs));
 
-      const rawMlir = compile.files?.[mlirPath] || null;
-      // Add name attributes to llhd.sig ops that lack them so circt-sim's VCD
-      // writer can emit $var entries. circt-verilog only sets name on module
-      // port connections; testbench-level logic signals get no name attribute.
-      // We use the SSA result identifier (%clk → name "clk") as the signal name.
-      const loweredMlir = rawMlir
-        ? rawMlir.replace(
-            /(%([a-zA-Z_]\w*)\s*=\s*llhd\.sig\s+)(?!name\s+")/g,
-            (_m, prefix, sigName) => `${prefix}name "${sigName}" `
-          )
-        : null;
-      if (compile.exitCode !== 0 || !loweredMlir) {
-        if (!loweredMlir) emitLog('# lowered MLIR output was not produced');
+        const compileStream = makeToolOutputHandler();
+        let attemptCompile;
+        try {
+          attemptCompile = await this._invokeTool('verilog', {
+            args: plan.compileArgs,
+            files: plan.workspaceFiles,
+            readFiles: [mlirPath],
+            createDirs: ['/workspace/out'],
+            uvmManifestUrl,
+            onOutput: compileStream.onOutput
+          });
+        } catch (error) {
+          const text = String(error?.message || error || '');
+          if (useFullUvm && text.includes('Aborted(OOM)')) {
+            emitLog('# circt-verilog: out of memory compiling UVM — rebuild wasm with larger heap');
+            if (typeof onStatus === 'function') onStatus('done');
+            return { ok: false, logs, waveform: null };
+          }
+          const canRetry = useFullUvm && attempt + 1 < compilePlans.length && isRetryableVerilogCrashText(text);
+          if (canRetry) continue;
+          throw error;
+        }
+        if (!compileStream.sawStream()) {
+          if (attemptCompile.stdout) emitLog(`[stdout] ${attemptCompile.stdout}`);
+          if (attemptCompile.stderr) emitLog(`[stderr] ${attemptCompile.stderr}`);
+        }
+        appendNonZeroExit(logs, 'circt-verilog', attemptCompile.exitCode, emitLog);
+
+        const rawMlir = attemptCompile.files?.[mlirPath] || null;
+        // Add name attributes to llhd.sig ops that lack them so circt-sim's VCD
+        // writer can emit $var entries. circt-verilog only sets name on module
+        // port connections; testbench-level logic signals get no name attribute.
+        // We use the SSA result identifier (%clk → name "clk") as the signal name.
+        const attemptLoweredMlir = rawMlir
+          ? rawMlir.replace(
+              /(%([a-zA-Z_]\w*)\s*=\s*llhd\.sig\s+)(?!name\s+")/g,
+              (_m, prefix, sigName) => `${prefix}name "${sigName}" `
+            )
+          : null;
+        if (attemptCompile.exitCode === 0 && attemptLoweredMlir) {
+          compile = attemptCompile;
+          loweredMlir = attemptLoweredMlir;
+          break;
+        }
+
+        const canRetry = useFullUvm && attempt + 1 < compilePlans.length &&
+          isRetryableVerilogCrashText(attemptCompile.stderr || '');
+        if (canRetry) continue;
+        if (!attemptLoweredMlir) emitLog('# lowered MLIR output was not produced');
+        if (typeof onStatus === 'function') onStatus('done');
+        return { ok: false, logs, waveform: null };
+      }
+      if (!compile || !loweredMlir) {
         if (typeof onStatus === 'function') onStatus('done');
         return { ok: false, logs, waveform: null };
       }
@@ -1225,6 +1376,9 @@ export class CirctWasmAdapter {
         const simArgs = forceInterpretSimMode([...this.config.simArgs]);
         for (const topName of topModules) {
           simArgs.push('--top', topName);
+        }
+        if (useFullUvm) {
+          simArgs.push('--max-time', UVM_SIM_MAX_TIME_FS);
         }
         if (withVcd) simArgs.push('--vcd', wavePath);
         if (withTraceAll) simArgs.push('--trace-all');
@@ -1323,8 +1477,12 @@ export class CirctWasmAdapter {
 
       const useFullUvm = needsUvmLibrary(filteredDesignFiles);
       const designFiles = filteredDesignFiles;
-      const compileRoots = compileRootSourcePaths(filteredDesignFiles);
       const uvmManifestUrl = useFullUvm ? getUvmManifestUrl() : null;
+      const bundledCompile = bundleCompileRoots(designFiles, compileRootSourcePaths(designFiles), {
+        enabled: useFullUvm,
+        force: useFullUvm
+      });
+      const compileRoots = bundledCompile.roots;
 
       // Use the provided top name directly — don't let pickTopModules pick 'tb'.
       const topModule = top || filename(userSvPaths[0]).replace(/\.[^.]+$/, '');
@@ -1332,9 +1490,10 @@ export class CirctWasmAdapter {
       const smtPath = '/workspace/out/check.smt2';
 
       const compileArgs = [
-        ...(useFullUvm
-          ? removeFlag(this.config.verilogArgs, '--single-unit')
-          : this.config.verilogArgs),
+        ...this.config.verilogArgs,
+        ...(useFullUvm && !this.config.verilogArgs.includes('--single-unit')
+          ? ['--single-unit']
+          : []),
         ...(useFullUvm ? ['--uvm-path', UVM_FS_ROOT, '-I', UVM_INCLUDE_ROOT] : []),
         '--top',
         topModule,
@@ -1358,6 +1517,12 @@ export class CirctWasmAdapter {
           sawStream: () => sawStream
         };
       };
+      if (bundledCompile.bundled) {
+        emitLog(
+          `# bundled ${bundledCompile.rootCount} roots into ${bundledCompile.bundlePath} ` +
+          'for stable UVM compilation'
+        );
+      }
       emitLog(formatCommand('circt-verilog', compileArgs));
 
       if (typeof onStatus === 'function') onStatus('compiling');
@@ -1367,7 +1532,7 @@ export class CirctWasmAdapter {
         compile = await this._invokeTool('verilog', {
           args: compileArgs,
           files: Object.fromEntries(
-            Object.entries(designFiles).map(([path, content]) => [normalizePath(path), content])
+            Object.entries(bundledCompile.files).map(([path, content]) => [normalizePath(path), content])
           ),
           readFiles: [mlirPath],
           createDirs: ['/workspace/out'],
@@ -1541,7 +1706,7 @@ export class CirctWasmAdapter {
         if (typeof onStatus === 'function') onStatus('done');
         return { ok: false, logs: [...logs, '# no Python test file found in workspace'] };
       }
-      const [, pyCode] = pyEntries[0];
+      const [pyPath, pyCode] = pyEntries[0];
 
       // Check that the VPI sim is configured.
       const simVpi = this.config.toolchain.simVpi;
@@ -1554,25 +1719,26 @@ export class CirctWasmAdapter {
 
       if (typeof onStatus === 'function') onStatus('running');
 
+      let sawWorkerStream = false;
       const result = await runCocotbInWorker({
         simJsUrl:   toAbsoluteUrl(simVpi.js),
         simWasmUrl: toAbsoluteUrl(simVpi.wasm),
-        pyodideUrl: this.config.pyodideUrl,
+        pyodideUrl: toAbsoluteUrl(this.config.pyodideUrl),
         mlir:       mlirText,
         topModule,
+        pyPath:     normalizePath(pyPath),
         pyCode,
         shimCode:   COCOTB_SHIM,
         maxTimeNs:  1_000_000,
-        onLogLine:  emitLog
+        onLogLine:  (line) => {
+          sawWorkerStream = true;
+          emitLog(cocotbWorkerLogToStreamEntry(line));
+        }
       });
 
-      if (Array.isArray(result.logs) && result.logs.length) {
-        const streamedSet = new Set(logs);
-        for (const line of result.logs) {
-          if (!streamedSet.has(line)) {
-            emitLog(line);
-            streamedSet.add(line);
-          }
+      if (!sawWorkerStream && Array.isArray(result.logs) && result.logs.length) {
+        for (const rawLine of result.logs) {
+          emitLog(cocotbWorkerLogToStreamEntry(rawLine));
         }
       }
 
@@ -1583,12 +1749,7 @@ export class CirctWasmAdapter {
       if (typeof onStatus === 'function') onStatus('done');
       return {
         ok: false,
-        logs: [
-          `# cocotb runtime error: ${error.message}`,
-          `# VPI sim js:   ${this.config.toolchain.simVpi?.js}`,
-          `# VPI sim wasm: ${this.config.toolchain.simVpi?.wasm}`,
-          `# Pyodide URL:  ${this.config.pyodideUrl}`
-        ]
+        logs: [String(error?.message || error)]
       };
     }
   }

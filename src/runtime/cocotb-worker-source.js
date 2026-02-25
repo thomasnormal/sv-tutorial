@@ -95,6 +95,38 @@ function isExitException(err) {
   return t.includes('ExitStatus') || t.includes('Program terminated') || t.includes('exit(');
 }
 
+function wsShellQuote(arg) {
+  var text = String(arg);
+  if (text.length === 0) return "''";
+  if (/^[A-Za-z0-9_./:=+,-]+$/.test(text)) return text;
+  return "'" + text.replace(/'/g, "'\\''") + "'";
+}
+
+function wsToAbsoluteUrl(rawUrl, baseUrl) {
+  var value = String(rawUrl || '');
+  if (!value) return value;
+  // Already absolute.
+  try { return new URL(value).href; } catch(_) {}
+  // Resolve against caller-provided page URL (works for blob workers).
+  if (baseUrl) {
+    try { return new URL(value, String(baseUrl)).href; } catch(_) {}
+  }
+  // Last resort for non-blob workers.
+  try { return new URL(value, self.location && self.location.href ? self.location.href : undefined).href; } catch(_) {}
+  return value;
+}
+
+function wsEnsureDir(FS, dirPath) {
+  var path = String(dirPath || '/');
+  if (!path || path === '/') return;
+  var parts = path.split('/').filter(Boolean);
+  var cur = '';
+  for (var i = 0; i < parts.length; i++) {
+    cur += '/' + parts[i];
+    try { FS.mkdir(cur); } catch(_) {}
+  }
+}
+
 // WASM: (i32) -> (i32), returns 0
 var WS_NOOP_CB_WASM = new Uint8Array([
   0x00,0x61,0x73,0x6d, 0x01,0x00,0x00,0x00,
@@ -307,11 +339,13 @@ function makeSimInMemFS(stdout, stderr) {
 
 self.onmessage = async function(event) {
   var req = event.data || {};
-  var simJsUrl   = req.simJsUrl;
-  var simWasmUrl = req.simWasmUrl;
-  var pyodideUrl = req.pyodideUrl;
+  var pageUrl    = req.pageUrl || '';
+  var simJsUrl   = wsToAbsoluteUrl(req.simJsUrl, pageUrl);
+  var simWasmUrl = wsToAbsoluteUrl(req.simWasmUrl, pageUrl);
+  var pyodideUrl = wsToAbsoluteUrl(req.pyodideUrl, pageUrl);
   var mlir       = req.mlir;
   var topModule  = req.topModule;
+  var pyPath     = (typeof req.pyPath === 'string' && req.pyPath) ? req.pyPath : null;
   var pyCode     = req.pyCode;
   var shimCode   = req.shimCode;
   var maxTimeNs  = req.maxTimeNs || 1000000;
@@ -324,13 +358,16 @@ self.onmessage = async function(event) {
     logs.push(line);
     self.postMessage({ type: 'log', line: line });
   }
-  async function runPyodideTicks(pyodide, shouldStop, phase) {
+  if (!pyPath) {
+    self.postMessage({ type: 'result', ok: false, logs: ['missing python test path'] });
+    return;
+  }
+  async function runPyodideTicks(pyodide, shouldStop) {
     for (var i = 0; i < 20; i++) {
       try {
         await pyodide.runPythonAsync('await __import__("asyncio").sleep(0)');
       } catch(e) {
-        var suffix = phase ? ' (' + phase + ')' : '';
-        onLog('[cocotb] runPythonAsync error at i=' + i + suffix + ': ' + e);
+        onLog(String((e && e.message) || e));
         break;
       }
       if (shouldStop()) break;
@@ -341,14 +378,13 @@ self.onmessage = async function(event) {
     // ── 1. Load the VPI circt-sim WASM ───────────────────────────────────────
     // Fetch the JS source first so we can detect NODERAWFS=1 (recognisable by
     // the unconditional require('path') / require('fs') calls at module level).
-    onLog('[cocotb] Loading simulator...');
     var simInMemFS = null;
     var simReady = false;
     self.Module = {
       noInitialRun: true,
       onRuntimeInitialized: function() { simReady = true; },
-      print:    function(line) { onLog('[sim] ' + line); },
-      printErr: function(line) { onLog('[sim] ' + line); },
+      print:    function(line) { onLog(String(line)); },
+      printErr: function(line) { onLog(String(line)); },
       locateFile: function(path) { return path.endsWith('.wasm') ? simWasmUrl : path; },
       instantiateWasm: function(imports, callback) {
         // Wrap _circt_vpi_wasm_yield (import 'r') with Asyncify.handleAsync so
@@ -452,10 +488,8 @@ self.onmessage = async function(event) {
     }
 
     // ── 3. Load Pyodide ───────────────────────────────────────────────────────
-    onLog('[cocotb] Loading Pyodide...');
     importScripts(pyodideUrl);
     var pyodide = await loadPyodide({ stdout: onLog, stderr: onLog });
-    onLog('[cocotb] Pyodide ready');
 
     // ── 4. Install JS→Python bridge on the worker global scope ───────────────
     var _pendingRegistrations = [];
@@ -483,11 +517,19 @@ self.onmessage = async function(event) {
     pyodide.runPython("import sys; sys.modules['cocotb'] = sys.modules[__name__]");
 
     // ── 6. Run the user's Python test file ───────────────────────────────────
+    onLog('$ ' + ['python', pyPath].map(wsShellQuote).join(' '));
     try {
-      pyodide.runPython(pyCode);
+      var slash = pyPath.lastIndexOf('/');
+      var pyDir = slash > 0 ? pyPath.slice(0, slash) : '/';
+      wsEnsureDir(pyodide.FS, pyDir);
+      pyodide.FS.writeFile(pyPath, pyCode, { encoding: 'utf8' });
+      var loadTestScript =
+        'exec(compile(open(' + JSON.stringify(pyPath) + ', "r", encoding="utf-8").read(), ' +
+        JSON.stringify(pyPath) + ', "exec"), globals())';
+      pyodide.runPython(loadTestScript);
     } catch(e) {
-      onLog('[cocotb] Python error in test file: ' + String(e));
-      self.postMessage({ ok: false, logs: logs });
+      onLog(String((e && e.message) || e));
+      self.postMessage({ type: 'result', ok: false, logs: logs });
       return;
     }
 
@@ -540,11 +582,9 @@ self.onmessage = async function(event) {
             }
           }
         });
-        if (!_vpiStartupSlot) {
-          onLog('[cocotb] Warning: no table slot available for VPI startup');
-        }
+        void _vpiStartupSlot;
       } catch(e) {
-        onLog('[cocotb] Warning: VPI startup install failed: ' + e);
+        void e;
       }
     })();
 
@@ -559,11 +599,7 @@ self.onmessage = async function(event) {
         var _startCbData = wsMakeCbData(simModule, VPI.cbStartOfSimulation, cbRtn, 0, 0, 0);
         var _cbHandle = (simModule._vpi_register_cb(_startCbData)) | 0;
         simModule._free(_startCbData);
-        if (_cbHandle) {
-          onLog('[cocotb] Registered cbStartOfSimulation (direct), handle=' + _cbHandle);
-        } else {
-          onLog('[cocotb] Warning: _vpi_register_cb returned 0 — VPI callbacks will not fire');
-        }
+        void _cbHandle;
       }
     }
 
@@ -578,11 +614,10 @@ self.onmessage = async function(event) {
       var triggerId = simModule.getValue(cbDataPtr + 24, 'i32');
 
       if (reason === VPI.cbStartOfSimulation) {
-        onLog('[cocotb] cbStartOfSimulation fired — starting tests');
-        try { pyodide.runPython('_start_tests_sync()'); } catch(e) { onLog('[cocotb] _start_tests_sync error: ' + e); }
+        try { pyodide.runPython('_start_tests_sync()'); } catch(e) { onLog(String((e && e.message) || e)); }
         await runPyodideTicks(pyodide, function() {
           return _pendingRegistrations.length > 0 || _testsDone;
-        }, 'startup');
+        });
       } else if (reason !== VPI.cbEndOfSimulation) {
         // A value-change or delay trigger fired.
         // For edge triggers, filter by direction before waking Python.
@@ -604,7 +639,7 @@ self.onmessage = async function(event) {
           pyodide.runPython('_vpi_event(' + triggerId + ')');
           await runPyodideTicks(pyodide, function() {
             return _pendingRegistrations.length > 0 || _testsDone;
-          }, 'event');
+          });
         }
       }
 
@@ -640,12 +675,12 @@ self.onmessage = async function(event) {
       '--top', topModule,
       mlirPath
     ];
-    onLog('[cocotb] Starting simulation...');
+    onLog('$ ' + ['circt-sim'].concat(simArgs).map(wsShellQuote).join(' '));
     try {
       simModule.callMain(simArgs);
     } catch(e) {
       if (!isExitException(e)) {
-        onLog('[cocotb] Simulation error: ' + String(e && e.message || e));
+        onLog(String((e && e.message) || e));
       }
     }
     // If Asyncify triggered (currData is non-null after callMain), wait for the
@@ -655,7 +690,7 @@ self.onmessage = async function(event) {
         await Asyncify.whenDone();
       } catch(e) {
         if (!isExitException(e)) {
-          onLog('[cocotb] Simulation error: ' + String(e && e.message || e));
+          onLog(String((e && e.message) || e));
         }
       }
     }
@@ -664,17 +699,16 @@ self.onmessage = async function(event) {
     var fsOut = simStdout.join('').trim();
     var fsErr = simStderr.join('').trim();
     if (fsOut) {
-      fsOut.split(/\r?\n/).forEach(function(line) { onLog('[sim] ' + line); });
+      fsOut.split(/\r?\n/).forEach(function(line) { onLog(line); });
     }
     if (fsErr) {
-      fsErr.split(/\r?\n/).forEach(function(line) { onLog('[sim] ' + line); });
+      fsErr.split(/\r?\n/).forEach(function(line) { onLog(line); });
     }
 
-    onLog('[cocotb] Simulation complete');
     self.postMessage({ type: 'result', ok: _testsOk, logs: logs });
 
   } catch(e) {
-    self.postMessage({ type: 'result', ok: false, logs: [...logs, '# cocotb error: ' + String(e && e.message || e)] });
+    self.postMessage({ type: 'result', ok: false, logs: [...logs, String((e && e.message) || e)] });
   }
 };
 `;

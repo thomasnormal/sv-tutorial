@@ -115,16 +115,10 @@
   </div>
 {/snippet}
 
-<SidebarProvider bind:open={sidebarOpen} class="h-dvh overflow-hidden font-sans">
-  <Sidebar collapsible="offcanvas">
-    <SidebarContent>
-      {@render navItems()}
-    </SidebarContent>
-  </Sidebar>
+<SidebarProvider bind:open={sidebarOpen} class="h-dvh overflow-hidden flex-col font-sans p-3 gap-[0.7rem] max-narrow:p-0 max-narrow:gap-0">
 
-  <!-- Main area: header + lesson content -->
-  <div class="flex-1 min-w-0 flex flex-col h-dvh overflow-hidden p-3 gap-[0.7rem] max-narrow:p-0 max-narrow:gap-0">
-    <header class="bg-surface border border-border rounded-[14px] shadow-app flex flex-col max-narrow:rounded-none max-narrow:border-x-0 max-narrow:border-t-0">
+  <!-- Header spans full width above the sidebar+content row -->
+  <header class="bg-surface border border-border rounded-[14px] shadow-app flex flex-col flex-shrink-0 max-narrow:rounded-none max-narrow:border-x-0 max-narrow:border-t-0">
       <!-- Row 1: logo + title + utility buttons -->
       <div class="flex items-center justify-between px-4 py-[0.6rem]">
         <div class="flex items-center gap-2">
@@ -194,8 +188,15 @@
         </button>
         <span class="text-[0.82rem] text-muted-foreground">{breadcrumbs}</span>
       </div>
-    </header>
+  </header>
 
+  <!-- Sidebar + lesson content row (relative so the absolute sidebar is contained here) -->
+  <div class="flex flex-1 min-h-0 relative overflow-hidden">
+    <Sidebar collapsible="offcanvas">
+      <SidebarContent>
+        {@render navItems()}
+      </SidebarContent>
+    </Sidebar>
     {@render children()}
   </div>
 </SidebarProvider>

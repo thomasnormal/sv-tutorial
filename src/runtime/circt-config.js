@@ -1,12 +1,25 @@
 export const CIRCT_FORK_REPO = 'git@github.com:thomasnormal/circt.git';
 
 function normalizeBaseUrl(raw) {
-  const base = raw || '/';
-  const withLeadingSlash = base.startsWith('/') ? base : `/${base}`;
-  return withLeadingSlash.endsWith('/') ? withLeadingSlash : `${withLeadingSlash}/`;
+  const base = String(raw || '').trim();
+  if (!base || base === '.' || base === './') return '/';
+
+  // Normalize optional leading "./" used by static builds.
+  const noDotPrefix = base.startsWith('./') ? base.slice(1) : base;
+  const withLeadingSlash = noDotPrefix.startsWith('/') ? noDotPrefix : `/${noDotPrefix}`;
+  const withTrailingSlash = withLeadingSlash.endsWith('/')
+    ? withLeadingSlash
+    : `${withLeadingSlash}/`;
+
+  // Remove "/./" segments so "/./circt" becomes "/circt".
+  return withTrailingSlash.replace(/\/\.\//g, '/');
 }
 
-const BASE = normalizeBaseUrl(import.meta.env.BASE_URL);
+const BASE = normalizeBaseUrl(import.meta.env.VITE_BASE || import.meta.env.BASE_URL);
+
+export function getRuntimeBasePath() {
+  return BASE;
+}
 
 export const Z3_SCRIPT_URL = `${BASE}z3/z3-built.js`;
 const DEFAULT_TOOLCHAIN = {
@@ -101,7 +114,7 @@ export function getCirctRuntimeConfig() {
         wasm: pickUrlFromEnv(import.meta.env.VITE_CIRCT_LEC_WASM_URL, DEFAULT_TOOLCHAIN.lec.wasm)
       }
     },
-    pyodideUrl: import.meta.env.VITE_PYODIDE_URL || 'https://cdn.jsdelivr.net/pyodide/v0.27.0/full/pyodide.js',
+    pyodideUrl: import.meta.env.VITE_PYODIDE_URL || `${BASE}pyodide/pyodide.js`,
     verilogArgs: parseArgs(import.meta.env.VITE_CIRCT_VERILOG_ARGS, DEFAULT_VERILOG_ARGS),
     simArgs: parseArgs(import.meta.env.VITE_CIRCT_SIM_ARGS, DEFAULT_SIM_ARGS),
     bmcArgs: parseArgs(import.meta.env.VITE_CIRCT_BMC_ARGS, DEFAULT_BMC_ARGS),

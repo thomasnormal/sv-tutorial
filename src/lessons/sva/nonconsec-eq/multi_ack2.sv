@@ -2,7 +2,7 @@ module multi_ack2(input logic clk, start, ack, done);
 
   property three_acks_p;
     @(posedge clk)
-      // TODO: start |=> ack[=3] ##[0:$] done;
+      // TODO: after start, ack must pulse 3 times, then done must arrive at any later point
       ;
   endproperty
 

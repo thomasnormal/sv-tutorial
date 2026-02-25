@@ -12,7 +12,6 @@ module top(
     endcase
   end
 
-  // TODO: assume property (@(posedge clk) rst |-> (state == 0));
-  // TODO: no_invalid: assert property (
-  //   @(posedge clk) disable iff (rst) state != 2'd3);
+  // TODO: assume property — when rst is high, state must be 0 (constrains BMC's initial states)
+  // TODO: assert property — state 3 is never reached (disable during rst)
 endmodule

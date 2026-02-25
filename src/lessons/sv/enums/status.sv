@@ -1,17 +1,17 @@
-typedef enum logic [1:0] { IDLE, RUNNING, DONE, ERROR } status_t;
+// Controller states for our SRAM memory controller
+// TODO: define ctrl_state_t as a typedef enum with IDLE, CMD, READ, WRITE
 
-module status_display(
-  input  status_t  st,
-  output logic     active,
-  output logic     err
+module ctrl_display (
+  input  logic [1:0] state,  // TODO: change type to ctrl_state_t
+  output logic       reading,
+  output logic       writing
 );
   always_comb begin
-    active = 1'b0;
-    err    = 1'b0;
-    case (st)
-      // TODO: RUNNING: active = 1'b1;
-      // TODO: ERROR:   err    = 1'b1;
-      default: ; // all other states: keep defaults
+    reading = 1'b0;
+    writing = 1'b0;
+    case (state)
+      // TODO: add branches that set reading=1 or writing=1 using enum names
+      default: ;
     endcase
   end
 endmodule

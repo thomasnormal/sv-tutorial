@@ -1,16 +1,11 @@
               <p>The <strong>environment</strong> (<code>uvm_env</code>) is the container that assembles agents and scoreboards. Its two key phases:</p>
               <ul>
                 <li><code>build_phase</code> — creates child components top-down with <code>type_id::create("name", this)</code></li>
-                <li><code>connect_phase</code> — wires TLM ports between components bottom-up</li>
+                <li><code>connect_phase</code> — wires <dfn data-card="TLM (Transaction-Level Modeling) ports are UVM's mechanism for passing data objects between components without tight coupling. A uvm_analysis_port on the monitor connects to a uvm_analysis_imp on the scoreboard; when the monitor calls write(item), the scoreboard's write() method is called automatically. TLM decouples producers from consumers — you can add a second subscriber without changing the monitor.">TLM</dfn> ports between components bottom-up</li>
               </ul>
-              <pre>function void build_phase(uvm_phase phase);
-  super.build_phase(phase);
-  agent = adder_agent::type_id::create("agent", this);
-  scbd  = adder_scoreboard::type_id::create("scbd",  this);
-endfunction
-
-function void connect_phase(uvm_phase phase);
-  agent.mon.ap.connect(scbd.analysis_export);
-endfunction</pre>
-              <p>Open <code>adder_env.sv</code> and complete both phases. All other components are provided — this is the final piece that makes the full testbench run end-to-end.</p>
+              <p>Open <code>mem_env.sv</code> and complete both phases. All other components are already provided — this is the final connection that makes the full testbench run end-to-end:</p>
+              <ul>
+                <li>In <code>build_phase</code>: create the agent and scoreboard using <code>type_id::create("name", this)</code></li>
+                <li>In <code>connect_phase</code>: wire the monitor's analysis port to the scoreboard's analysis export</li>
+              </ul>
               <blockquote><p>The <code>this</code> argument in <code>create("name", this)</code> sets the UVM hierarchy parent. This determines the component's path in the tree, which scopes config_db lookups and reporting output.</p></blockquote>

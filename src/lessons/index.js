@@ -3,58 +3,73 @@
 // description.html, *.sv (starter), *.sol.sv (solution), then add the
 // slug to the structure below.
 
-const htmls     = import.meta.glob('./*/*/description.html',                              { query: '?raw', import: 'default', eager: true });
-const starters  = import.meta.glob(['./*/*/*.{sv,py}', '!./*/*/*.sol.sv', '!./*/*/tb.sv'], { query: '?raw', import: 'default', eager: true });
-const solutions = import.meta.glob('./*/*/*.sol.sv',                                      { query: '?raw', import: 'default', eager: true });
-const metas     = import.meta.glob('./*/*/meta.json',                      { eager: true,   import: 'default' });
-const images    = import.meta.glob('./*/*/*.{png,jpg,jpeg,gif,svg,webp}',  { query: '?url', import: 'default', eager: true });
+// All lesson metadata in a single import — no glob needed.
+// Content files (description.html, .sv, images) stay co-located in each
+// lesson directory and are loaded lazily on demand via loadLessonContent().
+import metas from './meta.js';
 
-function buildLessonMap() {
+// Lazy content loaders — Vite transforms these only when first requested.
+const htmlLoaders     = import.meta.glob('./*/*/description.html',                              { query: '?raw', import: 'default' });
+const starterLoaders  = import.meta.glob(['./*/*/*.{sv,py}', '!./*/*/*.sol.sv'],                { query: '?raw', import: 'default' });
+const solutionLoaders = import.meta.glob('./*/*/*.sol.sv',                                      { query: '?raw', import: 'default' });
+const imageLoaders    = import.meta.glob('./*/*/*.{png,jpg,jpeg,gif,svg,webp}',                 { query: '?url', import: 'default' });
+
+function buildMetaMap() {
   const map = {};
-  const entry = (slug) => { map[slug] ??= { files: { a: {}, b: {} } }; return map[slug]; };
-
-  // Build per-lesson image URL map (Vite-processed paths, base-URL-aware)
-  const imageMap = {};
-  for (const [path, url] of Object.entries(images)) {
-    const m = path.match(/^\.\/([\w-]+)\/([\w-]+)\/(.+)$/);
-    if (m) {
-      const [, p, l, file] = m;
-      imageMap[`${p}/${l}`] ??= {};
-      imageMap[`${p}/${l}`][file] = url;
-    }
+  for (const [slug, meta] of Object.entries(metas)) {
+    map[slug] = { slug, ...meta };
   }
-
-  for (const [path, html] of Object.entries(htmls)) {
-    const [, p, l] = path.match(/^\.\/([\w-]+)\/([\w-]+)\//);
-    const slug = `${p}/${l}`;
-    const imgs = imageMap[slug];
-    // Rewrite relative image src attributes to Vite-resolved URLs
-    entry(slug).html = imgs
-      ? html.replace(/src="([^"]+)"/g, (match, filename) => imgs[filename] ? `src="${imgs[filename]}"` : match)
-      : html;
-  }
-
-  for (const [path, meta] of Object.entries(metas)) {
-    const [, p, l] = path.match(/^\.\/([\w-]+)\/([\w-]+)\//);
-    const slug = `${p}/${l}`;
-    Object.assign(entry(slug), { slug, ...meta });
-  }
-
-  for (const [path, content] of Object.entries(starters)) {
-    const [, p, l, file] = path.match(/^\.\/([\w-]+)\/([\w-]+)\/(.+\.(sv|py))$/);
-    entry(`${p}/${l}`).files.a[`/src/${file}`] = content;
-  }
-
-  for (const [path, content] of Object.entries(solutions)) {
-    const [, p, l, stem] = path.match(/^\.\/([\w-]+)\/([\w-]+)\/(.+)\.sol\.sv$/);
-    entry(`${p}/${l}`).files.b[`/src/${stem}.sv`] = content;
-  }
-
   return map;
 }
 
-const lessonMap = buildLessonMap();
-const L = (slug) => lessonMap[slug];
+/**
+ * Load the full content for a single lesson on demand.
+ * Returns { html, files: { a, b } }.
+ * Called by the lesson route's load() function, and can also be called
+ * from an "offline download" feature to prefetch all lessons at once.
+ */
+export async function loadLessonContent(slug) {
+  const [p, l] = slug.split('/');
+  const prefix = `./${p}/${l}/`;
+
+  const htmlEntry       = Object.entries(htmlLoaders).find(([k]) => k.startsWith(prefix));
+  const starterEntries  = Object.entries(starterLoaders).filter(([k]) => k.startsWith(prefix));
+  const solutionEntries = Object.entries(solutionLoaders).filter(([k]) => k.startsWith(prefix));
+  const imageEntries    = Object.entries(imageLoaders).filter(([k]) => k.startsWith(prefix));
+
+  const [html, ...rest] = await Promise.all([
+    htmlEntry ? htmlEntry[1]() : Promise.resolve(''),
+    ...starterEntries.map(([k, fn])  => fn().then(content => ({ k, content, type: 'starter' }))),
+    ...solutionEntries.map(([k, fn]) => fn().then(content => ({ k, content, type: 'solution' }))),
+    ...imageEntries.map(([k, fn])    => fn().then(url     => ({ k, url,     type: 'image' }))),
+  ]);
+
+  const files = { a: {}, b: {} };
+  const imageMap = {};
+
+  for (const item of rest) {
+    if (item.type === 'starter') {
+      const m = item.k.match(/^\.\/([\w-]+)\/([\w-]+)\/(.+\.(sv|py))$/);
+      if (m) files.a[`/src/${m[3]}`] = item.content;
+    } else if (item.type === 'solution') {
+      const m = item.k.match(/^\.\/([\w-]+)\/([\w-]+)\/(.+)\.sol\.sv$/);
+      if (m) files.b[`/src/${m[3]}.sv`] = item.content;
+    } else if (item.type === 'image') {
+      const m = item.k.match(/^\.\/([\w-]+)\/([\w-]+)\/(.+)$/);
+      if (m) imageMap[m[3]] = item.url;
+    }
+  }
+
+  // Rewrite relative image src attributes to Vite-resolved URLs
+  const finalHtml = Object.keys(imageMap).length > 0
+    ? html.replace(/src="([^"]+)"/g, (match, filename) => imageMap[filename] ? `src="${imageMap[filename]}"` : match)
+    : html;
+
+  return { html: finalHtml, files };
+}
+
+const metaMap = buildMetaMap();
+const L = (slug) => metaMap[slug];
 
 // ── Hierarchy ─────────────────────────────────────────────────────────────────
 export const parts = [
@@ -65,6 +80,7 @@ export const parts = [
       { title: 'Combinational Logic',   lessons: [L('sv/always-comb'), L('sv/priority-enc')] },
       { title: 'Sequential Logic',      lessons: [L('sv/always-ff'), L('sv/counter')] },
       { title: 'Parameterized Modules', lessons: [L('sv/parameters')] },
+      { title: 'Data Types',            lessons: [L('sv/packed-structs')] },
       { title: 'Interfaces & Procedures', lessons: [L('sv/interfaces'), L('sv/tasks-functions')] },
       { title: 'State Machines',        lessons: [L('sv/enums'), L('sv/fsm')] },
       { title: 'Covergroups',            lessons: [L('sv/covergroup-basics'), L('sv/coverpoint-bins'), L('sv/cross-coverage')] },
@@ -89,12 +105,13 @@ export const parts = [
     title: 'Universal Verification Methodology',
     chapters: [
       { title: 'UVM Foundations', lessons: [L('uvm/reporting'), L('uvm/seq-item')] },
-      { title: 'Stimulus',        lessons: [L('uvm/sequence'), L('uvm/driver')] },
+      { title: 'Stimulus',        lessons: [L('uvm/sequence'), L('uvm/driver'), L('uvm/constrained-random')] },
       { title: 'Checking',        lessons: [L('uvm/monitor'), L('uvm/env')] },
       {
         title: 'Functional Coverage',
         lessons: [L('uvm/covergroup'), L('uvm/cross-coverage'), L('uvm/coverage-driven')],
       },
+      { title: 'Advanced UVM',    lessons: [L('uvm/factory-override')] },
     ],
   },
   {

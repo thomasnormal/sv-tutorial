@@ -1,23 +1,16 @@
-<p>An <strong>interface</strong> bundles related signals into a single named port. Instead of passing each signal individually between modules, both the design and testbench connect through one handle:</p>
-<pre>interface adder_if (input logic clk);
-  logic [7:0] a, b, sum;
-  logic       carry;
-endinterface
-
-module adder (adder_if.slave bus);
-  assign {bus.carry, bus.sum} = bus.a + bus.b;
+              <p>An <strong><dfn data-card="An interface is a named bundle of signals (and optionally logic and tasks) that can be passed as a single port between modules. Interfaces eliminate the tedium of threading dozens of wires through a hierarchy and make the connection point between modules self-documenting. They're especially useful for standard bus protocols.">interface</dfn></strong> bundles related signals into a single named port. Instead of passing each SRAM signal — <code>clk</code>, <code>we</code>, <code>addr</code>, <code>wdata</code>, <code>rdata</code> — between modules one by one, both the design and testbench connect through one handle:</p>
+              <pre>module sram (mem_if.target bus);
+  always_ff @(posedge bus.clk) begin
+    if (bus.we) mem[bus.addr] &lt;= bus.wdata;
+    bus.rdata &lt;= mem[bus.addr];
+  end
 endmodule</pre>
-<p>A <strong>modport</strong> restricts which signals each side may drive. The <code>.slave</code> suffix enforces that the adder can only drive <code>sum</code> and <code>carry</code> — it cannot accidentally write to <code>a</code> or <code>b</code>:</p>
-<pre>modport master(output a, b, input  clk, sum, carry);
-modport slave (input  a, b, output sum, carry);</pre>
-<p>Open <code>adder_if.sv</code> and add the two <code>modport</code> lines.</p>
-<blockquote><p>In a UVM testbench the driver holds a <code>virtual adder_if</code> — a reference to the interface instance created in <code>tb_top</code>. The <code>virtual</code> keyword is what lets a class-based component (which has no ports) reach down into the actual signal wires.</p></blockquote>
-<h2>Testbench</h2>
-<p>The testbench instantiates the interface and passes it as the sole port to the DUT. Both sides then access signals through the interface handle:</p>
-<pre>adder_if bus(.clk(clk));
-adder    dut(.bus(bus));
-
-bus.a = 8'd200; bus.b = 8'd100;  // drive via interface
-@(posedge clk); #1;
-$display(...bus.sum, bus.carry);  // read via same handle</pre>
-<p>The second test adds 200 + 100 = 300, which overflows 8 bits (300 − 256 = 44) and asserts <code>carry</code>, confirming the <code>assign {bus.carry, bus.sum} = bus.a + bus.b;</code> concatenation works correctly.</p>
+              <p>A <strong><dfn data-card="A modport (module port) declaration inside an interface defines a restricted view of the interface's signals from one side of the connection. It lists which signals that side can drive (input/output from the module's perspective) and which it can only read. This catches wiring errors at compile time — if the SRAM tries to drive addr, the modport makes it a type error.">modport</dfn></strong> restricts which signals each side may drive. The <code>.target</code> suffix enforces that the SRAM can only drive <code>rdata</code> — it cannot accidentally write to <code>addr</code> or <code>wdata</code>.</p>
+              <p>Open <code>mem_if.sv</code> and add two <code>modport</code> declarations:</p>
+              <ul>
+                <li><code>initiator</code> — the testbench side: it drives <code>we</code>, <code>addr</code>, <code>wdata</code> and reads back <code>rdata</code></li>
+                <li><code>target</code> — the SRAM side: it reads commands and drives <code>rdata</code></li>
+              </ul>
+              <blockquote><p>In Part 3 the UVM driver holds a <code><dfn data-card="A virtual interface is a handle (reference) to an interface instance. Classes in SystemVerilog have no ports and can't be directly connected to signals, but a virtual interface bridges the gap: the testbench module creates the actual interface wires, then passes a virtual interface handle into the class-based UVM components via the config_db. The class can then drive and sample the real signals through the handle.">virtual mem_if</dfn></code> — a reference to the interface instance created in <code>tb_top</code>. The <code>virtual</code> keyword is what lets a class-based component (which has no ports) reach down into the actual signal wires to drive the SRAM.</p></blockquote>
+              <h2>Testbench</h2>
+              <p>The solution testbench instantiates the interface and passes it as the sole port to the DUT. Both sides then access signals through the interface handle. The SRAM's 1-cycle registered read is clearly visible: drive <code>we</code> and <code>addr</code> on one cycle, then read <code>rdata</code> on the next.</p>

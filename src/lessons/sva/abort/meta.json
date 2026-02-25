@@ -1,5 +1,0 @@
-{
-  "title": "Aborting Properties: reject_on and accept_on",
-  "focus": "/src/abort_check.sv",
-  "runner": "bmc"
-}

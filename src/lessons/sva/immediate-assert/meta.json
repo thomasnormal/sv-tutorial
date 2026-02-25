@@ -1,5 +1,0 @@
-{
-  "title": "Immediate Assertions",
-  "focus": "/src/fifo_checker.sv",
-  "runner": "bmc"
-}

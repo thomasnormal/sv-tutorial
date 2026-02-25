@@ -14,7 +14,7 @@
 </p>
 <blockquote>
   <p>
-    <code>Timer</code> is the fundamental cocotb trigger: it fires exactly once at the
+    <code><dfn data-card="Timer(n, units) is cocotb's primitive for advancing simulation time. await Timer(5, 'ns') suspends the current coroutine for 5 ns and resumes it when that time has elapsed. It's the Python equivalent of #5 in Verilog. All other cocotb timing helpers (RisingEdge, FallingEdge, ClockCycles) are built on top of Timer.">Timer</dfn></code> is the fundamental cocotb trigger: it fires exactly once at the
     scheduled simulation time. Higher-level helpers like <code>RisingEdge</code> and
     <code>Clock</code> are built on top of it.
   </p>

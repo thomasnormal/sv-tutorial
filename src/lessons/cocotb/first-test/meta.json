@@ -1,5 +1,0 @@
-{
-  "title": "Your First cocotb Test",
-  "runner": "cocotb",
-  "focus": "/src/adder.sv"
-}

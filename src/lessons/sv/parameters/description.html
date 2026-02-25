@@ -1,16 +1,11 @@
-              <p>Hard-coding a width like <code>[7:0]</code> locks a module to a single configuration. <strong>Parameters</strong> let you write the module once and instantiate it at any width:</p>
-              <pre>module counter_n #(parameter int N = 8) (
-  input  logic         clk, rst_n, en,
-  output logic [N-1:0] count
+              <p>Hard-coding widths like <code>[7:0]</code> and <code>[3:0]</code> locks a module to a single size. <strong><dfn data-card="Parameters are compile-time constants that can be overridden at instantiation, making a module generic. They're similar to C++ template parameters. SystemVerilog has two kinds: parameter (can be overridden) and localparam (fixed within the module). Parameters let you write one SRAM module and reuse it at 256×8, 4096×32, or any other configuration.">Parameters</dfn></strong> let you write the SRAM once and instantiate it at any depth or width. The parameter block goes before the port list:</p>
+              <pre>module sram #(parameter int DEPTH = 16, parameter int WIDTH = 8) (
+  // ... ports ...
 );</pre>
-              <p>Override the default at instantiation time with the <code>#( )</code> syntax:</p>
-              <pre>counter_n #(.N(4)) u4(.clk, .rst_n, .en, .count(cnt4));</pre>
-              <p>A <strong>localparam</strong> is a constant derived inside the module that cannot be overridden:</p>
-              <pre>localparam int MAX = (1 &lt;&lt; N) - 1;</pre>
-              <p>Open <code>counter_n.sv</code>. Add <code>#(parameter int N = 8)</code> to the header, replace the hardcoded <code>[7:0]</code> with <code>[N-1:0]</code>, and add a <code>localparam MAX</code>.</p>
-              <blockquote><p>Always use <code>localparam</code> for values derived from a parameter — it signals to readers that the constant is not an interface boundary and cannot be changed from outside the module.</p></blockquote>
+              <p><code><dfn data-card="$clog2(n) computes the ceiling base-2 logarithm: the smallest integer k such that 2^k ≥ n. $clog2(16) = 4, $clog2(256) = 8, $clog2(10) = 4. It is evaluated at compile time, so it is safe inside port declarations and parameter expressions. It is the standard way to derive address width from a depth parameter — if depth changes from 16 to 1024, the address port automatically grows from 4 to 10 bits with no manual update.">$clog2</dfn>(DEPTH)</code> is a built-in system function that computes the minimum number of address bits needed for a given depth — no manual calculation required. Override the defaults at instantiation:</p>
+              <pre>sram #(.DEPTH(8), .WIDTH(4))    u_small(...);
+sram #(.DEPTH(256), .WIDTH(16)) u_large(...);</pre>
+              <p>Open <code>sram.sv</code>. Add the parameter block to the module header, then replace the three hardcoded widths with their parameter-derived equivalents: use <code>$clog2(DEPTH)</code> for the address port and <code>WIDTH</code> for the data ports and memory array.</p>
+              <blockquote><p>Always use <code>$clog2</code> for address widths derived from depth parameters — it automatically adjusts when the depth changes, so the address bus is always exactly the right size.</p></blockquote>
               <h2>Testbench</h2>
-              <p>The solution testbench instantiates the same module <em>twice</em> with different widths to show the power of parameterization:</p>
-              <pre>counter_n #(.N(4)) u4(.clk, .rst_n, .en, .count(cnt4));
-counter_n #(.N(8)) u8(.clk, .rst_n, .en, .count(cnt8));</pre>
-              <p>After 20 clock cycles the 4-bit counter wraps around at 16, landing at 4 (20 mod 16), while the 8-bit counter reaches 20. One RTL module, two independently configured instances.</p>
+              <p>The solution testbench instantiates the same module <em>twice</em> with different parameters to demonstrate the power of parameterization: an 8-deep × 4-bit SRAM and a 256-deep × 16-bit SRAM, from a single RTL source.</p>

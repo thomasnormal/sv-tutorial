@@ -1,6 +1,11 @@
-            <p>In simulation you check assertions against a <em>specific</em> sequence of inputs driven by a testbench. Formal verification — specifically <strong>Bounded Model Checking (BMC)</strong> — does something more powerful: it exhaustively explores <em>every possible</em> input sequence up to a given number of clock cycles, looking for any that violates an assertion.</p>
-            <p>There is no testbench needed for BMC. The tool treats all inputs as free variables and tries to find a <strong>counterexample</strong>. If it cannot find one within the bound, the property is proved to hold for all inputs up to that depth.</p>
-            <p>Open <code>top.sv</code>. A 4-bit counter resets to <code>0</code> when <code>rst</code> is high. Add the assertion that proves this:</p>
-            <pre>rst_clears: assert property (
-@(posedge clk) rst |=> (cnt == 0));</pre>
-            <p>Press <strong>verify</strong> to have BMC prove the reset property holds for <em>every</em> possible input sequence up to the bound.</p>
+            <p>Simulation checks one path through time. BMC checks all of them:</p>
+            <pre>Simulation:  inputs → [testbench] → one execution trace → pass/fail
+
+BMC:         inputs → [all possible sequences up to depth N]
+                              ↓
+                    counterexample found? → FAIL
+                    no counterexample?    → PROVED (up to depth N)</pre>
+            <p>There is no testbench needed for BMC. The tool treats all inputs as free variables and tries to find a <strong><dfn data-card="A counterexample is a specific sequence of inputs that causes an assertion to fail. The model checker produces it automatically when it finds a property violation — you get the exact cycle-by-cycle signal values, not just 'it failed somewhere.' This is far more useful than a simulation failure because the counterexample is the minimal witness: the shortest possible trace that triggers the bug.">counterexample</dfn></strong>. If it cannot find one within the bound, the property is proved to hold for all inputs up to that depth.</p>
+            <p>Open <code>top.sv</code>. A 4-bit counter resets to <code>0</code> when <code>rst</code> is high. Add a concurrent assertion inside the module that proves this reset property holds — use implication to say "if rst fires, then on the next cycle cnt must be zero."</p>
+            <p>Press <strong>verify</strong> to have BMC prove the property holds for <em>every</em> possible input sequence up to the bound.</p>
+            <blockquote><p>BMC is <em>bounded</em>: a proof at depth N does not guarantee correctness at depth N+1. Full unbounded proof requires induction or deeper techniques — but for reset properties and most pipeline assertions, a modest bound is sufficient.</p></blockquote>

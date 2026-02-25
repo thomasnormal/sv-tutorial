@@ -1,23 +1,32 @@
 module cov_bins;
-  bit clk = 0;
-  bit [1:0] burst;
+  logic clk = 0;
   always #5 clk = ~clk;
 
-  covergroup cg_burst @(posedge clk);
-    coverpoint burst {
-      bins low = {2'd0, 2'd1};
-      bins high = {2'd2};
-      ignore_bins idle = {2'd3};
+  logic       we   = 0;
+  logic [3:0] addr = 0;
+  logic [7:0] wdata = 0, rdata;
+
+  sram dut(.clk, .we, .addr, .wdata, .rdata);
+
+  covergroup sram_cg @(posedge clk);
+    cp_addr: coverpoint addr {
+      bins lo_half = {[0:7]};
+      bins hi_half = {[8:15]};
+    }
+    cp_we: coverpoint we {
+      bins reads  = {0};
+      bins writes = {1};
     }
   endgroup
 
-  cg_burst cov = new;
+  sram_cg cov = new;
 
   initial begin
-    burst = 0;
-    repeat (8) begin
+    repeat (32) begin
       @(posedge clk);
-      burst <= burst + 1'b1;
+      we   <= $random;
+      addr <= $random;
+      wdata <= $random;
     end
     #1 $finish;
   end

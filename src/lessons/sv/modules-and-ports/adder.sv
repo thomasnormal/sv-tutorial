@@ -3,5 +3,5 @@ module adder(
   input  logic [7:0] b,
   output logic [7:0] sum
 );
-  // TODO: assign sum = a + b;
+  // TODO: drive sum combinationally from a and b
 endmodule

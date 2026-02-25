@@ -10,34 +10,45 @@ async function goToLesson(page, lessonName) {
   await expect(page.getByRole('heading', { level: 2, name: lessonName })).toBeVisible();
 }
 
+async function clickSolve(page) {
+  await page.getByRole('button', { name: 'Editor options' }).first().click();
+  const solveButton = page.getByTestId('solve-button');
+  await expect(solveButton).toBeVisible();
+  await solveButton.click();
+}
+
 test('cocotb: shows "test" button, not "run"', async ({ page }) => {
   await goToLesson(page, 'Your First cocotb Test');
-  await expect(page.getByTestId('run-button')).toHaveText('test');
+  await expect(page.getByTestId('run-button')).toHaveAttribute('title', /test/i);
 });
 
 test('cocotb: Your First cocotb Test — solution passes all assertions', async ({ page }) => {
   await goToLesson(page, 'Your First cocotb Test');
 
   // The Python test file is the starter; apply the SV solution (correct adder).
-  await page.getByTestId('solve-button').click();
+  await clickSolve(page);
   await page.getByTestId('run-button').click();
 
   const logs = page.getByTestId('runtime-logs');
-  // Pyodide download can be slow on first run — generous timeout.
-  await expect(logs).toContainText('[cocotb] Simulation complete', { timeout: 180_000 });
-  await expect(logs).not.toContainText('[cocotb] Python error');
-  await expect(logs).not.toContainText('# cocotb error');
+  await expect(logs).toContainText('$ python /workspace/src/test_adder.py', { timeout: 180_000 });
+  await expect(logs).toContainText('PASS', { timeout: 180_000 });
+  await expect(logs).toContainText('[circt-sim] Simulation completed', { timeout: 180_000 });
   await expect(logs).not.toContainText('AssertionError');
+  await expect(logs).not.toContainText("Failed to execute 'importScripts'");
+  await expect(logs).not.toContainText('is invalid');
 });
 
 test('cocotb: Clock and Timing — solution passes all assertions', async ({ page }) => {
   await goToLesson(page, 'Clock and Timing');
 
-  await page.getByTestId('solve-button').click();
+  await clickSolve(page);
   await page.getByTestId('run-button').click();
 
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('[cocotb] Simulation complete', { timeout: 180_000 });
-  await expect(logs).not.toContainText('[cocotb] Python error');
+  await expect(logs).toContainText('$ python /workspace/src/test_counter.py', { timeout: 180_000 });
+  await expect(logs).toContainText('PASS', { timeout: 180_000 });
+  await expect(logs).toContainText('[circt-sim] Simulation completed', { timeout: 180_000 });
   await expect(logs).not.toContainText('AssertionError');
+  await expect(logs).not.toContainText("Failed to execute 'importScripts'");
+  await expect(logs).not.toContainText('is invalid');
 });

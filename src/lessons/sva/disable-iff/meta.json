@@ -1,5 +1,0 @@
-{
-  "title": "disable iff — Reset Handling",
-  "focus": "/src/reset_check.sv",
-  "runner": "bmc"
-}

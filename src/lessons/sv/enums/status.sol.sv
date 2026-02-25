@@ -1,16 +1,16 @@
-typedef enum logic [1:0] { IDLE, RUNNING, DONE, ERROR } status_t;
+typedef enum logic [1:0] { IDLE, CMD, READ, WRITE } ctrl_state_t;
 
-module status_display(
-  input  status_t  st,
-  output logic     active,
-  output logic     err
+module ctrl_display (
+  input  ctrl_state_t state,
+  output logic        reading,
+  output logic        writing
 );
   always_comb begin
-    active = 1'b0;
-    err    = 1'b0;
-    case (st)
-      RUNNING: active = 1'b1;
-      ERROR:   err    = 1'b1;
+    reading = 1'b0;
+    writing = 1'b0;
+    case (state)
+      READ:  reading = 1'b1;
+      WRITE: writing = 1'b1;
       default: ;
     endcase
   end

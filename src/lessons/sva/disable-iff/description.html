@@ -1,8 +1,6 @@
-              <p>During reset, the design is in an undefined state and assertions will fire spuriously. The <code>disable iff</code> clause suppresses an entire property whenever a condition is true.</p>
-              <pre>property p;
-  @(posedge clk) disable iff (!rst_n)
-    req |=> ack;
-endproperty</pre>
-              <p>While <code>!rst_n</code> is true, the property evaluates as vacuously true — no failure is reported.</p>
-              <p>Open <code>reset_check.sv</code> and add <code>disable iff (!rst_n)</code> to the property, between the clock specification and the implication.</p>
+              <p>During <dfn data-card="Reset is the period at the start of simulation (or after a reset signal asserts) when registers haven't been initialized to their intended values. Sequential logic after reset may be in an indeterminate X state, and any assertion that samples these signals will fire spuriously — not because the design is buggy, but because it hasn't been initialized yet. disable iff suppresses assertions during this window.">reset</dfn>, the design is in an undefined state and assertions will fire spuriously. The <code>disable iff</code> clause suppresses an entire property whenever a condition is true.</p>
+              <pre>@(posedge clk) disable iff (reset_condition)
+  antecedent |=> consequent;</pre>
+              <p>While the reset condition is true, the property evaluates as vacuously true — no failure is reported.</p>
+              <p>Open <code>reset_check.sv</code> and add <code>disable iff (!rst_n)</code> between the clock specification and the implication.</p>
               <blockquote><p><code>disable iff</code> is asynchronous: the property is disabled the moment the condition becomes true, not at the next clock edge.</p></blockquote>

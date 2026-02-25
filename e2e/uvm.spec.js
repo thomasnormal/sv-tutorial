@@ -1,77 +1,71 @@
 /**
- * E2E tests for all UVM lessons (circt-verilog → circt-sim with full UVM).
+ * E2E tests for all UVM lessons (circt-verilog -> circt-sim with full UVM).
  */
 import { test, expect } from '@playwright/test';
 
-const UVM_ROUTES = {
-  'The First UVM Test': '/lesson/uvm/reporting',
-  'Sequence Items': '/lesson/uvm/seq-item',
-  'Sequences': '/lesson/uvm/sequence',
-  'The Driver': '/lesson/uvm/driver',
-  'Monitor and Scoreboard': '/lesson/uvm/monitor',
-  'Environment and Test': '/lesson/uvm/env'
-};
+const UVM_LESSONS = [
+  { title: 'The First UVM Test', route: '/lesson/uvm/reporting' },
+  { title: 'Sequence Items', route: '/lesson/uvm/seq-item' },
+  { title: 'Sequences', route: '/lesson/uvm/sequence' },
+  { title: 'The Driver', route: '/lesson/uvm/driver' },
+  { title: 'Constrained-Random Scenarios', route: '/lesson/uvm/constrained-random' },
+  { title: 'Monitor and Scoreboard', route: '/lesson/uvm/monitor' },
+  { title: 'Environment and Test', route: '/lesson/uvm/env' },
+  { title: 'Functional Coverage', route: '/lesson/uvm/covergroup' },
+  { title: 'Cross Coverage', route: '/lesson/uvm/cross-coverage' },
+  { title: 'Coverage-Driven Verification', route: '/lesson/uvm/coverage-driven' },
+  { title: 'Factory Overrides', route: '/lesson/uvm/factory-override' }
+];
 
-async function goToLesson(page, lessonName) {
-  const route = UVM_ROUTES[lessonName];
-  if (!route) {
-    throw new Error(`No UVM route mapping found for lesson "${lessonName}"`);
+async function goToLesson(page, lesson) {
+  if (!lesson || !lesson.route) {
+    throw new Error(`Invalid UVM lesson route mapping: ${JSON.stringify(lesson)}`);
   }
-  await page.goto(route);
-  await expect(page.getByRole('heading', { level: 2, name: lessonName })).toBeVisible();
+  await page.goto(lesson.route);
+  await expect(page.getByRole('heading', { level: 2, name: lesson.title })).toBeVisible();
 }
 
-// Common assertions for full-UVM execution.
+async function applySolution(page) {
+  const solveBtn = page.getByTestId('solve-button');
+  if (await solveBtn.count() === 0) return;
+
+  const label = ((await solveBtn.textContent()) ?? '').trim().toLowerCase();
+  if (label === 'reset') {
+    await solveBtn.click();
+    await expect(solveBtn).toHaveText(/solve/i);
+  }
+  await solveBtn.click();
+  await expect(solveBtn).toHaveText(/reset/i);
+}
+
 async function expectCleanUvmRun(logs) {
-  await expect(logs).toContainText('$ circt-verilog', { timeout: 120_000 });
-  await expect(logs).toContainText('$ circt-sim', { timeout: 120_000 });
-  await expect(logs).toContainText('--mode interpret');
-  await expect(logs).not.toContainText('--compiled');
-  await expect(logs).not.toContainText("# circt-verilog exit code: 1");
-  await expect(logs).not.toContainText('uvm-lite compatibility shim');
-  await expect(logs).not.toContainText("unknown package 'uvm_pkg'");
-  await expect(logs).not.toContainText("'uvm_macros.svh': No such file or directory");
-  await expect(logs).not.toContainText('not a valid top-level module');
-  await expect(logs).not.toContainText('redefinition of');
+  await expect(logs).toContainText('$ circt-verilog', { timeout: 45_000 });
+  await expect(logs).toContainText('--uvm-path /circt/uvm-core', { timeout: 45_000 });
+  await expect.poll(
+    async () => (await logs.textContent()) ?? '',
+    { timeout: 45_000, intervals: [250, 500, 1000] }
+  ).toMatch(/\$ circt-sim|runtime unavailable|# circt-verilog exit code: 1/);
+
+  const text = (await logs.textContent()) ?? '';
+  expect(text).toContain('$ circt-sim');
+  expect(text).toContain('--mode interpret');
+  expect(text).not.toContain('--compiled');
+  expect(text).not.toContain('# circt-verilog exit code: 1');
+  expect(text).not.toContain('# circt-sim exit code: 1');
+  expect(text).not.toContain('runtime unavailable');
+  expect(text).not.toContain('uvm-lite compatibility shim');
+  expect(text).not.toContain("unknown package 'uvm_pkg'");
+  expect(text).not.toContain("'uvm_macros.svh': No such file or directory");
+  expect(text).not.toContain('Failed to load UVM manifest: 404');
+  expect(text).not.toContain('not a valid top-level module');
+  expect(text).not.toContain('redefinition of');
 }
 
-test('UVM Foundations: The First UVM Test', async ({ page }) => {
-  await goToLesson(page, 'The First UVM Test');
-  await page.getByTestId('run-button').click();
-  await expectCleanUvmRun(page.getByTestId('runtime-logs'));
-});
-
-test('UVM Foundations: Sequence Items — solution compiles and runs', async ({ page }) => {
-  await goToLesson(page, 'Sequence Items');
-  await page.getByTestId('solve-button').click();
-  await page.getByTestId('run-button').click();
-  await expectCleanUvmRun(page.getByTestId('runtime-logs'));
-});
-
-test('Stimulus: Sequences — solution compiles and runs', async ({ page }) => {
-  await goToLesson(page, 'Sequences');
-  await page.getByTestId('solve-button').click();
-  await page.getByTestId('run-button').click();
-  await expectCleanUvmRun(page.getByTestId('runtime-logs'));
-});
-
-test('Stimulus: The Driver — solution compiles and runs', async ({ page }) => {
-  await goToLesson(page, 'The Driver');
-  await page.getByTestId('solve-button').click();
-  await page.getByTestId('run-button').click();
-  await expectCleanUvmRun(page.getByTestId('runtime-logs'));
-});
-
-test('Checking: Monitor and Scoreboard — solution compiles and runs', async ({ page }) => {
-  await goToLesson(page, 'Monitor and Scoreboard');
-  await page.getByTestId('solve-button').click();
-  await page.getByTestId('run-button').click();
-  await expectCleanUvmRun(page.getByTestId('runtime-logs'));
-});
-
-test('Checking: Environment and Test — solution compiles and runs', async ({ page }) => {
-  await goToLesson(page, 'Environment and Test');
-  await page.getByTestId('solve-button').click();
-  await page.getByTestId('run-button').click();
-  await expectCleanUvmRun(page.getByTestId('runtime-logs'));
-});
+for (const lesson of UVM_LESSONS) {
+  test(`UVM: ${lesson.title}`, async ({ page }) => {
+    await goToLesson(page, lesson);
+    await applySolution(page);
+    await page.getByTestId('run-button').click();
+    await expectCleanUvmRun(page.getByTestId('runtime-logs'));
+  });
+}

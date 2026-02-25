@@ -3,14 +3,14 @@ module liveness(input logic clk, rst_n, lock);
   // After POR, the lock signal must eventually assert (liveness)
   property p_lock_live;
     @(posedge clk)
-      // TODO: $rose(rst_n) |-> s_eventually lock;
+      // TODO: after reset de-asserts, lock must eventually become true
       ;
   endproperty
 
   // Once lock asserts it never de-asserts (safety)
   property p_lock_stable;
     @(posedge clk)
-      // TODO: lock |-> always lock;
+      // TODO: once lock asserts, it must hold true at every future cycle
       ;
   endproperty
 

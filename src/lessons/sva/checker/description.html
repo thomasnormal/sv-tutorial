@@ -1,9 +1,6 @@
-<p>A <strong><code>checker</code></strong> is a named, encapsulated block of assertions that can be instantiated anywhere a module instance is legal — and also inside procedural blocks. Unlike a module, a checker is automatically excluded from synthesis and can take clocking events as formal arguments.</p>
+<p>A <strong><code><dfn data-card="A SystemVerilog checker is a named block (checker...endchecker) that encapsulates assertions. Like a module, it has ports and can be instantiated multiple times — so you can write a handshake_check once and reuse it for every req/ack pair in the design. Unlike a module, a checker is automatically excluded from synthesis, can take clocking events as formal arguments, and can be instantiated inside procedural blocks.">checker</dfn></code></strong> is a named, encapsulated block of assertions that can be instantiated anywhere a module instance is legal — and also inside procedural blocks. Unlike a module, a checker is automatically excluded from synthesis and can take clocking events as formal arguments.</p>
 <pre>checker handshake_check(input logic clk, req, ack);
-  property p;
-    @(posedge clk) req |=> ##[1:3] ack;
-  endproperty
-  req_ack_a: assert property (p);
+  // ... properties go here ...
 endchecker
 
 module top(input logic clk, req1, ack1, req2, ack2);

@@ -8,6 +8,7 @@ cd "$ROOT_DIR"
 scripts/check-requirements.sh
 npm ci
 scripts/setup-surfer.sh
+scripts/setup-pyodide.sh
 scripts/setup-circt.sh
 scripts/build-circt-wasm.sh
 npm run sync:circt

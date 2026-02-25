@@ -1,9 +1,26 @@
-<p>Welcome to the interactive SystemVerilog tutorial — a hands-on guide to the hardware description and verification language used throughout the industry.</p>
-<p><strong>Part 1 — SystemVerilog Basics</strong> covers the building blocks of synthesisable RTL: modules and ports, combinational logic with <code>always_comb</code>, sequential logic with <code>always_ff</code>, parameterized modules, state machines, and coverage fundamentals.</p>
-<p><strong>Part 2 — SystemVerilog Assertions</strong> covers formal and simulation-based verification: immediate and concurrent assertions, clock-delay sequences, implication operators, sampled-value functions, and advanced property techniques.</p>
-<p><strong>Part 3 — Universal Verification Methodology</strong> covers the industry-standard verification framework: UVM components, testbench architecture, sequences, drivers, monitors, scoreboards, and environments.</p>
-<hr style="margin: 1em 0;">
-<h3>Hello World</h3>
-<p>Every SystemVerilog program is wrapped in a <code>module</code>. An <code>initial</code> block runs once at time zero. Add a <code>$display</code> call to print a message, then press <strong>⌘ Enter</strong> to run it.</p>
-<pre>$display("HELLO WORLD");</pre>
-<p>After running, the terminal shows diagnostic lines from the simulator alongside your output. The <code>[circt-sim]</code> lines are internal bookkeeping — process counts, timing, coverage — and can be ignored for now. Your program's output appears in between, unadorned: that's the line you printed.</p>
+              <p>Welcome to this SystemVerilog tutorial. We're building a <strong>memory chip</strong> — a synchronous <dfn data-card="SRAM (Static RAM) and DRAM (Dynamic RAM) are both volatile memory technologies, but they differ in how they store data. SRAM stores each bit using a circuit of 6 transistors (a flip-flop) that holds its state as long as power is applied. DRAM stores each bit as a tiny charge in a capacitor, paired with just 1 transistor — cheaper and denser, but requires constant electrical refreshing to prevent data loss.">SRAM</dfn> — from scratch, one lesson at a time. Here's the interface you'll have working by the end of Part 1:</p>
+              <svg width="320" height="130" viewBox="0 0 320 130" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:13px;margin:10px auto">
+                <defs><marker id="wlc-a" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#1e2a2c"/></marker></defs>
+                <rect x="115" y="10" width="115" height="110" rx="6" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+                <text x="172" y="58" text-anchor="middle" font-weight="bold" fill="#0d6f72" font-size="15">SRAM</text>
+                <text x="172" y="76" text-anchor="middle" fill="#3d9fa3" font-size="12">16 × 8 bits</text>
+                <text x="60" y="33" text-anchor="end" fill="#1e2a2c">clk</text>
+                <line x1="62" y1="30" x2="112" y2="30" stroke="#1e2a2c" stroke-width="1.5" marker-end="url(#wlc-a)"/>
+                <text x="60" y="55" text-anchor="end" fill="#1e2a2c">we</text>
+                <line x1="62" y1="52" x2="112" y2="52" stroke="#1e2a2c" stroke-width="1.5" marker-end="url(#wlc-a)"/>
+                <text x="60" y="77" text-anchor="end" fill="#1e2a2c">addr</text>
+                <line x1="62" y1="74" x2="112" y2="74" stroke="#1e2a2c" stroke-width="1.5" marker-end="url(#wlc-a)"/>
+                <text x="60" y="99" text-anchor="end" fill="#1e2a2c">wdata</text>
+                <line x1="62" y1="96" x2="112" y2="96" stroke="#1e2a2c" stroke-width="1.5" marker-end="url(#wlc-a)"/>
+                <line x1="232" y1="65" x2="272" y2="65" stroke="#1e2a2c" stroke-width="1.5" marker-end="url(#wlc-a)"/>
+                <text x="275" y="69" fill="#1e2a2c">rdata</text>
+              </svg>
+              <ul>
+                <li><strong>Part 1</strong> — SystemVerilog Basics: build the full parameterized SRAM in RTL</li>
+                <li><strong>Part 2</strong> — SystemVerilog Assertions: formally verify its correctness</li>
+                <li><strong>Part 3</strong> — UVM: stress-test it with a complete verification environment</li>
+              </ul>
+              <p>By the end you'll have a chip that's been hand-coded, formally proved, and exhaustively randomized — the same flow used in industry-grade ASIC design.</p>
+              <h2>Hello World</h2>
+              <p>Before we build anything, let's make sure the simulator is working. Open <code>top.sv</code>. The <code><dfn data-card="An initial block is a procedural block that runs once at the start of simulation (time 0) and then stops — it doesn't repeat. Statements inside execute sequentially, top to bottom, like a program. Initial blocks cannot be synthesized to hardware; they exist only in testbenches. They're the standard way to write test sequences: drive signals, wait for clock edges, check results, then call $finish.">initial</dfn></code> block runs once at time 0. Use <code>$display</code> to print a message to the log — the syntax is identical to C's <code>printf</code>.</p>
+              <blockquote><p>Every SystemVerilog simulation ends when <code>$finish</code> is called. Without it, the simulator would run forever waiting for events that never come.</p></blockquote>

@@ -1,21 +1,7 @@
-<p>Random stimulus without a stopping condition is unpredictable — you may run far more cycles than needed, or stop before all bins are hit. <strong>Coverage-driven verification</strong> closes this loop: the test keeps generating stimulus until coverage reaches its target, then stops.</p>
-<p>The pattern uses <code>get_coverage()</code> on the covergroup to query current progress:</p>
-<pre>task run_phase(uvm_phase phase);
-  phase.raise_objection(this);
-  while (env.cov.adder_cg.get_coverage() &lt; 100.0) begin
-    adder_seq seq = adder_seq::type_id::create("seq");
-    seq.start(env.agent.seqr);
-    `uvm_info("TEST", $sformatf("coverage = %.1f%%",
-      env.cov.adder_cg.get_coverage()), UVM_LOW)
-  end
-  phase.drop_objection(this);
-endtask</pre>
-<p>Open <code>adder_test.sv</code> and replace the single <code>seq.start()</code> call with the <code>while</code> loop above.</p>
-<blockquote><p>Always add a maximum-iteration guard in case a coverage bin is unreachable with the current constraints:</p>
-<pre>if (++iterations >= 50) begin
-  `uvm_warning("TEST", "Iteration limit reached")
-  break;
-end</pre>
-<p>If this fires, find which bin has zero hits and adjust the constraints or stimulus so that range of values can be generated.</p></blockquote>
+<p>Random stimulus without a stopping condition is unpredictable — you may run far more cycles than needed, or stop before all bins are hit. <strong><dfn data-card="Coverage-driven verification (CDV) is a methodology where the test keeps generating random stimulus until a coverage target is met. Instead of running a fixed number of transactions, the test loop queries coverage progress (get_coverage()) and stops when all bins are hit. This ensures both randomness (finding unexpected bugs) and completeness (every scenario was exercised).">Coverage-driven verification</dfn></strong> closes this loop: the test keeps generating stimulus until coverage reaches its target, then stops.</p>
+<p>Query progress using <code>get_coverage()</code> on the covergroup object:</p>
+<pre>env.cov.mem_cg.get_coverage()  // returns 0.0 to 100.0</pre>
+<p>Open <code>mem_test.sv</code>. Replace the single <code>seq.start()</code> call with a <code>while</code> loop that keeps creating and running sequences until <code>mem_cg</code> coverage reaches 100%. Log the current coverage after each sequence run.</p>
+<blockquote><p>Always add a maximum-iteration guard in case a coverage bin is unreachable with the current constraints. If the limit fires, find which bin has zero hits and adjust the constraints or stimulus so that range can be generated.</p></blockquote>
 <hr style="margin: 1em 0;">
 <p>To continue learning UVM, the <a href="https://github.com/mbits-mirafra/UVMCourse/wiki/02.Basics" target="_blank" rel="noopener">UVM Course wiki</a> covers the full UVM methodology in depth, including advanced sequencer arbitration, factory overrides, and the register layer.</p>

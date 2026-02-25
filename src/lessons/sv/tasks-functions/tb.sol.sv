@@ -1,27 +1,58 @@
+interface mem_if (input logic clk);
+  logic        we;
+  logic [3:0]  addr;
+  logic [7:0]  wdata;
+  logic [7:0]  rdata;
+endinterface
+
 module tb;
   logic clk = 0;
-  logic [7:0] tx_data  = 0;
-  logic       tx_valid = 0;
-
   always #5 clk = ~clk;
 
-  function automatic logic parity(input logic [7:0] d);
+  mem_if vif(.clk(clk));
+
+  sram dut(
+    .clk   (vif.clk),
+    .we    (vif.we),
+    .addr  (vif.addr),
+    .wdata (vif.wdata),
+    .rdata (vif.rdata)
+  );
+
+  function automatic logic parity_check(input logic [7:0] d);
     return ^d;
   endfunction
 
-  task automatic send(input logic [7:0] d);
-    tx_data  = d;
-    tx_valid = 1;
-    @(posedge clk); #1;
-    tx_valid = 0;
+  task automatic write_word(input logic [3:0] a, input logic [7:0] data);
+    vif.we = 1; vif.addr = a; vif.wdata = data;
+    @(posedge vif.clk); #1;
+    vif.we = 0;
+  endtask
+
+  task automatic read_word(input  logic [3:0] a, output logic [7:0] data);
+    vif.addr = a;
+    @(posedge vif.clk); #1;
+    data = vif.rdata;
   endtask
 
   initial begin
-    @(posedge clk); #1;
-    send(8'h01);
-    $display("sent 0x01  parity=%b (expect 1)", parity(8'h01));
-    send(8'hFF);
-    $display("sent 0xFF  parity=%b (expect 0)", parity(8'hFF));
+    logic [7:0] result;
+
+    write_word(4'd5, 8'd42);
+    read_word (4'd5, result);
+    $display("mem[5] = %0d  parity=%b (expect 42, parity=%b)",
+             result, parity_check(result), ^8'd42);
+
+    write_word(4'd0, 8'hFF);
+    read_word (4'd0, result);
+    $display("mem[0] = %0d  parity=%b (expect 255, parity=%b)",
+             result, parity_check(result), ^8'hFF);
+
+    write_word(4'd12, 8'd100);
+    read_word (4'd12, result);
+    $display("mem[12] = %0d  parity=%b (expect 100, parity=%b)",
+             result, parity_check(result), ^8'd100);
+
     $finish;
   end
 endmodule

@@ -1,5 +1,5 @@
-              <p>A <strong>sequence item</strong> is the transaction data object that flows through a UVM testbench. It extends <code>uvm_sequence_item</code> and holds the stimulus fields.</p>
-              <p>Fields marked <code>rand</code> are randomizable. <strong>Constraints</strong> narrow the random space to legal values. The <strong>factory registration macro</strong> enables type overrides and auto-generates <code>print()</code>, <code>copy()</code>, and <code>compare()</code>:</p>
+              <p>A <strong><dfn data-card="A sequence item (uvm_sequence_item) is the transaction object that represents one operation — a single read or write in the case of an SRAM. It holds all the fields needed to describe and execute the operation. Items flow from sequences through the sequencer to the driver, which translates them into pin-level signal assignments. Items marked rand can be randomized; constraints narrow the legal value space.">sequence item</dfn></strong> is the transaction data object that flows through a UVM testbench. It extends <code>uvm_sequence_item</code> and holds the stimulus fields.</p>
+              <p>Fields marked <code>rand</code> are randomizable. <strong><dfn data-card="Constraints in SystemVerilog are declarative rules that restrict which random values the solver may generate. The solver finds a solution satisfying all active constraints simultaneously using a constraint solver (typically based on SAT or BDD). Constraints can be conditional (implication), ranged, or use distribution weights. They're more powerful than hand-written loops because the solver explores the full legal space automatically.">Constraints</dfn></strong> narrow the random space to legal values. The <strong>factory registration macro</strong> enables type overrides and auto-generates <code>print()</code>, <code>copy()</code>, and <code>compare()</code>:</p>
               <pre>class adder_item extends uvm_sequence_item;
   `uvm_object_utils_begin(adder_item)
     `uvm_field_int(a, UVM_ALL_ON)
@@ -10,5 +10,5 @@
   constraint small_c { a &lt; 100; b &lt; 100; }
   ...
 endclass</pre>
-              <p>Open <code>adder_item.sv</code> and add the <code>rand</code> declarations, field macros, and constraint.</p>
+              <p>Open <code>mem_item.sv</code> and add the four field declarations (three <code>rand</code> fields for <code>we</code>, <code>addr</code>, <code>wdata</code> and one non-random <code>rdata</code>), the corresponding field macros inside <code>uvm_object_utils_begin</code>, and a constraint that makes operations read-only by default.</p>
               <blockquote><p>Always create items through the factory: <code>adder_item::type_id::create("item")</code> — not with <code>new</code> directly. Factory creation enables test-level type substitution without changing any sequence code.</p></blockquote>

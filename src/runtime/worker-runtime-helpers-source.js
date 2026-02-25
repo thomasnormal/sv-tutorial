@@ -39,9 +39,17 @@ async function fetchScriptText(url) {
 function installPathRequireOnly(pathShim) {
   if (typeof self.require !== 'undefined') return;
   self.require = function(mod) {
-    if (mod === 'path') return pathShim;
+    if (mod === 'path' || mod === 'node:path') return pathShim;
     throw new Error('require(\'' + mod + '\') is not available in browser worker');
   };
+}
+
+function injectCallMainExportShim(scriptText) {
+  var text = String(scriptText || '');
+  if (!text || text.indexOf('function callMain(') < 0) return text;
+  if (text.indexOf('__svt_callMain') >= 0) return text;
+
+  return text + "\\n;try{if(typeof callMain==='function'&&typeof self!=='undefined'&&typeof self.__svt_callMain!=='function'){self.__svt_callMain=callMain;}}catch(_){}\\n";
 }
 
 async function loadEmscriptenTool(opts) {
@@ -56,6 +64,10 @@ async function loadEmscriptenTool(opts) {
   var afterEval = (typeof options.afterEval === 'function') ? options.afterEval : null;
 
   var scriptText = await fetchScriptText(jsUrl);
+  if (!scriptText) {
+    throw new Error('Failed to load tool script: ' + String(jsUrl || ''));
+  }
+  scriptText = injectCallMainExportShim(scriptText);
   var isNoderawfs = !!scriptText && isNoderawfsScript(scriptText);
   var fsBundle = null;
 
@@ -68,14 +80,13 @@ async function loadEmscriptenTool(opts) {
       onStdout: onStdout,
       onStderr: onStderr
     });
-    if (beforeEval) beforeEval();
-    (0, eval)(scriptText);
-    if (afterEval) afterEval();
   } else {
     if (onMode) onMode('browser');
     installPathRequireOnly(pathShim);
-    importScripts(jsUrl);
   }
+  if (beforeEval) beforeEval();
+  (0, eval)(scriptText);
+  if (afterEval) afterEval();
 
   return {
     scriptText: scriptText,

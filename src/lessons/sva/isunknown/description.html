@@ -1,7 +1,5 @@
 <p>SystemVerilog's <code>logic</code> type has four states: <code>0</code>, <code>1</code>, <code>X</code> (unknown), and <code>Z</code> (high-impedance). In simulation, X propagates through logic and can silently corrupt results.</p>
-<p><code>$isunknown(expr)</code> returns <code>1</code> if <em>any</em> bit of <code>expr</code> is X or Z, making it a precise detector for uninitialized registers and floating buses:</p>
-<pre>@(posedge clk) disable iff (!rst_n)
-  !$isunknown(data)</pre>
-<p>Open <code>xcheck.sv</code> and complete the property body using <code>!$isunknown(data)</code>.</p>
+<p><code>$isunknown(expr)</code> returns <code>1</code> if <em>any</em> bit of <code>expr</code> is X or Z, making it a precise detector for uninitialized registers and floating buses.</p>
+<p>Open <code>xcheck.sv</code> and complete the property body: the design guarantee is that <code>data</code> must never contain X or Z after reset. Negate <code>$isunknown</code> to express this as a positive assertion.</p>
 <p>The testbench (<code>tb.sv</code>) drives <code>data</code> to <code>'x</code> after reset — this should trigger the assertion. After filling in the property, run and watch the assertion fire at that cycle.</p>
 <blockquote><p><code>$isunknown</code> is a <strong>simulation-only</strong> function. Formal tools work in two-state (0/1) logic and X/Z do not exist. Use it to catch bus contention, missing reset, or undriven ports during simulation regression.</p></blockquote>

@@ -164,7 +164,7 @@ class _DUT:
 class _Logger:
     def _emit(self, level, msg):
         import js
-        js._cocotb_log(f'[cocotb] {level:5s} {msg}')
+        js._cocotb_log(str(msg))
 
     def info(self, msg):    self._emit('INFO',    str(msg))
     def warning(self, msg): self._emit('WARNING', str(msg))

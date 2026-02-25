@@ -1,13 +1,36 @@
-<p>The <strong>non-consecutive equal repetition</strong> operator <code>[=m]</code> requires a boolean to be true exactly <em>m</em> times — with the same flexibility as <code>[->m]</code> regarding gaps, but with one key difference at the end:</p>
-<ul>
-  <li><code>sig[->m]</code> — sequence ends <em>at</em> the m-th true cycle</li>
-  <li><code>sig[=m]</code> — sequence ends at <em>any later cycle</em> after the m-th true cycle</li>
-</ul>
-<p>This matters when the signal that follows (<code>done</code>, <code>ready</code>, …) can arrive on the same cycle as the last match or several cycles after it:</p>
-<pre>// [->3]: done must be the cycle immediately after the 3rd ack
-start |=> ack[->3] ##1 done
-
-// [=3]: done may arrive at any point on or after the 3rd ack
-start |=> ack[=3] ##[0:$] done</pre>
-<p>Open <code>multi_ack2.sv</code> and complete the property body using <code>ack[=3] ##[0:$] done</code>.</p>
-<blockquote><p>Use <code>[=m]</code> when the protocol says "exactly m pulses must occur before completion" but the completion signal has variable latency. Use <code>[->m]</code> when completion is defined as arriving one cycle after the final pulse.</p></blockquote>
+<p>The <strong>non-consecutive equal repetition</strong> operator <code>[=m]</code> looks like <code>[->m]</code> but has a different rule about when the sequence ends:</p>
+<svg width="400" height="190" viewBox="0 0 400 190" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:13px;margin:10px auto">
+  <rect width="400" height="190" rx="4" fill="#fffdf7"/>
+  <!-- Section label: [->m] -->
+  <text x="8" y="16" fill="#0a5558" font-size="12" font-weight="bold">[->m] — done must arrive exactly 1 cycle after 3rd ack</text>
+  <line x1="6" y1="6" x2="6" y2="88" stroke="#d5cbb2" stroke-width="1"/>
+  <!-- ACK top: 3 pulses at t=3..4, t=6..7, t=9..10 (28px half-cycles from x=10) -->
+  <text x="36" y="36" text-anchor="end" fill="#586469">ack</text>
+  <path d="M 38,40 L 94,40 L 94,28 L 122,28 L 122,40 L 178,40 L 178,28 L 206,28 L 206,40 L 262,40 L 262,28 L 290,28 L 290,40 L 390,40" stroke="#0d6f72" stroke-width="2" fill="none"/>
+  <text x="108" y="24" text-anchor="middle" fill="#0d6f72" font-size="11">1st</text>
+  <text x="192" y="24" text-anchor="middle" fill="#0d6f72" font-size="11">2nd</text>
+  <text x="276" y="24" text-anchor="middle" fill="#0d6f72" font-size="11">3rd</text>
+  <!-- DONE top: exactly 1 cycle after 3rd ack (t=11..12 = x=318..346) -->
+  <text x="36" y="62" text-anchor="end" fill="#586469">done</text>
+  <path d="M 38,66 L 318,66 L 318,54 L 346,54 L 346,66 L 390,66" stroke="#1a7a3f" stroke-width="2" fill="none"/>
+  <!-- arrow pointing to done rise -->
+  <line x1="318" y1="50" x2="318" y2="74" stroke="#1a7a3f" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="318" y="85" text-anchor="middle" fill="#1a7a3f" font-size="11">##1 after 3rd ack</text>
+  <!-- Section label: [=m] -->
+  <text x="8" y="106" fill="#0a5558" font-size="12" font-weight="bold">[=m] — done can arrive any time after 3rd ack</text>
+  <line x1="6" y1="96" x2="6" y2="188" stroke="#d5cbb2" stroke-width="1"/>
+  <!-- ACK bottom: same 3 pulses -->
+  <text x="36" y="126" text-anchor="end" fill="#586469">ack</text>
+  <path d="M 38,130 L 94,130 L 94,118 L 122,118 L 122,130 L 178,130 L 178,118 L 206,118 L 206,130 L 262,130 L 262,118 L 290,118 L 290,130 L 390,130" stroke="#0d6f72" stroke-width="2" fill="none"/>
+  <!-- DONE bottom: arrives 2 cycles after 3rd ack (t=13..14 = x=374..390) -->
+  <text x="36" y="152" text-anchor="end" fill="#586469">done</text>
+  <path d="M 38,156 L 374,156 L 374,144 L 390,144" stroke="#cc5f2d" stroke-width="2" fill="none"/>
+  <!-- gap annotation -->
+  <line x1="290" y1="140" x2="290" y2="164" stroke="#cc5f2d" stroke-width="1" stroke-dasharray="3,3"/>
+  <line x1="374" y1="140" x2="374" y2="164" stroke="#cc5f2d" stroke-width="1" stroke-dasharray="3,3"/>
+  <line x1="290" y1="168" x2="374" y2="168" stroke="#cc5f2d" stroke-width="1.5"/>
+  <text x="332" y="180" text-anchor="middle" fill="#cc5f2d" font-size="11">gap allowed</text>
+</svg>
+<p>Open <code>multi_ack2.sv</code>. The spec is: after <code>start</code>, <code>ack</code> must pulse exactly 3 times, and then <code>done</code> must go high at some point afterwards — but not necessarily on the very next cycle.</p>
+<p>Complete the property using <code>[=3]</code> and an unbounded delay to <code>done</code>.</p>
+<blockquote><p>Use <code>[=m]</code> when the protocol says "m pulses must occur before completion" but the completion signal has variable latency. Use <code>[->m]</code> when completion is defined as arriving one cycle after the final pulse.</p></blockquote>

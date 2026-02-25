@@ -4,6 +4,31 @@
   <li><code>sig[*m:n]</code> — between <em>m</em> and <em>n</em> consecutive cycles</li>
   <li><code>sig[*0:$]</code> — zero or more cycles</li>
 </ul>
-<p>For example, <code>start |=> valid[*4]</code> means: after <code>start</code>, <code>valid</code> must be high for 4 cycles in a row.</p>
+<p>Here is what <code>start |=> busy[*3]</code> looks like in a waveform:</p>
+<svg width="400" height="120" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:13px;margin:10px auto">
+  <defs>
+    <marker id="cr-rarr" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#586469"/></marker>
+    <marker id="cr-larr" markerWidth="7" markerHeight="6" refX="0" refY="3" orient="auto"><path d="M7,0 L0,3 L7,6 Z" fill="#586469"/></marker>
+  </defs>
+  <rect width="400" height="120" rx="4" fill="#fffdf7"/>
+  <!-- busy high window shading: 3 cycles -->
+  <rect x="194" y="6" width="168" height="90" fill="#e6f5f5" opacity="0.5" rx="2"/>
+  <line x1="50" y1="6" x2="50" y2="98" stroke="#d5cbb2" stroke-width="1"/>
+  <!-- CLK: 12 half-cycles of 28px from x=54 -->
+  <text x="44" y="31" text-anchor="end" fill="#586469">clk</text>
+  <path d="M 54,34 L 82,34 L 82,20 L 110,20 L 110,34 L 138,34 L 138,20 L 166,20 L 166,34 L 194,34 L 194,20 L 222,20 L 222,34 L 250,34 L 250,20 L 278,20 L 278,34 L 306,34 L 306,20 L 334,20 L 334,34 L 362,34 L 362,20 L 390,20 L 390,34" stroke="#8a9da2" stroke-width="1.5" fill="none"/>
+  <!-- START: 1-cycle pulse (x=110..166) -->
+  <text x="44" y="63" text-anchor="end" fill="#586469">start</text>
+  <path d="M 54,68 L 110,68 L 110,54 L 166,54 L 166,68 L 390,68" stroke="#cc5f2d" stroke-width="2" fill="none"/>
+  <!-- BUSY: high from cycle after start posedge (x=194 onward) -->
+  <text x="44" y="93" text-anchor="end" fill="#586469">busy</text>
+  <path d="M 54,100 L 194,100 L 194,86 L 390,86" stroke="#0d6f72" stroke-width="2" fill="none"/>
+  <!-- dashed verticals -->
+  <line x1="110" y1="50" x2="110" y2="108" stroke="#cc5f2d" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="362" y1="82" x2="362" y2="108" stroke="#0d6f72" stroke-width="1" stroke-dasharray="4,3"/>
+  <!-- bracket over 3 cycles of busy: x=194 to x=362 (6 half-cycles of 28px) -->
+  <line x1="194" y1="111" x2="362" y2="111" stroke="#586469" stroke-width="1.5" marker-start="url(#cr-larr)" marker-end="url(#cr-rarr)"/>
+  <text x="278" y="120" text-anchor="middle" fill="#586469" font-size="12">3 consecutive cycles</text>
+</svg>
 <p>Open <code>hold_check.sv</code>. The spec is: <em>after a <code>start</code> pulse, <code>busy</code> must stay high for exactly 3 consecutive cycles.</em></p>
-<p>Complete the property using <code>busy[*3]</code>.</p>
+<p>Complete the property using <code>|=></code> and the repetition operator.</p>

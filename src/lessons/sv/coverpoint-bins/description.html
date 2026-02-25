@@ -1,10 +1,13 @@
-<p>By default a coverpoint creates one bin per distinct value. For a 2-bit signal that is four separate bins — but your verification goal is rarely "hit every raw integer". <strong>Named bins</strong> let you group values into meaningful categories and give reviewers a clear picture of what was tested:</p>
-<pre>coverpoint burst {
-  bins low   = {2'd0, 2'd1};   // burst lengths that fit in one beat
-  bins high  = {2'd2};         // burst length that requires two beats
-  ignore_bins idle = {2'd3};   // encoding unused by the protocol
+              <p>For the SRAM we care about exercising both halves of the address space — not just "did any address get hit." <strong>Named bins</strong> let you group values into meaningful categories:</p>
+              <pre>coverpoint addr {
+  bins lo_half = {[0:7]};    // group: lower 8 addresses
+  bins hi_half = {[8:15]};   // group: upper 8 addresses
 }</pre>
-<p>Now coverage is measured against <em>three categories</em> instead of four raw values. <code>ignore_bins</code> removes a value from the coverage calculation entirely — hitting or missing it has no effect on the percentage, which keeps your 100% target meaningful.</p>
-<p>Open <code>cov_bins.sv</code>. The signal is called <code>burst</code> and the testbench cycles through <code>0 1 2 3 0 1 2 3</code>. Add the two <code>bins</code> and the <code>ignore_bins</code> entry.</p>
-<p>After the run: <code>low</code> is hit (values 0 and 1 appear), <code>high</code> is hit (value 2 appears), <code>idle</code> is excluded. Both meaningful bins are covered → <strong>100%</strong>.</p>
-<blockquote><p>There is also <code>illegal_bins</code> — like <code>ignore_bins</code> it is excluded from coverage, but it additionally causes a simulation error if the value ever occurs. Use it for encodings that should be impossible, not just uninteresting.</p></blockquote>
+              <p>Now coverage is measured per group, not per raw value. You can also exclude values you never intend to exercise with <dfn data-card="ignore_bins marks certain values as uninteresting and excludes them from the coverage calculation. They won't count as covered or uncovered — the tool simply ignores them. Use this for reserved encodings, invalid states, or values that are impossible in your test environment. Contrast with illegal_bins, which additionally causes a simulation error if the value is ever seen.">ignore_bins</dfn>:</p>
+              <pre>ignore_bins reserved = {14, 15};  // these addresses are off-limits</pre>
+              <p>Open <code>cov_bins.sv</code>. The <code>cp_we</code> coverpoint already has explicit bins. Add explicit bins to <code>cp_addr</code>:</p>
+              <ul>
+                <li>A bin for the lower half of the address space (0–7)</li>
+                <li>A bin for the upper half (8–15), but exclude addresses 14 and 15 as reserved using <code>ignore_bins</code></li>
+              </ul>
+              <blockquote><p>There is also <code>illegal_bins</code> — like <code>ignore_bins</code> it is excluded from coverage, but it additionally causes a simulation error if the value ever occurs. Use it for encodings that should be impossible, not just uninteresting.</p></blockquote>

@@ -1,19 +1,24 @@
 module cov_intro;
-  bit clk = 0;
-  bit [1:0] opcode;
+  logic clk = 0;
   always #5 clk = ~clk;
 
-  covergroup cg_opcode @(posedge clk);
-    // TODO: coverpoint opcode;
-  endgroup
+  // The SRAM we've been building — now we measure how well our test covers it
+  logic       we   = 0;
+  logic [3:0] addr = 0;
+  logic [7:0] wdata = 0, rdata;
 
-  cg_opcode cov = new;
+  sram dut(.clk, .we, .addr, .wdata, .rdata);
+
+  // TODO: define a covergroup sram_cg that samples at posedge clk
+  //       with coverpoints for addr and we, then instantiate it as 'cov'
 
   initial begin
-    opcode = 0;
-    repeat (6) begin
+    // Drive a mix of reads and writes to random addresses
+    repeat (20) begin
       @(posedge clk);
-      opcode <= opcode + 1'b1;
+      we   <= $random;
+      addr <= $random;
+      wdata <= $random;
     end
     #1 $finish;
   end

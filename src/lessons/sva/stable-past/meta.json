@@ -1,5 +1,0 @@
-{
-  "title": "$stable and $past",
-  "focus": "/src/stable_check.sv",
-  "runner": "bmc"
-}

@@ -31,6 +31,7 @@ async function runModulesAndPorts(page) {
   const logs = page.getByTestId('runtime-logs');
   await expect(page.getByRole('heading', { level: 2, name: 'Modules and Ports' })).toBeVisible();
 
+  await page.getByTitle('Editor options').click();
   await page.getByTestId('solve-button').click();
   await page.getByTestId('run-button').click();
 
@@ -88,6 +89,56 @@ test('surfer renders waveform when WebGL2 is available', async ({ page }) => {
   await expect(crashBannerInIframe.first()).not.toBeVisible();
 });
 
+test('waveform toolbar buttons send correct commands', async ({ page }) => {
+  // Intercept URL.createObjectURL so we can read the text of command blobs.
+  // sendCmd() creates a small text/plain blob for each toolbar action.
+  await page.addInitScript(() => {
+    window._cmdTexts = [];
+    const orig = URL.createObjectURL.bind(URL);
+    URL.createObjectURL = function (blob) {
+      const url = orig(blob);
+      if (blob.type === 'text/plain') {
+        blob.text().then((t) => window._cmdTexts.push(t));
+      }
+      return url;
+    };
+  });
+
+  await runModulesAndPorts(page);
+  await page.getByTestId('runtime-tab-waves').click();
+
+  const waveFrame = page.getByTestId('waveform-frame-wrapper');
+  await expect(waveFrame).toHaveAttribute('data-wave-state', 'ready', { timeout: 30_000 });
+
+  const buttons = [
+    { title: 'Go to start',         cmd: 'goto_start' },
+    { title: 'Previous transition', cmd: 'transition_previous' },
+    { title: 'Next transition',     cmd: 'transition_next' },
+    { title: 'Go to end',           cmd: 'goto_end' },
+    { title: 'Zoom out',            cmd: 'zoom_out' },
+    { title: 'Zoom in',             cmd: 'zoom_in' },
+    { title: 'Zoom to fit',         cmd: 'zoom_fit' },
+  ];
+
+  // All buttons should be present and enabled once the waveform is ready.
+  for (const { title } of buttons) {
+    await expect(page.getByTitle(title)).toBeEnabled();
+  }
+
+  // Clear blobs captured during VCD load + initial scope/zoom_fit command file.
+  await page.evaluate(() => { window._cmdTexts = []; });
+
+  // Click each button and verify it produces the correct command string.
+  for (const { title, cmd } of buttons) {
+    await page.getByTitle(title).click();
+    await expect.poll(
+      () => page.evaluate(() => window._cmdTexts),
+      { timeout: 3_000, message: `Expected command blob "${cmd}" for button "${title}"` }
+    ).toContainEqual(cmd + '\n');
+    await page.evaluate(() => { window._cmdTexts = []; });
+  }
+});
+
 test('concurrent-sim SVA assertion signal appears in VCD', async ({ page }) => {
   // Intercept URL.createObjectURL to capture the text of any VCD blob sent to Surfer.
   await page.addInitScript(() => {
@@ -109,6 +160,7 @@ test('concurrent-sim SVA assertion signal appears in VCD', async ({ page }) => {
   });
 
   const logs = page.getByTestId('runtime-logs');
+  await page.getByTitle('Editor options').click();
   await page.getByTestId('solve-button').click();
   await page.getByTestId('run-button').click();
 

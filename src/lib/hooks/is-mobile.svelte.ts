@@ -1,6 +1,6 @@
 import { MediaQuery } from "svelte/reactivity";
 
-const DEFAULT_MOBILE_BREAKPOINT = 980;
+const DEFAULT_MOBILE_BREAKPOINT = 0;
 
 export class IsMobile extends MediaQuery {
 	constructor(breakpoint: number = DEFAULT_MOBILE_BREAKPOINT) {

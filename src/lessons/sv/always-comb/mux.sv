@@ -5,7 +5,8 @@ module mux4 #(parameter W = 8) (
 );
   always_comb begin
     case (sel)
-      // TODO: four cases mapping sel to a/b/c/d
+      2'b00: y = a;
+      // TODO: add the remaining three branches for b, c, and d
     endcase
   end
 endmodule

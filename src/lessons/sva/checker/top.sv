@@ -3,7 +3,7 @@
 module handshake_check(input logic clk, req, ack);
   property p;
     @(posedge clk)
-      // TODO: req |=> ##[1:3] ack;
+      // TODO: when req fires, ack must arrive within 1–3 cycles
       ;
   endproperty
   req_ack_a: assert property (p);

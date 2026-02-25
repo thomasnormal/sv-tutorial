@@ -1,5 +1,0 @@
-{
-  "title": "Clock and Timing",
-  "runner": "cocotb",
-  "focus": "/src/counter.sv"
-}

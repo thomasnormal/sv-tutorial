@@ -2,7 +2,7 @@
   Real cocotb tests are usually synchronized to clock edges, not fixed delays.
   This lesson uses the same quickstart style pattern:
   <code>cocotb.start_soon(Clock(...).start())</code> plus
-  <code>await RisingEdge(...)</code>.
+  <code>await <dfn data-card="RisingEdge(signal) is a cocotb trigger that suspends the coroutine until the named signal transitions from 0 to 1. It waits for the next rising edge — if the signal is already high, it will wait for it to go low and then high again. The companion FallingEdge waits for a 1→0 transition. These are the standard way to synchronize cocotb tests to a clock without hardcoding timing delays.">RisingEdge</dfn>(...)</code>.
 </p>
 <p>
   Open <code>reg_en.sv</code> and implement a 4-bit register with synchronous reset and enable:

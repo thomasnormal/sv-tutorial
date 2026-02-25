@@ -1,12 +1,11 @@
 <script>
   import { onDestroy, onMount } from 'svelte';
 
-  let { vcd = null, hasRun = false, darkMode = false } = $props();
+  let { vcd = null, hasRun = false, darkMode = false, signalsReady = $bindable(false) } = $props();
 
   let iframeEl = $state(null);
   let iframeLoaded = $state(false);
   let surferReady = $state(false);
-  let signalsReady = $state(false);
   let waveReadySource = $state('none');
   // null = checking, true = available, false = not installed
   let surferAvailable = $state(null);
@@ -54,7 +53,7 @@
   // Probe surfer.js with GET and MIME check. Vite preview can return SPA fallback
   // HTML with a false-positive 200 for missing assets.
   $effect(() => {
-    fetch(`${BASE}surfer/surfer.js`, { method: 'GET', cache: 'no-store' })
+    fetch(`${BASE}surfer/surfer.js`, { method: 'GET', cache: 'force-cache' })
       .then((r) => {
         const contentType = (r.headers.get('content-type') || '').toLowerCase();
         const isScriptMime = /javascript|ecmascript/.test(contentType);
@@ -104,6 +103,15 @@
     cw.postMessage({ command: 'InjectMessage', message: JSON.stringify(msg) }, '*');
   }
 
+  // Exported so parent can call via bind:this={waveformRef}; waveformRef.sendCmd('zoom_in')
+  export function sendCmd(cmd) {
+    const cw = iframeEl?.contentWindow;
+    if (!cw) return;
+    const url = URL.createObjectURL(new Blob([cmd + '\n'], { type: 'text/plain' }));
+    surferMsg(cw, { LoadCommandFileFromUrl: url });
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
+
   function applyChrome(cw, dark = false) {
     // All messages are idempotent — safe to call on every retry.
     surferMsg(cw, { SetMenuVisible: false });
@@ -118,6 +126,44 @@
       surferMsg(cw, { SelectTheme: 'light+' });
       surferMsg(cw, { SetConfigFromString: SURFER_THEME });
     }
+  }
+
+  // Parse VCD and return { id, name } for the first variable that has actual
+  // value transitions after the initial $dumpvars block.  Returns null if none.
+  function firstTransitioningVar(vcdText) {
+    // Collect {id (identifier code), name} in declaration order.
+    // VCD: $var type width identifier name $end
+    const vars = [];
+    for (const m of vcdText.matchAll(/\$var\s+\w+\s+\d+\s+(\S+)\s+(\S+)[^$]*\$end/g)) {
+      vars.push({ id: m[1], name: m[2] });
+    }
+    if (vars.length === 0) return null;
+
+    // Find $enddefinitions and skip past the $dumpvars initial-state block so
+    // we only look at changes that occur at real simulation timestamps.
+    const enddefs = vcdText.search(/\$enddefinitions\b/);
+    if (enddefs === -1) return null;
+    let rest = vcdText.slice(enddefs);
+    const dumpStart = rest.indexOf('$dumpvars');
+    if (dumpStart !== -1) {
+      const dumpEnd = rest.indexOf('$end', dumpStart);
+      if (dumpEnd !== -1) rest = rest.slice(dumpEnd + 4);
+    }
+    // Find the first timestamp after the dumpvars block.
+    const firstTs = rest.search(/#\d/);
+    if (firstTs === -1) return null;
+    rest = rest.slice(firstTs);
+
+    // Collect all identifiers that change at any point after dumpvars.
+    const transitioning = new Set();
+    for (const m of rest.matchAll(/^[01xzXZ]([!-~]+)|^b[01xzXZ]+\s+([!-~]+)/gm)) {
+      transitioning.add(m[1] ?? m[2]);
+    }
+
+    for (const v of vars) {
+      if (transitioning.has(v.id)) return v;
+    }
+    return null;
   }
 
   function sendVcd(el, text) {
@@ -160,6 +206,52 @@
       // Fire after the last load retry + parse time (VCDs are tiny, <20ms to parse).
       }, cmdDelay);
       _retryTimers.push(t);
+      // Auto-select the first signal that has actual transitions so that
+      // transition_next/prev work without requiring the user to click a row.
+      //
+      // Strategy (two-pronged):
+      //   1. FocusItem(idx) — sets keyboard focus in the signal list.
+      //   2. SetItemSelected — directly selects the item by its DisplayedItemRef id
+      //      (obtained from Surfer's own id_of_name() WASM export), which is what
+      //      transition_next actually navigates on.
+      const firstVar = firstTransitioningVar(text);
+      const focusTimer = setTimeout(async () => {
+        const cw = el?.contentWindow;
+        if (!cw) return;
+
+        // 1. Focus by visible index as a baseline.
+        const fallbackIdx = firstVar ? null : 0;
+        let focusDone = false;
+
+        // 2. Try the reliable path: use Surfer's id_of_name() to get the exact
+        //    DisplayedItemRef, then both focus and select that item.
+        if (firstVar && typeof cw.id_of_name === 'function') {
+          try {
+            const itemId = await cw.id_of_name(firstVar.name);
+            if (itemId !== undefined) {
+              // SetItemSelected selects the item (blue highlight) — this is the
+              // state that transition_next/prev operates on.
+              surferMsg(cw, { SetItemSelected: { item: itemId, selected: true } });
+              // Also try to get the visible index for FocusItem.
+              if (typeof cw.index_of_name === 'function') {
+                const visIdx = await cw.index_of_name(firstVar.name);
+                if (visIdx !== undefined) {
+                  surferMsg(cw, { FocusItem: visIdx });
+                  focusDone = true;
+                }
+              } else {
+                focusDone = true; // SetItemSelected alone may be enough
+              }
+            }
+          } catch { /* ignore — fall through to index-based fallback */ }
+        }
+
+        // Fallback: focus by declaration-order index.
+        if (!focusDone) {
+          surferMsg(cw, { FocusItem: fallbackIdx ?? 0 });
+        }
+      }, cmdDelay + 400);
+      _retryTimers.push(focusTimer);
       // Keep the UI responsive if an older Surfer build does not emit
       // waves-loaded integration events.
       _readyFallbackTimer = setTimeout(() => {
@@ -247,11 +339,11 @@
         title="Surfer Waveform Viewer"
         onload={onIframeLoad}
         data-testid="waveform-iframe"
-        class="w-full h-full border-none rounded-[10px]"
+        class="w-full h-full border-none"
       ></iframe>
       {#if !signalsReady}
         <div data-testid="waveform-loading-overlay" class="absolute inset-0 flex items-center justify-center
-                    bg-surface text-muted-foreground text-sm rounded-[10px]
+                    bg-surface text-muted-foreground text-sm
                     pointer-events-none">
           Loading waveform…
         </div>
@@ -268,3 +360,4 @@
     <span>Checking for Surfer…</span>
   </div>
 {/if}
+

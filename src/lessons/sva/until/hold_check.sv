@@ -3,14 +3,14 @@ module hold_check(input logic clk, valid, done, data_ok);
   // valid must stay high until done arrives (and done must eventually arrive)
   property p_valid_holds;
     @(posedge clk)
-      // TODO: valid |-> valid s_until done;
+      // TODO: valid must stay high until done arrives, and done must eventually arrive
       ;
   endproperty
 
   // data_ok must be high on the same cycle that done fires
   property p_done_clean;
     @(posedge clk)
-      // TODO: valid |-> data_ok until_with done;
+      // TODO: from valid going high, data_ok must hold on every cycle including the done cycle
       ;
   endproperty
 

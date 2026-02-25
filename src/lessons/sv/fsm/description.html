@@ -1,21 +1,10 @@
-              <p>A <strong>Moore FSM</strong> uses two always-blocks: one for the state register, one for combinational next-state and output logic. Keeping them separate makes both halves easier to read and verify:</p>
-              <pre>// 1. State register
-always_ff @(posedge clk)
-  state &lt;= (!rst_n) ? S0 : next;
-
-// 2. Next-state + output (combinational)
-always_comb begin
-  next = state;  // default: hold
-  case (state)
-    S0: if (din) next = S1;
-    ...
-  endcase
-end</pre>
-              <p>This module detects the sequence <strong>1 → 0 → 1</strong> on serial input <code>din</code>. Open <code>seq_det.sv</code> and fill in the four <code>case</code> branches inside the <code>always_comb</code> block.</p>
-              <blockquote><p>The default assignment <code>next = state</code> at the top of the <code>always_comb</code> block means "stay in the current state unless a branch overrides it." This eliminates latches and makes every unspecified transition explicit.</p></blockquote>
+              <p>A <strong><dfn data-card="A Moore FSM (Finite State Machine) is one where the outputs depend only on the current state, not on the current inputs. This makes outputs glitch-free and registered. Contrast with a Mealy FSM where outputs depend on both state and inputs (faster response, one cycle earlier, but outputs can glitch mid-cycle). Moore FSMs are preferred in synchronous RTL because output timing is predictable.">Moore FSM</dfn></strong> separates state memory from output computation into two <code>always</code> blocks. The <strong>memory access controller</strong> decides when and how the SRAM gets written or read:</p>
+              <ul>
+                <li><strong>IDLE</strong> — waiting for a command; assert <code>ready=1</code>. On the next cycle, transition to WRITING if <code>cmd_valid &amp;&amp; cmd_we</code>, to READING if <code>cmd_valid &amp;&amp; !cmd_we</code>, otherwise stay in IDLE.</li>
+                <li><strong>READING</strong> — assert <code>sram_we=0</code> and return to IDLE next cycle</li>
+                <li><strong>WRITING</strong> — assert <code>sram_we=1</code> and return to IDLE next cycle</li>
+              </ul>
+              <p>Open <code>mem_ctrl.sv</code>. The two-always skeleton and default assignments are already set up. Fill in the <code>case</code> branches inside <code>always_comb</code>: the transition conditions in <code>IDLE</code>, and the output + transition for <code>READING</code> and <code>WRITING</code>.</p>
+              <blockquote><p>Keep outputs in the <code>always_comb</code> block, never in the <code>always_ff</code> block — Moore outputs are a function of state only, not of the next cycle's inputs.</p></blockquote>
               <h2>Testbench</h2>
-              <p>The testbench uses a <code>task</code> to drive one bit per clock edge and advance simulation time in one call:</p>
-              <pre>task automatic send(input logic b);
-  din = b; @(posedge clk); #1;
-endtask</pre>
-              <p>This makes the stimulus readable as a sequence of bits. The test first sends <strong>1→0→1</strong> (expect <code>detected=1</code>), then a longer stream that contains a second match, then an extra <code>0</code> that breaks the pattern.</p>
+              <p>The testbench cycles through all three states — idle, write command, read command — and checks that <code>sram_we</code> and <code>ready</code> assert at the right times.</p>

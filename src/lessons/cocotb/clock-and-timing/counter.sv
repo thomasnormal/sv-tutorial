@@ -3,6 +3,6 @@ module counter (
   output logic [3:0] count
 );
   always_ff @(posedge clk) begin
-    // TODO: if (rst) count <= 0; else count <= count + 1;
+    // TODO: reset count to 0 when rst is high, otherwise increment
   end
 endmodule

@@ -2,12 +2,14 @@
   import { EditorView, basicSetup } from 'codemirror';
   import { EditorState, Compartment } from '@codemirror/state';
   import { StreamLanguage, syntaxHighlighting, HighlightStyle } from '@codemirror/language';
+  import { linter, lintGutter, setDiagnostics } from '@codemirror/lint';
   import { verilog } from '@codemirror/legacy-modes/mode/verilog';
   import { python } from '@codemirror/legacy-modes/mode/python';
   import { tags } from '@lezer/highlight';
   import { untrack } from 'svelte';
 
-  let { value, onchange, filePath = '', vimMode = false, darkMode = false } = $props();
+  // diagnostics: array of { line: number, severity: 'error'|'warning', message: string }
+  let { value, onchange, filePath = '', vimMode = false, darkMode = false, diagnostics = [] } = $props();
   let container;
 
   // Dark-mode syntax highlight palette — colours tuned for the dark green background.
@@ -51,6 +53,13 @@
       },
       '&.cm-focused': { outline: 'none' },
       '.cm-scroller': { overflow: 'auto', height: '100%' },
+      // Lint gutter
+      '.cm-gutter-lint': { width: '1.1em' },
+      '.cm-lint-marker-error': { color: '#e05555' },
+      '.cm-lint-marker-warning': { color: '#c97a20' },
+      // Wavy underlines
+      '.cm-lintRange-error': { backgroundImage: 'none', borderBottom: '2px solid #e05555' },
+      '.cm-lintRange-warning': { backgroundImage: 'none', borderBottom: '2px dashed #c97a20' },
     }, { dark });
   }
 
@@ -88,6 +97,8 @@
           doc: initial,
           extensions: [
             basicSetup,
+            linter(() => []),
+            lintGutter(),
             languageCompartment.of(languageExtensionForPath(filePath)),
             themeCompartment.of(makeTheme(darkMode)),
             highlightCompartment.of(darkMode ? syntaxHighlighting(darkHighlight) : []),
@@ -145,6 +156,20 @@
     const v = container?._cmView;
     if (!v) return;
     v.dispatch({ effects: languageCompartment.reconfigure(languageExtensionForPath(path)) });
+  });
+
+  // Push diagnostics (errors/warnings from simulator) into the editor.
+  $effect(() => {
+    const diags = diagnostics;
+    const v = container?._cmView;
+    if (!v) return;
+    const cmDiags = diags.flatMap(d => {
+      try {
+        const line = v.state.doc.line(Math.max(1, Math.min(d.line, v.state.doc.lines)));
+        return [{ from: line.from, to: line.to, severity: d.severity ?? 'error', message: d.message }];
+      } catch { return []; }
+    });
+    v.dispatch(setDiagnostics(v.state, cmDiags));
   });
 
   // Toggle vim mode dynamically without recreating the editor.

@@ -1,7 +1,7 @@
 <p>A <strong>concurrent assertion</strong> runs in parallel with the design and samples signals at a clock edge. It consists of three pieces:</p>
 <ol>
-  <li>A <strong>sequence</strong> — a temporal pattern using the <code>##</code> clock-delay operator</li>
-  <li>A <strong>property</strong> — attaches the sequence to a clock and a trigger condition</li>
+  <li>A <strong><dfn data-card="A sequence in SVA is a temporal pattern over clock cycles, built using the ## clock-delay operator. Sequences can be named and reused. They describe 'what happened' — e.g., 'req was high, then two cycles later gnt was high.' Sequences alone don't pass or fail; they must be wrapped in a property and then asserted or covered.">sequence</dfn></strong> — a temporal pattern using the <code>##</code> clock-delay operator</li>
+  <li>A <strong><dfn data-card="A property in SVA wraps a sequence with a clock specification and optional disable condition. It is the unit that gets asserted, covered, or assumed. Properties can use implication (|->, |=>) to say 'if this sequence matches, then this other sequence must follow.'">property</dfn></strong> — attaches the sequence to a clock and a trigger condition</li>
   <li>An <strong>assert</strong> — evaluates the property at every clock edge</li>
 </ol>
 <p>Open <code>grant_check.sv</code>. The spec is: <em>when <code>cStart</code> is high, <code>req</code> must be high the same cycle and <code>gnt</code> must be high exactly 2 cycles later.</em></p>

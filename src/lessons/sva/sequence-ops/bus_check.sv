@@ -3,7 +3,7 @@ module bus_check(input logic clk, valid, ready, done);
   // intersect: both valid and ready must hold for exactly the same 4 cycles
   property p_transfer;
     @(posedge clk)
-      // TODO 1: valid |-> (valid[*4]) intersect (ready[*4]);
+      // TODO 1: use intersect to require valid and ready to hold high for the same 4 cycles
       ;
   endproperty
 
@@ -11,7 +11,7 @@ module bus_check(input logic clk, valid, ready, done);
   //      the two conditions are checked independently and may complete at different times
   property p_complete;
     @(posedge clk)
-      // TODO 2: valid |-> (##[1:4] ready) and (##[1:8] done);
+      // TODO 2: use and to check ready arrives within 4 cycles AND done within 8, independently
       ;
   endproperty
 

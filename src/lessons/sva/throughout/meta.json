@@ -1,5 +1,0 @@
-{
-  "title": "throughout — Stability During a Sequence",
-  "focus": "/src/spi_check.sv",
-  "runner": "bmc"
-}

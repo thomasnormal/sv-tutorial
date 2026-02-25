@@ -1,8 +1,8 @@
 <p>Two more sampled value functions for tracking signal history:</p>
 <ul>
-  <li><code>$stable(sig)</code> — true when <code>sig</code> did <em>not</em> change between the previous and current clock edge</li>
-  <li><code>$past(sig)</code> — the value of <code>sig</code> from exactly 1 cycle ago; <code>$past(sig, n)</code> goes back <code>n</code> cycles</li>
+  <li><code><dfn data-card="$stable(sig) is a sampled value function that returns true when sig's value at the current clock edge equals its value at the previous clock edge — i.e., the signal did not change. It is equivalent to (sig === $past(sig)). $stable is often used in bus-hold assertions: while valid is high and ready is low, the data bus must not change.">$stable</dfn>(sig)</code> — true when <code>sig</code> did <em>not</em> change between the previous and current clock edge</li>
+  <li><code><dfn data-card="$past(sig) returns the sampled value of sig from the previous clock edge — one cycle ago. $past(sig, n) goes back exactly n cycles. It is evaluated in SVA's Observed region, just like $rose and $stable. Use it to express data-flow properties: 'the output must equal the input from 2 cycles ago.' For detecting whether a signal simply did not change, $stable(sig) is more readable than sig === $past(sig), but both are equivalent.">$past</dfn>(sig)</code> — the value of <code>sig</code> from exactly 1 cycle ago; <code>$past(sig, n)</code> goes back <code>n</code> cycles</li>
 </ul>
 <p>Open <code>stable_check.sv</code>. The spec is: <em>while <code>valid</code> is high and <code>ready</code> is low, <code>data</code> must not change on the next cycle.</em></p>
-<p>Complete the property body using <code>(valid && !ready) |=> $stable(data)</code>.</p>
+<p>Complete the property body: while <code>valid</code> is high and <code>ready</code> is low, <code>data</code> must not change on the next cycle.</p>
 <blockquote><p><code>$stable(data)</code> is equivalent to writing <code>data == $past(data)</code> — use whichever reads more naturally for your spec.</p></blockquote>

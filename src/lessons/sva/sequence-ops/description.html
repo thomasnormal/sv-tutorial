@@ -1,13 +1,45 @@
-<p>SVA provides four operators for composing two sequences:</p>
+<p>SVA lets you compose two sequences side-by-side. The key operators:</p>
 <ul>
-  <li><code>s1 and s2</code> — both must match; they start together but may end at different cycles</li>
-  <li><code>s1 or s2</code> — at least one must match</li>
-  <li><code>s1 intersect s2</code> — both must match <em>and</em> end at exactly the same cycle</li>
-  <li><code>s1 within s2</code> — <code>s1</code> starts and ends entirely inside <code>s2</code>'s window</li>
+  <li><code>s1 <dfn data-card="intersect in SVA requires two sequences to both match AND end at exactly the same clock cycle. If s1 takes 4 cycles and s2 takes 3, 'intersect' will never succeed because they can't share the same endpoint. Use it to enforce lock-step protocols where two conditions must hold for exactly the same duration — e.g., valid and ready must both be high for the same 4-cycle window.">intersect</dfn> s2</code> — both must match <em>and</em> end at exactly the same cycle (lock-step)</li>
+  <li><code>s1 and s2</code> — both must match, but may end at different cycles (independent)</li>
 </ul>
+<p>The difference in pictures:</p>
+<svg width="400" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:13px;margin:10px auto">
+  <rect width="400" height="200" rx="4" fill="#fffdf7"/>
+  <!-- intersect section -->
+  <text x="8" y="16" fill="#0a5558" font-size="12" font-weight="bold">intersect — lock-step, same endpoint</text>
+  <line x1="6" y1="6" x2="6" y2="92" stroke="#d5cbb2" stroke-width="1"/>
+  <!-- 9 half-cycles of 36px from x=38; t positions: 38,74,110,146,182,218,254,290,326,362 -->
+  <!-- VALID: high t=1..8 (x=74..326) -->
+  <text x="32" y="38" text-anchor="end" fill="#586469">valid</text>
+  <path d="M 38,42 L 74,42 L 74,30 L 326,30 L 326,42 L 390,42" stroke="#cc5f2d" stroke-width="2" fill="none"/>
+  <!-- READY: high t=1..8 (same window = lock-step) -->
+  <text x="32" y="66" text-anchor="end" fill="#586469">ready</text>
+  <path d="M 38,70 L 74,70 L 74,58 L 326,58 L 326,70 L 390,70" stroke="#0d6f72" stroke-width="2" fill="none"/>
+  <!-- bracket showing same 4 cycles -->
+  <line x1="74" y1="78" x2="326" y2="78" stroke="#586469" stroke-width="1.5"/>
+  <line x1="74" y1="74" x2="74" y2="82" stroke="#586469" stroke-width="1.5"/>
+  <line x1="326" y1="74" x2="326" y2="82" stroke="#586469" stroke-width="1.5"/>
+  <text x="200" y="92" text-anchor="middle" fill="#586469" font-size="11">same 4 cycles — must end together</text>
+  <!-- and section -->
+  <text x="8" y="112" fill="#0a5558" font-size="12" font-weight="bold">and — independent, may end at different times</text>
+  <line x1="6" y1="102" x2="6" y2="200" stroke="#d5cbb2" stroke-width="1"/>
+  <!-- VALID: high t=1..2 only (x=74..110) -->
+  <text x="32" y="130" text-anchor="end" fill="#586469">valid</text>
+  <path d="M 38,134 L 74,134 L 74,122 L 110,122 L 110,134 L 390,134" stroke="#cc5f2d" stroke-width="2" fill="none"/>
+  <!-- READY: arrives at t=3, high t=3..4 (x=110..146) -->
+  <text x="32" y="154" text-anchor="end" fill="#586469">ready</text>
+  <path d="M 38,158 L 110,158 L 110,146 L 146,146 L 146,158 L 390,158" stroke="#0d6f72" stroke-width="2" fill="none"/>
+  <!-- DONE: arrives at t=6, high t=6..7 (x=218..254) -->
+  <text x="32" y="178" text-anchor="end" fill="#586469">done</text>
+  <path d="M 38,182 L 218,182 L 218,170 L 254,170 L 254,182 L 390,182" stroke="#1a7a3f" stroke-width="2" fill="none"/>
+  <!-- annotations -->
+  <text x="128" y="197" text-anchor="middle" fill="#0d6f72" font-size="11">within 4</text>
+  <text x="236" y="197" text-anchor="middle" fill="#1a7a3f" font-size="11">within 8</text>
+</svg>
 <p>Open <code>bus_check.sv</code> and complete two properties:</p>
 <ol>
-  <li><strong>p_transfer</strong> using <code>intersect</code>: once <code>valid</code> is asserted, both <code>valid</code> and <code>ready</code> must hold high for exactly 4 consecutive cycles in lock-step.</li>
-  <li><strong>p_complete</strong> using <code>and</code>: after <code>valid</code>, <code>ready</code> must arrive within 4 cycles <em>and</em> <code>done</code> must arrive within 8 cycles — checked independently, they may complete at different times.</li>
+  <li><strong>p_transfer</strong>: once <code>valid</code> is asserted, both <code>valid</code> and <code>ready</code> must hold high for exactly 4 consecutive cycles in lock-step.</li>
+  <li><strong>p_complete</strong>: after <code>valid</code>, <code>ready</code> must arrive within 4 cycles <em>and</em> <code>done</code> must arrive within 8 cycles — checked independently.</li>
 </ol>
-<blockquote><p>The key difference: <code>intersect</code> requires both subsequences to end at the same cycle; <code>and</code> ends when the <em>longer</em> of the two completes. Use <code>intersect</code> for simultaneous lock-step protocols; use <code>and</code> when two independent conditions must both eventually be satisfied.</p></blockquote>
+<blockquote><p>Two related operators: <code>or</code> (at least one sequence must match) and <code>within</code> (one sequence must start and end entirely inside another's window). Use those when you need "either/or" or containment checks.</p></blockquote>

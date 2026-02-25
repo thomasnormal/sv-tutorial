@@ -2,19 +2,23 @@ module tb;
   logic clk = 0;
   always #5 clk = ~clk;
 
-  adder_if bus(.clk(clk));         // interface instance holds all the shared signals
-  adder    dut(.bus(bus));         // DUT connects through one interface port
+  mem_if bus(.clk(clk));
+  sram   dut(.bus(bus));
 
   initial begin
-    // Drive inputs via the interface's master side
-    bus.a = 8'd10;  bus.b = 8'd20;
+    // Write via initiator side
+    bus.we = 1; bus.addr = 4'd4; bus.wdata = 8'd88;
     @(posedge clk); #1;
-    $display("10 + 20 = %0d  carry=%b (expect 30, carry=0)", bus.sum, bus.carry);
+    bus.we = 0;
 
-    // 200 + 100 = 300 overflows an 8-bit sum — carry should assert
-    bus.a = 8'd200; bus.b = 8'd100;
+    // Read back — 1-cycle latency
+    bus.addr = 4'd4; @(posedge clk); #1;
+    $display("mem[4] = %0d (expect 88)", bus.rdata);
+
+    bus.we = 1; bus.addr = 4'd11; bus.wdata = 8'd200;
     @(posedge clk); #1;
-    $display("200 + 100 = %0d  carry=%b (expect 44, carry=1)", bus.sum, bus.carry);
+    bus.we = 0; bus.addr = 4'd11; @(posedge clk); #1;
+    $display("mem[11] = %0d (expect 200)", bus.rdata);
 
     $finish;
   end

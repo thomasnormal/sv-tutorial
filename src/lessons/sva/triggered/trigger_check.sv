@@ -7,7 +7,7 @@ module trigger_check(input logic clk, req, busy, ack);
 
   property p_ack_follows;
     @(posedge clk)
-      // TODO: s_req_done.triggered |-> ##[1:3] ack;
+      // TODO: when s_req_done fires, ack must arrive within 3 cycles
       ;
   endproperty
 

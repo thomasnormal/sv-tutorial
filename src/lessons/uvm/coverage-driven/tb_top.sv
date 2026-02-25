@@ -1,22 +1,24 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
-`include "adder_item.sv"
-`include "adder_driver.sv"
-`include "adder_monitor.sv"
-`include "adder_scoreboard.sv"
-`include "adder_coverage.sv"
-`include "adder_agent.sv"
-`include "adder_seq.sv"
-`include "adder_env.sv"
-`include "adder_test.sv"
+`include "mem_item.sv"
+`include "mem_driver.sv"
+`include "mem_monitor.sv"
+`include "mem_scoreboard.sv"
+`include "mem_agent.sv"
+`include "mem_seq.sv"
+`include "mem_coverage.sv"
+`include "mem_env.sv"
+`include "mem_test.sv"
 
 module tb_top;
+  import uvm_pkg::*;
+  `include "uvm_macros.svh"
   logic clk = 0;
   always #5 clk = ~clk;
-  adder_if aif(.clk(clk));
-  adder dut(.a(aif.a), .b(aif.b), .sum(aif.sum), .carry(aif.carry));
+  mem_if mif(.clk(clk));
+  sram dut(.clk(mif.clk), .we(mif.we), .addr(mif.addr), .wdata(mif.wdata), .rdata(mif.rdata));
   initial begin
-    uvm_config_db #(virtual adder_if)::set(null, "uvm_test_top.*", "vif", aif);
-    run_test("adder_test");
+    uvm_config_db #(virtual mem_if)::set(null, "uvm_test_top.*", "vif", mif);
+    run_test("mem_test");
   end
 endmodule

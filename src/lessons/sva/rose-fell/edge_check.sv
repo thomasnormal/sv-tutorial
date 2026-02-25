@@ -2,7 +2,7 @@ module edge_check(input logic clk, cs_n, ack);
 
   property cs_ack_p;
     @(posedge clk)
-      // TODO: $fell(cs_n) |=> ##[0:1] $rose(ack);
+      // TODO: when cs_n falls (goes active-low), ack must rise within 0–1 cycles
       ;
   endproperty
 

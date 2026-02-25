@@ -1,10 +1,10 @@
 <p>When BMC treats all inputs as free variables it will consider inputs that a real environment would never produce — causing spurious failures. The <code>assume property</code> statement constrains which input sequences the tool is allowed to explore.</p>
 <pre>assume property (@(posedge clk) constraint_expr);</pre>
-<p>Think of <code>assume</code> as the dual of <code>assert</code>: <code>assert</code> says "the design must guarantee this", while <code>assume</code> says "the environment promises this".</p>
+<p>Think of <code><dfn data-card="assume property tells the formal tool 'treat this as a given — constrain the input space to only sequences where this holds.' It is the dual of assert: assert constrains what the design must produce, while assume constrains what inputs the tool is allowed to try. Over-constraining with assume can hide real bugs by ruling out valid input sequences, so assumptions should be conservative and checked carefully.">assume</dfn></code> as the dual of <code>assert</code>: <code>assert</code> says "the design must guarantee this", while <code>assume</code> says "the environment promises this".</p>
 <p>Open <code>top.sv</code>. A traffic-light FSM cycles RED → GREEN → YELLOW → RED. The <code>state</code> output should never reach the illegal value <code>3</code>.</p>
 <ol>
-  <li>Add the <code>assume</code> that prevents BMC from starting in an illegal state: <code>rst |-> (state == 0)</code></li>
-  <li>Add the <code>assert</code> that proves state 3 is unreachable: <code>state != 2'd3</code></li>
+  <li>Add an <code>assume property</code> that constrains BMC: when <code>rst</code> is high, the state must be 0 (the legal reset value).</li>
+  <li>Add an <code>assert property</code> that proves state 3 is unreachable — add a <code>disable iff (rst)</code> so it isn't checked during reset itself.</li>
 </ol>
 <p>Use <strong>run</strong> to simulate the FSM cycling through states, then <strong>verify</strong> to formally prove state 3 is unreachable.</p>
 <blockquote><p>Without the <code>assume</code>, BMC may start with <code>state = 3</code> at cycle 0 — which is structurally possible but not reachable from a real reset sequence. The assume excludes unreachable initial states.</p></blockquote>

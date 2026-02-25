@@ -2,7 +2,7 @@ module spi_check(input logic clk, cs_n, mosi);
 
   property p_cs_stable;
     @(posedge clk)
-      // TODO: $fell(cs_n) |=> (!cs_n) throughout (mosi[*8]);
+      // TODO: when cs_n falls, cs_n must stay low throughout an 8-cycle MOSI transfer
       ;
   endproperty
 

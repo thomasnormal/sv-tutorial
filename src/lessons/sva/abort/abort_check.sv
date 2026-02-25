@@ -4,7 +4,7 @@ module abort_check(input logic clk, start, ack, err);
   // If err fires mid-transfer, fail immediately.
   property p_burst_ok;
     @(posedge clk)
-      // TODO: start |=> reject_on(err) (##[1:4] ack);
+      // TODO: after start, ack must arrive within 4 cycles; if err fires mid-burst, fail immediately
       ;
   endproperty
 

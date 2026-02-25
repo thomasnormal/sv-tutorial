@@ -1,5 +1,0 @@
-{
-  "title": "Request / Acknowledge",
-  "focus": "/src/req_ack.sv",
-  "runner": "bmc"
-}

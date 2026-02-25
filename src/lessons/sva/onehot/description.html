@@ -1,6 +1,6 @@
 <p>SystemVerilog provides built-in functions for checking bit-count invariants — exactly what bus arbiters need:</p>
 <ul>
-  <li><code>$onehot(v)</code> — true when <em>exactly one</em> bit of <code>v</code> is 1</li>
+  <li><code><dfn data-card="$onehot(v) is a SystemVerilog system function that returns true when exactly one bit of v is 1 and all others are 0. It's used in assertions to verify that bus arbiters grant access to exactly one requester, that FSM one-hot encodings have exactly one active state, and that priority encoder outputs are correctly one-hot. $onehot0 allows zero or one bits — useful for optional or idle states.">$onehot</dfn>(v)</code> — true when <em>exactly one</em> bit of <code>v</code> is 1</li>
   <li><code>$onehot0(v)</code> — true when <em>zero or one</em> bits are 1</li>
   <li><code>$countones(v)</code> — returns the <em>number</em> of set bits; use in expressions like <code>$countones(v) &lt;= 2</code></li>
 </ul>

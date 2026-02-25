@@ -1,19 +1,26 @@
 module cov_intro;
-  bit clk = 0;
-  bit [1:0] opcode;
+  logic clk = 0;
   always #5 clk = ~clk;
 
-  covergroup cg_opcode @(posedge clk);
-    coverpoint opcode;
+  logic       we   = 0;
+  logic [3:0] addr = 0;
+  logic [7:0] wdata = 0, rdata;
+
+  sram dut(.clk, .we, .addr, .wdata, .rdata);
+
+  covergroup sram_cg @(posedge clk);
+    cp_addr: coverpoint addr;
+    cp_we:   coverpoint we;
   endgroup
 
-  cg_opcode cov = new;
+  sram_cg cov = new;
 
   initial begin
-    opcode = 0;
-    repeat (6) begin
+    repeat (20) begin
       @(posedge clk);
-      opcode <= opcode + 1'b1;
+      we   <= $random;
+      addr <= $random;
+      wdata <= $random;
     end
     #1 $finish;
   end

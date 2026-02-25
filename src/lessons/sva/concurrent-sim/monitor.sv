@@ -6,8 +6,7 @@ module monitor(input logic clk, req, gnt);
       req |-> ##[1:3] gnt;
   endproperty
 
-  // TODO: req_gnt_check: assert property (req_then_gnt)
-  //         else $error("req was not followed by gnt within 3 cycles!");
-  // TODO: cover property (req_then_gnt);
+  // TODO: assert property (req_then_gnt) — print an error when gnt is late
+  // TODO: cover property (req_then_gnt) — count how many times the property fired
 
 endmodule

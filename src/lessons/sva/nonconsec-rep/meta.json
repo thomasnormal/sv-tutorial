@@ -1,5 +1,0 @@
-{
-  "title": "Goto Repetition [->m]",
-  "focus": "/src/multi_ack.sv",
-  "runner": "bmc"
-}

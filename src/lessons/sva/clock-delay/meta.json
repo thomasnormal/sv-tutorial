@@ -1,5 +1,0 @@
-{
-  "title": "Clock Delay ##m and ##[m:n]",
-  "focus": "/src/delay_check.sv",
-  "runner": "bmc"
-}

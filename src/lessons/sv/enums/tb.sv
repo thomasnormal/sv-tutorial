@@ -1,15 +1,26 @@
 module tb;
-  status_t st;
-  logic    active, err;
+  logic [1:0] state;
+  logic       reading, writing;
 
-  // Instantiate the design under test, connecting ports by name
-  status_display dut(.st, .active, .err);
+  ctrl_display dut(.state, .reading, .writing);
 
   initial begin
-    // Combinational: outputs update immediately after each assignment
-    st = IDLE;    #1 $display("IDLE:    active=%b err=%b (expect 0 0)", active, err);
-    st = RUNNING; #1 $display("RUNNING: active=%b err=%b (expect 1 0)", active, err);
-    st = DONE;    #1 $display("DONE:    active=%b err=%b (expect 0 0)", active, err);
-    st = ERROR;   #1 $display("ERROR:   active=%b err=%b (expect 0 1)", active, err);
+    state = 2'd0; #1;  // IDLE — neither reading nor writing
+    $display("%s IDLE:  reading=%b writing=%b",
+             (reading===0 && writing===0) ? "PASS" : "FAIL", reading, writing);
+
+    state = 2'd2; #1;  // READ (enum value 2) — reading should be 1
+    $display("%s READ:  reading=%b writing=%b",
+             (reading===1 && writing===0) ? "PASS" : "FAIL", reading, writing);
+
+    state = 2'd3; #1;  // WRITE (enum value 3) — writing should be 1
+    $display("%s WRITE: reading=%b writing=%b",
+             (reading===0 && writing===1) ? "PASS" : "FAIL", reading, writing);
+
+    state = 2'd1; #1;  // CMD (enum value 1) — neither reading nor writing
+    $display("%s CMD:   reading=%b writing=%b",
+             (reading===0 && writing===0) ? "PASS" : "FAIL", reading, writing);
+
+    $finish;
   end
 endmodule

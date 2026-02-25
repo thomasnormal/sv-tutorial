@@ -1,5 +1,0 @@
-{
-  "title": "$rose and $fell",
-  "focus": "/src/edge_check.sv",
-  "runner": "bmc"
-}

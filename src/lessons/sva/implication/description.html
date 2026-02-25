@@ -1,7 +1,8 @@
+              <p>The core SRAM correctness property uses implication: after a write to address A with data D, the next read at address A must return D. Implication is how you express "if this happened, then that must follow".</p>
 <p>The implication operator splits a property into two parts:</p>
 <ul>
-  <li>The <strong>antecedent</strong> (left side) — the trigger condition</li>
-  <li>The <strong>consequent</strong> (right side) — what must hold after the trigger</li>
+  <li>The <strong><dfn data-card="The antecedent is the left-hand side of an implication property — the trigger or precondition. The property only 'activates' when the antecedent matches. If the antecedent never matches during simulation, the property passes vacuously — so always pair assert with cover to confirm the trigger fired.">antecedent</dfn></strong> (left side) — the trigger condition</li>
+  <li>The <strong><dfn data-card="The consequent is the right-hand side of an implication property — what must hold after the antecedent matches. If the antecedent fires but the consequent fails, the assertion reports an error. The consequent can be a simple Boolean or a complex temporal sequence using ## delays and repetition operators.">consequent</dfn></strong> (right side) — what must hold after the trigger</li>
 </ul>
 <p>There are two forms. Both say "if the left side matches, then the right side must hold" — they differ only in <em>when</em> the consequent starts:</p>
 <ul>

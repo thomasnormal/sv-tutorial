@@ -5,7 +5,7 @@ module lock_check(input logic clk, lock, unlock);
   // at the very next clock edge.
   property p_lock_hold;
     @(posedge clk)
-      // TODO: lock && !unlock |=> lock;
+      // TODO: if lock is high and unlock has not fired, lock must be high on the next cycle
       ;
   endproperty
 

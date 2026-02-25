@@ -1,7 +1,0 @@
-{
-  "title": "Logical Equivalence Checking",
-  "focus": "/src/top.sv",
-  "runner": "lec",
-  "module1": "Spec",
-  "module2": "Impl"
-}

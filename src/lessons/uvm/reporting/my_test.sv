@@ -9,9 +9,9 @@ class my_test extends uvm_test;
   endfunction
 
   task run_phase(uvm_phase phase);
-    // TODO 1: phase.raise_objection(this);
-    // TODO 2: `uvm_info("TEST", "Hello from UVM!", UVM_LOW)
-    // TODO 3: `uvm_error("TEST", "Intentional error — simulation continues")
-    // TODO 4: phase.drop_objection(this);
+    // TODO 1: raise the objection so simulation waits for us
+    // TODO 2: print an info message using `uvm_info with verbosity UVM_LOW
+    // TODO 3: print an error message using `uvm_error (simulation should continue)
+    // TODO 4: drop the objection to let simulation end
   endtask
 endclass

@@ -1,5 +1,0 @@
-{
-  "title": "$changed and $sampled",
-  "focus": "/src/toggle_check.sv",
-  "runner": "bmc"
-}

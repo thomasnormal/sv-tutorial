@@ -1,5 +1,0 @@
-{
-  "title": "Edge Triggers and Clock",
-  "runner": "cocotb",
-  "focus": "/src/reg_en.sv"
-}

@@ -57,10 +57,14 @@ function setupWorkerNodeCompat(opts) {
   self.process = proc;
   if (typeof self.global === 'undefined') self.global = self;
   self.require = function(mod) {
-    if (mod === 'path' && pathShim) return pathShim;
-    if (mod === 'fs' && fsApi) return fsApi;
-    if (mod === 'crypto') return { randomBytes: function(n) { return crypto.getRandomValues(new Uint8Array(n)); } };
-    if (mod === 'child_process') return { spawnSync: function() { return { status: 1, stdout: '', stderr: '' }; } };
+    if ((mod === 'path' || mod === 'node:path') && pathShim) return pathShim;
+    if ((mod === 'fs' || mod === 'node:fs') && fsApi) return fsApi;
+    if (mod === 'crypto' || mod === 'node:crypto') {
+      return { randomBytes: function(n) { return crypto.getRandomValues(new Uint8Array(n)); } };
+    }
+    if (mod === 'child_process' || mod === 'node:child_process') {
+      return { spawnSync: function() { return { status: 1, stdout: '', stderr: '' }; } };
+    }
     throw new Error('require(\'' + mod + '\') is not available in browser worker');
   };
 }

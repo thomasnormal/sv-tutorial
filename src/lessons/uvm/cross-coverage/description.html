@@ -1,8 +1,5 @@
 <p>Individual coverpoints track each signal independently. <strong>Cross coverage</strong> tracks <em>combinations</em> — it creates a bin for every pair of values from two coverpoints and checks that each combination was seen:</p>
-<pre>cp_a: coverpoint item.a { bins lo = {[0:85]}; bins mid = {[86:170]}; bins hi = {[171:255]}; }
-cp_b: coverpoint item.b { bins lo = {[0:85]}; bins mid = {[86:170]}; bins hi = {[171:255]}; }
-
-ax: cross cp_a, cp_b;</pre>
-<p>The cross automatically generates 3×3 = 9 bins: <code>&lt;lo,lo&gt;</code>, <code>&lt;lo,mid&gt;</code>, …, <code>&lt;hi,hi&gt;</code>. All nine must be hit to reach 100%.</p>
-<p>Open <code>adder_coverage.sv</code>. The two coverpoints are already written. Add the <code>ax: cross cp_a, cp_b;</code> line inside the covergroup.</p>
+<p>The cross syntax is simply: <code>name: cross cp1, cp2;</code> — it automatically creates one bin for every combination of bins from the two coverpoints.</p>
+<p>For the SRAM, crossing <code>cp_addr × cp_we</code> produces 32 bins (16 addresses × 2 operations). Any unhit bin is an address that was never read or never written during the test run.</p>
+<p>Open <code>mem_coverage.sv</code>. The two coverpoints are already written. Add a cross of <code>cp_addr</code> and <code>cp_we</code> inside the covergroup.</p>
 <blockquote><p>Cross coverage can grow explosively with more coverpoints or wider bins. It is common to exclude impossible or uninteresting combinations with <code>ignore_bins</code> or <code>illegal_bins</code> to focus coverage effort where it matters.</p></blockquote>

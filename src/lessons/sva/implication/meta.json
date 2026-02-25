@@ -1,5 +1,0 @@
-{
-  "title": "Implication: |-> and |=>",
-  "focus": "/src/implication.sv",
-  "runner": "bmc"
-}

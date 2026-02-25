@@ -1,5 +1,0 @@
-{
-  "title": "Local Variables in Sequences",
-  "focus": "/src/pipeline_check.sv",
-  "runner": "bmc"
-}

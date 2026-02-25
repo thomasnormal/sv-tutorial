@@ -1,4 +1,5 @@
-<p>Immediate assertions fire once when the simulator reaches them. <strong>Concurrent assertions</strong> are different: they are <em>always watching</em>, evaluated on every active clock edge for the entire simulation.</p>
+              <p>With the SRAM RTL complete, we now formally verify its behaviour. SystemVerilog Assertions let us state correctness properties as code — the simulator (or a formal tool) checks them automatically on every cycle.</p>
+<p>Immediate assertions fire once when the simulator reaches them. <strong><dfn data-card="Concurrent assertions are SystemVerilog assertions that run in parallel with the design, sampled at every active clock edge. Unlike immediate assertions (which are one-shot checks inside a procedural block), concurrent assertions watch the entire simulation from start to finish. They can express temporal properties: 'whenever req is high, gnt must arrive within 3 cycles.'">Concurrent assertions</dfn></strong> are different: they are <em>always watching</em>, evaluated on every active clock edge for the entire simulation.</p>
 <p>A concurrent assertion lives outside any procedural block:</p>
 <pre>req_gnt_check: assert property (my_prop)
   else $error("property violated!");

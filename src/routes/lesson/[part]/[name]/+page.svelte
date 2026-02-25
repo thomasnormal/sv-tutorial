@@ -7,7 +7,7 @@
   import { darkMode, vimMode } from '$lib/stores/settings.js';
   import { completedSlugs } from '$lib/stores/completed.js';
   import { cloneFiles, mergeFiles, normalize, topNameFromFocus } from '$lib/lesson-utils.js';
-  import { Button } from '$lib/components/ui/button';
+  import { termCard } from '$lib/actions/term-card.js';
   import { Tabs, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
   import CodeEditor from '$lib/components/CodeEditor.svelte';
   import WaveformViewer from '$lib/components/WaveformViewer.svelte';
@@ -39,6 +39,46 @@
   let copyEnableChecked = $state(false);
   let didAnnounceTrimThisRun = $state(false);
   let circt = $state(null);
+  let glossaryCard = $state(null); // { body, top, left }
+  let waveformRef = $state(null);
+  let waveSignalsReady = $state(false);
+
+  // Parse error/warning lines from simulator output after each run.
+  // Only active when not running (errors are final).
+  const diagnosticsByFile = $derived.by(() => {
+    if (running) return {};
+    const byFile = {};
+    // Regex: optional path prefix, filename, line, optional col, severity, message
+    const re = /^(?:[^:]*\/)?([^/:]+\.(?:sv|v|py)):(\d+)(?::\d+)?:\s*(error|warning)(?:\s*\[[^\]]*\])?:\s*(.+)/;
+    for (const entry of logs) {
+      const payload = typeof entry === 'string' && (entry.startsWith('[stdout] ') || entry.startsWith('[stderr] '))
+        ? entry.slice(entry.indexOf('] ') + 2) : null;
+      if (!payload) continue;
+      for (const line of payload.split('\n')) {
+        const m = line.match(re);
+        if (!m) continue;
+        const [, basename, lineNum, severity, message] = m;
+        // Match to a workspace file by basename
+        const key = Object.keys(workspace).find(k => k.endsWith('/' + basename) || k === basename);
+        if (!key) continue;
+        (byFile[key] ??= []).push({ line: Number(lineNum), severity, message });
+      }
+    }
+    return byFile;
+  });
+
+  function showCard(body, rect) {
+    const cardWidth = 340;
+    const margin = 16;
+    const left = Math.max(margin, Math.min(rect.left, window.innerWidth - cardWidth - margin));
+    const top = rect.bottom + 8;
+    glossaryCard = { body, top, left };
+  }
+
+  function hideCard() { glossaryCard = null; }
+
+  // Clear card when navigating between lessons
+  $effect(() => { lesson.slug; glossaryCard = null; });
 
   const MAX_NON_STREAM_LOG_ENTRIES = 400;
   const MAX_STREAM_CHARS = 200_000;
@@ -436,9 +476,9 @@
 
 <section class="flex-1 min-h-0 flex max-narrow:flex-col">
   <article bind:this={lessonArticleEl} style="flex: 0 0 {hSplit}%; min-width: 200px"
-           class="bg-surface border border-border rounded-[14px] shadow-app min-h-0 flex flex-col p-[0.9rem] gap-3 overflow-y-auto [scrollbar-gutter:stable] max-narrow:rounded-t-none max-narrow:border-x-0 max-narrow:border-t-0">
+           class="bg-surface border border-border rounded-[14px] shadow-app min-h-0 flex flex-col p-[0.9rem] gap-3 overflow-y-auto [scrollbar-gutter:stable] max-narrow:rounded-none max-narrow:border-x-0 max-narrow:border-t-0">
     <h2 data-testid="lesson-title" class="m-0 text-[1.15rem] font-bold leading-tight text-foreground">{lesson.title}</h2>
-    <div class="lesson-body">
+    <div class="lesson-body" use:termCard={{ onShow: showCard, onHide: hideCard }}>
       {@html lesson.html}
     </div>
     <div class="mt-auto flex flex-col gap-3">
@@ -460,7 +500,7 @@
           {@const prevLesson = data.lessons[data.lessons.indexOf(lesson) - 1]}
           <button
             onclick={() => { const [p,n] = prevLesson.slug.split('/'); goto(`${base}/lesson/${p}/${n}`); }}
-            class="flex items-center gap-1 text-[0.8rem] text-muted-foreground hover:text-teal transition-colors text-left"
+            class="flex items-center gap-1 text-[0.8rem] text-muted-foreground hover:text-teal transition-colors text-left cursor-pointer"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
             <span class="truncate">{prevLesson.title}</span>
@@ -472,7 +512,7 @@
           {@const nextLesson = data.lessons[data.lessons.indexOf(lesson) + 1]}
           <button
             onclick={() => { const [p,n] = nextLesson.slug.split('/'); goto(`${base}/lesson/${p}/${n}`); }}
-            class="flex items-center gap-1 text-[0.8rem] text-muted-foreground hover:text-teal transition-colors text-right ml-auto"
+            class="flex items-center gap-1 text-[0.8rem] text-muted-foreground hover:text-teal transition-colors text-right ml-auto cursor-pointer"
           >
             <span class="truncate">{nextLesson.title}</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
@@ -516,6 +556,16 @@
           <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
           <div class="fixed inset-0 z-40" onclick={() => (showOptions = false)}></div>
           <div class="absolute right-0 top-[calc(100%+0.4rem)] z-50 bg-surface border border-border rounded-[12px] shadow-app p-2 flex flex-col min-w-[160px]">
+            {#if hasSolution}
+              <button
+                onclick={() => { toggleSolve(); showOptions = false; }}
+                data-testid="solve-button"
+                class="flex items-center gap-3 px-2 py-[0.35rem] rounded-[8px] hover:bg-surface-2 text-left text-[0.85rem] w-full"
+              >
+                {completed ? 'Reset to starter' : 'Show solution'}
+              </button>
+              <hr class="my-1 border-border">
+            {/if}
             <label class="flex items-center gap-3 px-2 py-[0.35rem] rounded-[8px] hover:bg-surface-2 cursor-pointer select-none text-[0.85rem]">
               <input
                 type="checkbox"
@@ -530,90 +580,158 @@
       </div>
     {/snippet}
 
+    <!-- Run button(s) — floating circular buttons overlaid on the code area -->
+    {#snippet runButtons()}
+      <div class="absolute bottom-3 right-3 z-10 flex gap-[0.4rem]">
+        {#if lesson.runner !== 'bmc' && lesson.runner !== 'lec'}
+          <button
+            onclick={() => runSim('sim')}
+            disabled={running}
+            data-testid="run-button"
+            aria-label="{lesson.runner === 'cocotb' ? 'Test' : 'Run'} (Ctrl+Enter)"
+            title="{lesson.runner === 'cocotb' ? 'Test' : 'Run'} (Ctrl+Enter)"
+            class="w-10 h-10 rounded-full bg-teal text-white flex items-center justify-center [box-shadow:0_4px_16px_rgba(0,0,0,0.25),0_2px_6px_rgba(0,0,0,0.15)] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {#if running && runMode === 'sim'}
+              <svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+              </svg>
+            {:else}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <polygon points="6,3 20,12 6,21"/>
+              </svg>
+            {/if}
+          </button>
+        {/if}
+        {#if lesson.runner === 'bmc' || lesson.runner === 'both'}
+          <button
+            onclick={() => runSim('bmc')}
+            disabled={running}
+            data-testid="verify-button"
+            aria-label="Verify"
+            title="Verify"
+            class="w-10 h-10 rounded-full bg-teal text-white flex items-center justify-center [box-shadow:0_4px_16px_rgba(0,0,0,0.25),0_2px_6px_rgba(0,0,0,0.15)] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {#if running && runMode === 'bmc'}
+              <svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+              </svg>
+            {:else}
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            {/if}
+          </button>
+        {/if}
+        {#if lesson.runner === 'lec'}
+          <button
+            onclick={() => runSim('lec')}
+            disabled={running}
+            data-testid="verify-button"
+            aria-label="Verify (LEC)"
+            title="Verify (LEC)"
+            class="w-10 h-10 rounded-full bg-teal text-white flex items-center justify-center [box-shadow:0_4px_16px_rgba(0,0,0,0.25),0_2px_6px_rgba(0,0,0,0.15)] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {#if running && runMode === 'lec'}
+              <svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+              </svg>
+            {:else}
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            {/if}
+          </button>
+        {/if}
+      </div>
+    {/snippet}
+
     <!-- Editor pane -->
     <div style="flex: 0 0 {vSplit}%; min-height: 150px"
-         class="bg-surface border border-border rounded-[14px] shadow-app min-h-0 overflow-hidden {splitView && canSplit ? 'flex flex-row' : 'grid grid-rows-[auto_1fr]'}">
+         class="bg-surface border border-border rounded-[14px] shadow-app min-h-0 overflow-hidden flex flex-col max-narrow:rounded-none max-narrow:border-x-0 max-narrow:border-t-0">
 
       {#if splitView && canSplit}
         <!-- Split view: two editors side by side -->
         {@const fileA = lesson.focus}
         {@const fileB = Object.keys(workspace).find(f => f !== fileA)}
-        <!-- Left pane -->
-        <div class="min-w-0 grid grid-rows-[auto_1fr]" style="flex: 0 0 {hSplitEditor}%">
-          <div class="flex items-center gap-2 px-[0.5rem] pt-[0.4rem] pb-[0.3rem]">
-            <span class="font-mono text-[0.8rem] text-teal truncate flex-1">{fileA}</span>
-            {#if hasSolution}
-              <Button variant="outline" size="sm" onclick={toggleSolve} data-testid="solve-button" class="flex-shrink-0">
-                {completed ? 'reset' : 'solve'}
-              </Button>
-            {/if}
-          </div>
-          <CodeEditor filePath={fileA} vimMode={$vimMode} darkMode={$darkMode} value={workspace[fileA] || ''} onchange={(v) => { workspace = { ...workspace, [fileA]: v }; }} />
-        </div>
-        <!-- Drag handle -->
-        <div role="separator" aria-orientation="vertical"
-             class="flex-none w-[0.7rem] flex items-center justify-center cursor-col-resize select-none group"
-             style="touch-action:none"
-             onpointerdown={startEditorHResize}>
-          <div class="w-[2px] h-8 rounded-full bg-border group-hover:bg-teal transition-colors"></div>
-        </div>
-        <!-- Right pane -->
-        <div class="flex-1 min-w-0 grid grid-rows-[auto_1fr]">
-          <div class="flex items-center gap-2 px-[0.5rem] pt-[0.4rem] pb-[0.3rem]">
-            <span class="font-mono text-[0.8rem] text-teal truncate flex-1">{fileB}</span>
-            <div class="flex items-center flex-shrink-0">
-              <button
-                onclick={() => (splitView = false)}
-                class="flex items-center justify-center w-8 h-8 rounded-[7px] hover:bg-surface-2 transition-colors text-muted-foreground"
-                aria-label="Switch to tab view" title="Switch to tab view"
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="7" width="20" height="14" rx="2"/>
-                  <path d="M2 11h20"/>
-                  <path d="M2 7h4v4H2z" fill="currentColor" stroke="none"/>
-                </svg>
-              </button>
-              {@render optionsButton()}
+        <!-- Editors with per-pane pill headers -->
+        <div class="flex-1 min-h-0 flex flex-row">
+          <!-- Left pane -->
+          <div class="relative min-w-0 overflow-hidden flex flex-col" style="flex: 0 0 {hSplitEditor}%">
+            <div data-testid="split-header-left" class="flex-none flex items-center h-10 px-[0.5rem]">
+              <span class="font-mono text-[0.8rem] rounded-[10px] border border-teal text-teal bg-tab-selected-bg px-[0.55rem] py-[0.25rem] whitespace-nowrap">{fileA}</span>
             </div>
+            <div class="flex-1 min-h-0">
+              <CodeEditor filePath={fileA} vimMode={$vimMode} darkMode={$darkMode} value={workspace[fileA] || ''} onchange={(v) => { workspace = { ...workspace, [fileA]: v }; }} diagnostics={diagnosticsByFile[fileA] ?? []} />
+            </div>
+            {@render runButtons()}
           </div>
-          <CodeEditor filePath={fileB} vimMode={$vimMode} darkMode={$darkMode} value={workspace[fileB] || ''} onchange={(v) => { workspace = { ...workspace, [fileB]: v }; }} />
+          <!-- Drag handle -->
+          <div role="separator" aria-orientation="vertical"
+               class="flex-none w-[0.7rem] flex items-center justify-center cursor-col-resize select-none group"
+               style="touch-action:none"
+               onpointerdown={startEditorHResize}>
+            <div class="w-[2px] h-8 rounded-full bg-border group-hover:bg-teal transition-colors"></div>
+          </div>
+          <!-- Right pane -->
+          <div class="flex-1 min-w-0 grid grid-rows-[auto_1fr]">
+            <div data-testid="split-header-right" class="flex items-center gap-2 h-10 px-[0.5rem]">
+              <span class="font-mono text-[0.8rem] rounded-[10px] border border-border bg-surface-2 px-[0.55rem] py-[0.25rem] whitespace-nowrap">{fileB}</span>
+              <div class="flex-1"></div>
+              <div class="flex items-center flex-shrink-0">
+                <button
+                  onclick={() => (splitView = false)}
+                  class="flex items-center justify-center w-8 h-8 rounded-[7px] hover:bg-surface-2 transition-colors text-muted-foreground"
+                  aria-label="Switch to tab view" title="Switch to tab view"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2"/>
+                    <path d="M2 11h20"/>
+                    <path d="M2 7h4v4H2z" fill="currentColor" stroke="none"/>
+                  </svg>
+                </button>
+                {@render optionsButton()}
+              </div>
+            </div>
+            <CodeEditor filePath={fileB} vimMode={$vimMode} darkMode={$darkMode} value={workspace[fileB] || ''} onchange={(v) => { workspace = { ...workspace, [fileB]: v }; }} diagnostics={diagnosticsByFile[fileB] ?? []} />
+          </div>
         </div>
 
       {:else}
         <!-- Single tabbed view -->
-        <div class="flex items-center gap-2 px-[0.5rem] pt-[0.4rem] pb-[0.3rem]">
-          <div class="flex-1 overflow-x-auto">
-            <Tabs value={selectedFile} onValueChange={(v) => (selectedFile = v)}>
-              <TabsList class="h-auto flex-nowrap gap-[0.35rem] bg-transparent p-0 w-max">
-                {#each Object.keys(workspace) as filename}
-                  <TabsTrigger
-                    value={filename}
-                    class="font-mono text-[0.8rem] rounded-[10px] border border-border data-[state=active]:border-teal data-[state=active]:text-teal data-[state=active]:bg-tab-selected-bg data-[state=inactive]:bg-surface-2"
-                  >
-                    {filename}
-                  </TabsTrigger>
-                {/each}
-              </TabsList>
-            </Tabs>
+        <div class="flex-1 min-h-0 min-w-0 grid grid-rows-[auto_1fr]">
+          <div class="flex items-center gap-2 px-[0.5rem] pt-[0.4rem] pb-[0.3rem]">
+            <div class="flex-1 overflow-x-auto">
+              <Tabs value={selectedFile} onValueChange={(v) => (selectedFile = v)}>
+                <TabsList class="h-auto flex-nowrap gap-[0.35rem] bg-transparent p-0 w-max">
+                  {#each Object.keys(workspace) as filename}
+                    <TabsTrigger
+                      value={filename}
+                      class="font-mono text-[0.8rem] rounded-[10px] border border-border data-[state=active]:border-teal data-[state=active]:text-teal data-[state=active]:bg-tab-selected-bg data-[state=inactive]:bg-surface-2"
+                    >
+                      {filename}
+                    </TabsTrigger>
+                  {/each}
+                </TabsList>
+              </Tabs>
+            </div>
+            {#if canSplit}
+              <button
+                onclick={() => (splitView = true)}
+                class="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-[6px] hover:bg-surface-2 transition-colors text-muted-foreground"
+                aria-label="Split editor" title="Split editor"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/></svg>
+              </button>
+            {/if}
+            {@render optionsButton()}
           </div>
-          {#if canSplit}
-            <button
-              onclick={() => (splitView = true)}
-              class="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-[6px] hover:bg-surface-2 transition-colors text-muted-foreground"
-              aria-label="Split editor" title="Split editor"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/></svg>
-            </button>
-          {/if}
-          {#if hasSolution}
-            <Button variant="outline" size="sm" onclick={toggleSolve} data-testid="solve-button" class="flex-shrink-0">
-              {completed ? 'reset' : 'solve'}
-            </Button>
-          {/if}
-          {@render optionsButton()}
-        </div>
 
-        <CodeEditor filePath={selectedFile} vimMode={$vimMode} darkMode={$darkMode} value={workspace[selectedFile] || ''} onchange={onEdit} />
+          <div class="relative min-h-0 overflow-hidden">
+            <CodeEditor filePath={selectedFile} vimMode={$vimMode} darkMode={$darkMode} value={workspace[selectedFile] || ''} onchange={onEdit} diagnostics={diagnosticsByFile[selectedFile] ?? []} />
+            {@render runButtons()}
+          </div>
+        </div>
       {/if}
     </div>
 
@@ -627,11 +745,11 @@
 
     <!-- Runtime pane -->
     <div style="flex: 1 1 0%; min-height: 220px"
-         class="bg-surface border border-border rounded-[14px] shadow-app min-h-0 overflow-hidden flex flex-col">
+         class="bg-surface border border-border rounded-[14px] shadow-app min-h-0 overflow-hidden flex flex-col max-narrow:rounded-none max-narrow:border-x-0 max-narrow:border-t-0">
 
-      <!-- Header: tab switcher + action buttons -->
-      <div class="flex justify-between items-center gap-[0.7rem] px-[0.5rem] py-[0.35rem]">
-        {#if hasWaveform}
+      <!-- Header: Logs/Waves tab switcher + waveform toolbar -->
+      {#if hasWaveform}
+        <div class="flex items-center gap-[0.4rem] px-[0.5rem] py-[0.35rem]">
           <Tabs value={activeRuntimeTab} onValueChange={(v) => (activeRuntimeTab = v)}>
             <TabsList class="h-auto gap-[0.35rem] bg-transparent p-0">
               <TabsTrigger value="logs" data-testid="runtime-tab-logs"
@@ -644,40 +762,20 @@
               </TabsTrigger>
             </TabsList>
           </Tabs>
-        {:else}
-          <div></div>
-        {/if}
-
-        <div class="flex gap-[0.4rem]">
-          {#if lesson.runner !== 'bmc' && lesson.runner !== 'lec'}
-            <Button variant="outline" size="sm" onclick={() => runSim('sim')} disabled={running} data-testid="run-button" title="Ctrl+Enter">
-              {#if running && runMode === 'sim'}
-                {runPhase === 'running' ? (lesson.runner === 'cocotb' ? 'testing...' : 'running...') : 'compiling...'}
-              {:else}
-                {lesson.runner === 'cocotb' ? 'test' : 'run'}
-              {/if}
-            </Button>
-          {/if}
-          {#if lesson.runner === 'bmc' || lesson.runner === 'both'}
-            <Button variant="outline" size="sm" onclick={() => runSim('bmc')} disabled={running} data-testid="verify-button">
-              {#if running && runMode === 'bmc'}
-                {runPhase === 'running' ? 'verifying...' : 'compiling...'}
-              {:else}
-                verify
-              {/if}
-            </Button>
-          {/if}
-          {#if lesson.runner === 'lec'}
-            <Button variant="outline" size="sm" onclick={() => runSim('lec')} disabled={running} data-testid="verify-button">
-              {#if running && runMode === 'lec'}
-                {runPhase === 'running' ? 'verifying...' : 'compiling...'}
-              {:else}
-                verify (LEC)
-              {/if}
-            </Button>
+          {#if activeRuntimeTab === 'waves'}
+            <div class="wave-toolbar">
+              <button class="wtb-btn" onclick={() => waveformRef?.sendCmd('goto_start')}           title="Go to start"           disabled={!waveSignalsReady}>⏮</button>
+              <button class="wtb-btn" onclick={() => waveformRef?.sendCmd('transition_previous')}  title="Previous transition"   disabled={!waveSignalsReady}>◀</button>
+              <button class="wtb-btn" onclick={() => waveformRef?.sendCmd('transition_next')}      title="Next transition"       disabled={!waveSignalsReady}>▶</button>
+              <button class="wtb-btn" onclick={() => waveformRef?.sendCmd('goto_end')}             title="Go to end"             disabled={!waveSignalsReady}>⏭</button>
+              <div class="wtb-sep"></div>
+              <button class="wtb-btn" onclick={() => waveformRef?.sendCmd('zoom_out')}  title="Zoom out"    disabled={!waveSignalsReady}>−</button>
+              <button class="wtb-btn" onclick={() => waveformRef?.sendCmd('zoom_in')}   title="Zoom in"     disabled={!waveSignalsReady}>+</button>
+              <button class="wtb-btn" onclick={() => waveformRef?.sendCmd('zoom_fit')}  title="Zoom to fit" disabled={!waveSignalsReady}>Fit</button>
+            </div>
           {/if}
         </div>
-      </div>
+      {/if}
 
       <!-- Logs tab content -->
       <div
@@ -686,7 +784,7 @@
                {activeRuntimeTab === 'waves' ? 'hidden' : 'flex-1 min-h-0'}"
       >
         {#if logs.length === 0}
-          <div class="text-muted-foreground">no output yet</div>
+          <div class="text-muted-foreground opacity-60 select-none">press ▶ to run</div>
         {:else}
           <div class="flex flex-col gap-2">
             {#each logs as entry}
@@ -712,6 +810,8 @@
       {#if hasWaveform}
         <div class="{activeRuntimeTab === 'waves' ? 'flex-1 min-h-0' : 'hidden'}">
           <WaveformViewer
+            bind:this={waveformRef}
+            bind:signalsReady={waveSignalsReady}
             vcd={lastWaveform.text}
             hasRun={hasRunOnce}
             darkMode={$darkMode}
@@ -722,6 +822,15 @@
 
   </section>
 </section>
+
+{#if glossaryCard}
+  <div
+    class="fixed z-50 w-[340px] bg-surface border border-border rounded-[14px] shadow-app p-4 text-[0.84rem] leading-relaxed text-foreground pointer-events-none"
+    style="top: {glossaryCard.top}px; left: {glossaryCard.left}px"
+  >
+    {glossaryCard.body}
+  </div>
+{/if}
 
 {#if showCopyModal}
   <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
@@ -747,3 +856,37 @@
     </div>
   </div>
 {/if}
+
+<style>
+  .wave-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: 4px;
+  }
+  .wtb-btn {
+    padding: 2px 7px;
+    min-width: 26px;
+    border-radius: 4px;
+    border: 1px solid var(--color-bg-accent);
+    background: transparent;
+    color: var(--color-ink);
+    font-size: 12px;
+    line-height: 20px;
+    cursor: pointer;
+  }
+  .wtb-btn:hover:not(:disabled) {
+    background: var(--color-surface-2);
+  }
+  .wtb-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .wtb-sep {
+    width: 1px;
+    height: 16px;
+    background: var(--color-bg-accent);
+    margin: 0 4px;
+    flex-shrink: 0;
+  }
+</style>

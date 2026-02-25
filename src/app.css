@@ -165,6 +165,9 @@
     margin: 0.5rem 0;
   }
 
+  .lesson-body ul { list-style-type: disc; }
+  .lesson-body ol { list-style-type: decimal; }
+
   .lesson-body li + li { margin-top: 0.3rem; }
 
   /* Inline code */
@@ -208,6 +211,12 @@
   }
 
   .lesson-body blockquote p + p { margin-top: 0.4rem; }
+
+  .lesson-body dfn[data-card] {
+    font-style: normal;
+    border-bottom: 1px dotted var(--color-teal);
+    cursor: help;
+  }
 
   .lesson-body a {
     color: var(--color-teal);

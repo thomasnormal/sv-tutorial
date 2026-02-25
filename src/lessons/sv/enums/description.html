@@ -1,17 +1,10 @@
-              <p>Magic numbers in state machines are hard to read and easy to mistype. SystemVerilog <strong>enumerations</strong> give each state a readable name and let the compiler catch invalid assignments:</p>
-              <pre>typedef enum logic [1:0] {
-  IDLE, RUNNING, DONE, ERROR
-} status_t;</pre>
-              <p>Declare signals with the enum type and use named constants in <code>case</code> statements:</p>
-              <pre>status_t state;
-...
-case (state)
-  IDLE:    if (start) state &lt;= RUNNING;
-  RUNNING: if (stop)  state &lt;= DONE;
-endcase</pre>
-              <p>Open <code>status.sv</code> and fill in the two active <code>case</code> branches using the named constants <code>RUNNING</code> and <code>ERROR</code>.</p>
-              <blockquote><p>With <code>unique case</code> or in strict-mode tools, an unhandled enum value raises a warning. Add a <code>default</code> branch to catch any encoding bugs.</p></blockquote>
-              <h2>Testbench</h2>
-              <p>The testbench drives <code>st</code> through all four enum values and prints the outputs. Because <code>status_display</code> is combinational, no clock is needed — outputs update in the same delta after each assignment:</p>
-              <pre>st = RUNNING; #1 $display("RUNNING: active=%b err=%b (expect 1 0)", active, err);</pre>
-              <p>The expected values make it easy to spot a wrong branch at a glance: only <code>RUNNING</code> sets <code>active</code>, and only <code>ERROR</code> sets <code>err</code>.</p>
+              <p>An <strong><dfn data-card="An enum (enumeration) gives symbolic names to a set of integer constants. The compiler assigns values automatically (0, 1, 2, …) or you can override them. In synthesis, the tool chooses the encoding (binary, one-hot, gray code) unless you specify the base type. Using enum names instead of raw numbers makes RTL self-documenting and prevents invalid state assignments.">enum</dfn></strong> gives meaningful names to a set of integer constants. For a memory controller, the states are naturally expressed as an enum rather than raw bit-vectors:</p>
+              <pre>typedef enum logic [1:0] { IDLE, CMD, READ, WRITE } ctrl_state_t;</pre>
+              <p>The compiler assigns <code>IDLE=0</code>, <code>CMD=1</code>, <code>READ=2</code>, <code>WRITE=3</code> automatically. Once defined, you use the type just like any other port type and use the constant names directly in <code>case</code> branches — no raw numbers needed.</p>
+              <p>Open <code>status.sv</code>. There are three things to do:</p>
+              <ol>
+                <li>Add the <code><dfn data-card="typedef creates a type alias — a new name for an existing type. typedef enum {...} name_t lets you use the type name directly in port declarations and variables instead of repeating the full enum syntax. The _t suffix is a convention for type names. typedef is purely a compile-time construct with no hardware cost.">typedef</dfn> enum</code> declaration above the module</li>
+                <li>Change the port to <code>input ctrl_state_t state</code> (remove <code>state_bits</code>)</li>
+                <li>Update the <code>case</code> branches to match on <code>READ</code> and <code>WRITE</code> by name</li>
+              </ol>
+              <blockquote><p>In the next lesson we'll build the full memory access controller FSM that transitions between these states. The enum you define here becomes the state register type.</p></blockquote>

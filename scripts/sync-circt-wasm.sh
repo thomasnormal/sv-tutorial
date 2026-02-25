@@ -34,10 +34,41 @@ for tool in "${TOOLS[@]}"; do
   cp -f "$SRC_DIR/$tool.wasm" "$DST_DIR/$tool.wasm"
 done
 
+patch_callmain_export() {
+  local js_path="$1"
+  node - "$js_path" <<'NODE'
+const fs = require('fs');
+
+const jsPath = process.argv[2];
+let source = fs.readFileSync(jsPath, 'utf8');
+
+if (
+  source.includes('__svt_callMain')
+) {
+  console.log(`Skipped callMain shim patch (already present): ${jsPath}`);
+  process.exit(0);
+}
+
+if (!source.includes('function callMain(')) {
+  console.log(`Skipped callMain patch (no callMain symbol): ${jsPath}`);
+  process.exit(0);
+}
+
+source += '\n;try{if(typeof callMain==="function"&&typeof self!=="undefined"&&typeof self.__svt_callMain!=="function"){self.__svt_callMain=callMain;}}catch(_){}\n';
+fs.writeFileSync(jsPath, source);
+console.log(`Patched callMain shim in ${jsPath}`);
+NODE
+}
+
+for tool in "${TOOLS[@]}"; do
+  patch_callmain_export "$DST_DIR/$tool.js"
+done
+
 # Sync VPI-capable sim if present (built with -DCIRCT_SIM_WASM_VPI=ON).
 if [ -f "$SRC_DIR/$VPI_TOOL.js" ] && [ -f "$SRC_DIR/$VPI_TOOL.wasm" ]; then
   cp -f "$SRC_DIR/$VPI_TOOL.js" "$DST_DIR/$VPI_TOOL.js"
   cp -f "$SRC_DIR/$VPI_TOOL.wasm" "$DST_DIR/$VPI_TOOL.wasm"
+  patch_callmain_export "$DST_DIR/$VPI_TOOL.js"
   HAVE_VPI=1
 else
   echo "Note: $VPI_TOOL not found in $SRC_DIR — skipping (cocotb lessons will be unavailable)" >&2

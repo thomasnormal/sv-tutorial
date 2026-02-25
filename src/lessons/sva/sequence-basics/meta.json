@@ -1,5 +1,0 @@
-{
-  "title": "Sequences and Properties",
-  "focus": "/src/grant_check.sv",
-  "runner": "bmc"
-}

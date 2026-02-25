@@ -1,6 +1,6 @@
 <p>Sampled value functions compare a signal's value at the current clock edge against the previous one:</p>
 <ul>
-  <li><code>$rose(sig)</code> — true when <code>sig</code> just transitioned <code>0&rarr;1</code></li>
+  <li><code><dfn data-card="$rose(sig) is a sampled value function that returns true when sig transitioned from 0 to 1 at the current clock edge (its sampled value is 1 and was 0 the previous cycle). It's more precise than checking sig alone: $rose(req) fires once per rising edge, not on every cycle req stays high. The companion $fell(sig) detects a 1→0 transition.">$rose</dfn>(sig)</code> — true when <code>sig</code> just transitioned <code>0&rarr;1</code></li>
   <li><code>$fell(sig)</code> — true when <code>sig</code> just transitioned <code>1&rarr;0</code></li>
 </ul>
 <p>These are more precise than a bare level check: <code>$rose(req)</code> triggers once per rising edge, not on every cycle that <code>req</code> stays high.</p>

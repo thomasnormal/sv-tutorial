@@ -1,4 +1,4 @@
-<p>The <strong>clock delay</strong> operator <code>##</code> is what makes sequence expressions temporal. It shifts evaluation forward by one or more clock cycles.</p>
+<p>The <strong>clock delay</strong> operator <code><dfn data-card="## (double-hash) is SVA's clock-delay operator. ##1 shifts the evaluation point forward by exactly one clock cycle. ##[m:n] means between m and n cycles. ##[1:$] means one or more cycles ($ = infinity). You chain ## operators to build temporal sequences: a ##1 b ##2 c means 'a is true now, b is true one cycle later, c is true three cycles later.'">##</dfn></code> is what makes sequence expressions temporal. It shifts evaluation forward by one or more clock cycles.</p>
 <ul>
   <li><code>##m</code> — exactly <em>m</em> cycles later</li>
   <li><code>##[m:n]</code> — between <em>m</em> and <em>n</em> cycles later</li>

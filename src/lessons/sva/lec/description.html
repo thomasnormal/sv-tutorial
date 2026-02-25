@@ -1,11 +1,10 @@
-            <p><strong>Logical Equivalence Checking (LEC)</strong> proves that two circuit implementations produce identical outputs for every possible input — without running any simulation.</p>
+            <p><strong><dfn data-card="LEC (Logical Equivalence Checking) formally proves that two netlists or RTL descriptions produce identical output for every possible input combination. It is used after synthesis, optimization, and place-and-route to prove the transformations preserved the circuit's behavior. The tool encodes both designs as Boolean formulas and uses a SAT/SMT solver to search for any input that causes them to differ.">Logical Equivalence Checking (LEC)</dfn></strong> proves that two circuit implementations produce identical outputs for every possible input — without running any simulation.</p>
             <p>Open <code>top.sv</code>. It contains two modules:</p>
             <ul>
               <li><code>Spec</code> — the golden reference: a NAND gate <code>~(a &amp; b)</code></li>
               <li><code>Impl</code> — your implementation, currently wrong</li>
             </ul>
-            <p>By <strong>De Morgan's law</strong>, <code>~(a &amp; b)</code> is logically equivalent to <code>~a | ~b</code>. The <code>Impl</code> module has a bug — it is missing the inversion on <code>b</code>. Fix it:</p>
-            <pre>assign y = ~a | ~b;</pre>
+            <p>The <code>Impl</code> module has a bug — one of the inversions is missing. By <strong><dfn data-card="De Morgan's laws state that NOT(A AND B) = (NOT A) OR (NOT B), and NOT(A OR B) = (NOT A) AND (NOT B). They're fundamental to boolean algebra and let you rewrite logic in equivalent forms. In circuit design, they explain why a NAND gate followed by inverters equals a NOR gate with inverted inputs — crucial for understanding how logic synthesis produces structurally different but functionally identical circuits.">De Morgan's law</dfn></strong>, <code>~(a &amp; b)</code> is logically equivalent to an OR of the individually inverted inputs. Fix <code>Impl</code> so both circuits are equivalent.</p>
             <p>Click <strong>verify</strong> to run LEC on the buggy code first. The tool encodes both modules as SMT constraints and asks a solver whether any input can make them differ. Because the bug is real, the solver finds one — it reports <strong>sat</strong> and shows how the model was extracted:</p>
             <pre>$ z3 /workspace/out/check.smt2
 sat

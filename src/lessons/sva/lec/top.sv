@@ -3,8 +3,7 @@ module Spec(input a, b, output y);
   assign y = ~(a & b);
 endmodule
 
-// TODO: fix to be equivalent to Spec using De Morgan's law
-// ~(a & b)  ≡  ~a | ~b
+// TODO: fix the bug so Impl is equivalent to Spec
 module Impl(input a, b, output y);
-  assign y = ~a | b; // BUG: missing ~ on b
+  assign y = ~a | b; // BUG: one inversion is missing
 endmodule

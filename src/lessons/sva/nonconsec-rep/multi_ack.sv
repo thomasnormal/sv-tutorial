@@ -2,7 +2,7 @@ module multi_ack(input logic clk, req, ack, done);
 
   property three_acks_p;
     @(posedge clk)
-      // TODO: req |=> ack[->3] ##1 done;
+      // TODO: after req, wait for 3 non-consecutive ack pulses, then check done is high
       ;
   endproperty
 

@@ -1,5 +1,0 @@
-{
-  "title": "$onehot, $onehot0, $countones",
-  "focus": "/src/arbiter_check.sv",
-  "runner": "bmc"
-}

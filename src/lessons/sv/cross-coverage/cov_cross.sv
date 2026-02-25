@@ -1,34 +1,33 @@
 module cov_cross;
-  bit clk = 0;
-  bit [1:0] op;
-  bit mode;
+  logic clk = 0;
   always #5 clk = ~clk;
 
-  covergroup cg_cross @(posedge clk);
-    cp_op: coverpoint op {
-      bins add = {2'd0};
-      bins sub = {2'd1};
-      bins mul = {2'd2};
-      bins div = {2'd3};
-    }
+  logic       we   = 0;
+  logic [3:0] addr = 0;
+  logic [7:0] wdata = 0, rdata;
 
-    cp_mode: coverpoint mode {
-      bins user = {1'b0};
-      bins kernel = {1'b1};
-    }
+  sram dut(.clk, .we, .addr, .wdata, .rdata);
 
-    // TODO: op_x_mode: cross cp_op, cp_mode;
+  covergroup sram_cg @(posedge clk);
+    cp_addr: coverpoint addr {
+      bins lo_half = {[0:7]};
+      bins hi_half = {[8:15]};
+    }
+    cp_we: coverpoint we {
+      bins reads  = {0};
+      bins writes = {1};
+    }
+    // TODO: add a cross of cp_addr and cp_we to find untested combinations
   endgroup
 
-  cg_cross cov = new;
+  sram_cg cov = new;
 
   initial begin
-    op = 0;
-    mode = 0;
-    repeat (8) begin
+    repeat (64) begin
       @(posedge clk);
-      op <= op + 1'b1;
-      mode <= ~mode;
+      we   <= $random;
+      addr <= $random;
+      wdata <= $random;
     end
     #1 $finish;
   end

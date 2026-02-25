@@ -4,14 +4,9 @@
   <li><code>always prop</code> — <code>prop</code> must hold at <em>every</em> clock tick from now on.</li>
 </ul>
 <p>The <em>strong</em> vs <em>weak</em> distinction matters for formal tools: a weak property (<code>eventually</code>) is satisfied vacuously by a finite trace that never reaches the condition, while a strong property (<code>s_eventually</code>) demands the condition eventually occurs:</p>
-<pre>// After POR, the lock signal must eventually assert
-property p_lock_live;
-  @(posedge clk) $rose(rst_n) |-> s_eventually lock;
-endproperty
-
-// Once locked, it stays locked
-property p_lock_stable;
-  @(posedge clk) lock |-> always lock;
-endproperty</pre>
-<p>Open <code>liveness.sv</code> and fill in both property bodies.</p>
-<blockquote><p><code>s_eventually</code> and <code>always</code> used as property operators are <strong>IEEE 1800-2012</strong> features. They express Linear Temporal Logic (LTL) properties and require a formal tool that supports unbounded reasoning. Bounded model checking can only <em>falsify</em> them within its bound — if BMC reports no counterexample, that is <strong>not</strong> a proof. It only means no violation was found up to the exploration depth. Fully proving liveness requires an unbounded prover or k-induction.</p></blockquote>
+<p>Open <code>liveness.sv</code> and fill in both property bodies:</p>
+<ul>
+  <li><strong>p_lock_live</strong>: after reset de-asserts (<code>$rose(rst_n)</code>), <code>lock</code> must eventually become true</li>
+  <li><strong>p_lock_stable</strong>: once <code>lock</code> is high it must remain high forever</li>
+</ul>
+<blockquote><p><code>s_eventually</code> and <code>always</code> used as property operators are <strong>IEEE 1800-2012</strong> features. They express <dfn data-card="LTL (Linear Temporal Logic) is a formal logic for reasoning about properties over time. It adds temporal operators to classical logic: G (globally/always), F (finally/eventually), X (next), and U (until). SVA's s_eventually maps to F, always maps to G. LTL properties describe what must hold over all future time steps of a trace, rather than just within a bounded window.">Linear Temporal Logic (LTL)</dfn> properties and require a formal tool that supports unbounded reasoning. Bounded model checking can only <em>falsify</em> them within its bound — if BMC reports no counterexample, that is <strong>not</strong> a proof. It only means no violation was found up to the exploration depth. Fully proving liveness requires an unbounded prover or k-induction.</p></blockquote>

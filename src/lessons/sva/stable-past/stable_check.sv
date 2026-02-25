@@ -5,7 +5,7 @@ module stable_check(
 );
   property data_stable_p;
     @(posedge clk)
-      // TODO: (valid && !ready) |=> $stable(data);
+      // TODO: while valid is high and ready is low, data must not change on the next cycle
       ;
   endproperty
 

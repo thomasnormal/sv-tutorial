@@ -2,7 +2,7 @@ module req_ack(input logic clk, req, ack);
 
   property req_ack_p;
     @(posedge clk)
-      // TODO: $rose(req) |=> ##[0:2] ack;
+      // TODO: when req rises, ack must be high within 1–3 cycles
       ;
   endproperty
 

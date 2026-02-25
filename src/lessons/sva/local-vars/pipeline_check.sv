@@ -8,7 +8,7 @@ module pipeline_check(
   property pipe_latency_p;
     int v;
     @(posedge clk)
-      // TODO: (valid_in, v = in_data) |=> ##2 (out_data == v);
+      // TODO: capture in_data when valid_in fires, then check out_data equals it 3 cycles later
       ;
   endproperty
 

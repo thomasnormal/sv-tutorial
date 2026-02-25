@@ -1,7 +1,7 @@
 <p>
-  <a href="https://docs.cocotb.org" target="_blank">cocotb</a> (Coroutine-based Co-simulation Testbench)
-  lets you write testbenches in Python rather than SystemVerilog. The simulator runs your DUT exactly
-  as before; Python drives signals and checks outputs through an <code>async</code> coroutine.
+  <a href="https://docs.cocotb.org" target="_blank">cocotb</a> (<dfn data-card="Coroutine-based Co-simulation Testbench — a Python framework that lets you write simulation testbenches using Python async/await coroutines instead of SystemVerilog. The simulator (e.g. Icarus Verilog, Verilator) still runs the RTL; cocotb drives signals and reads results through a VPI/VHPI bridge. You get the full Python ecosystem — NumPy, matplotlib, pandas — for processing waveform data and generating stimulus.">Coroutine-based Co-simulation Testbench</dfn>)
+  is an alternative to UVM: write your testbench in Python rather than SystemVerilog. The simulator
+  runs your DUT exactly as before; Python drives signals and checks outputs through an <code>async</code> coroutine.
 </p>
 <p>
   A test is any <code>async</code> function decorated with <code>@cocotb.test()</code>. The <code>dut</code>
@@ -10,6 +10,6 @@
   settles — the Python equivalent of <code>#2;</code> in SystemVerilog.
 </p>
 <p>
-  The testbench in <code>test_adder.py</code> checks four input combinations. Open
-  <code>adder.sv</code> and add the missing <code>assign</code> to make all checks pass.
+  Open <code>adder.sv</code>. The Python testbench already drives four input combinations and checks
+  the result. Add the missing <code>assign</code> statement to make all checks pass.
 </p>

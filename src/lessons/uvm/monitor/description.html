@@ -1,14 +1,9 @@
-              <p>The <strong>monitor</strong> passively observes DUT signals and broadcasts completed transactions via a <code>uvm_analysis_port</code>. It does not drive anything.</p>
-              <p>The <strong>scoreboard</strong> subscribes using a <code>uvm_analysis_imp</code> and a <code>write()</code> method. Every time the monitor broadcasts, <code>write()</code> is called automatically:</p>
-              <pre>// In the scoreboard:
-uvm_analysis_imp #(adder_item, adder_scoreboard) analysis_export;
-...
-function void write(adder_item item);
-  logic [8:0] expected = 9'(item.a) + 9'(item.b);
-  if (item.sum === expected[7:0] && item.carry === expected[8])
-    pass_count++;
-  else
-    `uvm_error("SCBD", "Mismatch!")
-endfunction</pre>
-              <p>Open <code>adder_scoreboard.sv</code> and complete the <code>write()</code> function.</p>
-              <blockquote><p>The analysis port is one-to-many: the monitor does not know how many subscribers are connected. Attach a coverage collector alongside the scoreboard by connecting both to the same <code>ap</code> — the monitor code does not change.</p></blockquote>
+              <p>The <strong><dfn data-card="The UVM monitor passively samples DUT signals and reconstructs completed transactions from what it observes. It never drives the DUT — it only reads. Monitors broadcast each captured transaction to any connected subscribers via a uvm_analysis_port. This separation means the same monitor can feed both a scoreboard and a coverage collector simultaneously.">monitor</dfn></strong> passively observes DUT signals and broadcasts completed transactions via a <code><dfn data-card="uvm_analysis_port is a one-to-many broadcast port. The monitor calls write(item) on it; every connected subscriber (scoreboard, coverage collector) receives the same item. The monitor doesn't know how many subscribers exist — it just broadcasts. Subscribers connect their uvm_analysis_imp (import) to the port during connect_phase.">uvm_analysis_port</dfn></code>. It does not drive anything.</p>
+              <p>The <strong>scoreboard</strong> subscribes using a <code>uvm_analysis_imp</code> and a <code>write()</code> method. Every time the monitor broadcasts a transaction, <code>write()</code> is called automatically — no polling required.</p>
+              <p>The SRAM scoreboard maintains a <strong><dfn data-card="Shadow memory (or reference model) is a software copy of what the hardware memory should contain, maintained in parallel with the DUT. On each write transaction, the scoreboard updates its shadow at the same address. On each read, it compares the DUT's rdata against the shadow's value. Any mismatch reveals a hardware bug. This pattern generalizes to any stateful DUT: FIFOs, register files, caches.">shadow memory</dfn></strong> — a software model of what the hardware should contain. On each transaction:</p>
+              <ul>
+                <li><strong>Write</strong>: update the shadow at <code>item.addr</code> with <code>item.wdata</code></li>
+                <li><strong>Read</strong>: compare <code>item.rdata</code> to <code>shadow[item.addr]</code> and report pass or fail</li>
+              </ul>
+              <p>Open <code>mem_scoreboard.sv</code> and complete the <code>write()</code> function body.</p>
+              <blockquote><p>The analysis port is one-to-many: the monitor does not know how many subscribers are connected. Attach a coverage collector alongside the scoreboard by connecting both to the same port — the monitor code does not change.</p></blockquote>

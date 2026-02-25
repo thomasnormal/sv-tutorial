@@ -1,5 +1,6 @@
 module top;
   initial begin
-    $display("HELLO WORLD");
+    $display("Hello, SRAM world!");
+    $finish;
   end
 endmodule

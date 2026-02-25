@@ -80,6 +80,10 @@ export default defineConfig({
     global: 'globalThis'
   },
   build: {
+    target: 'esnext',
+    // Keep runtime helper strings unminified. Minified preview bundles were
+    // observed to trigger browser-worker wasm crashes in circt-verilog UVM runs.
+    minify: false,
     // Single chunk is ~218 kB gzipped (CodeMirror + Svelte + CIRCT adapter).
     // The raw size exceeds Rollup's 500 kB default but gzip makes it fine.
     chunkSizeWarningLimit: 800,

@@ -1,13 +1,9 @@
-              <p>In the previous chapter you ran concurrent assertions with a simulation testbench — the simulator exercised only the paths you drove. A <strong>model checker</strong> goes further: it exhaustively explores every possible input sequence up to a bounded depth, finding counterexamples without any testbench at all. The lessons from here on use CIRCT's bounded model checker (BMC).</p>
-              <p>An <strong>immediate assertion</strong> is a non-temporal check that lives inside a procedural block. It fires the instant the simulator reaches it — no clock required.</p>
+              <p>In the previous chapter you ran concurrent assertions driven by a testbench — the simulator only checked the paths you drove. A <strong><dfn data-card="A model checker (or formal verification tool) mathematically proves that a design satisfies a property for ALL possible inputs and ALL possible time sequences — not just the ones you thought to test. It works by exploring a symbolic representation of the state space. If a property can be violated, it produces a concrete counterexample trace. If no counterexample exists up to a given depth, the property is proved for that bound.">model checker</dfn></strong> goes further: it exhaustively explores every possible input sequence up to a bounded depth, finding counterexamples without any testbench at all. The lessons from here on use CIRCT's <dfn data-card="BMC (Bounded Model Checking) unrolls the circuit's behavior for N time steps and encodes it as a SAT/SMT formula. The solver then searches for an assignment of inputs that makes an assertion fail. If no such assignment exists within N steps, the property is proved for depth N. BMC is complete for safety properties up to the bound — deeper bugs require larger bounds or inductive techniques.">bounded model checker</dfn> (BMC).</p>
+              <p>Before concurrent assertions, there are <strong>immediate assertions</strong> — non-temporal checks that live inside a procedural block. They fire the instant the simulator reaches them, like a runtime sanity check:</p>
               <pre>assert (expression)
   pass_action;
 else
   fail_action;</pre>
               <p>If the expression is <code>0</code>, <code>x</code>, or <code>z</code>, the assertion <strong>fails</strong> and the <code>else</code> branch runs.</p>
-              <p>Open <code>fifo_checker.sv</code> and add two assertions inside the <code>always @(posedge clk)</code> block:</p>
-              <ul>
-                <li>Never write when full: <code>assert (!wr_en || !full)</code></li>
-                <li>Never read when empty: <code>assert (!rd_en || !empty)</code></li>
-              </ul>
+              <p>Open <code>fifo_checker.sv</code> and add two assertions inside the <code>always @(posedge clk)</code> block — one that prevents writing to a full FIFO, and one that prevents reading from an empty FIFO. Express each condition as a Boolean that must always be true.</p>
               <blockquote><p>Use <code>$error</code> in the else clause for an automatic timestamp and file/line location in the log.</p></blockquote>

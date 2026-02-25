@@ -1,10 +1,10 @@
-<p>Every named sequence has a built-in property <code>.triggered</code> that is true at the clock tick where the sequence reaches its endpoint:</p>
+<p>Every named sequence has a built-in property <code><dfn data-card=".triggered is a boolean property of a named sequence that is true at the exact clock tick where the sequence reaches its endpoint. It lets you use a sequence's completion as a trigger in another property without duplicating the sequence body. The related .matched property holds true until the next clock edge, making it useful for cross-clock domain handshake assertions.">.triggered</dfn></code> that is true at the clock tick where the sequence reaches its endpoint:</p>
 <pre>sequence s_req_done;
   @(posedge clk) req ##1 !busy;
 endsequence
 
-// .triggered is a boolean: true at the cycle s_req_done ends
-s_req_done.triggered |-> ##[1:3] ack</pre>
+// .triggered is true at the clock tick where s_req_done reaches its endpoint
+s_req_done.triggered |-> ...</pre>
 <p>This lets you build modular properties: define a sequence once, then reference its endpoint from multiple properties without duplicating the sequence body.</p>
 <p>The related <code>.matched</code> property extends the endpoint signal so it stays true until the <em>next</em> clock edge of a different clock domain — useful for cross-clock handshake assertions.</p>
 <p>Open <code>trigger_check.sv</code> and complete the property: when the request sequence ends, <code>ack</code> must arrive within 3 cycles.</p>

@@ -37,10 +37,11 @@ Equivalent step-by-step:
 
 1. `npm ci`
 2. `scripts/setup-surfer.sh`
-3. `npm run setup:circt`
-4. `npm run build:circt`
-5. `npm run sync:circt`
-6. `npm run build`
+3. `npm run setup:pyodide`
+4. `npm run setup:circt`
+5. `npm run build:circt`
+6. `npm run sync:circt`
+7. `npm run build`
 
 The CIRCT wasm build script enforces conservative resource limits by default:
 
@@ -62,6 +63,7 @@ CIRCT_WASM_TARGETS="circt-verilog circt-sim circt-bmc circt-sim-vpi" npm run bui
 - `npm run dev`
 - `npm run preview`
 - `npm run test:e2e`
+- `npm run setup:pyodide`
 - `npm run setup:circt`
 - `npm run build:circt`
 - `npm run sync:circt`
@@ -79,10 +81,18 @@ In `.env` (copy `.env.example`):
 - `VITE_CIRCT_BMC_WASM_URL`
 - `VITE_CIRCT_SIM_VPI_JS_URL` (cocotb lessons)
 - `VITE_CIRCT_SIM_VPI_WASM_URL` (cocotb lessons)
-- `VITE_PYODIDE_URL` (cocotb lessons, default: jsdelivr CDN)
+- `VITE_PYODIDE_URL` (cocotb lessons, default: `/pyodide/pyodide.js`)
 - `VITE_CIRCT_VERILOG_ARGS`
 - `VITE_CIRCT_SIM_ARGS`
 - `VITE_CIRCT_BMC_ARGS`
+
+## Offline Mode
+
+- Runtime assets are lazy-loaded by default (toolchain wasm, Surfer, Pyodide, z3).
+- The header includes a "Download offline bundle" button that prefetches and caches runtime assets for offline use.
+- For local/offline cocotb, install Pyodide assets once:
+  - `npm run setup:pyodide`
+- Keep runtime URLs same-origin (default `/circt/*`, `/z3/*`, `/surfer/*`, `/pyodide/*`) for robust offline behavior.
 
 ## Runtime Notes
 
@@ -98,10 +108,12 @@ In `.env` (copy `.env.example`):
 - `.github/workflows/ci.yml` builds with pinned toolchain requirements:
   1. install Node 22
   2. install emsdk 4.0.21
-  3. run `scripts/setup-circt.sh` (pinned CIRCT ref)
-  4. run `scripts/build-circt-wasm.sh`
-  5. run `npm run sync:circt`
-  6. run `npm run build`
+  3. run `scripts/setup-surfer.sh`
+  4. run `scripts/setup-pyodide.sh`
+  5. run `scripts/setup-circt.sh` (pinned CIRCT ref)
+  6. run `scripts/build-circt-wasm.sh`
+  7. run `npm run sync:circt`
+  8. run `npm run build`
 
 ## E2E
 

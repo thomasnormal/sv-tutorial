@@ -1,5 +1,0 @@
-{
-  "title": "Consecutive Repetition [*m]",
-  "focus": "/src/hold_check.sv",
-  "runner": "bmc"
-}

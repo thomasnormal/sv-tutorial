@@ -1,17 +1,9 @@
-              <p>The <strong>driver</strong> is where the UVM world meets RTL. It pulls transactions from the sequencer, converts them to pin-level stimulus, and signals completion:</p>
-              <pre>task run_phase(uvm_phase phase);
-  adder_item req;
-  forever begin
-    seq_item_port.get_next_item(req);  // pull; blocks if empty
-    @(posedge vif.clk);
-    vif.a &lt;= req.a;
-    vif.b &lt;= req.b;
-    @(posedge vif.clk);
-    seq_item_port.item_done();         // unblocks finish_item
-  end
-endtask</pre>
-              <p>The DUT is accessed through a <strong>virtual interface</strong> handle retrieved from <code>uvm_config_db</code> in <code>build_phase</code>:</p>
-              <pre>if (!uvm_config_db #(virtual adder_if)::get(this, "", "vif", vif))
-  `uvm_fatal("NOVIF", "Virtual interface not found")</pre>
-              <p>Open <code>adder_driver.sv</code> and complete <code>build_phase</code> (config_db get) and <code>run_phase</code> (drive the interface).</p>
+              <p>The <strong>driver</strong> is where the UVM world meets RTL. It pulls transactions from the sequencer, converts them to pin-level stimulus, and signals completion. The basic loop is:</p>
+              <ol>
+                <li>Call <code>seq_item_port.get_next_item(req)</code> — blocks until the sequencer has a transaction</li>
+                <li>Wait for the clock edge, then drive the interface signals from the item fields</li>
+                <li>Wait one more clock edge to capture any response (SRAM has 1-cycle read latency)</li>
+                <li>Call <code>seq_item_port.item_done()</code> — unblocks the sequence's <code>finish_item</code></li>
+              </ol>
+              <p>The DUT is accessed through a <strong>virtual interface</strong> handle retrieved from <code><dfn data-card="uvm_config_db is UVM's global key-value store for passing configuration between components. The testbench top module sets a virtual interface handle into the config_db before run_test() is called. Components retrieve it during build_phase using get(). The path-based key (e.g. 'uvm_test_top.env.agent.driver') scopes which components can see which values.">uvm_config_db</dfn></code> in <code>build_phase</code> — this is already done for you. Open <code>mem_driver.sv</code> and complete the <code>run_phase</code> body: drive <code>we</code>, <code>addr</code>, and <code>wdata</code> onto the interface, then capture <code>rdata</code> after the read latency cycle.</p>
               <blockquote><p>The virtual interface is the only bridge from the dynamic class world into the static module world. It must be <code>set</code> in <code>tb_top</code> before <code>run_test()</code> is called, and <code>get</code> by every component that needs DUT access.</p></blockquote>

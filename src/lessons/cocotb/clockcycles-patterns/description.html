@@ -11,7 +11,7 @@
 </p>
 <ul>
   <li><code>Clock</code> to run a free-running clock in the background</li>
-  <li><code>ClockCycles</code> for compact reset sequencing</li>
+  <li><code><dfn data-card="ClockCycles(clk, n) is a cocotb trigger that suspends the coroutine for exactly n rising edges of the given clock signal. It's equivalent to calling await RisingEdge(clk) in a loop n times, but more compact and readable. Use it for sequencing multi-cycle operations: reset for 5 cycles, then apply stimulus.">ClockCycles</dfn></code> for compact reset sequencing</li>
   <li><code>RisingEdge</code> in a loop to check expected state each cycle</li>
 </ul>
 <p>

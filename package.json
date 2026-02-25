@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "preview": "vite preview",
+    "preview": "vite preview --outDir build",
     "check:req": "./scripts/check-requirements.sh",
     "check:req:wasm": "./scripts/check-requirements.sh --with-wasm",
+    "setup:pyodide": "./scripts/setup-pyodide.sh",
     "setup:circt": "./scripts/setup-circt.sh",
     "build:circt": "./scripts/build-circt-wasm.sh",
     "bootstrap:repro": "./scripts/bootstrap-repro.sh",
@@ -28,6 +29,7 @@
     "tailwind-merge": "^3.5.0",
     "tailwind-variants": "^3.2.2",
     "tailwindcss": "^4.2.0",
+    "tailwindcss-animate": "^1.0.7",
     "z3-solver": "^4.16.0"
   },
   "devDependencies": {

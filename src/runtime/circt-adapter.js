@@ -793,16 +793,56 @@ self.onmessage = async (event) => {
       throw new Error('Emscripten FS runtime did not become ready');
     }
     if (typeof req.uvmManifestUrl === 'string' && req.uvmManifestUrl.length > 0) {
-      const response = await fetch(req.uvmManifestUrl, { cache: 'force-cache' });
-      if (!response.ok) {
-        throw new Error('Failed to load UVM manifest: ' + response.status + ' ' + response.statusText);
+      const candidateUrls = [];
+      const seenManifestUrls = new Set();
+      const pushManifestCandidate = (raw) => {
+        if (typeof raw !== 'string' || !raw) return;
+        let href = '';
+        try {
+          href = new URL(raw, self.location.href).href;
+        } catch {
+          href = raw;
+        }
+        if (!href || seenManifestUrls.has(href)) return;
+        seenManifestUrls.add(href);
+        candidateUrls.push(href);
+      };
+
+      pushManifestCandidate(req.uvmManifestUrl);
+      try {
+        const jsBase = new URL('./', req.jsUrl).href;
+        pushManifestCandidate(new URL('uvm-core/uvm-manifest.json', jsBase).href);
+      } catch {
+        // Keep trying with the original URL if jsUrl is malformed.
       }
-      const manifest = await response.json();
+
+      let manifest = null;
+      let manifestUrl = '';
+      const manifestFailures = [];
+      for (const candidateUrl of candidateUrls) {
+        try {
+          const response = await fetch(candidateUrl);
+          if (!response.ok) {
+            manifestFailures.push(candidateUrl + ' -> ' + response.status + ' ' + response.statusText);
+            continue;
+          }
+          manifest = await response.json();
+          manifestUrl = candidateUrl;
+          break;
+        } catch (error) {
+          manifestFailures.push(candidateUrl + ' -> ' + String(error?.message || error));
+        }
+      }
+      if (!manifest || !manifestUrl) {
+        const details = manifestFailures.slice(0, 3).join(' | ');
+        throw new Error('Failed to load UVM manifest: ' + (details || 'no candidate URL succeeded'));
+      }
+
       const rootPath = (manifest && typeof manifest.rootPath === 'string' && manifest.rootPath.length > 0)
         ? manifest.rootPath
         : '/circt/uvm-core/src';
       const relPaths = Array.isArray(manifest && manifest.files) ? manifest.files : [];
-      const srcBaseUrl = new URL('src/', req.uvmManifestUrl).href;
+      const srcBaseUrl = new URL('src/', manifestUrl).href;
       for (const relRaw of relPaths) {
         if (typeof relRaw !== 'string') continue;
         const rel = relRaw.replace(/^\/+/, '');
@@ -810,9 +850,17 @@ self.onmessage = async (event) => {
         const fsPath = rootPath.replace(/\/+$/, '') + '/' + rel;
         const sourceUrl = new URL(rel, srcBaseUrl).href;
         if (inMemFS && typeof inMemFS.registerRemoteFile === 'function') {
-          const srcResponse = await fetch(sourceUrl, { cache: 'force-cache' });
+          const srcResponse = await fetch(sourceUrl);
           if (!srcResponse.ok) {
-            throw new Error('Failed to load UVM source: ' + sourceUrl);
+            throw new Error(
+              'Failed to load UVM source: ' +
+              sourceUrl +
+              ' (' +
+              srcResponse.status +
+              ' ' +
+              srcResponse.statusText +
+              ')'
+            );
           }
           const srcText = await srcResponse.text();
           inMemFS.writeTextFile(fsPath, srcText);

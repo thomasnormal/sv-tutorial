@@ -42,6 +42,7 @@
   let offlineDone = $state(0);
   let offlineTotal = $state(0);
   let offlineMessage = $state('');
+  let offlineCurrentAsset = $state('');
   const offlineFeatureEnabled = import.meta.env.PROD;
   const LEGACY_COI_CLEANUP_ONCE_KEY = 'svt:legacy-coi-cleanup-once';
 
@@ -65,6 +66,23 @@
 
   function toAbsolute(url) {
     return new URL(String(url), window.location.href).href;
+  }
+
+  function basenameFromUrl(url) {
+    try {
+      const pathname = new URL(String(url), window.location.href).pathname;
+      const base = pathname.split('/').filter(Boolean).pop() || pathname;
+      return decodeURIComponent(base);
+    } catch {
+      return String(url || '');
+    }
+  }
+
+  function compactAssetLabel(text, max = 18) {
+    const value = String(text || '').trim();
+    if (!value) return '';
+    if (value.length <= max) return value;
+    return `${value.slice(0, Math.max(1, max - 1))}...`;
   }
 
   function offlineReadyMarkerUrl() {
@@ -121,13 +139,14 @@
     return { removed, controlledByLegacy };
   }
 
-  async function clearOfflineArtifactsForDev() {
+  async function clearOfflineArtifacts() {
     if (!browser) return;
     localStorage.removeItem(OFFLINE_STATE_KEY);
     offlineMode = 'idle';
     offlineDone = 0;
     offlineTotal = 0;
     offlineMessage = '';
+    offlineCurrentAsset = '';
 
     if ('serviceWorker' in navigator) {
       const scopeRoot = new URL(`${base || ''}/`, window.location.href).href;
@@ -147,6 +166,11 @@
           .map((key) => caches.delete(key))
       );
     }
+  }
+
+  async function resetOfflineBundle() {
+    if (!browser || offlineMode === 'downloading') return;
+    await clearOfflineArtifacts();
   }
 
   async function resolveOfflineAssetUrls(config) {
@@ -195,8 +219,10 @@
       return 'Offline bundle download is available in preview/prod builds';
     }
     if (offlineMode === 'downloading') {
-      const total = offlineTotal || '?';
-      return `Downloading offline bundle (${offlineDone}/${total})`;
+      if (offlineTotal <= 0) return 'Preparing offline bundle...';
+      if (offlineDone >= offlineTotal) return 'Finalizing offline bundle...';
+      const current = offlineCurrentAsset ? ` (${offlineCurrentAsset})` : '';
+      return `Downloading offline bundle (${offlineDone + 1}/${offlineTotal})${current}`;
     }
     if (offlineMode === 'ready') {
       return offlineMessage || 'Offline bundle is ready';
@@ -209,7 +235,11 @@
 
   function offlineButtonLabel() {
     if (!offlineFeatureEnabled) return 'Offline bundle unavailable in dev mode';
-    if (offlineMode === 'downloading') return 'Downloading offline bundle';
+    if (offlineMode === 'downloading') {
+      if (offlineTotal <= 0) return 'Preparing offline bundle';
+      if (offlineDone >= offlineTotal) return 'Finalizing offline bundle';
+      return `Downloading offline bundle ${offlineDone + 1}/${offlineTotal}`;
+    }
     if (offlineMode === 'ready') return 'Offline bundle ready';
     if (offlineMode === 'error') return 'Retry offline bundle download';
     return 'Download offline bundle';
@@ -217,8 +247,10 @@
 
   function offlineProgressText() {
     if (offlineMode === 'downloading') {
-      const total = offlineTotal || '?';
-      return `${offlineDone}/${total}`;
+      if (offlineTotal <= 0) return 'preparing...';
+      if (offlineDone >= offlineTotal) return 'finalizing...';
+      const current = offlineCurrentAsset ? ` ${offlineCurrentAsset}` : '';
+      return `${offlineDone + 1}/${offlineTotal}${current}`;
     }
     if (offlineMode === 'ready') return 'offline ready';
     if (offlineMode === 'error') return 'download failed';
@@ -231,6 +263,7 @@
     offlineDone = 0;
     offlineTotal = 0;
     offlineMessage = 'Preparing offline bundle...';
+    offlineCurrentAsset = '';
 
     try {
       await ensureOfflineServiceWorker();
@@ -251,6 +284,7 @@
       let success = 0;
 
       for (const url of urls) {
+        offlineCurrentAsset = compactAssetLabel(basenameFromUrl(url));
         try {
           const request = new Request(url, {
             method: 'GET',
@@ -273,6 +307,7 @@
           failures.push(`${url}: ${String(error?.message || error)}`);
         } finally {
           offlineDone += 1;
+          if (offlineDone >= offlineTotal) offlineCurrentAsset = '';
         }
       }
 
@@ -296,11 +331,13 @@
         if (skippedCrossOrigin > 0) {
           offlineMessage += ` Skipped ${skippedCrossOrigin} cross-origin URLs.`;
         }
+        offlineCurrentAsset = '';
         localStorage.setItem(OFFLINE_STATE_KEY, 'ready');
       }
     } catch (error) {
       offlineMode = 'error';
       offlineMessage = String(error?.message || error || 'Offline download failed');
+      offlineCurrentAsset = '';
       localStorage.removeItem(OFFLINE_STATE_KEY);
       if ('caches' in window) {
         caches
@@ -386,7 +423,7 @@
       }
 
       if (!offlineFeatureEnabled) {
-        clearOfflineArtifactsForDev().catch(() => {});
+        clearOfflineArtifacts().catch(() => {});
         return;
       }
       const offlineRequested = localStorage.getItem(OFFLINE_STATE_KEY) === 'ready';
@@ -509,13 +546,28 @@
           </button>
           {#if offlineMode !== 'idle'}
             <span
-              class="text-[0.68rem] leading-none whitespace-nowrap px-2 py-[0.32rem] rounded-[8px] border {offlineMode === 'ready' ? 'text-teal border-teal/40 bg-teal/5' : offlineMode === 'error' ? 'text-destructive border-destructive/40 bg-destructive/5' : 'text-muted-foreground border-border bg-surface-2'}"
+              class="text-[0.68rem] leading-none whitespace-nowrap max-w-[170px] overflow-hidden text-ellipsis px-2 py-[0.32rem] rounded-[8px] border {offlineMode === 'ready' ? 'text-teal border-teal/40 bg-teal/5' : offlineMode === 'error' ? 'text-destructive border-destructive/40 bg-destructive/5' : 'text-muted-foreground border-border bg-surface-2'}"
               data-testid="offline-download-status"
               aria-live="polite"
               title={offlineButtonTitle()}
             >
               {offlineProgressText()}
             </span>
+            {#if offlineMode === 'ready' || offlineMode === 'error'}
+              <button
+                onclick={resetOfflineBundle}
+                class="flex items-center justify-center w-8 h-8 rounded-[8px] hover:bg-surface-2 transition-colors text-muted-foreground"
+                data-testid="offline-reset-button"
+                aria-label="Reset offline bundle"
+                title="Reset offline bundle cache"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 6h18" />
+                  <path d="M8 6V4h8v2" />
+                  <path d="M6 6l1 14h10l1-14" />
+                </svg>
+              </button>
+            {/if}
           {/if}
           <button
             onclick={toggleDarkMode}

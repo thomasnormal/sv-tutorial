@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('offline bundle', () => {
   test('download button shows progress and ends in ready state', async ({ page }) => {
-    test.setTimeout(300_000);
+    test.setTimeout(420_000);
 
     await page.goto('/');
     await page.evaluate(async () => {
@@ -28,10 +28,21 @@ test.describe('offline bundle', () => {
 
     const statusChip = page.getByTestId('offline-download-status');
     await expect(statusChip).toBeVisible({ timeout: 20_000 });
-    await expect(statusChip).toContainText(/^\d+\/(\d+|\?)$/, { timeout: 20_000 });
+    await expect(statusChip).toContainText(/^(preparing\.\.\.|finalizing\.\.\.|\d+\/\d+.*)$/i, { timeout: 20_000 });
     await expect(statusChip).toContainText(/offline ready/i, { timeout: 240_000 });
 
     await expect(offlineButton).toHaveAttribute('aria-label', /offline bundle ready/i, { timeout: 240_000 });
+
+    const resetButton = page.getByTestId('offline-reset-button');
+    await expect(resetButton).toBeVisible();
+    await resetButton.click();
+    await expect(statusChip).toBeHidden({ timeout: 20_000 });
+
+    const clearedState = await page.evaluate(() => localStorage.getItem('svt:offline-ready-v1') === null);
+    expect(clearedState).toBe(true);
+
+    await offlineButton.click();
+    await expect(statusChip).toContainText(/offline ready/i, { timeout: 240_000 });
 
     const readyState = await page.evaluate(async () => {
       const state = localStorage.getItem('svt:offline-ready-v1');

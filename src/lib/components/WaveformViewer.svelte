@@ -116,32 +116,19 @@
     if (!cw) return;
 
     if (cmd === 'transition_next' || cmd === 'transition_previous') {
-      // Dispatch a synthetic arrow-key event directly to the Surfer iframe
-      // (same-origin access).  This mirrors what happens when the user presses
-      // ← / → with the iframe focused, and avoids the async race between the
-      // WCP command-file fetch and the iframe-blur event clearing Surfer's
-      // focused-variable state.
-      //
-      // We also re-send FocusItem first so Surfer's focused variable is correct
-      // even if it was cleared by the blur event.  postMessage is async, so we
-      // delay the key dispatch by 50 ms to ensure FocusItem is processed by
-      // Surfer before the keyboard event fires.
-      if (_focusedVisibleIdx !== undefined) {
-        surferMsg(cw, { FocusItem: _focusedVisibleIdx });
-      }
-      const key = cmd === 'transition_next' ? 'ArrowRight' : 'ArrowLeft';
-      setTimeout(() => {
-        const el = iframeEl;
-        if (!el) return;
-        const canvas = el.contentDocument?.getElementById('the_canvas_id');
-        const target = canvas ?? el.contentWindow;
-        if (!target) return;
-        // Create the event in the iframe's realm to avoid cross-realm prototype issues.
-        const IframeKBEvent = el.contentWindow?.KeyboardEvent ?? KeyboardEvent;
-        target.dispatchEvent(
-          new IframeKBEvent('keydown', { key, code: key, bubbles: true, cancelable: true })
-        );
-      }, 50);
+      // The WCP text command `transition_next` requires an explicit alphabetic
+      // variable label argument — sending it bare does nothing.  Instead, send
+      // MoveCursorToTransition as a direct JSON inject_message with the explicit
+      // VisibleItemIndex.  This bypasses the WCP text-file fetch, the iframe-blur
+      // race, and any focused-item state dependency.
+      if (_focusedVisibleIdx === undefined) return;
+      surferMsg(cw, {
+        MoveCursorToTransition: {
+          next: cmd === 'transition_next',
+          variable: _focusedVisibleIdx,
+          skip_zero: false,
+        },
+      });
       return;
     }
 

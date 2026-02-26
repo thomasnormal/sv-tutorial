@@ -321,8 +321,10 @@ test('dfn term card near bottom does not clip off-screen', async ({ page }) => {
 test('vim mode: toggles on and off without breaking editor', async ({ page }) => {
   await goTo(page, '/lesson/sv/welcome');
   await page.getByTestId('options-button').click();
+  // Wait for menu to open (solve-button appears), then find vim checkbox
+  await expect(page.getByTestId('solve-button')).toBeVisible({ timeout: 5_000 });
   const vimCheckbox = page.getByRole('checkbox', { name: /vim/i });
-  await expect(vimCheckbox).toBeVisible();
+  await expect(vimCheckbox).toBeVisible({ timeout: 3_000 });
   const wasChecked = await vimCheckbox.isChecked();
   await vimCheckbox.click();
   expect(await vimCheckbox.isChecked()).toBe(!wasChecked);

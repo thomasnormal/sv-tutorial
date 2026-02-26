@@ -15,6 +15,7 @@ module tb;
     @(posedge clk); #1; data = 'x;    // X value — assertion fires here
     @(posedge clk); #1;
     @(posedge clk); #1;
+    $display("PASS");
     $finish;
   end
 endmodule

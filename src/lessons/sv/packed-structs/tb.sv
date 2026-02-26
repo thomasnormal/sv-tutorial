@@ -7,6 +7,8 @@ module tb;
   mem_cmd_t cmd = '0;
   logic [7:0] rdata;
 
+  int fail = 0;
+
   sram_cmd dut(.clk, .cmd, .rdata);
 
   initial begin
@@ -22,12 +24,15 @@ module tb;
     cmd = '{we: 1'b0, addr: 4'd3, wdata: '0};
     @(posedge clk); #1;
     $display("mem[3] = %0d (expect 55)", rdata);
+    if (rdata !== 8'd55) fail++;
 
     // Read back addr 5
     cmd.addr = 4'd5;
     @(posedge clk); #1;
     $display("mem[5] = %0d (expect 77)", rdata);
+    if (rdata !== 8'd77) fail++;
 
+    if (fail == 0) $display("PASS");
     $finish;
   end
 endmodule

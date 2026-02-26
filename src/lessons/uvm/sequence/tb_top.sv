@@ -34,5 +34,9 @@ class seq_test extends uvm_test;
 endclass
 
 module tb_top;
-  initial run_test("seq_test");
+  initial begin
+    run_test("seq_test");
+    if (uvm_report_server::get_server().get_severity_count(UVM_ERROR) == 0)
+      $display("PASS");
+  end
 endmodule

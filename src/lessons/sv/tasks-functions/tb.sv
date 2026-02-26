@@ -40,6 +40,7 @@ module tb;
     read_word (4'd5, result);
     $display("mem[5] = %0d  parity=%b (expect 42, parity=%b)",
              result, parity_check(result), ^8'd42);
+    if (result === 8'd42 && parity_check(result) === ^8'd42) $display("PASS");
     $finish;
   end
 endmodule

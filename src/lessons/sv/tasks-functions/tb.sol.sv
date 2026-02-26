@@ -35,6 +35,8 @@ module tb;
     data = vif.rdata;
   endtask
 
+  int fail = 0;
+
   initial begin
     logic [7:0] result;
 
@@ -42,17 +44,21 @@ module tb;
     read_word (4'd5, result);
     $display("mem[5] = %0d  parity=%b (expect 42, parity=%b)",
              result, parity_check(result), ^8'd42);
+    if (result !== 8'd42 || parity_check(result) !== ^8'd42) fail++;
 
     write_word(4'd0, 8'hFF);
     read_word (4'd0, result);
     $display("mem[0] = %0d  parity=%b (expect 255, parity=%b)",
              result, parity_check(result), ^8'hFF);
+    if (result !== 8'hFF || parity_check(result) !== ^8'hFF) fail++;
 
     write_word(4'd12, 8'd100);
     read_word (4'd12, result);
     $display("mem[12] = %0d  parity=%b (expect 100, parity=%b)",
              result, parity_check(result), ^8'd100);
+    if (result !== 8'd100 || parity_check(result) !== ^8'd100) fail++;
 
+    if (fail == 0) $display("PASS");
     $finish;
   end
 endmodule

@@ -10,7 +10,7 @@ import metas from './meta.js';
 
 // Lazy content loaders — Vite transforms these only when first requested.
 const htmlLoaders     = import.meta.glob('./*/*/description.html',                              { query: '?raw', import: 'default' });
-const starterLoaders  = import.meta.glob(['./*/*/*.{sv,py}', '!./*/*/*.sol.sv'],                { query: '?raw', import: 'default' });
+const starterLoaders  = import.meta.glob(['./*/*/*.{sv,py,mlir}', '!./*/*/*.sol.sv'],           { query: '?raw', import: 'default' });
 const solutionLoaders = import.meta.glob('./*/*/*.sol.sv',                                      { query: '?raw', import: 'default' });
 const imageLoaders    = import.meta.glob('./*/*/*.{png,jpg,jpeg,gif,svg,webp}',                 { query: '?url', import: 'default' });
 
@@ -49,7 +49,7 @@ export async function loadLessonContent(slug) {
 
   for (const item of rest) {
     if (item.type === 'starter') {
-      const m = item.k.match(/^\.\/([\w-]+)\/([\w-]+)\/(.+\.(sv|py))$/);
+      const m = item.k.match(/^\.\/([\w-]+)\/([\w-]+)\/(.+\.(sv|py|mlir))$/);
       if (m) files.a[`/src/${m[3]}`] = item.content;
     } else if (item.type === 'solution') {
       const m = item.k.match(/^\.\/([\w-]+)\/([\w-]+)\/(.+)\.sol\.sv$/);
@@ -76,9 +76,8 @@ export const parts = [
   {
     title: 'SystemVerilog Basics',
     chapters: [
-      { title: 'Introduction',          lessons: [L('sv/welcome'), L('sv/modules-and-ports')] },
-      { title: 'Combinational Logic',   lessons: [L('sv/always-comb'), L('sv/priority-enc')] },
-      { title: 'Sequential Logic',      lessons: [L('sv/always-ff'), L('sv/counter')] },
+      { title: 'Introduction',          lessons: [L('sv/welcome'), L('sv/modules-and-ports'), L('sv/data-types'), L('sv/always-comb'), L('sv/priority-enc')] },
+      { title: 'Sequential Logic',      lessons: [L('sv/events'), L('sv/always-ff'), L('sv/counter')] },
       { title: 'Parameterized Modules', lessons: [L('sv/parameters')] },
       { title: 'Data Types',            lessons: [L('sv/packed-structs')] },
       { title: 'Interfaces & Procedures', lessons: [L('sv/interfaces'), L('sv/tasks-functions')] },
@@ -119,6 +118,15 @@ export const parts = [
     chapters: [
       { title: 'cocotb Basics', lessons: [L('cocotb/first-test'), L('cocotb/clock-and-timing')] },
       { title: 'Triggers & Clocks', lessons: [L('cocotb/edge-triggers'), L('cocotb/clockcycles-patterns')] },
+    ],
+  },
+  {
+    title: 'MLIR & CIRCT',
+    chapters: [
+      {
+        title: 'Inside the Compiler',
+        lessons: [L('mlir/intro'), L('mlir/comb'), L('mlir/seq'), L('mlir/lowering')],
+      },
     ],
   },
 ];

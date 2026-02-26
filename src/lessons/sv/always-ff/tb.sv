@@ -9,6 +9,8 @@ module tb;
   logic [7:0] wdata = 0; // data to write
   logic [7:0] rdata;     // data read out — valid 1 cycle after addr
 
+  int fail = 0;
+
   // Clock generator: period = 10 time units
   always #5 clk = ~clk;
 
@@ -27,8 +29,10 @@ module tb;
     addr = a; @(posedge clk); #1;
     if (rdata === expected)
       $display("PASS  mem[%0d] = %0d", a, rdata);
-    else
+    else begin
       $display("FAIL  mem[%0d] = %0d  (expected %0d)", a, rdata, expected);
+      fail++;
+    end
   endtask
 
   initial begin
@@ -40,6 +44,7 @@ module tb;
     do_read(4'd7, 8'd99);
     do_read(4'd0, 8'd13);
 
+    if (fail == 0) $display("PASS");
     $finish;
   end
 endmodule

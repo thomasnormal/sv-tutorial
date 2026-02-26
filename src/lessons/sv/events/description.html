@@ -1,0 +1,64 @@
+<p>An SRAM testbench has three operations that must happen in strict order: <em>write</em> values into memory, then <em>read</em> them back, then <em>check</em> the results. Every <code>initial</code> block starts at t=0, so without coordination the reader races ahead of the writer and sees uninitialised <dfn data-card="x (unknown) is one of the four logic values in SystemVerilog alongside 0, 1, and z. x appears in uninitialised signals, unresolved bus conflicts, and certain simulation artefacts. Unlike 0 or 1, x propagates: AND(x, 1) = x, not 0. The === (case equality) operator distinguishes x from 0/1, while == treats x as a mismatch.">x</dfn> values. A named <dfn data-card="An event in SystemVerilog is a synchronisation primitive — not a value (0 or 1), just a named instant in simulation time. Any process can trigger it with ->; any number of processes can wait for it with @(event_name). When a process hits @(event_name) it suspends immediately. When any other process executes -> event_name, every suspended waiter resumes in the same simulation time step.">event</dfn> fixes this: one process announces <em>I'm done — your turn</em>, and all waiters wake up at once.</p>
+
+<h2>Three keywords, one idea</h2>
+<pre>
+  event write_done;    // declare a named event
+
+  -> write_done;       // post it — wakes every process waiting on it
+
+  @(write_done);       // wait for it — suspends until posted
+</pre>
+<p>The post is instantaneous: every process suspended at <code>@(write_done)</code> resumes in the same simulation time step. Events carry no data and cannot be synthesised — they live only in testbenches and simulation models.</p>
+
+<h2>A two-event pipeline</h2>
+<p><code>event_sync.sv</code> chains writer, reader, and checker using two events:</p>
+<pre>
+  writer ──→ write_done ──→ reader ──→ read_done ──→ checker
+</pre>
+
+<!-- Three-process timing diagram -->
+<svg width="430" height="120" viewBox="0 0 430 120" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:10px auto">
+  <rect width="430" height="120" rx="4" fill="#fffdf7"/>
+  <line x1="78" y1="108" x2="425" y2="108" stroke="#d5cbb2" stroke-width="1"/>
+  <text x="78"  y="118" text-anchor="middle" fill="#8a9da2" font-size="11">t=0</text>
+  <text x="218" y="118" text-anchor="middle" fill="#8a9da2" font-size="11">t=10</text>
+  <!-- write_done vertical -->
+  <line x1="218" y1="6" x2="218" y2="100" stroke="#0d6f72" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="221" y="14" fill="#0d6f72" font-size="10">→ write_done</text>
+  <!-- read_done vertical -->
+  <line x1="328" y1="18" x2="328" y2="100" stroke="#0d6f72" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>
+  <text x="331" y="28" fill="#0d6f72" font-size="10" opacity="0.85">→ read_done</text>
+  <!-- writer row -->
+  <text x="72" y="35" text-anchor="end" fill="#586469" font-size="11">writer</text>
+  <line x1="78" y1="32" x2="196" y2="32" stroke="#cc5f2d" stroke-width="2"/>
+  <rect x="197" y="23" width="40" height="16" rx="2" fill="#fef3e8" stroke="#cc5f2d" stroke-width="1"/>
+  <text x="217" y="34" text-anchor="middle" fill="#9a3a15" font-size="10">write</text>
+  <line x1="237" y1="32" x2="425" y2="32" stroke="#d5cbb2" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <!-- reader row -->
+  <text x="72" y="67" text-anchor="end" fill="#586469" font-size="11">reader</text>
+  <line x1="78" y1="64" x2="218" y2="64" stroke="#d5cbb2" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="148" y="57" text-anchor="middle" fill="#8a9da2" font-size="10">suspended</text>
+  <line x1="218" y1="64" x2="306" y2="64" stroke="#3d9fa3" stroke-width="2"/>
+  <rect x="307" y="55" width="40" height="16" rx="2" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1"/>
+  <text x="327" y="66" text-anchor="middle" fill="#0a5558" font-size="10">check</text>
+  <line x1="347" y1="64" x2="425" y2="64" stroke="#d5cbb2" stroke-width="1.5" stroke-dasharray="3,3"/>
+  <!-- checker row -->
+  <text x="72" y="99" text-anchor="end" fill="#586469" font-size="11">checker</text>
+  <line x1="78" y1="96" x2="328" y2="96" stroke="#d5cbb2" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="203" y="89" text-anchor="middle" fill="#8a9da2" font-size="10">suspended</text>
+  <line x1="328" y1="96" x2="378" y2="96" stroke="#3d9fa3" stroke-width="2"/>
+  <rect x="379" y="87" width="42" height="16" rx="2" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1"/>
+  <text x="400" y="98" text-anchor="middle" fill="#0a5558" font-size="10">report</text>
+</svg>
+
+<p>Add the four TODO lines — one <code>-></code> and one <code>@</code> per handshake. Without them, the reader and checker start at t=0, read uninitialised <code>x</code> values, and <code>PASS</code> never prints.</p>
+
+<blockquote><p>If you add <code>@(write_done)</code> but forget <code>-> write_done</code>, the reader waits forever and the simulation never finishes. Each handshake requires both sides: a sender and at least one receiver.</p></blockquote>
+
+<h2>Built-in vs named events</h2>
+<p>You already used <code>@(posedge clk)</code> in the previous testbench. That is the same wait-for-event operator: <code>posedge clk</code> is a <em>built-in</em> event generated automatically whenever <code>clk</code> transitions 0→1. A named event is the same mechanism with a name you choose:</p>
+<pre>
+  @(posedge clk)   // built-in — posted by the simulator on each 0→1 transition
+  @(write_done)    // named    — posted by your code with ->
+</pre>
+<p>In the next lesson, <code>always_ff @(posedge clk)</code> uses exactly this: the block suspends at the rising-edge event and latches new values into the flip-flop array. Every register in our SRAM waits for that one recurring event.</p>

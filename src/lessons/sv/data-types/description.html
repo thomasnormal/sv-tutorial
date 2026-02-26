@@ -1,0 +1,53 @@
+<p>The SRAM you are building has two very different kinds of code: the <strong>RTL</strong> that will be synthesized into silicon, and the <strong>testbench</strong> that exercises it in simulation. SystemVerilog gives each a different family of types, and choosing the wrong one causes real bugs.</p>
+
+<h2>4-state vs 2-state</h2>
+<svg width="420" height="90" viewBox="0 0 420 90" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:8px auto">
+  <defs><marker id="dt-a" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#1e2a2c"/></marker></defs>
+  <rect x="10"  y="10" width="175" height="70" rx="6" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="97"  y="32" text-anchor="middle" font-weight="bold" fill="#0d6f72">RTL (synthesizable)</text>
+  <text x="97"  y="52" text-anchor="middle" fill="#1e2a2c" font-size="13">logic [7:0] data</text>
+  <text x="97"  y="70" text-anchor="middle" fill="#3d9fa3">4-state: 0  1  X  Z</text>
+  <rect x="235" y="10" width="175" height="70" rx="6" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+  <text x="322" y="32" text-anchor="middle" font-weight="bold" fill="#c17d2a">Testbench only</text>
+  <text x="322" y="52" text-anchor="middle" fill="#1e2a2c" font-size="13">int count</text>
+  <text x="322" y="70" text-anchor="middle" fill="#c17d2a">2-state: 0  1</text>
+</svg>
+
+<p>RTL signals use <code><dfn data-card="logic is SystemVerilog's universal 4-state RTL type, replacing Verilog's wire and reg. Its four states are: 0 (driven low), 1 (driven high), X (unknown — uninitialised or conflicting drivers), and Z (high-impedance — no driver). X propagates through combinational logic: if any input to a gate is X, the output is usually X too. This makes uninitialised signals visible in simulation rather than silently defaulting to 0.">logic</dfn></code> — a 4-state type whose four states mean:</p>
+<ul>
+  <li><code>0</code> — driven low</li>
+  <li><code>1</code> — driven high</li>
+  <li><code>X</code> — <strong>unknown</strong>: the signal is uninitialised, or two drivers are fighting over it. X propagates through logic gates, so one undriven input corrupts everything downstream — making the bug impossible to miss.</li>
+  <li><code>Z</code> — <strong><dfn data-card="High-impedance (Z) means the signal has no driver at all — it is electrically floating. On real silicon this occurs on tri-state buses, where only one device drives the wire at a time while others disconnect. In simulation, an undriven net defaults to Z. Most FPGA and ASIC synthesis tools do not support Z inside a module; it is mainly useful at top-level I/O pads and in testbenches that model off-chip buses.">high-impedance</dfn></strong>: no driver is connected. Common on tri-state buses and chip I/O pads; rarely used inside a synthesizable module.</li>
+</ul>
+<p>The <code>X</code> state is crucial for verification: if a signal is never driven, it stays <code>X</code> and propagates through your design, making the problem immediately visible in the waveform or log.</p>
+
+<p>Testbench code uses 2-state types — they only hold <code>0</code> and <code>1</code>, they initialize to <code>0</code> (not <code>X</code>), and they support signed arithmetic:</p>
+
+<table style="border-collapse:collapse;width:100%;font-size:0.9em;margin:0.5em 0">
+  <thead><tr style="background:var(--teal-50,#e6f5f5)">
+    <th style="padding:4px 8px;text-align:left;border:1px solid var(--border-color,#ccc)">Type</th>
+    <th style="padding:4px 8px;text-align:left;border:1px solid var(--border-color,#ccc)">Width</th>
+    <th style="padding:4px 8px;text-align:left;border:1px solid var(--border-color,#ccc)">Signed?</th>
+    <th style="padding:4px 8px;text-align:left;border:1px solid var(--border-color,#ccc)">Typical use</th>
+  </tr></thead>
+  <tbody>
+    <tr><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)"><code>bit</code></td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">1</td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">unsigned</td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">single-bit flags</td></tr>
+    <tr><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)"><code>int</code></td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">32</td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">signed</td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">loop counters, error counts</td></tr>
+    <tr><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)"><code>byte</code></td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">8</td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">signed</td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">small signed values</td></tr>
+    <tr><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)"><code>longint</code></td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">64</td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">signed</td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">timestamps, cycle counts</td></tr>
+  </tbody>
+</table>
+
+<blockquote><p>Using <code>bit [31:0]</code> instead of <code>int</code> for a testbench counter seems harmless — until you set it to <code>-1</code> and the comparison <code>count &lt; 0</code> silently returns false because <code>bit</code> is unsigned. Similarly, using <code>bit [7:0]</code> instead of <code>logic [7:0]</code> for an RTL port means <code>X</code> silently becomes <code>0</code>, hiding uninitialized-signal bugs.</p></blockquote>
+
+<h2>The <code>$isunknown()</code> system function</h2>
+<p><code>$isunknown(expr)</code> returns <code>1</code> if any bit of <code>expr</code> is <code>X</code> or <code>Z</code>. It lets a testbench explicitly check that a <code>logic</code> signal is carrying unknown — which is exactly what you want to verify after writing to a 4-state type.</p>
+
+<h2>Exercise</h2>
+<p>Open <code>data_types.sv</code>. The module has two wrong type declarations:</p>
+<ul>
+  <li><code>count</code> is declared as <code>bit [31:0]</code> — an unsigned 32-bit type that can't hold negative numbers. Change it to <code>int</code>.</li>
+  <li><code>data</code> is declared as <code>bit [7:0]</code> — a 2-state type that silently drops <code>X</code> to <code>0</code>. Change it to <code>logic [7:0]</code>.</li>
+</ul>
+<p>Run the simulation before and after — you should see two FAIL lines change to two OK lines and then <code>PASS</code>.</p>

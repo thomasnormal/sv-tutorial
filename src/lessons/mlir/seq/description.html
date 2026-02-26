@@ -1,0 +1,36 @@
+<p>The <dfn data-card="The seq dialect represents sequential (stateful) logic in CIRCT MLIR. Unlike comb, seq operations depend on time: a register remembers its value across clock cycles. seq is deliberately clock-agnostic — the same seq.compreg can describe a flip-flop in a 1 GHz or 10 MHz design. Clock domain crossing, reset insertion, and scan chains are handled as later transformation passes.">seq dialect</dfn> adds <strong>state</strong>. Where comb operations are timeless, seq operations have memory — they remember values across clock cycles.</p>
+
+<h2>seq.compreg — the D flip-flop</h2>
+<p>The core operation is <code>seq.compreg</code>:</p>
+<pre>%q = seq.compreg %d, %clk : i8</pre>
+<p>This is precisely equivalent to the <code>always_ff</code> you wrote in Part 1:</p>
+<pre>
+  MLIR                                SystemVerilog
+
+  %q = seq.compreg %d, %clk : i8  ≡  always_ff @(posedge clk)
+                                         q &lt;= d;
+</pre>
+<p>The difference is representation: in MLIR, the register is a <strong>dataflow edge</strong> — <code>%d</code> flows into <code>seq.compreg</code> and <code>%q</code> flows out. There are no procedural statements, no blocking vs non-blocking, no sensitivity list to write. The clock is just another operand.</p>
+
+<h2>Optional reset and clock-enable</h2>
+<pre>
+  seq.compreg %d, %clk reset %rst, %rstval : i8   — synchronous reset
+  seq.compreg.ce %d, %clk, %en : i8               — clock enable
+</pre>
+<p>These are explicit operands rather than implicit <code>if</code> branches. A lowering pass later converts them to the appropriate <code>always_ff</code> pattern for the target.</p>
+
+<h2>seq.hlmem — the memory array</h2>
+<p><code>seq.hlmem</code> is the high-level abstraction for the SRAM's 16 × 8 register array — the part that would take 16 explicit <code>seq.compreg</code> instances to model directly. It declares read and write ports and carries the dimensions as type parameters:</p>
+<pre>%mem = seq.hlmem @sram_core&lt;i8, 16&gt;[%clk]
+seq.write %mem[%addr], %wdata, %we : &lt;i8, 16&gt;
+%out  = seq.read  %mem[%addr], latency 0 : &lt;i8, 16&gt;</pre>
+<p>A later lowering pass expands this into a register array, a write-enable mux tree, and a read-address mux tree — the same logic a synthesis tool would infer from your <code>always_ff</code>.</p>
+
+<h2>hw + comb + seq together</h2>
+<p>The three dialects compose freely inside one <code>hw.module</code>:</p>
+<pre>
+  hw    — provides the module shell and output terminator
+  comb  — computes the next value to store  (e.g. addr decode, data path)
+  seq   — stores it across clock edges
+</pre>
+<p>Open <code>sram_core.mlir</code>. The <code>sram_core</code> module at the top uses all three. The <code>dff</code> module at the bottom is the simplest possible seq example — one register, three lines.</p>

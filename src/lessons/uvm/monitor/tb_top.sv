@@ -35,5 +35,7 @@ module tb_top;
   initial begin
     uvm_config_db #(virtual mem_if)::set(null, "uvm_test_top.*", "vif", mif);
     run_test("monitor_test");
+    if (uvm_report_server::get_server().get_severity_count(UVM_ERROR) == 0)
+      $display("PASS");
   end
 endmodule

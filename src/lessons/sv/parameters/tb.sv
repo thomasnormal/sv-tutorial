@@ -12,17 +12,22 @@ module tb;
   sram #(.DEPTH(256), .WIDTH(16)) u_large(
     .clk, .we(we16), .addr(addr16), .wdata(wdata16), .rdata(rdata16));
 
+  int fail = 0;
+
   initial begin
     // Write and read on the 8×4 instance
     we4=1; addr4=3'd5; wdata4=4'hA; @(posedge clk); #1;
     we4=0; addr4=3'd5; @(posedge clk); #1;
     $display("small[5] = %0h (expect a)", rdata4);
+    if (rdata4 !== 4'hA) fail++;
 
     // Write and read on the 256×16 instance
     we16=1; addr16=8'd200; wdata16=16'hBEEF; @(posedge clk); #1;
     we16=0; addr16=8'd200; @(posedge clk); #1;
     $display("large[200] = %0h (expect beef)", rdata16);
+    if (rdata16 !== 16'hBEEF) fail++;
 
+    if (fail == 0) $display("PASS");
     $finish;
   end
 endmodule

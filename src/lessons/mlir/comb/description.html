@@ -1,0 +1,23 @@
+<p>The <dfn data-card="The comb dialect represents purely combinational logic in CIRCT MLIR. Operations in comb are stateless: same inputs always produce the same outputs, and there is no clock. This makes them easy to analyse and optimise independently of sequential state. comb is deliberately not tied to any language — the same IR represents SystemVerilog assign, VHDL concurrent signal assignment, or Chisel combinational operators.">comb dialect</dfn> represents <strong>purely combinational logic</strong> — stateless operations where the same inputs always produce the same output. There is no clock and no side effects.</p>
+
+<h2>Key operations</h2>
+<pre>
+  comb.add  %a, %b         : iN   — addition (also variadic: a+b+c)
+  comb.and  %a, %b         : iN   — bitwise AND
+  comb.or   %a, %b, %c … : iN   — bitwise OR (any number of operands)
+  comb.xor  %a, %b         : iN   — bitwise XOR
+  comb.mux  %sel, %t, %f  : iN   — multiplexer (sel ? t : f)
+  comb.icmp eq, %a, %b    : i1   — equality / relational comparison
+  comb.extract %v from N  : (iW) -> iK   — bit slice [N+K-1 : N]
+  comb.concat %hi, %lo    : iH, iL       — concatenation {hi, lo}
+</pre>
+
+<h2>casez becomes comb.mux</h2>
+<p>The priority encoder from Part 1 used nested <code>casez</code> branches — each branch checked whether a higher-indexed bit was set. In comb IR, that same priority ordering is expressed as a <strong>chain of multiplexers</strong>: if <code>req[3]</code> is set, output 3; else if <code>req[2]</code>, output 2; and so on.</p>
+<p>Open <code>priority_enc.mlir</code> and trace the mux chain from <code>%g01</code> → <code>%g012</code> → <code>%grant</code>. Each step adds one priority level. The <code>comb.extract</code> operations slice individual bits out of the 4-bit <code>%req</code> vector — equivalent to <code>req[3]</code>, <code>req[2]</code> etc. in SystemVerilog.</p>
+
+<h2>No implicit conversions</h2>
+<p>Every operand and result has an explicit type and all operands must match. There are no implicit zero-extensions or sign-extensions. This strictness makes the IR unambiguous — a tool can rely on the types without guessing.</p>
+
+<h2>comb is language-neutral</h2>
+<p>The same <code>comb.mux</code> might originate from a SystemVerilog ternary <code>a ? b : c</code>, a Chisel <code>Mux()</code>, or an HLS tool. CIRCT analyses and optimises the <code>comb</code> IR before it knows — or cares — which language produced it.</p>

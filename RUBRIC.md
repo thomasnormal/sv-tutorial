@@ -68,6 +68,8 @@ Does running the code encode the concept in two ways — textual and visual — 
 - **2** — Testbench exists but is only visible after clicking "solve", or exists in starter but produces output that doesn't help verify correctness (no PASS/FAIL, no expected values shown)
 - **1** — No testbench, or testbench produces no meaningful output; student can't tell if their solution is correct without manual inspection
 
+**Requirement:** Every testbench (`tb.sv`, `tb_top.sv`, or equivalent top-level simulation file) **must** print `PASS` (via `$display("PASS")`) **if and only if** the implementation is correct. This single token is used to automatically detect lesson completion. For UVM lessons, use `uvm_report_server::get_server().get_severity_count(UVM_ERROR) == 0` as the correctness condition. For plain SV lessons, check the expected output values explicitly. For observational lessons (SVA assertions, functional coverage) where correctness is binary pass/fail of running the simulation, `$display("PASS")` may be unconditional.
+
 ---
 
 ### 6. Solution Idiom

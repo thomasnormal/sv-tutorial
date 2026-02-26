@@ -5,8 +5,10 @@ export default {
   // ── SystemVerilog Basics ───────────────────────────────────────────────────
   'sv/welcome':              { title: 'Welcome',                                      focus: '/src/top.sv' },
   'sv/modules-and-ports':    { title: 'Modules and Ports',                            focus: '/src/adder.sv' },
+  'sv/data-types':           { title: 'Data Types',                                   focus: '/src/data_types.sv' },
   'sv/always-comb':          { title: 'always_comb and case',                         focus: '/src/mux.sv' },
   'sv/priority-enc':         { title: 'Priority Encoder',                             focus: '/src/priority_enc.sv' },
+  'sv/events':               { title: 'Events',                                        focus: '/src/event_sync.sv' },
   'sv/always-ff':            { title: 'Flip-Flops with always_ff',                    focus: '/src/sram_core.sv' },
   'sv/counter':              { title: 'Up-Counter',                                   focus: '/src/counter.sv' },
   'sv/parameters':           { title: 'Parameters and localparam',                    focus: '/src/sram.sv' },
@@ -62,6 +64,12 @@ export default {
   'uvm/cross-coverage':      { title: 'Cross Coverage',                               focus: '/src/mem_coverage.sv' },
   'uvm/coverage-driven':     { title: 'Coverage-Driven Verification',                 focus: '/src/mem_test.sv' },
   'uvm/factory-override':    { title: 'Factory Overrides',                            focus: '/src/mem_test_corner.sv' },
+
+  // ── MLIR & CIRCT ──────────────────────────────────────────────────────────
+  'mlir/intro':    { title: 'What is MLIR?',                    focus: '/src/adder.mlir' },
+  'mlir/comb':     { title: 'The comb Dialect',                 focus: '/src/priority_enc.mlir' },
+  'mlir/seq':      { title: 'The seq Dialect: Registers',       focus: '/src/sram_core.mlir' },
+  'mlir/lowering': { title: 'The Lowering Pipeline',            focus: '/src/lowering.mlir' },
 
   // ── cocotb ────────────────────────────────────────────────────────────────
   'cocotb/first-test':           { title: 'Your First cocotb Test',    runner: 'cocotb', focus: '/src/adder.sv' },

@@ -48,6 +48,12 @@ function sourcePathsFromWorkspace(files) {
     .sort();
 }
 
+function mlirPathsFromWorkspace(files) {
+  return Object.keys(files)
+    .filter((path) => ext(path) === '.mlir')
+    .sort();
+}
+
 function compileRootSourcePaths(files) {
   const svPaths = sourcePathsFromWorkspace(files);
   const fileSet = new Set(Object.keys(files));
@@ -113,7 +119,40 @@ function moduleNamesFromWorkspace(files) {
       if (match[1]) names.add(match[1]);
     }
   }
+  for (const path of mlirPathsFromWorkspace(files)) {
+    const content = files[path];
+    if (typeof content !== 'string') continue;
+    const pattern = /^\s*hw\.module\s+@([A-Za-z_]\w*)\b/gm;
+    for (const match of content.matchAll(pattern)) {
+      if (match[1]) names.add(match[1]);
+    }
+  }
   return names;
+}
+
+function escapeRegExp(text) {
+  return String(text).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function pickMlirSourcePath(files, fallbackTop = '') {
+  const mlirPaths = mlirPathsFromWorkspace(files);
+  if (!mlirPaths.length) return null;
+
+  if (fallbackTop) {
+    const topPattern = new RegExp(`^\\s*hw\\.module\\s+@${escapeRegExp(fallbackTop)}\\b`, 'm');
+    const topMatchPath = mlirPaths.find((path) => {
+      const content = files[path];
+      return typeof content === 'string' && topPattern.test(content);
+    });
+    if (topMatchPath) return topMatchPath;
+
+    const basenameMatchPath = mlirPaths.find(
+      (path) => filename(path).replace(/\.[^.]+$/, '') === fallbackTop
+    );
+    if (basenameMatchPath) return basenameMatchPath;
+  }
+
+  return mlirPaths[0];
 }
 
 function needsUvmLibrary(files) {
@@ -151,6 +190,18 @@ function removeInlinedPortsFromVcd(vcd) {
     if (sm && skipIds.has(sm[1])) return false;
     return true;
   }).join('\n');
+}
+
+function addMissingLlhdSignalNames(mlirText) {
+  if (typeof mlirText !== 'string') return null;
+  // Add name attributes to llhd.sig ops that lack them so circt-sim's VCD
+  // writer can emit $var entries. circt-verilog only sets name on module
+  // port connections; testbench-level logic signals get no name attribute.
+  // We use the SSA result identifier (%clk -> name "clk") as the signal name.
+  return mlirText.replace(
+    /(%([a-zA-Z_]\w*)\s*=\s*llhd\.sig\s+)(?!name\s+")/g,
+    (_m, prefix, sigName) => `${prefix}name "${sigName}" `
+  );
 }
 
 function shellQuote(arg) {
@@ -253,7 +304,7 @@ function pickTopModules(files, fallbackTop) {
     return [Array.from(moduleNames).sort()[0]];
   }
 
-  const firstSource = sourcePathsFromWorkspace(files)[0] || 'top.sv';
+  const firstSource = sourcePathsFromWorkspace(files)[0] || mlirPathsFromWorkspace(files)[0] || 'top.sv';
   return [filename(firstSource).replace(/\.[^.]+$/, '') || 'top'];
 }
 
@@ -1291,11 +1342,12 @@ export class CirctWasmAdapter {
       await this.init();
 
       const svPaths = sourcePathsFromWorkspace(files);
-      if (!svPaths.length) {
+      const mlirPaths = mlirPathsFromWorkspace(files);
+      if (!svPaths.length && !mlirPaths.length) {
         if (typeof onStatus === 'function') onStatus('done');
         return {
           ok: false,
-          logs: ['# no SystemVerilog source files found in workspace'],
+          logs: ['# no SystemVerilog or MLIR source files found in workspace'],
           waveform: null
         };
       }
@@ -1303,51 +1355,8 @@ export class CirctWasmAdapter {
       const topModules = pickTopModules(files, top);
       const mlirPath = '/workspace/out/design.llhd.mlir';
       const wavePath = '/workspace/out/waves.vcd';
-      const useFullUvm = needsUvmLibrary(files);
+      const useFullUvm = svPaths.length > 0 && needsUvmLibrary(files);
       const uvmManifestUrl = useFullUvm ? getUvmManifestUrl() : null;
-
-      const compileRootPaths = compileRootSourcePaths(files);
-      const buildCompilePlan = ({ forceBundle, singleUnit, label }) => {
-        const bundledCompile = bundleCompileRoots(files, compileRootPaths, {
-          enabled: useFullUvm,
-          force: useFullUvm ? forceBundle : false
-        });
-        const compileRoots = (bundledCompile.roots || []).map((path) => normalizePath(path));
-        let compileArgs = [...this.config.verilogArgs];
-        compileArgs = singleUnit
-          ? (compileArgs.includes('--single-unit') ? compileArgs : [...compileArgs, '--single-unit'])
-          : removeFlag(compileArgs, '--single-unit');
-        if (useFullUvm) {
-          compileArgs.push('--uvm-path', UVM_FS_ROOT, '-I', UVM_INCLUDE_ROOT);
-        }
-        for (const topName of topModules) {
-          compileArgs.push('--top', topName);
-        }
-        compileArgs.push('-o', mlirPath, ...compileRoots);
-        return {
-          label,
-          bundledCompile,
-          compileArgs,
-          workspaceFiles: Object.fromEntries(
-            Object.entries(bundledCompile.files).map(([path, content]) => [normalizePath(path), content])
-          )
-        };
-      };
-
-      const compilePlans = useFullUvm
-        ? [
-            buildCompilePlan({ forceBundle: true, singleUnit: true, label: 'bundled single-unit mode' }),
-            buildCompilePlan({ forceBundle: false, singleUnit: false, label: 'native root mode' }),
-            buildCompilePlan({ forceBundle: true, singleUnit: false, label: 'bundled non-single-unit mode' }),
-            buildCompilePlan({ forceBundle: false, singleUnit: true, label: 'single-unit mode' }),
-          ]
-        : [
-            buildCompilePlan({
-              forceBundle: false,
-              singleUnit: this.config.verilogArgs.includes('--single-unit'),
-              label: 'default mode'
-            })
-          ];
 
       const logs = [];
       const emitLog = (entry) => {
@@ -1366,76 +1375,126 @@ export class CirctWasmAdapter {
       };
 
       if (typeof onStatus === 'function') onStatus('compiling');
-      let compile = null;
+      let compileExitCode = 0;
       let loweredMlir = null;
-      for (let attempt = 0; attempt < compilePlans.length; attempt += 1) {
-        const plan = compilePlans[attempt];
-        if (attempt > 0) {
-          emitLog(`# circt-verilog: retrying in ${plan.label}`);
-        }
-        if (plan.bundledCompile.bundled) {
-          emitLog(
-            `# bundled ${plan.bundledCompile.rootCount} roots into ${plan.bundledCompile.bundlePath} ` +
-            'for stable UVM compilation'
-          );
-        }
-        emitLog(formatCommand('circt-verilog', plan.compileArgs));
-
-        const compileStream = makeToolOutputHandler();
-        let attemptCompile;
-        try {
-          attemptCompile = await this._invokeTool('verilog', {
-            args: plan.compileArgs,
-            files: plan.workspaceFiles,
-            readFiles: [mlirPath],
-            createDirs: ['/workspace/out'],
-            uvmManifestUrl,
-            onOutput: compileStream.onOutput
+      if (svPaths.length > 0) {
+        const compileRootPaths = compileRootSourcePaths(files);
+        const buildCompilePlan = ({ forceBundle, singleUnit, label }) => {
+          const bundledCompile = bundleCompileRoots(files, compileRootPaths, {
+            enabled: useFullUvm,
+            force: useFullUvm ? forceBundle : false
           });
-        } catch (error) {
-          const text = String(error?.message || error || '');
-          if (useFullUvm && text.includes('Aborted(OOM)')) {
-            emitLog('# circt-verilog: out of memory compiling UVM — rebuild wasm with larger heap');
-            if (typeof onStatus === 'function') onStatus('done');
-            return { ok: false, logs, waveform: null };
+          const compileRoots = (bundledCompile.roots || []).map((path) => normalizePath(path));
+          let compileArgs = [...this.config.verilogArgs];
+          compileArgs = singleUnit
+            ? (compileArgs.includes('--single-unit') ? compileArgs : [...compileArgs, '--single-unit'])
+            : removeFlag(compileArgs, '--single-unit');
+          if (useFullUvm) {
+            compileArgs.push('--uvm-path', UVM_FS_ROOT, '-I', UVM_INCLUDE_ROOT);
           }
-          const canRetry = useFullUvm && attempt + 1 < compilePlans.length && isRetryableVerilogCrashText(text);
-          if (canRetry) continue;
-          throw error;
-        }
-        if (!compileStream.sawStream()) {
-          if (attemptCompile.stdout) emitLog(`[stdout] ${attemptCompile.stdout}`);
-          if (attemptCompile.stderr) emitLog(`[stderr] ${attemptCompile.stderr}`);
-        }
-        appendNonZeroExit(logs, 'circt-verilog', attemptCompile.exitCode, emitLog);
-
-        const rawMlir = attemptCompile.files?.[mlirPath] || null;
-        // Add name attributes to llhd.sig ops that lack them so circt-sim's VCD
-        // writer can emit $var entries. circt-verilog only sets name on module
-        // port connections; testbench-level logic signals get no name attribute.
-        // We use the SSA result identifier (%clk → name "clk") as the signal name.
-        const attemptLoweredMlir = rawMlir
-          ? rawMlir.replace(
-              /(%([a-zA-Z_]\w*)\s*=\s*llhd\.sig\s+)(?!name\s+")/g,
-              (_m, prefix, sigName) => `${prefix}name "${sigName}" `
+          for (const topName of topModules) {
+            compileArgs.push('--top', topName);
+          }
+          compileArgs.push('-o', mlirPath, ...compileRoots);
+          return {
+            label,
+            bundledCompile,
+            compileArgs,
+            workspaceFiles: Object.fromEntries(
+              Object.entries(bundledCompile.files).map(([path, content]) => [normalizePath(path), content])
             )
-          : null;
-        if (attemptCompile.exitCode === 0 && attemptLoweredMlir) {
-          compile = attemptCompile;
-          loweredMlir = attemptLoweredMlir;
-          break;
+          };
+        };
+
+        const compilePlans = useFullUvm
+          ? [
+              buildCompilePlan({ forceBundle: true, singleUnit: true, label: 'bundled single-unit mode' }),
+              buildCompilePlan({ forceBundle: false, singleUnit: false, label: 'native root mode' }),
+              buildCompilePlan({ forceBundle: true, singleUnit: false, label: 'bundled non-single-unit mode' }),
+              buildCompilePlan({ forceBundle: false, singleUnit: true, label: 'single-unit mode' }),
+            ]
+          : [
+              buildCompilePlan({
+                forceBundle: false,
+                singleUnit: this.config.verilogArgs.includes('--single-unit'),
+                label: 'default mode'
+              })
+            ];
+
+        for (let attempt = 0; attempt < compilePlans.length; attempt += 1) {
+          const plan = compilePlans[attempt];
+          if (attempt > 0) {
+            emitLog(`# circt-verilog: retrying in ${plan.label}`);
+          }
+          if (plan.bundledCompile.bundled) {
+            emitLog(
+              `# bundled ${plan.bundledCompile.rootCount} roots into ${plan.bundledCompile.bundlePath} ` +
+              'for stable UVM compilation'
+            );
+          }
+          emitLog(formatCommand('circt-verilog', plan.compileArgs));
+
+          const compileStream = makeToolOutputHandler();
+          let attemptCompile;
+          try {
+            attemptCompile = await this._invokeTool('verilog', {
+              args: plan.compileArgs,
+              files: plan.workspaceFiles,
+              readFiles: [mlirPath],
+              createDirs: ['/workspace/out'],
+              uvmManifestUrl,
+              onOutput: compileStream.onOutput
+            });
+          } catch (error) {
+            const text = String(error?.message || error || '');
+            if (useFullUvm && text.includes('Aborted(OOM)')) {
+              emitLog('# circt-verilog: out of memory compiling UVM — rebuild wasm with larger heap');
+              if (typeof onStatus === 'function') onStatus('done');
+              return { ok: false, logs, waveform: null };
+            }
+            const canRetry = useFullUvm && attempt + 1 < compilePlans.length && isRetryableVerilogCrashText(text);
+            if (canRetry) continue;
+            throw error;
+          }
+          if (!compileStream.sawStream()) {
+            if (attemptCompile.stdout) emitLog(`[stdout] ${attemptCompile.stdout}`);
+            if (attemptCompile.stderr) emitLog(`[stderr] ${attemptCompile.stderr}`);
+          }
+          appendNonZeroExit(logs, 'circt-verilog', attemptCompile.exitCode, emitLog);
+
+          const rawMlir = attemptCompile.files?.[mlirPath] || null;
+          const attemptLoweredMlir = addMissingLlhdSignalNames(rawMlir);
+          if (attemptCompile.exitCode === 0 && attemptLoweredMlir) {
+            compileExitCode = attemptCompile.exitCode;
+            loweredMlir = attemptLoweredMlir;
+            break;
+          }
+
+          const canRetry = useFullUvm && attempt + 1 < compilePlans.length &&
+            isRetryableVerilogCrashText(attemptCompile.stderr || '');
+          if (canRetry) continue;
+          if (!attemptLoweredMlir) emitLog('# lowered MLIR output was not produced');
+          if (typeof onStatus === 'function') onStatus('done');
+          return { ok: false, logs, waveform: null };
         }
 
-        const canRetry = useFullUvm && attempt + 1 < compilePlans.length &&
-          isRetryableVerilogCrashText(attemptCompile.stderr || '');
-        if (canRetry) continue;
-        if (!attemptLoweredMlir) emitLog('# lowered MLIR output was not produced');
-        if (typeof onStatus === 'function') onStatus('done');
-        return { ok: false, logs, waveform: null };
-      }
-      if (!compile || !loweredMlir) {
-        if (typeof onStatus === 'function') onStatus('done');
-        return { ok: false, logs, waveform: null };
+        if (!loweredMlir) {
+          if (typeof onStatus === 'function') onStatus('done');
+          return { ok: false, logs, waveform: null };
+        }
+      } else {
+        const mlirSourcePath = pickMlirSourcePath(files, top);
+        const rawMlir = mlirSourcePath ? files[mlirSourcePath] : null;
+        if (typeof rawMlir !== 'string' || !rawMlir.trim()) {
+          if (typeof onStatus === 'function') onStatus('done');
+          return {
+            ok: false,
+            logs: ['# no MLIR source files found in workspace'],
+            waveform: null
+          };
+        }
+        emitLog(`# using MLIR source: ${mlirSourcePath}`);
+        loweredMlir = addMissingLlhdSignalNames(rawMlir);
       }
 
       // Run simulation by default so lessons without waveform support still
@@ -1511,7 +1570,7 @@ export class CirctWasmAdapter {
 
       if (typeof onStatus === 'function') onStatus('done');
       return {
-        ok: compile.exitCode === 0 && sim.exitCode === 0,
+        ok: compileExitCode === 0 && sim.exitCode === 0,
         logs,
         waveform: vcdText
           ? {

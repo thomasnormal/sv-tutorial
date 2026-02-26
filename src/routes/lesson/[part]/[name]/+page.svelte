@@ -71,7 +71,8 @@
     const margin = 16;
     const left = Math.max(margin, Math.min(rect.left, window.innerWidth - cardWidth - margin));
     const top = rect.bottom + 8;
-    glossaryCard = { body, top, left };
+    const maxHeight = window.innerHeight - top - margin;
+    glossaryCard = { body, top, left, maxHeight };
   }
 
   function hideCard() { glossaryCard = null; }
@@ -708,40 +709,46 @@
         <!-- File tree + editor view -->
         <div class="flex-1 min-h-0 min-w-0 flex flex-row">
 
-          <!-- File tree sidebar -->
-          <div class="flex-none w-[140px] border-r border-border overflow-y-auto flex flex-col select-none py-1" role="tablist" aria-label="Files"
-               style="background-color: {$darkMode ? '#1e2422' : '#faf7ef'}">
-            <!-- /src directory header -->
-            <div class="flex items-center gap-1.5 px-3 py-[0.3rem] text-[0.7rem] text-muted-foreground font-mono">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
-              </svg>
-              src
-            </div>
-            <!-- File list -->
-            {#each Object.keys(workspace) as filename}
-              {@const basename = filename.replace(/^\/src\//, '')}
-              <button
-                role="tab"
-                aria-selected={selectedFile === filename}
-                onclick={() => (selectedFile = filename)}
-                title={basename}
-                class="flex items-center gap-1.5 pl-[1.25rem] pr-2 py-[0.3rem] text-[0.78rem] font-mono text-left w-full transition-colors {selectedFile === filename ? 'bg-tab-selected-bg text-teal' : 'text-foreground hover:bg-surface-2'}"
-              >
-                <svg class="flex-shrink-0 opacity-40" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
+          <!-- File tree sidebar — hidden when there is only one file -->
+          {#if Object.keys(workspace).length > 1}
+            <div class="flex-none w-[140px] border-r border-border overflow-y-auto flex flex-col select-none py-1" role="tablist" aria-label="Files"
+                 style="background-color: {$darkMode ? '#1e2422' : '#faf7ef'}">
+              <!-- /src directory header -->
+              <div class="flex items-center gap-1.5 px-3 py-[0.3rem] text-[0.7rem] text-muted-foreground font-mono">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
                 </svg>
-                <span class="truncate">{basename}</span>
-              </button>
-            {/each}
-          </div>
+                src
+              </div>
+              <!-- File list -->
+              {#each Object.keys(workspace) as filename}
+                {@const basename = filename.replace(/^\/src\//, '')}
+                <button
+                  role="tab"
+                  aria-selected={selectedFile === filename}
+                  onclick={() => (selectedFile = filename)}
+                  title={basename}
+                  class="flex items-center gap-1.5 pl-[1.25rem] pr-2 py-[0.3rem] text-[0.78rem] font-mono text-left w-full transition-colors {selectedFile === filename ? 'bg-tab-selected-bg text-teal' : 'text-foreground hover:bg-surface-2'}"
+                >
+                  <svg class="flex-shrink-0 opacity-40" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                  <span class="truncate">{basename}</span>
+                </button>
+              {/each}
+            </div>
+          {/if}
 
           <!-- Editor area -->
           <div class="flex-1 min-w-0 flex flex-col min-h-0">
-            <!-- Thin top strip for buttons -->
-            <div data-testid="file-tree-toolbar" class="flex-none flex items-center justify-end px-[0.5rem] h-10 border-b border-border"
+            <!-- Header: filename pill (single file) or split button (multi-file) + options -->
+            <div data-testid="file-tree-toolbar" class="flex-none flex items-center px-[0.5rem] h-10 border-b border-border"
                  style="background-color: {$darkMode ? '#1e2422' : '#faf7ef'}">
+              {#if Object.keys(workspace).length === 1}
+                <span class="font-mono text-[0.8rem] rounded-[10px] border border-teal text-teal bg-tab-selected-bg px-[0.55rem] py-[0.25rem] whitespace-nowrap">{selectedFile}</span>
+              {/if}
+              <div class="flex-1"></div>
               {#if canSplit}
                 <button
                   onclick={() => (splitView = true)}
@@ -856,8 +863,8 @@
 
 {#if glossaryCard}
   <div
-    class="fixed z-50 w-[340px] bg-surface border border-border rounded-[14px] shadow-app p-4 text-[0.84rem] leading-relaxed text-foreground pointer-events-none"
-    style="top: {glossaryCard.top}px; left: {glossaryCard.left}px"
+    class="fixed z-50 w-[340px] bg-surface border border-border rounded-[14px] shadow-app p-4 text-[0.84rem] leading-relaxed text-foreground pointer-events-none overflow-y-auto"
+    style="top: {glossaryCard.top}px; left: {glossaryCard.left}px; max-height: {glossaryCard.maxHeight}px"
   >
     {glossaryCard.body}
   </div>

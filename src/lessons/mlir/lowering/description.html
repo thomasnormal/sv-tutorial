@@ -1,0 +1,32 @@
+<p>CIRCT does not convert SystemVerilog to its output in one step. It runs a <strong>pipeline of lowering passes</strong>, each transforming the IR one level closer to the target. Open <code>lowering.mlir</code> — it shows the same D flip-flop at each stage.</p>
+
+<h2>The two output paths</h2>
+<pre>
+  SystemVerilog source
+        ↓  ImportVerilog / parse
+  hw + comb + seq  (dialect IR)
+        ↓                          ↓
+  LowerSeqToSV             LowerHWtoBMC
+  ExportVerilog            LowerBMCToSMT
+        ↓                          ↓
+  .sv file              SMTLIB → Z3 solver
+  (synthesis / sim)     (formal verification)
+</pre>
+<p>The left branch is used when you click <strong>Run</strong>. The right branch is used when you click <strong>Verify</strong>. Both start from the same hw/comb/seq IR.</p>
+
+<h2>The sv dialect: one step from text</h2>
+<p>The <dfn data-card="The sv dialect in CIRCT is an AST-level representation of SystemVerilog. Its operations map one-to-one onto SV constructs: sv.reg → reg declaration, sv.always → always block, sv.passign → non-blocking assignment, sv.assign → continuous assign. Because it mirrors the SV grammar directly, the ExportVerilog pass can print it to text with almost no logic.">sv dialect</dfn> is an AST-level mirror of SystemVerilog. Each operation maps directly onto a SV construct:</p>
+<pre>
+  sv.reg     name "q" : !hw.inout&lt;i8&gt;   →  reg [7:0] q;
+  sv.always  posedge %clk { … }          →  always @(posedge clk) begin … end
+  sv.passign %reg, %d : i8               →  q &lt;= d;
+  sv.assign  %wire, %val : i8            →  assign wire = val;
+</pre>
+<p>The <code>LowerSeqToSV</code> pass converts every <code>seq.compreg</code> into an <code>sv.reg</code> plus an <code>sv.always</code> block. After that, <code>ExportVerilog</code> is essentially a pretty-printer.</p>
+
+<h2>The formal path: SMTLIB and Z3</h2>
+<p>For bounded model checking, CIRCT takes a different route. The <code>LowerHWtoBMC</code> pass unrolls the design for N clock cycles and encodes it as a <dfn data-card="SMT (Satisfiability Modulo Theories) is a generalisation of SAT solving. Where SAT works with boolean variables, SMT adds theories for integers, bit-vectors, arrays, and more. An SMT solver like Z3 takes a formula and either finds an assignment that satisfies it (SAT — a counterexample) or proves no such assignment exists (UNSAT — the property holds for all inputs).">SAT/SMT</dfn> formula. If any input sequence in those N cycles can violate a <code>verif.assert</code>, Z3 finds it and returns a counterexample. If Z3 proves no such sequence exists, the assertion is proved for that bound.</p>
+<p>This is why formal verification is stronger than simulation: instead of checking the testbench inputs you wrote, it checks <em>every possible input sequence</em> up to the bound.</p>
+
+<h2>Passes are composable</h2>
+<p>A CIRCT pipeline is just a list of pass names. You can run only some passes, inspect the IR in between, or insert your own custom passes. This is MLIR's core promise: the framework handles the plumbing so tool builders can focus on the transformations.</p>

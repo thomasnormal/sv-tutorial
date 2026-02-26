@@ -20,6 +20,8 @@ module cov_intro;
       addr <= $random;
       wdata <= $random;
     end
-    #1 $finish;
+    #1;
+    $display("PASS");
+    $finish;
   end
 endmodule

@@ -1,0 +1,33 @@
+<p>Every time you clicked <strong>Run</strong> or <strong>Verify</strong> in this tutorial, your SystemVerilog was parsed by <dfn data-card="CIRCT (Circuit IR Compilers and Tools) is an open-source LLVM/MLIR project that applies compiler infrastructure to hardware design and verification. It ingests SystemVerilog, Chisel output (FIRRTL), or hand-written MLIR, and can lower it to optimised SystemVerilog, run bounded model checking, or export netlists.">CIRCT</dfn> and converted into <dfn data-card="MLIR (Multi-Level Intermediate Representation) is a compiler infrastructure developed inside LLVM. Unlike traditional compilers that have a single fixed IR, MLIR allows many IRs — called dialects — to coexist and interoperate. Hardware design needs this because the same circuit exists at many levels: behavioural, RTL, gate-level, netlist.">MLIR</dfn> before anything else happened. This part lifts the lid on that representation.</p>
+
+<h2>What is an IR?</h2>
+<p>An <strong>Intermediate Representation</strong> is the compiler's internal language — somewhere between your source code and the final output. You never write it by hand in normal use, but reading it is a superpower for understanding what tools actually do with your design.</p>
+<pre>
+  SystemVerilog source
+        ↓  parse
+  MLIR (hw + comb + seq dialects)   ← you are here
+        ↓  lower
+  MLIR (sv dialect)
+        ↓  export
+  SystemVerilog output  /  SMT for formal verification
+</pre>
+
+<h2>Operations, values, and types</h2>
+<p>MLIR has three fundamental concepts:</p>
+<ul>
+  <li><strong>Operation</strong> — a named computation: <code>dialect.opname operands : type</code></li>
+  <li><strong>Value</strong> — the result of an operation, written <code>%name</code>. Each value is produced exactly once (<dfn data-card="SSA (Static Single Assignment) form means every value is defined exactly once. If you need to update a variable you create a new value. This property makes data-flow analysis trivial: follow the use-def chain upward to find where any value comes from, without worrying about aliasing or mutation.">SSA form</dfn>) but can be used as many times as needed.</li>
+  <li><strong>Type</strong> — attached to every value. CIRCT uses <code>i1</code>, <code>i8</code>, <code>i32</code> etc. for signless integers of N bits.</li>
+</ul>
+<p>Open <code>adder.mlir</code> — it is the 8-bit adder from Part 1 written in CIRCT's textual format. Every line is annotated. The entire module is one <code>hw.module</code> operation containing two inner operations: <code>comb.add</code> and <code>hw.output</code>.</p>
+
+<h2>Dialects</h2>
+<p>The prefix before the dot — <code>hw</code>, <code>comb</code>, <code>seq</code> — is the <dfn data-card="A dialect is a namespace for a coherent set of operations, types, and attributes in MLIR. Each dialect targets one abstraction level or domain. Dialects can be mixed freely in the same file: a hw.module can contain comb.add and seq.compreg side by side. This composability is MLIR's key advantage over single-level IRs.">dialect</dfn>. Think of it as a namespace for a coherent set of operations at one abstraction level:</p>
+<pre>
+  hw    — structural hardware (modules, instances, constants)
+  comb  — combinational logic  (add, mux, and, or, extract …)
+  seq   — sequential logic     (registers, memories)
+  sv    — SystemVerilog output (always blocks, wire, assign …)
+  verif — verification         (assert, assume)
+</pre>
+<p>The next three lessons walk through each of the hardware dialects in turn, using the SRAM you built in Part 1 as the running example.</p>

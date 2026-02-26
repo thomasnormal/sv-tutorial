@@ -220,8 +220,8 @@ replaceExact(
 // VPIRuntime::registerCb requires non-null cb_rtn; we pass a placeholder (1).
 // The JS yield hook handles all dispatch; the table call is a formality.
 replaceExact(
-  /if\(cbFuncPtr\)return await wasmTable\.get\(cbFuncPtr\)\(cbDataPtr\);return 0/,
-  'if(cbFuncPtr){try{return await wasmTable.get(cbFuncPtr)(cbDataPtr);}catch(e){}}return 0',
+  /if\(cbFuncPtr\)return (?:await )?wasmTable\.get\(cbFuncPtr\)\(cbDataPtr\);return 0/,
+  'if(cbFuncPtr){try{return wasmTable.get(cbFuncPtr)(cbDataPtr);}catch(e){}}return 0',
   'vpi yield try-catch'
 );
 

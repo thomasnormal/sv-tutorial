@@ -1,9 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SRC_DIR="${1:-vendor/circt/build-wasm/bin}"
-DST_DIR="${2:-static/circt}"
-UVM_SRC_DIR="${3:-vendor/circt/lib/Runtime/uvm-core/src}"
+PUBLISH=0
+POSITIONAL=()
+for arg in "$@"; do
+  case "$arg" in
+    --publish) PUBLISH=1 ;;
+    *) POSITIONAL+=("$arg") ;;
+  esac
+done
+
+SRC_DIR="${POSITIONAL[0]:-vendor/circt/build-wasm/bin}"
+DST_DIR="${POSITIONAL[1]:-static/circt}"
+UVM_SRC_DIR="${POSITIONAL[2]:-vendor/circt/lib/Runtime/uvm-core/src}"
 UVM_DST_DIR="$DST_DIR/uvm-core/src"
 UVM_MANIFEST_PATH="$DST_DIR/uvm-core/uvm-manifest.json"
 
@@ -64,15 +73,23 @@ for tool in "${TOOLS[@]}"; do
   patch_callmain_export "$DST_DIR/$tool.js"
 done
 
-# Sync VPI-capable sim if present (built with -DCIRCT_SIM_WASM_VPI=ON).
+# Sync VPI-capable sim. circt-sim already includes Asyncify + VPI exports
+# unconditionally in Emscripten builds, so use it as the VPI binary when a
+# separately-named circt-sim-vpi build is not present in the source dir.
 if [ -f "$SRC_DIR/$VPI_TOOL.js" ] && [ -f "$SRC_DIR/$VPI_TOOL.wasm" ]; then
   cp -f "$SRC_DIR/$VPI_TOOL.js" "$DST_DIR/$VPI_TOOL.js"
   cp -f "$SRC_DIR/$VPI_TOOL.wasm" "$DST_DIR/$VPI_TOOL.wasm"
+elif [ -f "$SRC_DIR/circt-sim.js" ] && [ -f "$SRC_DIR/circt-sim.wasm" ]; then
+  echo "Note: $VPI_TOOL not in $SRC_DIR — using circt-sim as VPI-capable fallback" >&2
+  cp -f "$SRC_DIR/circt-sim.js" "$DST_DIR/$VPI_TOOL.js"
+  cp -f "$SRC_DIR/circt-sim.wasm" "$DST_DIR/$VPI_TOOL.wasm"
+else
+  echo "Note: $VPI_TOOL not found and no circt-sim fallback — skipping (cocotb lessons will be unavailable)" >&2
+  HAVE_VPI=0
+fi
+if [ "${HAVE_VPI:-}" != "0" ]; then
   patch_callmain_export "$DST_DIR/$VPI_TOOL.js"
   HAVE_VPI=1
-else
-  echo "Note: $VPI_TOOL not found in $SRC_DIR — skipping (cocotb lessons will be unavailable)" >&2
-  HAVE_VPI=0
 fi
 
 if [ ! -d "$UVM_SRC_DIR" ]; then
@@ -257,3 +274,43 @@ fi
 echo "Synced full UVM source files:"
 echo "  source dir: $UVM_DST_DIR"
 echo "  manifest: $UVM_MANIFEST_PATH"
+
+# --publish: upload artifacts to the circt-wasm GitHub release and update the
+# toolchain lock so CI rebuilds from the same commit.
+if [ "$PUBLISH" -eq 1 ]; then
+  ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+  source "$ROOT_DIR/scripts/toolchain.lock.sh"
+
+  CIRCT_COMMIT="$(git -C "${CIRCT_DIR:-vendor/circt}" rev-parse HEAD 2>/dev/null || true)"
+  if [ -z "$CIRCT_COMMIT" ]; then
+    echo "--publish: could not determine CIRCT commit from ${CIRCT_DIR:-vendor/circt}" >&2
+    exit 1
+  fi
+
+  # Bundle UVM sources for the release asset.
+  UVM_BUNDLE="$(mktemp /tmp/uvm-core.XXXXXX.tar.gz)"
+  tar -czf "$UVM_BUNDLE" -C "$DST_DIR" uvm-core
+  echo "Created UVM bundle: $UVM_BUNDLE"
+
+  # Upload all artifacts, replacing existing assets on the release.
+  RELEASE_ASSETS=(
+    "$DST_DIR/circt-bmc.js"   "$DST_DIR/circt-bmc.wasm"
+    "$DST_DIR/circt-sim.js"   "$DST_DIR/circt-sim.wasm"
+    "$DST_DIR/circt-verilog.js" "$DST_DIR/circt-verilog.wasm"
+    "$UVM_BUNDLE"
+  )
+  if [ "$HAVE_VPI" -eq 1 ]; then
+    RELEASE_ASSETS+=("$DST_DIR/$VPI_TOOL.js" "$DST_DIR/$VPI_TOOL.wasm")
+  fi
+
+  echo "Uploading to GitHub release 'circt-wasm'..."
+  gh release upload circt-wasm "${RELEASE_ASSETS[@]}" --clobber
+  rm -f "$UVM_BUNDLE"
+  echo "GitHub release updated."
+
+  # Update toolchain lock to the current CIRCT commit.
+  LOCK_FILE="$ROOT_DIR/scripts/toolchain.lock.sh"
+  sed -i.bak "s|^readonly CIRCT_REF_LOCKED=.*|readonly CIRCT_REF_LOCKED=\"$CIRCT_COMMIT\"|" "$LOCK_FILE"
+  rm -f "$LOCK_FILE.bak"
+  echo "Updated CIRCT_REF_LOCKED to $CIRCT_COMMIT in $LOCK_FILE"
+fi

@@ -316,16 +316,18 @@
       // Fire after the last load retry + parse time (VCDs are tiny, <20ms to parse).
       }, cmdDelay);
       _retryTimers.push(t);
-      // Auto-focus the first signal that has actual transitions so that
-      // transition_next/prev work without requiring the user to click a row.
+      // Auto-select the first signal that has actual transitions so the toolbar
+      // transition buttons work without requiring the user to click a row first.
       //
-      // Surfer's transition_next/prev navigate on the KEYBOARD-FOCUSED signal,
-      // set via FocusItem(VisibleItemIndex).  The visual index equals the value
-      // returned by id_of_name() (DisplayedItemRef) because Surfer assigns IDs
-      // sequentially in display order (scope header = 0, then signals in alpha order).
-      // We also call SetItemSelected so the user can see which signal is active.
+      // FocusItem(VisibleItemIndex) sets Surfer's keyboard-navigation focus so
+      // that Surfer's own keyboard shortcuts (← →) work on the right signal.
+      // SetItemSelected gives the visual blue highlight.
       //
-      // id_of_name() requires the full dot-separated scope path (e.g. "tb.req")
+      // Toolbar transition buttons use MoveCursorToTransition with an explicit
+      // variable index (_focusedVisibleIdx), which is kept in sync with the user's
+      // current selection by the integration.js shim polling get_state().
+      //
+      // index_of_name() requires the full dot-separated scope path (e.g. "tb.req")
       // and returns undefined if the signal isn't in the display yet (scope_add_recursive
       // may still be processing), so we poll with retries.
       const firstVar = firstTransitioningVar(text);
@@ -345,18 +347,17 @@
           const cw2 = el?.contentWindow;
           if (!cw2) return;
           try {
-            // Use index_of_name for FocusItem (VisibleItemIndex).
-            // Fall back to id_of_name if index_of_name is unavailable (older Surfer builds
-            // where DisplayedItemRef happened to equal VisibleItemIndex for flat scopes).
+            // index_of_name → VisibleItemIndex (0-based position in display list).
+            // Fall back to id_of_name if index_of_name is unavailable (older builds).
             const visibleIdx = hasIndexFn
               ? await cw2.index_of_name(firstVar.fullPath)
               : await cw2.id_of_name(firstVar.fullPath);
             if (visibleIdx === undefined) continue;
-            // FocusItem sets keyboard focus — required for transition_next/prev.
+            // FocusItem sets keyboard-nav focus for Surfer's own ← → shortcuts.
             surferMsg(cw2, { FocusItem: visibleIdx });
             _focusedVisibleIdx = visibleIdx;
             // SetItemSelected gives the visual blue highlight.
-            // Prefer id_of_name (DisplayedItemRef) for SetItemSelected when available.
+            // Uses DisplayedItemRef (id_of_name) rather than VisibleItemIndex.
             const itemRef = hasIdFn
               ? (await cw2.id_of_name(firstVar.fullPath) ?? visibleIdx)
               : visibleIdx;

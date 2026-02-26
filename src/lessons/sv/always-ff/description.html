@@ -1,94 +1,79 @@
-              <p><code><dfn data-card="always_ff is the SystemVerilog construct for describing edge-triggered sequential logic (flip-flops and registers). The simulator enforces that you only use non-blocking assignments (<=) inside it, and synthesis tools know to infer flip-flops from it. The sensitivity list is always an edge — typically posedge clk.">always_ff</dfn></code> models edge-triggered sequential logic. The <dfn data-card="A flip-flop is a 1-bit memory element that captures its input (D) at a clock edge and holds it until the next edge. An 8-bit register is 8 flip-flops in parallel. Flip-flops are the fundamental storage primitive in synchronous digital design — they consume power, add latency, and define the timing boundaries between logic stages.">flip-flop</dfn> array inside an SRAM <em>is</em> the memory — every bit stored in the chip lives in a flip-flop that updates on each rising clock edge.</p>
-              <p>You already used <code>@(posedge clk)</code> in the previous testbench to wait for a rising edge. Here the same operator appears as the <dfn data-card="clk is a signal (it has a value: 0 or 1). posedge clk is an event — a moment in time when clk transitions 0→1. Events have no value; they just happen. @ is the &quot;wait for event&quot; operator: @(posedge clk) suspends the block until that event fires. The parens hold a list because you can name several events: @(posedge clk or negedge rst_n) wakes up on either. The block is said to be sensitive to whatever is in that list — hence &quot;sensitivity list&quot;.">sensitivity list</dfn> of <code>always_ff</code> — the block re-evaluates <em>only</em> on the rising clock edge. Between edges, every register holds its value unchanged:</p>
-              <svg width="300" height="68" viewBox="0 0 300 68" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:13px;margin:10px auto">
-                <rect width="300" height="68" rx="4" fill="#fffdf7"/>
-                <line x1="32" y1="0" x2="32" y2="60" stroke="#d5cbb2" stroke-width="1"/>
-                <text x="26" y="36" text-anchor="end" fill="#586469">clk</text>
-                <!-- 2 full clock cycles; rising edges (posedge) at x=85 and x=215 -->
-                <path d="M 36,48 L 85,48 L 85,18 L 150,18 L 150,48 L 215,48 L 215,18 L 280,18 L 280,48"
-                      stroke="#8a9da2" stroke-width="2" fill="none"/>
-                <line x1="85"  y1="14" x2="85"  y2="56" stroke="#0d6f72" stroke-width="1.5" stroke-dasharray="3,3"/>
-                <text x="85"  y="65" text-anchor="middle" fill="#0d6f72" font-size="12">posedge</text>
-                <line x1="215" y1="14" x2="215" y2="56" stroke="#0d6f72" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.4"/>
-                <text x="215" y="65" text-anchor="middle" fill="#0d6f72" font-size="12" opacity="0.4">posedge</text>
-              </svg>
-              <!-- Structural diagram -->
-              <svg width="400" height="100" viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:13px;margin:10px auto">
-                <defs><marker id="sff-a" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#1e2a2c"/></marker></defs>
-                <rect x="74" y="4" width="252" height="90" rx="6" fill="#fffdf7" stroke="#0d6f72" stroke-width="2"/>
-                <!-- memory cells -->
-                <rect x="86" y="18" width="52" height="52" rx="3" fill="#e6f5f5" stroke="#3d9fa3" stroke-width="1"/>
-                <text x="112" y="42" text-anchor="middle" fill="#0d6f72" font-size="12">mem[0]</text>
-                <text x="112" y="57" text-anchor="middle" fill="#3d9fa3" font-size="11">8 bits</text>
-                <rect x="144" y="18" width="52" height="52" rx="3" fill="#e6f5f5" stroke="#3d9fa3" stroke-width="1"/>
-                <text x="170" y="42" text-anchor="middle" fill="#0d6f72" font-size="12">mem[1]</text>
-                <text x="170" y="57" text-anchor="middle" fill="#3d9fa3" font-size="11">8 bits</text>
-                <text x="210" y="50" text-anchor="middle" fill="#8a9da2" font-size="18">…</text>
-                <rect x="222" y="18" width="60" height="52" rx="3" fill="#e6f5f5" stroke="#3d9fa3" stroke-width="1"/>
-                <text x="252" y="41" text-anchor="middle" fill="#0d6f72" font-size="11">mem[15]</text>
-                <text x="252" y="57" text-anchor="middle" fill="#3d9fa3" font-size="11">8 bits</text>
-                <text x="308" y="42" text-anchor="middle" fill="#8a9da2" font-size="12">SRAM</text>
-                <text x="308" y="58" text-anchor="middle" fill="#8a9da2" font-size="12">16 × 8</text>
-                <text x="215" y="91" text-anchor="middle" fill="#8a9da2" font-style="italic" font-size="11">all cells update on posedge clk</text>
-                <!-- port arrows -->
-                <text x="68" y="26" text-anchor="end" fill="#1e2a2c">addr</text>
-                <line x1="70" y1="23" x2="72" y2="23" stroke="#1e2a2c" stroke-width="1.5" marker-end="url(#sff-a)"/>
-                <text x="68" y="44" text-anchor="end" fill="#1e2a2c">we</text>
-                <line x1="70" y1="41" x2="72" y2="41" stroke="#1e2a2c" stroke-width="1.5" marker-end="url(#sff-a)"/>
-                <text x="68" y="62" text-anchor="end" fill="#1e2a2c">wdata</text>
-                <line x1="70" y1="59" x2="72" y2="59" stroke="#1e2a2c" stroke-width="1.5" marker-end="url(#sff-a)"/>
-                <text x="68" y="80" text-anchor="end" fill="#1e2a2c">clk</text>
-                <line x1="70" y1="77" x2="72" y2="77" stroke="#1e2a2c" stroke-width="1.5" marker-end="url(#sff-a)"/>
-                <line x1="328" y1="48" x2="356" y2="48" stroke="#1e2a2c" stroke-width="1.5" marker-end="url(#sff-a)"/>
-                <text x="360" y="52" fill="#1e2a2c">rdata</text>
-              </svg>
+<p><code>always @(event) begin ... end</code> is block that runs every time a specified event fires.
+If the event is a clock edge (e.g. <code>posedge clk</code>) we typically use <code>always_ff</code> instead, where "ff" stands for "flip-flop".
+</p>
+<svg width="300" height="68" viewBox="0 0 300 68" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:13px;margin:10px auto">
+   <rect width="300" height="68" rx="4" fill="#fffdf7"/>
+   <line x1="32" y1="0" x2="32" y2="60" stroke="#d5cbb2" stroke-width="1"/>
+   <text x="26" y="36" text-anchor="end" fill="#586469">clk</text>
+   <!-- 2 full clock cycles; rising edges (posedge) at x=85 and x=215 -->
+   <path d="M 36,48 L 85,48 L 85,18 L 150,18 L 150,48 L 215,48 L 215,18 L 280,18 L 280,48"
+         stroke="#8a9da2" stroke-width="2" fill="none"/>
+   <line x1="85"  y1="14" x2="85"  y2="56" stroke="#0d6f72" stroke-width="1.5" stroke-dasharray="3,3"/>
+   <text x="85"  y="65" text-anchor="middle" fill="#0d6f72" font-size="12">posedge</text>
+   <line x1="215" y1="14" x2="215" y2="56" stroke="#0d6f72" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.4"/>
+   <text x="215" y="65" text-anchor="middle" fill="#0d6f72" font-size="12" opacity="0.4">posedge</text>
+</svg>
+<p>
+A flip-flop is a 1-bit memory element that captures its input (d) at a clock edge and holds it until the next edge.
+It's easy to model a flip-flop in SystemVerilog using an <code>always_ff</code> block:
+<pre>
+always_ff @(posedge clk) begin
+   mem &lt;= d; // on each rising edge, capture d into mem
+   out &lt;= mem; // on the same edge, capture mem into out (the old value of mem)
+end
+</pre>
+<blockquote><p>
+   We use <strong><dfn data-card="Non-blocking assignment (<=) schedules the update to happen after all right-hand sides in the current time step are evaluated. This means two flip-flops can swap values correctly: a <= b; b <= a; works as expected. Blocking assignment (=) takes effect immediately, like a variable assignment in C — correct for combinational logic but causes races in sequential logic.">non-blocking assignment</dfn></strong> (<code>&lt;=</code>) inside <code>always_ff</code>. All right-hand sides are evaluated first, then all assignments happen simultaneously — this prevents races and models real flip-flop behaviour.</p></blockquote>
+<p>
+SRAM consists entirely of flip-flops.
+However we'll need a slightly more advanced pattern to model memory addresses:
+</p>
 <!-- Timing diagram: write on cycle 1, read request cycle 2, result cycle 3 -->
-              <svg width="400" height="210" viewBox="0 0 400 210" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:13px;margin:10px auto">
-                <defs>
-                  <marker id="sff-rarr" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#586469"/></marker>
-                  <marker id="sff-larr" markerWidth="7" markerHeight="6" refX="0" refY="3" orient="auto"><path d="M7,0 L0,3 L7,6 Z" fill="#586469"/></marker>
-                </defs>
-                <rect width="400" height="210" rx="4" fill="#fffdf7"/>
-                <!-- column shading for write/read/result cycles; 3 zones of 108px from x=54 -->
-                <rect x="54" y="8" width="108" height="162" fill="#fef3e8" opacity="0.5" rx="2"/>
-                <rect x="162" y="8" width="108" height="162" fill="#e6f5f5" opacity="0.4" rx="2"/>
-                <rect x="270" y="8" width="108" height="162" fill="#d7f0e3" opacity="0.5" rx="2"/>
-                <!-- cycle labels -->
-                <text x="108" y="18" text-anchor="middle" fill="#9a3a15" font-size="12" font-weight="bold">WRITE</text>
-                <text x="216" y="18" text-anchor="middle" fill="#0a5558" font-size="12" font-weight="bold">READ REQ</text>
-                <text x="324" y="18" text-anchor="middle" fill="#1a5c32" font-size="12" font-weight="bold">READ RESULT</text>
-                <!-- separator line -->
-                <line x1="52" y1="8" x2="52" y2="172" stroke="#d5cbb2" stroke-width="1"/>
-                <!-- CLK: 6 half-cycles of 54px from x=54 -->
-                <text x="46" y="43" text-anchor="end" fill="#586469">clk</text>
-                <path d="M 54,44 L 108,44 L 108,30 L 162,30 L 162,44 L 216,44 L 216,30 L 270,30 L 270,44 L 324,44 L 324,30 L 378,30 L 378,44" stroke="#8a9da2" stroke-width="1.5" fill="none"/>
-                <!-- WE: high during WRITE zone only -->
-                <text x="46" y="76" text-anchor="end" fill="#586469">we</text>
-                <path d="M 54,87 L 54,73 L 162,73 L 162,87 L 378,87" stroke="#cc5f2d" stroke-width="2" fill="none"/>
-                <!-- ADDR: bus signal spanning all zones -->
-                <text x="46" y="112" text-anchor="end" fill="#586469">addr</text>
-                <rect x="55" y="100" width="322" height="18" rx="2" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1"/>
-                <text x="216" y="113" text-anchor="middle" fill="#0a5558" font-size="12">addr = 2</text>
-                <!-- WDATA: valid in WRITE zone -->
-                <text x="46" y="148" text-anchor="end" fill="#586469">wdata</text>
-                <rect x="55" y="136" width="106" height="18" rx="2" fill="#fef3e8" stroke="#cc5f2d" stroke-width="1"/>
-                <text x="108" y="149" text-anchor="middle" fill="#9a3a15" font-size="12">0x42</text>
-                <line x1="162" y1="145" x2="378" y2="145" stroke="#d5cbb2" stroke-width="1.5" stroke-dasharray="4,3"/>
-                <!-- RDATA: valid in READ RESULT zone -->
-                <text x="46" y="184" text-anchor="end" fill="#586469">rdata</text>
-                <line x1="54" y1="181" x2="270" y2="181" stroke="#d5cbb2" stroke-width="1.5" stroke-dasharray="4,3"/>
-                <rect x="271" y="172" width="106" height="18" rx="2" fill="#d7f0e3" stroke="#1a7a3f" stroke-width="1"/>
-                <text x="324" y="185" text-anchor="middle" fill="#1a5c32" font-size="12">0x42</text>
-                <!-- 1-cycle latency annotation -->
-                <line x1="108" y1="196" x2="324" y2="196" stroke="#586469" stroke-width="1.5" marker-start="url(#sff-larr)" marker-end="url(#sff-rarr)" stroke-dasharray="4,3"/>
-                <text x="216" y="208" text-anchor="middle" fill="#586469" font-size="12">1-cycle read latency</text>
-              </svg>
-              <p>Use <strong><dfn data-card="Non-blocking assignment (<=) schedules the update to happen after all right-hand sides in the current time step are evaluated. This means two flip-flops can swap values correctly: a <= b; b <= a; works as expected. Blocking assignment (=) takes effect immediately, like a variable assignment in C — correct for combinational logic but causes races in sequential logic.">non-blocking assignment</dfn></strong> (<code>&lt;=</code>) inside <code>always_ff</code>. All right-hand sides are evaluated first, then all assignments happen simultaneously — this prevents races and models real flip-flop behaviour.</p>
-              <p>Open <code>sram_core.sv</code> and fill in the <code>always_ff</code> body with two statements:</p>
-              <ul>
-                <li>When <code>we</code> is high, write <code>wdata</code> into <code>mem[addr]</code></li>
-                <li>Always register the read: capture <code>mem[addr]</code> into <code>rdata</code></li>
-              </ul>
-              <blockquote><p>The read is <em>registered</em>: drive <code>addr</code> on cycle N and <code>rdata</code> reflects that address on cycle N+1. This is the standard synchronous-read SRAM model.</p></blockquote>
-              <h2>Testbench</h2>
-              <p><code>tb.sv</code> writes three values to addresses 2, 7, and 0, then reads them back one cycle later. Each read prints <code>PASS</code> or <code>FAIL</code> — run it before solving to see all three fail, then again after to confirm they all pass. Open the <strong>Waves</strong> tab to see <code>clk</code>, <code>we</code>, <code>addr</code>, <code>wdata</code>, and <code>rdata</code> over time.</p>
+<svg width="400" height="210" viewBox="0 0 400 210" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:13px;margin:10px auto">
+   <defs>
+   <marker id="sff-rarr" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#586469"/></marker>
+   <marker id="sff-larr" markerWidth="7" markerHeight="6" refX="0" refY="3" orient="auto"><path d="M7,0 L0,3 L7,6 Z" fill="#586469"/></marker>
+   </defs>
+   <rect width="400" height="210" rx="4" fill="#fffdf7"/>
+   <!-- column shading for write/read/result cycles; 3 zones of 108px from x=54 -->
+   <rect x="54" y="8" width="108" height="162" fill="#fef3e8" opacity="0.5" rx="2"/>
+   <rect x="162" y="8" width="108" height="162" fill="#e6f5f5" opacity="0.4" rx="2"/>
+   <rect x="270" y="8" width="108" height="162" fill="#d7f0e3" opacity="0.5" rx="2"/>
+   <!-- cycle labels -->
+   <text x="108" y="18" text-anchor="middle" fill="#9a3a15" font-size="12" font-weight="bold">WRITE</text>
+   <text x="216" y="18" text-anchor="middle" fill="#0a5558" font-size="12" font-weight="bold">READ REQ</text>
+   <text x="324" y="18" text-anchor="middle" fill="#1a5c32" font-size="12" font-weight="bold">READ RESULT</text>
+   <!-- separator line -->
+   <line x1="52" y1="8" x2="52" y2="172" stroke="#d5cbb2" stroke-width="1"/>
+   <!-- CLK: 6 half-cycles of 54px from x=54 -->
+   <text x="46" y="43" text-anchor="end" fill="#586469">clk</text>
+   <path d="M 54,44 L 108,44 L 108,30 L 162,30 L 162,44 L 216,44 L 216,30 L 270,30 L 270,44 L 324,44 L 324,30 L 378,30 L 378,44" stroke="#8a9da2" stroke-width="1.5" fill="none"/>
+   <!-- WE: high during WRITE zone only -->
+   <text x="46" y="76" text-anchor="end" fill="#586469">we</text>
+   <path d="M 54,87 L 54,73 L 162,73 L 162,87 L 378,87" stroke="#cc5f2d" stroke-width="2" fill="none"/>
+   <!-- ADDR: bus signal spanning all zones -->
+   <text x="46" y="112" text-anchor="end" fill="#586469">addr</text>
+   <rect x="55" y="100" width="322" height="18" rx="2" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1"/>
+   <text x="216" y="113" text-anchor="middle" fill="#0a5558" font-size="12">addr = 2</text>
+   <!-- WDATA: valid in WRITE zone -->
+   <text x="46" y="148" text-anchor="end" fill="#586469">wdata</text>
+   <rect x="55" y="136" width="106" height="18" rx="2" fill="#fef3e8" stroke="#cc5f2d" stroke-width="1"/>
+   <text x="108" y="149" text-anchor="middle" fill="#9a3a15" font-size="12">0x42</text>
+   <line x1="162" y1="145" x2="378" y2="145" stroke="#d5cbb2" stroke-width="1.5" stroke-dasharray="4,3"/>
+   <!-- RDATA: valid in READ RESULT zone -->
+   <text x="46" y="184" text-anchor="end" fill="#586469">rdata</text>
+   <line x1="54" y1="181" x2="270" y2="181" stroke="#d5cbb2" stroke-width="1.5" stroke-dasharray="4,3"/>
+   <rect x="271" y="172" width="106" height="18" rx="2" fill="#d7f0e3" stroke="#1a7a3f" stroke-width="1"/>
+   <text x="324" y="185" text-anchor="middle" fill="#1a5c32" font-size="12">0x42</text>
+   <!-- 1-cycle latency annotation -->
+   <line x1="108" y1="196" x2="324" y2="196" stroke="#586469" stroke-width="1.5" marker-start="url(#sff-larr)" marker-end="url(#sff-rarr)" stroke-dasharray="4,3"/>
+   <text x="216" y="208" text-anchor="middle" fill="#586469" font-size="12">1-cycle read latency</text>
+</svg>
+<p>Open <code>sram_core.sv</code> and fill in the <code>always_ff</code> body with two statements:</p>
+<ul>
+   <li>When <code>we</code> is high, write <code>wdata</code> into <code>mem[addr]</code></li>
+   <li>Always register the read: capture <code>mem[addr]</code> into <code>rdata</code></li>
+</ul>
+<blockquote><p>The read is <em>registered</em>: drive <code>addr</code> on cycle N and <code>rdata</code> reflects that address on cycle N+1. This is the standard synchronous-read SRAM model.</p></blockquote>
+<h2>Testbench</h2>
+<p><code>tb.sv</code> writes three values to addresses 2, 7, and 0, then reads them back one cycle later. Each read prints <code>PASS</code> or <code>FAIL</code> — run it before solving to see all three fail, then again after to confirm they all pass. Open the <strong>Waves</strong> tab to see <code>clk</code>, <code>we</code>, <code>addr</code>, <code>wdata</code>, and <code>rdata</code> over time.</p>

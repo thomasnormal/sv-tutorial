@@ -6,7 +6,7 @@
   import { getCirctWasmAdapter } from '$lib/circt.js';
   import { darkMode, vimMode } from '$lib/stores/settings.js';
   import { completedSlugs } from '$lib/stores/completed.js';
-  import { cloneFiles, mergeFiles, normalize, topNameFromFocus } from '$lib/lesson-utils.js';
+  import { cloneFiles, mergeFiles, filesEqual, topNameFromFocus } from '$lib/lesson-utils.js';
   import { termCard } from '$lib/actions/term-card.js';
   import CodeEditor from '$lib/components/CodeEditor.svelte';
   import WaveformViewer from '$lib/components/WaveformViewer.svelte';
@@ -89,21 +89,9 @@
   let starterFiles = $derived(cloneFiles(lesson.files.a));
   let solutionFiles = $derived(mergeFiles(cloneFiles(lesson.files.a), cloneFiles(lesson.files.b)));
   let hasSolution = $derived(Object.keys(lesson.files.b).length > 0);
-  // Pre-normalize solution so per-keystroke comparison avoids re-processing solution files.
-  let solutionNormalized = $derived.by(() => {
-    if (!hasSolution) return {};
-    return Object.fromEntries(Object.entries(solutionFiles).map(([k, v]) => [k, normalize(v)]));
-  });
   let completed = $derived.by(() => {
     if (!hasSolution) return false;
-    const wsKeys = Object.keys(workspace).sort();
-    const solKeys = Object.keys(solutionNormalized).sort();
-    if (wsKeys.length !== solKeys.length) return false;
-    for (let i = 0; i < wsKeys.length; i++) {
-      if (wsKeys[i] !== solKeys[i]) return false;
-      if (normalize(workspace[wsKeys[i]]) !== solutionNormalized[solKeys[i]]) return false;
-    }
-    return true;
+    return filesEqual(workspace, solutionFiles);
   });
   let hasWaveform = $derived(typeof lastWaveform?.text === 'string' && lastWaveform.text.length > 0);
   let canSplit = $derived(Object.keys(workspace).length === 2);
@@ -196,7 +184,7 @@
     if (!hasSolution) return;
     if (completed) {
       workspace = cloneFiles(starterFiles);
-      logs = [...logs, 'Reset to starter files'];
+      logs = ['Reset to starter files'];
     } else {
       workspace = cloneFiles(solutionFiles);
       logs = [...logs, 'Applied solution files'];
@@ -438,6 +426,9 @@
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       e.preventDefault();
       if (running) cancelRun(); else runSim();
+    }
+    if (e.key === 'Escape' && showOptions) {
+      showOptions = false;
     }
   }
 

@@ -8,6 +8,7 @@ module tb;
     repeat(2) @(posedge clk);
     rst = 0;
     repeat(12) @(posedge clk);
+    $display("PASS");
     $finish;
   end
 endmodule

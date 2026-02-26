@@ -13,6 +13,7 @@ module tb;
     @(posedge clk); gnt = 1; @(posedge clk); gnt = 0;  // gnt within 2 cycles — property passes
     repeat (4) @(posedge clk);
     $display("done: rg_cover should have fired.");
+    $display("PASS");
     $finish;
   end
 endmodule

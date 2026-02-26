@@ -3,7 +3,7 @@
 // Registered reads have 1-cycle latency: drive addr on cycle N,
 // rdata reflects that address on cycle N+1.
 module tb;
-  logic       clk = 0;   // driven by always block below
+  logic       clk = 0;   // driven by clock generator below
   logic       we  = 0;   // write-enable
   logic [3:0] addr  = 0; // byte address (0..15)
   logic [7:0] wdata = 0; // data to write
@@ -11,8 +11,8 @@ module tb;
 
   int fail = 0;
 
-  // Clock generator: period = 10 time units
-  always #5 clk = ~clk;
+  // Clock generator: period = 10 time units (finite repeat for simulator compatibility)
+  initial repeat(200) #5 clk = ~clk;
 
   // Connect all ports by name (shorthand: .port matches variable of same name)
   sram_core dut(.*);

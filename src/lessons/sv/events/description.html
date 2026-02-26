@@ -1,21 +1,31 @@
-<p>An SRAM testbench has three operations that must happen in strict order: <em>write</em> values into memory, then <em>read</em> them back, then <em>check</em> the results. Every <code>initial</code> block starts at t=0, so without coordination the reader races ahead of the writer and sees uninitialised <dfn data-card="x (unknown) is one of the four logic values in SystemVerilog alongside 0, 1, and z. x appears in uninitialised signals, unresolved bus conflicts, and certain simulation artefacts. Unlike 0 or 1, x propagates: AND(x, 1) = x, not 0. The === (case equality) operator distinguishes x from 0/1, while == treats x as a mismatch.">x</dfn> values. A named <dfn data-card="An event in SystemVerilog is a synchronisation primitive — not a value (0 or 1), just a named instant in simulation time. Any process can trigger it with ->; any number of processes can wait for it with @(event_name). When a process hits @(event_name) it suspends immediately. When any other process executes -> event_name, every suspended waiter resumes in the same simulation time step.">event</dfn> fixes this: one process announces <em>I'm done — your turn</em>, and all waiters wake up at once.</p>
+<p>
+Recall that <code>initial</code> blocks start at t=0.
+This happens even if there are multiple <code>initial</code> blocks in the same module, and even if they are in different modules. They all start at the same time, and run concurrently.
+This is a powerful feature: it lets you write separate processes that run in parallel, without needing to manually interleave their code.
+But it also means you need to coordinate them, so they don't step on each other's toes.
+</p>
+<p>
+For example, an SRAM testbench may want to write some values into memory, and then read them back.
+We can do this with two <code>initial</code> blocks, but we need to make sure the reader waits until the writer is done.
+</p>
+<p>
+We can coordinate concurrent processes using <dfn data-card="Events are similar to constructions in many other programming languages. Such as threading.Event in Python, std::condition_variable in C++, sync.Cond in Go, and so on.
+The main gotcha is that System Verilog events are not stateful (latching).
+If you wait for an event that has already been posted, you will wait forever.">events</dfn>.
+An event is a named synchronization point that processes can wait for or post.
+The basic operations on events are: </p>
+<ul>
+   <li><code>event write_done</code>: declare a named event</li>
+   <li><code>-&gt; write_done</code>: "post" the event — wakes every process</li>
+   <li><code>@(write_done)</code>: wait for the event — suspends until posted</li>
+</ul>
+<p>
+<blockquote><p>Note: You could also just write <code>@ write_done</code>, but using brackets around the event is a universal convention</p></blockquote>
 
-<h2>Three keywords, one idea</h2>
-<pre>
-  event write_done;    // declare a named event
-
-  -> write_done;       // post it — wakes every process waiting on it
-
-  @(write_done);       // wait for it — suspends until posted
-</pre>
 <p>The post is instantaneous: every process suspended at <code>@(write_done)</code> resumes in the same simulation time step. Events carry no data and cannot be synthesised — they live only in testbenches and simulation models.</p>
 
 <h2>A two-event pipeline</h2>
 <p><code>event_sync.sv</code> chains writer, reader, and checker using two events:</p>
-<pre>
-  writer ──→ write_done ──→ reader ──→ read_done ──→ checker
-</pre>
-
 <!-- Three-process timing diagram -->
 <svg width="430" height="120" viewBox="0 0 430 120" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:10px auto">
   <rect width="430" height="120" rx="4" fill="#fffdf7"/>
@@ -51,14 +61,16 @@
   <text x="400" y="98" text-anchor="middle" fill="#0a5558" font-size="10">report</text>
 </svg>
 
-<p>Add the four TODO lines — one <code>-></code> and one <code>@</code> per handshake. Without them, the reader and checker start at t=0, read uninitialised <code>x</code> values, and <code>PASS</code> never prints.</p>
+<p>Add the four TODO lines — one <code>-&gt;</code> and one <code>@</code> per handshake. Without them, the reader and checker start at t=0, read uninitialised <code>x</code> values, and <code>PASS</code> never prints.</p>
 
-<blockquote><p>If you add <code>@(write_done)</code> but forget <code>-> write_done</code>, the reader waits forever and the simulation never finishes. Each handshake requires both sides: a sender and at least one receiver.</p></blockquote>
+<blockquote><p>Warning: If you add <code>@(write_done)</code> but forget <code>-> write_done</code>, the reader waits forever and the simulation never finishes. Each handshake requires both sides: a sender and at least one receiver.</p></blockquote>
+<p>
+Hint: You can follow the events status in the simulator waveform viewer, just like any other signal.
+</p>
 
 <h2>Built-in vs named events</h2>
-<p>You already used <code>@(posedge clk)</code> in the previous testbench. That is the same wait-for-event operator: <code>posedge clk</code> is a <em>built-in</em> event generated automatically whenever <code>clk</code> transitions 0→1. A named event is the same mechanism with a name you choose:</p>
-<pre>
-  @(posedge clk)   // built-in — posted by the simulator on each 0→1 transition
-  @(write_done)    // named    — posted by your code with ->
-</pre>
+<p>
+A very important built-in event is <code>posedge clk</code>.
+This even is generated automatically by the simulator whenever the signal <code>clk</code> transitions from 0 to 1.
+You don't post it yourself, but you can wait for it with <code>@(posedge clk)</code>.
 <p>In the next lesson, <code>always_ff @(posedge clk)</code> uses exactly this: the block suspends at the rising-edge event and latches new values into the flip-flop array. Every register in our SRAM waits for that one recurring event.</p>

@@ -74,6 +74,9 @@ function patchIndex(path) {
     if (!names.includes('index_of_name')) {
       names.push('index_of_name');
     }
+    if (!names.includes('get_state')) {
+      names.push('get_state');
+    }
     return `import { ${names.join(', ')} } from './surfer.js';`;
   });
 
@@ -92,6 +95,13 @@ function patchIndex(path) {
     }
   }
 
+  if (!src.includes('window.get_state = get_state;')) {
+    const anchor = 'window.waves_loaded = waves_loaded;';
+    if (src.includes(anchor)) {
+      src = src.replace(anchor, `${anchor}\n        window.get_state = get_state;`);
+    }
+  }
+
   fs.writeFileSync(path, src);
 }
 
@@ -103,6 +113,8 @@ function register_message_listener() {
   const pending = [];
   let wavesLoadedNotified = false;
   let engineReadyNotified = false;
+  let lastFocusedItemIdx = undefined;
+  let focusedItemPolling = false;
 
   function notifyParent(type, payload = {}) {
     if (window.parent && window.parent !== window) {
@@ -147,6 +159,33 @@ function register_message_listener() {
     }
   }
 
+  // Poll Surfer's RON state to detect focused-item changes.
+  // WaveData.focused_item: Option<VisibleItemIndex> is included in get_state() output.
+  // When the user clicks a different signal row, we notify the parent so it can
+  // update which variable the transition toolbar buttons navigate.
+  async function notifyIfFocusedItemChanged() {
+    if (!wavesLoadedNotified) return;
+    if (typeof window.get_state !== 'function') return;
+    if (focusedItemPolling) return;
+    focusedItemPolling = true;
+    try {
+      const state = await window.get_state();
+      if (state) {
+        const m = state.match(/focused_item:\\s*Some\\s*\\(\\s*VisibleItemIndex\\s*\\(\\s*(\\d+)\\s*\\)\\s*\\)/);
+        const newIdx = m ? parseInt(m[1], 10) : null;
+        if (newIdx !== lastFocusedItemIdx) {
+          lastFocusedItemIdx = newIdx;
+          if (newIdx !== null) {
+            notifyParent('focused-item-changed', { index: newIdx });
+          }
+        }
+      }
+    } catch {
+      // Ignore transient errors while Surfer initialises.
+    }
+    focusedItemPolling = false;
+  }
+
   function injectSurferMessage(message) {
     queueOrInjectMessage(JSON.stringify(message));
   }
@@ -157,6 +196,7 @@ function register_message_listener() {
     switch (decoded.command) {
       case 'LoadUrl': {
         wavesLoadedNotified = false;
+        lastFocusedItemIdx = undefined;
         injectSurferMessage({ LoadWaveformFileFromUrl: [decoded.url, 'Clear'] });
         break;
       }
@@ -180,6 +220,7 @@ function register_message_listener() {
   setInterval(() => {
     flushPendingMessages();
     notifyIfWavesLoaded();
+    notifyIfFocusedItemChanged();
   }, 100);
 }
 `;

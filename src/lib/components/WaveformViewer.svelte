@@ -417,6 +417,9 @@
       signalsReady = true;
       waveReadySource = 'surfer';
     }
+    if (data.type === 'focused-item-changed' && typeof data.index === 'number') {
+      _focusedVisibleIdx = data.index;
+    }
   }
 
   onMount(() => {

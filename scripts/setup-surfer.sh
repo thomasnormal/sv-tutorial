@@ -159,9 +159,21 @@ function register_message_listener() {
     }
   }
 
-  // Poll Surfer's RON state to detect focused-item changes.
-  // WaveData.focused_item: Option<VisibleItemIndex> is included in get_state() output.
-  // When the user clicks a different signal row, we notify the parent so it can
+  // Find the VisibleItemIndex (0-based position in items_tree) of the first
+  // selected item.  Clicking a signal row sets selected:true in items_tree
+  // but does NOT change WaveData.focused_item, so we must use items_tree.
+  function getSelectedItemIndex(state) {
+    const treeStart = state.indexOf('items_tree:');
+    if (treeStart === -1) return null;
+    const treeEnd = state.indexOf('displayed_items:', treeStart);
+    const section = treeEnd === -1 ? state.slice(treeStart) : state.slice(treeStart, treeEnd);
+    const matches = [...section.matchAll(/selected:\\s*(true|false)/g)];
+    const idx = matches.findIndex((m) => m[1] === 'true');
+    return idx >= 0 ? idx : null;
+  }
+
+  // Poll Surfer's RON state to detect selection changes.
+  // When the user clicks a different signal row we notify the parent so it can
   // update which variable the transition toolbar buttons navigate.
   async function notifyIfFocusedItemChanged() {
     if (!wavesLoadedNotified) return;
@@ -171,8 +183,7 @@ function register_message_listener() {
     try {
       const state = await window.get_state();
       if (state) {
-        const m = state.match(/focused_item:\\s*Some\\s*\\(\\s*VisibleItemIndex\\s*\\(\\s*(\\d+)\\s*\\)\\s*\\)/);
-        const newIdx = m ? parseInt(m[1], 10) : null;
+        const newIdx = getSelectedItemIndex(state);
         if (newIdx !== lastFocusedItemIdx) {
           lastFocusedItemIdx = newIdx;
           if (newIdx !== null) {

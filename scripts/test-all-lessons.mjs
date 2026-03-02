@@ -421,20 +421,24 @@ const CIRCT_XFAIL = new Map([
   ['uvm/env',             'circt#14: virtual if in separate file → compiler crash'],
   ['uvm/monitor',         'circt#14: virtual if in separate file → compiler crash'],
 
-  // #22: class-level constraints ignored on plain randomize() (#11 fixed inline/constraint_mode)
-  // #21: run_phase phase-cleanup deadlock prevents $finish after objections dropped
-  ['uvm/seq-item',           'circt#22: class-level constraint not applied on randomize()'],
+  // #22: class-level constraints NOW FIXED in 1d0ebb5e3 — randomize() applies them correctly
+  // #21: run_phase phase-cleanup deadlock still prevents $finish from firing (run_test never returns)
+  ['uvm/seq-item',           'circt#21: run_phase phase-cleanup deadlock prevents $finish'],
 
-  // #21: run_phase phase-cleanup deadlock — #11 fixes work but simulation can\'t terminate
-  ['uvm/constrained-random', 'circt#21: UVM phase cleanup deadlock prevents $finish'],
+  // #21: run_phase phase-cleanup deadlock prevents $finish (full env/agent/driver hierarchy)
+  // #22: inline constraint `randomize() with {addr inside {0,15}}` still ignored (different from class-level)
+  ['uvm/constrained-random', 'circt#21+22: deadlock prevents $finish; inline constraint still ignored'],
 
-  // #21: run_phase phase-cleanup deadlock — #12 fixed driver forever-loop but general deadlock remains
-  ['uvm/sequence',     'circt#21: UVM phase cleanup deadlock prevents $finish'],
+  // #21: run_phase phase-cleanup deadlock prevents $finish (full env/agent/sequencer/driver hierarchy)
+  ['uvm/sequence',     'circt#21: run_phase phase-cleanup deadlock prevents $finish'],
 
-  // #23: factory type_id::set_type_override() has no effect (#13 not fully fixed)
-  // #22: class-level constraint not applied (range_c ignored even if factory worked)
-  // #21: run_phase phase-cleanup deadlock (tertiary)
+  // #23: factory type_id::set_type_override() has no effect
+  // #21: run_phase phase-cleanup deadlock (secondary blocker)
   ['uvm/factory-override', 'circt#23: UVM factory override not applied'],
+
+  // Regression in 08646e718: WaitEventOpConversion refactor broke uvm_reg compilation
+  // Compilation Aborted() on uvm_reg/uvm_reg_block patterns; was passing at a24ed43b8
+  ['uvm/ral', 'regression in 08646e718: WaitEventOpConversion Aborted() on uvm_reg'],
 ]);
 
 async function runLesson({ verilog, bmc, work, category, slug, lessonDir, results, meta }) {

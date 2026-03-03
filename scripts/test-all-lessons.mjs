@@ -426,10 +426,27 @@ const SKIP_SOL_PASS = new Set([
 //
 // Bug report files live in docs/circt-bugs/.
 // GitHub issues: https://github.com/thomasnormal/circt/issues
-// All known CIRCT bugs that blocked lessons are now fixed.
+//
+// Previously fixed:
 // sv/parameters (#9 AllowHierarchicalConst): fixed in e1ea916d1.
 // uvm/constrained-random (#69 inline constraints): fixed in e1ea916d1-era changes.
+// All 11 UVM lessons were passing at e1ea916d1 but regressed in 3d72a82a4.
+// The partial fix in 17624bdf8 (#73) is incomplete — functionHasDirectUvmObjectionCall
+// uses funcOp.walk() (recurses into nested regions) vs the original top-level-only
+// wrapperCallsUvmObjection check, causing the interceptor to be incorrectly skipped.
+// Tracked in issue #74.
 const CIRCT_XFAIL = new Map([
+  ['uvm/constrained-random', 'OBJTN_ZERO phase_hopper regression (#74, 3d72a82a4)'],
+  ['uvm/coverage-driven',    'OBJTN_ZERO phase_hopper regression (#74, 3d72a82a4)'],
+  ['uvm/covergroup',         'OBJTN_ZERO phase_hopper regression (#74, 3d72a82a4)'],
+  ['uvm/cross-coverage',     'OBJTN_ZERO phase_hopper regression (#74, 3d72a82a4)'],
+  ['uvm/driver',             'OBJTN_ZERO phase_hopper regression (#74, 3d72a82a4)'],
+  ['uvm/env',                'OBJTN_ZERO phase_hopper regression (#74, 3d72a82a4)'],
+  ['uvm/factory-override',   'OBJTN_ZERO phase_hopper regression (#74, 3d72a82a4)'],
+  ['uvm/monitor',            'OBJTN_ZERO phase_hopper regression (#74, 3d72a82a4)'],
+  ['uvm/ral',                'OBJTN_ZERO phase_hopper regression (#74, 3d72a82a4)'],
+  ['uvm/seq-item',           'OBJTN_ZERO phase_hopper regression (#74, 3d72a82a4)'],
+  ['uvm/sequence',           'OBJTN_ZERO phase_hopper regression (#74, 3d72a82a4)'],
 ]);
 
 async function runLesson({ verilog, bmc, work, category, slug, lessonDir, results, meta }) {

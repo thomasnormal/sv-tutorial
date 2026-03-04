@@ -1,0 +1,61 @@
+<p>Static arrays have a fixed size set at compile time. Testbenches need structures that grow at runtime — enter <strong><dfn data-card="A dynamic array is declared with empty brackets (type name[]). Its size is set at runtime with new[n] and can be queried with .size(). Elements are accessed by index just like static arrays.">dynamic arrays</dfn></strong> and <strong><dfn data-card="A queue is declared with a dollar sign in the brackets (type name[$]). It grows and shrinks automatically. push_back appends to the tail; pop_front removes and returns the head.">queues</dfn></strong>.</p>
+
+<svg width="440" height="115" viewBox="0 0 440 115" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:11px;margin:8px auto">
+  <!-- Dynamic array label -->
+  <text x="10" y="16" fill="#0d6f72" font-weight="bold">Dynamic array   addrs[]</text>
+  <!-- Array cells [0]..[7] -->
+  <rect x="10"  y="24" width="38" height="28" rx="3" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1.2"/>
+  <text x="29"  y="42" text-anchor="middle" fill="#0d6f72">0</text>
+  <rect x="50"  y="24" width="38" height="28" rx="3" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1.2"/>
+  <text x="69"  y="42" text-anchor="middle" fill="#0d6f72">1</text>
+  <rect x="90"  y="24" width="38" height="28" rx="3" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1.2"/>
+  <text x="109" y="42" text-anchor="middle" fill="#0d6f72">2</text>
+  <rect x="130" y="24" width="38" height="28" rx="3" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1.2"/>
+  <text x="149" y="42" text-anchor="middle" fill="#0d6f72">3</text>
+  <rect x="170" y="24" width="38" height="28" rx="3" fill="#f0f0f0" stroke="#aaa" stroke-width="1.2"/>
+  <text x="189" y="42" text-anchor="middle" fill="#aaa">…</text>
+  <rect x="210" y="24" width="38" height="28" rx="3" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1.2"/>
+  <text x="229" y="42" text-anchor="middle" fill="#0d6f72">7</text>
+  <!-- Index labels -->
+  <text x="29"  y="62" text-anchor="middle" fill="#555" font-size="9">[0]</text>
+  <text x="69"  y="62" text-anchor="middle" fill="#555" font-size="9">[1]</text>
+  <text x="109" y="62" text-anchor="middle" fill="#555" font-size="9">[2]</text>
+  <text x="149" y="62" text-anchor="middle" fill="#555" font-size="9">[3]</text>
+  <text x="229" y="62" text-anchor="middle" fill="#555" font-size="9">[7]</text>
+  <text x="290" y="42" text-anchor="middle" fill="#555" font-size="10">new[8] → 8 elements</text>
+  <!-- Queue label -->
+  <text x="10" y="84" fill="#c17d2a" font-weight="bold">Queue   q[$]</text>
+  <!-- Queue boxes with direction arrows -->
+  <text x="10" y="110" fill="#c17d2a" font-size="10">pop_front ←</text>
+  <rect x="84"  y="90" width="38" height="22" rx="3" fill="#fff8ec" stroke="#c17d2a" stroke-width="1.2"/>
+  <text x="103" y="106" text-anchor="middle" fill="#c17d2a">0</text>
+  <rect x="124" y="90" width="38" height="22" rx="3" fill="#fff8ec" stroke="#c17d2a" stroke-width="1.2"/>
+  <text x="143" y="106" text-anchor="middle" fill="#c17d2a">1</text>
+  <rect x="164" y="90" width="38" height="22" rx="3" fill="#fff8ec" stroke="#c17d2a" stroke-width="1.2"/>
+  <text x="183" y="106" text-anchor="middle" fill="#c17d2a">2</text>
+  <rect x="204" y="90" width="38" height="22" rx="3" fill="#fff8ec" stroke="#c17d2a" stroke-width="1.2"/>
+  <text x="223" y="106" text-anchor="middle" fill="#c17d2a">3</text>
+  <text x="262" y="110" fill="#c17d2a" font-size="10">→ push_back</text>
+</svg>
+
+<h3>Dynamic arrays</h3>
+<pre>type name[];       // declared, but empty (null handle)
+name = new[n];     // allocate n elements — all zeroed
+name.size()        // returns current length
+name[i]            // index access, same as static array</pre>
+
+<h3>Queues</h3>
+<pre>type name[$];          // unbounded queue, initially empty
+name.push_back(v);     // append v to the tail
+name.pop_front();      // remove and return the head element
+name.size()            // number of elements currently in the queue</pre>
+<p>Queues are the standard data structure for scoreboards and FIFOs in UVM environments — the monitor pushes transactions onto the queue; the scoreboard pops and checks them.</p>
+
+<p>Open <code>addr_buf.sv</code> and complete four tasks:</p>
+<ol>
+  <li>Declare the dynamic array at module scope: <code>logic [3:0] addrs[]</code></li>
+  <li>Inside <code>initial</code>, allocate 8 elements: <code>addrs = new[8]</code></li>
+  <li>Push the first four elements of <code>addrs</code> into <code>q</code> using <code>push_back</code>.</li>
+  <li>Pop all elements from <code>q</code> using <code>pop_front</code> inside a <code>while</code> loop, printing each value.</li>
+</ol>
+<p>The test passes when <code>q.size() == 0</code> after all pops.</p>

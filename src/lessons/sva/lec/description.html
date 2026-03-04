@@ -1,20 +1,56 @@
-            <p><strong><dfn data-card="LEC (Logical Equivalence Checking) formally proves that two netlists or RTL descriptions produce identical output for every possible input combination. It is used after synthesis, optimization, and place-and-route to prove the transformations preserved the circuit's behavior. The tool encodes both designs as Boolean formulas and uses a SAT/SMT solver to search for any input that causes them to differ.">Logical Equivalence Checking (LEC)</dfn></strong> proves that two circuit implementations produce identical outputs for every possible input — without running any simulation.</p>
-            <p>Open <code>top.sv</code>. It contains two modules:</p>
-            <ul>
-              <li><code>Spec</code> — the golden reference: a NAND gate <code>~(a &amp; b)</code></li>
-              <li><code>Impl</code> — your implementation, currently wrong</li>
-            </ul>
-            <p>The <code>Impl</code> module has a bug — one of the inversions is missing. By <strong><dfn data-card="De Morgan's laws state that NOT(A AND B) = (NOT A) OR (NOT B), and NOT(A OR B) = (NOT A) AND (NOT B). They're fundamental to boolean algebra and let you rewrite logic in equivalent forms. In circuit design, they explain why a NAND gate followed by inverters equals a NOR gate with inverted inputs — crucial for understanding how logic synthesis produces structurally different but functionally identical circuits.">De Morgan's law</dfn></strong>, <code>~(a &amp; b)</code> is logically equivalent to an OR of the individually inverted inputs. Fix <code>Impl</code> so both circuits are equivalent.</p>
-            <p>Click <strong>verify</strong> to run LEC on the buggy code first. The tool encodes both modules as SMT constraints and asks a solver whether any input can make them differ. Because the bug is real, the solver finds one — it reports <strong>sat</strong> and shows how the model was extracted:</p>
-            <pre>$ z3 /workspace/out/check.smt2
-sat
-$ z3 -model /workspace/out/check.smt2 | grep define-fun
-  (define-fun b () (_ BitVec 2) #b00)
-  (define-fun a () (_ BitVec 2) #b10)
-  (define-fun c1_out0 () (_ BitVec 2) #b10)
-  (define-fun c2_out0 () (_ BitVec 2) #b00)
-# counterexample: b=0 a=1</pre>
-            <p>Reading the model output: <code>(define-fun b () (_ BitVec 2) #b00)</code> means <code>b=0</code>, and the next line means <code>a=1</code>. (This is a four-state encoding: <code>#b00</code>=logic 0, <code>#b10</code>=logic 1, <code>#b01</code>=Z, <code>#b11</code>=X.) The <code>c1_out0</code> and <code>c2_out0</code> lines are the output values of each circuit.</p>
-            <p>You can verify that <code>a=1, b=0</code> proves the models are different: Spec produces <code>~(1 &amp; 0) = 1</code> while the buggy Impl produces <code>~1 | 0 = 0</code>.</p>
-            <p>Fix the bug, then click <strong>verify</strong> again. With no distinguishing input, the solver reports <strong>unsat</strong> — the circuits are equivalent for every possible input.</p>
-            <blockquote><p>LEC is essential in chip design: it proves that logic synthesis, optimisation, and place-and-route have not changed the circuit's behaviour.</p></blockquote>
+<p><strong><dfn data-card="LEC (Logical Equivalence Checking) formally proves that two netlists or RTL descriptions produce identical output for every possible input combination. It is used after synthesis, optimization, and place-and-route to prove the transformations preserved the circuit's behavior. The tool encodes both designs as Boolean formulas and uses a SAT/SMT solver to search for any input that causes them to differ.">Logical Equivalence Checking (LEC)</dfn></strong> proves that two circuit implementations produce identical outputs for every possible input — without running any simulation.</p>
+
+<svg width="430" height="90" viewBox="0 0 430 90" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:11px;margin:8px auto">
+  <!-- Spec box -->
+  <rect x="10" y="20" width="100" height="50" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1.5"/>
+  <text x="60" y="40" text-anchor="middle" fill="#0d6f72" font-weight="bold">Spec</text>
+  <text x="60" y="56" text-anchor="middle" fill="#555" font-size="10">golden RTL</text>
+  <!-- Impl box -->
+  <rect x="10" y="30" width="100" height="50" rx="5" fill="#fff8ec" stroke="#c17d2a" stroke-width="1.5" transform="translate(0,0)"/>
+  <!-- redo - place Impl below -->
+  <!-- Arrow from both to SAT solver -->
+  <rect x="155" y="25" width="120" height="40" rx="5" fill="#f5f5f5" stroke="#888" stroke-width="1.2"/>
+  <text x="215" y="43" text-anchor="middle" fill="#555" font-weight="bold">SAT/SMT solver</text>
+  <text x="215" y="57" text-anchor="middle" fill="#888" font-size="10">exhaustive search</text>
+  <!-- Result: unsat or sat -->
+  <rect x="320" y="10" width="100" height="28" rx="4" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1.2"/>
+  <text x="370" y="28" text-anchor="middle" fill="#0d6f72" font-weight="bold">unsat ✓</text>
+  <rect x="320" y="52" width="100" height="28" rx="4" fill="#ffeaea" stroke="#b00" stroke-width="1.2"/>
+  <text x="370" y="70" text-anchor="middle" fill="#b00" font-weight="bold">sat — cex</text>
+  <!-- Arrows -->
+  <line x1="110" y1="45" x2="155" y2="45" stroke="#555" stroke-width="1.2"/>
+  <polygon points="155,41 163,45 155,49" fill="#555"/>
+  <line x1="275" y1="35" x2="320" y2="24" stroke="#0d6f72" stroke-width="1.2"/>
+  <polygon points="316,20 324,24 318,30" fill="#0d6f72"/>
+  <line x1="275" y1="55" x2="320" y2="66" stroke="#b00" stroke-width="1.2"/>
+  <polygon points="316,70 324,66 318,60" fill="#b00"/>
+</svg>
+
+<p>If the solver finds an input that makes the two designs disagree, it reports <strong>sat</strong> and outputs a counterexample (the distinguishing input values). If no such input exists, it reports <strong>unsat</strong> — the designs are equivalent for every possible input.</p>
+
+<h2>Boolean identities</h2>
+<p><strong><dfn data-card="De Morgan's laws state that NOT(A AND B) = (NOT A) OR (NOT B), and NOT(A OR B) = (NOT A) AND (NOT B). They're fundamental to boolean algebra and explain why a NAND gate followed by inverters equals a NOR gate with inverted inputs — crucial for understanding how logic synthesis produces structurally different but functionally identical circuits.">De Morgan's laws</dfn></strong> and the mux expansion are the most common equivalences in RTL synthesis:</p>
+<table style="border-collapse:collapse;width:100%;font-size:0.9em;margin:0.5em 0">
+  <thead><tr style="background:var(--teal-50,#e6f5f5)">
+    <th style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">Name</th>
+    <th style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">Original</th>
+    <th style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">Equivalent</th>
+  </tr></thead>
+  <tbody>
+    <tr><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">De Morgan (NAND)</td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)"><code>~(a &amp; b)</code></td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)"><code>~a | ~b</code></td></tr>
+    <tr><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">De Morgan (NOR)</td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)"><code>~(a | b)</code></td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)"><code>~a &amp; ~b</code></td></tr>
+    <tr><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">Mux expansion</td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)"><code>c ? a : b</code></td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)"><code>(c &amp; a) | (~c &amp; b)</code></td></tr>
+  </tbody>
+</table>
+
+<p>Logic synthesis routinely applies these transformations — and LEC proves the result is identical to the RTL spec.</p>
+
+<h2>Exercise</h2>
+<p>Open <code>top.sv</code>. The <code>Spec</code> module defines three canonical boolean functions. The <code>Impl</code> module must produce identical outputs using only <code>~</code>, <code>&amp;</code>, and <code>|</code> — no <code>?</code> operator. Replace each <code>1'b0</code> placeholder:</p>
+<ul>
+  <li><strong>TODO 1</strong> (<code>nand_y</code>): expand <code>~(a &amp; b)</code> using De Morgan's law</li>
+  <li><strong>TODO 2</strong> (<code>nor_y</code>): expand <code>~(a | b)</code> using De Morgan's law</li>
+  <li><strong>TODO 3</strong> (<code>mux_y</code>): expand <code>c ? a : b</code> as a Boolean expression</li>
+</ul>
+<p>Click Verify on the buggy version first — the solver will report <strong>sat</strong> and show a counterexample. Fix all three expressions, then verify again to see <strong>unsat</strong>.</p>
+<blockquote><p>LEC is essential in chip design: it proves that logic synthesis, optimization, and place-and-route have not changed the circuit's behaviour — in seconds, for any circuit size.</p></blockquote>

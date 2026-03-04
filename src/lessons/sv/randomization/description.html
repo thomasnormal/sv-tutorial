@@ -1,0 +1,48 @@
+<p>Writing directed test vectors by hand doesn't scale. <strong><dfn data-card="Constrained random verification: mark class fields with 'rand', declare constraints, call randomize() — the solver picks values that satisfy all active constraints.">Constrained random verification</dfn></strong> lets the solver generate legal stimulus automatically.</p>
+<pre>class &lt;name&gt;;
+  rand &lt;type&gt; &lt;field&gt;;       // solver picks a new value each randomize()
+  constraint &lt;name&gt; { &lt;expr&gt;; }  // boolean expression the solver must satisfy
+endclass</pre>
+<p>Call <code>randomize()</code> to generate new values. The return value indicates success — always check it:</p>
+<pre>assert (t.randomize()) else $fatal(1, "randomize failed");</pre>
+
+<h3>Constraint blocks</h3>
+<p>Constraints are declarative — you describe what is legal, not how to pick it:</p>
+
+<svg width="420" height="90" viewBox="0 0 420 90" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:10px;margin:8px auto">
+  <!-- Full range bar [0..15] -->
+  <rect x="50" y="20" width="320" height="22" rx="3" fill="#f0f0f0" stroke="#aaa" stroke-width="1.2"/>
+  <text x="210" y="35" text-anchor="middle" fill="#888">addr [0 .. 15]  — full range</text>
+  <text x="50"  y="52" fill="#888" font-size="9">0</text>
+  <text x="369" y="52" fill="#888" font-size="9">15</text>
+  <!-- Constrained range [0..7] -->
+  <rect x="50" y="58" width="160" height="22" rx="3" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1.5"/>
+  <text x="130" y="73" text-anchor="middle" fill="#0d6f72" font-weight="bold">low_bank_c  [0 .. 7]</text>
+  <!-- Greyed-out range [8..15] with constraint_mode(0) arrow -->
+  <rect x="210" y="58" width="160" height="22" rx="3" fill="#f8f8f8" stroke="#ccc" stroke-width="1" stroke-dasharray="4,2"/>
+  <text x="290" y="73" text-anchor="middle" fill="#bbb">8 .. 15  (excluded)</text>
+  <!-- constraint_mode(0) annotation -->
+  <line x1="290" y1="56" x2="290" y2="46" stroke="#c17d2a" stroke-width="1.2" stroke-dasharray="3,2"/>
+  <text x="292" y="44" fill="#c17d2a" font-size="9">constraint_mode(0) → unlocks</text>
+  <text x="10"  y="10" fill="#555" font-size="10" font-weight="bold">addr distribution</text>
+</svg>
+<pre>constraint low_bank_c  { addr inside {[0:7]};   }  // low 8 addresses
+constraint write_only  { we == 1;                }  // writes only
+constraint no_overlap  { !(addr == 4'd0 && we);  }  // never write address 0</pre>
+
+<h3>Inline override with <code>with</code></h3>
+<p>Add a temporary extra constraint at the call site without modifying the class:</p>
+<pre>void'(t.randomize() with { addr inside {[8:15]}; });  // high bank for this call only</pre>
+
+<h3>Disabling constraints</h3>
+<p>Toggle a named constraint at runtime:</p>
+<pre>t.low_bank_c.constraint_mode(0);  // disable — full range
+t.low_bank_c.constraint_mode(1);  // re-enable</pre>
+
+<p>Open <code>rand_txn.sv</code> and complete three tasks:</p>
+<ol>
+  <li>Declare <code>rand logic [3:0] addr</code> and <code>rand bit we</code>.</li>
+  <li>Add <code>constraint low_bank_c { addr inside {[0:7]}; }</code>.</li>
+  <li>In Scenario 2, call <code>t.randomize() with { addr inside {[8:15]}; }</code> and assert <code>addr >= 8</code>.</li>
+</ol>
+<blockquote><p>UVM's <code>uvm_sequence_item</code> uses the same mechanism. The sequence item you'll build in the UVM chapter is exactly this class — with <code>rand bit we</code>, <code>rand logic [3:0] addr</code>, and a <code>read_c</code> constraint — wired up to a driver that calls <code>randomize()</code> before each transaction.</p></blockquote>

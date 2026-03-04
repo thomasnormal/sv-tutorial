@@ -1,12 +1,50 @@
-<p>A <strong><code><dfn data-card="A SystemVerilog checker is a named block (checker...endchecker) that encapsulates assertions. Like a module, it has ports and can be instantiated multiple times — so you can write a handshake_check once and reuse it for every req/ack pair in the design. Unlike a module, a checker is automatically excluded from synthesis, can take clocking events as formal arguments, and can be instantiated inside procedural blocks.">checker</dfn></code></strong> is a named, encapsulated block of assertions that can be instantiated anywhere a module instance is legal — and also inside procedural blocks. Unlike a module, a checker is automatically excluded from synthesis and can take clocking events as formal arguments.</p>
+<p>A <strong><code><dfn data-card="A SystemVerilog checker is a named block (checker...endchecker) that encapsulates assertions. Like a module, it has ports and can be instantiated multiple times — so you can write a handshake_check once and reuse it for every req/ack pair in the design. Unlike a module, a checker is automatically excluded from synthesis, can take clocking events as formal arguments, and can be instantiated inside procedural blocks.">checker</dfn></code></strong> is an encapsulated assertion block that can be instantiated like a module. The key benefit is <strong>reuse</strong>: write the property once, instantiate it for every signal pair in the design.</p>
+
 <pre>checker handshake_check(input logic clk, req, ack);
-  // ... properties go here ...
+  property p;
+    @(posedge clk) req |=> ##[1:3] ack;
+  endproperty
+  req_ack_a: assert property (p);
 endchecker
 
 module top(input logic clk, req1, ack1, req2, ack2);
-  // Reuse the same checker for two independent channels
+  // Same check applied to two independent channels
   handshake_check c1(clk, req1, ack1);
   handshake_check c2(clk, req2, ack2);
 endmodule</pre>
-<p>The WASM tool does not yet lower the <code>checker</code>/<code>endchecker</code> keywords, so this exercise uses a regular <code>module</code> instead — the semantics are identical for verification purposes. Open <code>top.sv</code> and complete the property inside <code>handshake_check</code>.</p>
-<blockquote><p>Checkers can also accept <code>sequence</code>, <code>property</code>, and <code>event</code> typed formal arguments, making them fully parameterisable assertion bundles — the SVA equivalent of generic verification IP.</p></blockquote>
+
+<svg width="440" height="100" viewBox="0 0 440 100" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:11px;margin:8px auto">
+  <!-- Checker definition box -->
+  <rect x="10" y="10" width="150" height="80" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1.5"/>
+  <text x="85" y="30" text-anchor="middle" fill="#0d6f72" font-weight="bold">handshake_check</text>
+  <text x="85" y="48" text-anchor="middle" fill="#0d6f72" font-size="10">req |=&gt; ##[1:3] ack</text>
+  <text x="85" y="64" text-anchor="middle" fill="#555" font-size="10">defined once</text>
+  <!-- Arrow to c1 -->
+  <line x1="160" y1="35" x2="200" y2="35" stroke="#0d6f72" stroke-width="1.5"/>
+  <polygon points="200,31 208,35 200,39" fill="#0d6f72"/>
+  <!-- Arrow to c2 -->
+  <line x1="160" y1="75" x2="200" y2="75" stroke="#0d6f72" stroke-width="1.5"/>
+  <polygon points="200,71 208,75 200,79" fill="#0d6f72"/>
+  <!-- Diagonal fork line -->
+  <line x1="160" y1="35" x2="160" y2="75" stroke="#0d6f72" stroke-width="1.5"/>
+  <!-- Instance c1 -->
+  <rect x="208" y="18" width="110" height="34" rx="4" fill="#fff8ec" stroke="#c17d2a" stroke-width="1.2"/>
+  <text x="263" y="32" text-anchor="middle" fill="#c17d2a" font-weight="bold">c1</text>
+  <text x="263" y="46" text-anchor="middle" fill="#555" font-size="10">req1, ack1</text>
+  <!-- Instance c2 -->
+  <rect x="208" y="58" width="110" height="34" rx="4" fill="#fff8ec" stroke="#c17d2a" stroke-width="1.2"/>
+  <text x="263" y="72" text-anchor="middle" fill="#c17d2a" font-weight="bold">c2</text>
+  <text x="263" y="86" text-anchor="middle" fill="#555" font-size="10">req2, ack2</text>
+</svg>
+
+<p>Unlike a module, a checker is automatically excluded from synthesis tools — no risk of accidentally instantiating it in RTL. It can also accept <code>sequence</code>, <code>property</code>, and <code>event</code> typed formal arguments, making it a fully parameterisable assertion bundle — the SVA equivalent of generic verification IP.</p>
+
+<blockquote><p>The WASM tool does not yet lower the <code>checker</code>/<code>endchecker</code> keywords. This exercise uses <code>module</code> instead — the properties and assertions are identical; only the encapsulation keyword differs.</p></blockquote>
+
+<h2>Exercise</h2>
+<p>Open <code>top.sv</code>. Two reusable checker modules are provided. Fill in a property for each:</p>
+<ul>
+  <li><strong>TODO 1</strong> (<code>handshake_check</code>): when <code>req</code> fires, <code>ack</code> must arrive within 1–3 cycles — use <code>req |=&gt; ##[1:3] ack</code></li>
+  <li><strong>TODO 2</strong> (<code>data_stable_check</code>): while <code>valid</code> is high, <code>data</code> must not change on the next cycle — use <code>valid |-&gt; $stable(data)</code></li>
+</ul>
+<p>Both checkers are instantiated twice in <code>top</code> — once per channel. Click Verify to confirm BMC proves both properties for both instances.</p>

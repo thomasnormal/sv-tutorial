@@ -1,5 +1,53 @@
-<p>SystemVerilog's <code>logic</code> type has four states: <code>0</code>, <code>1</code>, <code>X</code> (unknown), and <code>Z</code> (high-impedance). In simulation, X propagates through logic and can silently corrupt results.</p>
-<p><code>$isunknown(expr)</code> returns <code>1</code> if <em>any</em> bit of <code>expr</code> is X or Z, making it a precise detector for uninitialized registers and floating buses.</p>
-<p>Open <code>xcheck.sv</code> and complete the property body: the design guarantee is that <code>data</code> must never contain X or Z after reset. Negate <code>$isunknown</code> to express this as a positive assertion.</p>
-<p>The testbench (<code>tb.sv</code>) drives <code>data</code> to <code>'x</code> after reset — this should trigger the assertion. After filling in the property, run and watch the assertion fire at that cycle.</p>
-<blockquote><p><code>$isunknown</code> is a <strong>simulation-only</strong> function. Formal tools work in two-state (0/1) logic and X/Z do not exist. Use it to catch bus contention, missing reset, or undriven ports during simulation regression.</p></blockquote>
+<p>SystemVerilog's <code>logic</code> type has four states: <code>0</code>, <code>1</code>, <code>X</code> (unknown), and <code>Z</code> (high-impedance). The <code>X</code> state propagates through logic: any gate with an unknown input produces an unknown output. Uninitialized SRAM memory is a classic source — reading a location before it has been written returns <code>X</code>, which then flows into the rest of the design.</p>
+
+<svg width="460" height="90" viewBox="0 0 460 90" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:11px;margin:8px auto">
+  <!-- SRAM box -->
+  <rect x="10" y="20" width="110" height="50" rx="5" fill="#fff8ec" stroke="#c17d2a" stroke-width="1.5"/>
+  <text x="65" y="40" text-anchor="middle" fill="#c17d2a" font-weight="bold" font-size="12">mem[ ]</text>
+  <text x="65" y="58" text-anchor="middle" fill="#c17d2a" font-size="11">uninitialised</text>
+  <!-- Arrow 1 -->
+  <line x1="120" y1="45" x2="160" y2="45" stroke="#b00" stroke-width="2"/>
+  <polygon points="160,41 168,45 160,49" fill="#b00"/>
+  <!-- rdata label on arrow -->
+  <text x="140" y="38" text-anchor="middle" fill="#b00" font-size="10">rdata=X</text>
+  <!-- Downstream logic box -->
+  <rect x="168" y="20" width="110" height="50" rx="5" fill="#ffeaea" stroke="#b00" stroke-width="1.5"/>
+  <text x="223" y="40" text-anchor="middle" fill="#b00" font-weight="bold" font-size="12">comparator</text>
+  <text x="223" y="58" text-anchor="middle" fill="#b00" font-size="11">result = X</text>
+  <!-- Arrow 2 -->
+  <line x1="278" y1="45" x2="318" y2="45" stroke="#b00" stroke-width="2"/>
+  <polygon points="318,41 326,45 318,49" fill="#b00"/>
+  <text x="298" y="38" text-anchor="middle" fill="#b00" font-size="10">result=X</text>
+  <!-- $isunknown box -->
+  <rect x="326" y="20" width="124" height="50" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1.5"/>
+  <text x="388" y="40" text-anchor="middle" fill="#0d6f72" font-weight="bold" font-size="11">$isunknown</text>
+  <text x="388" y="58" text-anchor="middle" fill="#0d6f72" font-size="11">catches it ✓</text>
+</svg>
+
+<h2><code>$isunknown(expr)</code></h2>
+<p><code>$isunknown(expr)</code> returns <code>1</code> if <em>any</em> bit of <code>expr</code> is <code>X</code> or <code>Z</code>. It is <strong>simulation-only</strong> — formal tools use two-state logic where X and Z do not exist. Use it to catch:</p>
+<ul>
+  <li>Uninitialized registers (start of simulation before reset completes)</li>
+  <li>Floating bus wires (undriven output ports)</li>
+  <li>SRAM reads before any write has occurred</li>
+</ul>
+
+<p>Negate it to express a positive assertion — the signal must always be known:</p>
+<pre>!$isunknown(signal)</pre>
+
+<p>Wrap it in a concurrent property with <code>disable iff (!rst_n)</code> to suppress the check during reset, when everything is legitimately undriven:</p>
+<pre>property p_no_x_signal;
+  @(posedge clk) disable iff (!rst_n)
+    !$isunknown(signal);
+endproperty
+assert property (p_no_x_signal);</pre>
+
+<h2>Exercise</h2>
+<p>Open <code>xcheck.sv</code>. The module monitors three SRAM signals — <code>we</code>, <code>addr</code>, and <code>rdata</code> — and must assert that none of them ever carries X or Z after reset. Fill in the three property bodies:</p>
+<ul>
+  <li><strong>TODO 1:</strong> <code>we</code> must never be X or Z</li>
+  <li><strong>TODO 2:</strong> <code>addr</code> must never contain X or Z</li>
+  <li><strong>TODO 3:</strong> <code>rdata</code> must never contain X or Z</li>
+</ul>
+<p>The testbench deliberately drives each signal to <code>'x</code> in turn. Run the simulation to see the assertion fire at each injection point.</p>
+<blockquote><p><code>$isunknown</code> is <strong>simulation-only</strong>. Formal tools work in two-state (0/1) logic and do not model X or Z — do not use it inside a BMC or LEC design.</p></blockquote>

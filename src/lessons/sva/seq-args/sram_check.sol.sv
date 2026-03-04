@@ -13,8 +13,12 @@ module sram_check (
     we && (addr == a) && (wdata == d)
   endsequence
 
+  sequence read_txn(logic [3:0] a, logic [7:0] d);
+    (addr == a) && (rdata == d)
+  endsequence
+
   property wr_rd_p(logic [3:0] a, logic [7:0] d);
-    @(posedge clk) write_txn(a, d) |=> (addr == a) |-> (rdata == d);
+    @(posedge clk) write_txn(a, d) |=> (addr == a) |-> read_txn(a, d);
   endproperty
 
   addr0_check:  assert property (wr_rd_p(4'd0, 8'hA5));

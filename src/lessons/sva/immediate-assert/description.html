@@ -1,9 +1,37 @@
-              <p>In the previous chapter you ran concurrent assertions driven by a testbench — the simulator only checked the paths you drove. A <strong><dfn data-card="A model checker (or formal verification tool) mathematically proves that a design satisfies a property for ALL possible inputs and ALL possible time sequences — not just the ones you thought to test. It works by exploring a symbolic representation of the state space. If a property can be violated, it produces a concrete counterexample trace. If no counterexample exists up to a given depth, the property is proved for that bound.">model checker</dfn></strong> goes further: it exhaustively explores every possible input sequence up to a bounded depth, finding counterexamples without any testbench at all. The lessons from here on use CIRCT's <dfn data-card="BMC (Bounded Model Checking) unrolls the circuit's behavior for N time steps and encodes it as a SAT/SMT formula. The solver then searches for an assignment of inputs that makes an assertion fail. If no such assignment exists within N steps, the property is proved for depth N. BMC is complete for safety properties up to the bound — deeper bugs require larger bounds or inductive techniques.">bounded model checker</dfn> (BMC).</p>
-              <p>Before concurrent assertions, there are <strong>immediate assertions</strong> — non-temporal checks that live inside a procedural block. They fire the instant the simulator reaches them, like a runtime sanity check:</p>
-              <pre>assert (expression)
+<p>An <strong>immediate assertion</strong> is a non-temporal sanity check inside a procedural block. It fires the instant the simulator reaches it — like an <code>if</code> statement that calls <code>$error</code> on failure:</p>
+
+<pre>assert (expression)
   pass_action;
 else
   fail_action;</pre>
-              <p>If the expression is <code>0</code>, <code>x</code>, or <code>z</code>, the assertion <strong>fails</strong> and the <code>else</code> branch runs.</p>
-              <p>Open <code>fifo_checker.sv</code> and add two assertions inside the <code>always @(posedge clk)</code> block — one that prevents writing to a full FIFO, and one that prevents reading from an empty FIFO. Express each condition as a Boolean that must always be true.</p>
-              <blockquote><p>Use <code>$error</code> in the else clause for an automatic timestamp and file/line location in the log.</p></blockquote>
+
+<p>If <code>expression</code> is <code>0</code>, <code>x</code>, or <code>z</code>, the assertion <strong>fails</strong> and the <code>else</code> branch executes. This makes them ideal for expressing invariants that must hold at every clock edge.</p>
+
+<svg width="420" height="110" viewBox="0 0 420 110" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:11px;margin:8px auto">
+  <!-- Always block -->
+  <rect x="10" y="8" width="400" height="94" rx="6" fill="#f8f8f8" stroke="#aaa" stroke-width="1.2"/>
+  <text x="20" y="25" fill="#555" font-size="10">always @(posedge clk) begin</text>
+  <text x="36" y="44" fill="#888">compute signals...</text>
+  <!-- highlighted assertion line -->
+  <rect x="28" y="50" width="374" height="20" rx="3" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1"/>
+  <text x="36" y="64" fill="#0d6f72" font-weight="bold">assert (condition) else $error("...");</text>
+  <!-- arrow pointing to assertion -->
+  <text x="340" y="46" fill="#c17d2a" font-size="10">fires here ↓</text>
+  <text x="36" y="86" fill="#888">more logic...</text>
+  <text x="20" y="98" fill="#555" font-size="10">end</text>
+</svg>
+
+<p>The <code>else $error("...")</code> clause prints an automatic timestamp, file name, and line number — far more useful than a bare <code>$display</code>.</p>
+
+<h2>Formal verification with BMC</h2>
+<p>Immediate assertions inside <code>always</code> blocks are also recognized by CIRCT's <dfn data-card="BMC (Bounded Model Checking) unrolls the circuit's behavior for N time steps and encodes it as a SAT/SMT formula. The solver then searches for an assignment of inputs that makes an assertion fail. If no such assignment exists within N steps, the property is proved for that bound.">bounded model checker</dfn>. Instead of running a testbench, BMC exhaustively searches all possible input combinations. If an assertion can be violated, BMC produces a counterexample — without you having to write a single test vector.</p>
+
+<h2>Exercise</h2>
+<p>Open <code>fifo_checker.sv</code>. The module receives four FIFO status signals and must prevent four illegal conditions. Inside the <code>always @(posedge clk)</code> block, add four immediate assertions:</p>
+<ul>
+  <li><strong>TODO 1:</strong> Never write when <code>full</code> — i.e., <code>!(wr_en &amp;&amp; full)</code></li>
+  <li><strong>TODO 2:</strong> Never read when <code>empty</code> — i.e., <code>!(rd_en &amp;&amp; empty)</code></li>
+  <li><strong>TODO 3:</strong> Never read and write simultaneously (1-port FIFO)</li>
+  <li><strong>TODO 4:</strong> <code>count</code> must never exceed <code>DEPTH</code></li>
+</ul>
+<p>Each should use <code>else $error("meaningful message")</code>. Click Verify — BMC will find any input sequence that violates your assertions.</p>

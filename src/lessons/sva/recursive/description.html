@@ -1,7 +1,42 @@
-<p>A <strong>recursive property</strong> refers to itself in its own consequent, creating a self-referential temporal statement that unrolls indefinitely:</p>
+<p>Some guarantees must hold <em>for all time</em> — not just for a fixed number of cycles. A <strong>recursive property</strong> expresses this by referring to itself in its consequent:</p>
 <pre>property p_lock_hold;
-  @(posedge clk) lock && !unlock |=> p_lock_hold;
+  @(posedge clk) lock &amp;&amp; !unlock |=&gt; p_lock_hold;
 endproperty</pre>
-<p>This reads: "if <code>lock</code> is high and <code>unlock</code> has not fired, one cycle later the same condition must hold again — forever, until <code>unlock</code> fires." Recursive properties must use <code>|=&gt;</code> (never <code>|-&gt;</code>) to avoid a zero-time loop, and the recursive call must appear as the <em>consequent</em>, never the antecedent.</p>
-<p>The WASM tool does not yet support recursive property calls. This exercise uses the equivalent one-step form that BMC can verify directly: if <code>lock</code> is high and <code>unlock</code> has not fired, <code>lock</code> must be high on the next cycle. BMC checks this for every cycle up to its bound — which is equivalent to the recursive version within any finite trace. Open <code>lock_check.sv</code> and complete the property.</p>
-<blockquote><p>Full formal tools prove recursive properties by <dfn data-card="Induction in formal verification works like mathematical induction: first prove the base case (the property holds at step 0), then prove the inductive step (if the property holds at step k, it must also hold at step k+1). Together these give an unbounded proof for all time steps, without needing to check every depth explicitly. k-induction strengthens this by using k consecutive steps in the inductive case, allowing proofs for circuits with deeper invariants.">induction</dfn>: they show (a) the property holds at step 0, and (b) if it holds at step k, it holds at step k+1. This gives an unbounded proof without requiring an unbounded bound.</p></blockquote>
+<p>This reads: "if <code>lock</code> is high and <code>unlock</code> has not fired, one cycle later the same condition must hold again — repeating indefinitely until <code>unlock</code> fires." The recursive call <em>must</em> appear in the consequent (never the antecedent), and <em>must</em> use <code>|=&gt;</code> to avoid a zero-time loop.</p>
+
+<p>Full formal tools prove recursive properties by <dfn data-card="Induction in formal verification works like mathematical induction: first prove the base case (the property holds at step 0), then prove the inductive step (if the property holds at step k, it must also hold at step k+1). Together these give an unbounded proof for all time steps. k-induction strengthens this by using k consecutive steps in the inductive case.">induction</dfn>: prove (a) the property holds at step 0, and (b) if it holds at step k, it holds at step k+1. Together, these give an unbounded proof.</p>
+
+<svg width="400" height="110" viewBox="0 0 400 110" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:11px;margin:8px auto">
+  <!-- UNLOCKED state -->
+  <circle cx="90" cy="55" r="40" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1.8"/>
+  <text x="90" y="50" text-anchor="middle" fill="#0d6f72" font-weight="bold">UNLOCKED</text>
+  <text x="90" y="66" text-anchor="middle" fill="#0d6f72" font-size="10">we allowed</text>
+  <!-- LOCKED state -->
+  <circle cx="300" cy="55" r="40" fill="#fff8ec" stroke="#c17d2a" stroke-width="1.8"/>
+  <text x="300" y="50" text-anchor="middle" fill="#c17d2a" font-weight="bold">LOCKED</text>
+  <text x="300" y="66" text-anchor="middle" fill="#c17d2a" font-size="10">we blocked</text>
+  <!-- Arrow: UNLOCKED → LOCKED (lock fires) -->
+  <path d="M 128,40 Q 195,10 262,40" fill="none" stroke="#0d6f72" stroke-width="1.5" marker-end="url(#rc-arr)"/>
+  <text x="195" y="18" text-anchor="middle" fill="#0d6f72" font-size="10">lock</text>
+  <!-- Arrow: LOCKED → UNLOCKED (unlock fires) -->
+  <path d="M 262,70 Q 195,100 128,70" fill="none" stroke="#c17d2a" stroke-width="1.5" marker-end="url(#rc-arr2)"/>
+  <text x="195" y="100" text-anchor="middle" fill="#c17d2a" font-size="10">unlock</text>
+  <!-- Self-loop on LOCKED: lock && !unlock → stay -->
+  <path d="M 330,20 Q 370,5 370,55 Q 370,90 330,80" fill="none" stroke="#c17d2a" stroke-width="1.2" stroke-dasharray="4,2" marker-end="url(#rc-arr2)"/>
+  <text x="385" y="55" text-anchor="middle" fill="#c17d2a" font-size="9">stay</text>
+  <defs>
+    <marker id="rc-arr"  markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#0d6f72"/></marker>
+    <marker id="rc-arr2" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#c17d2a"/></marker>
+  </defs>
+</svg>
+
+<blockquote><p>The WASM tool does not yet support recursive property calls. This exercise uses the equivalent one-step inductive form: <code>lock &amp;&amp; !unlock |=&gt; lock</code>. BMC checks this for every depth up to its bound — which is equivalent to the recursive form within any finite trace.</p></blockquote>
+
+<h2>Exercise</h2>
+<p>Open <code>lock_check.sv</code>. The module monitors the SRAM write-lock protocol with three orthogonal properties. Fill in each property body:</p>
+<ul>
+  <li><strong>TODO 1</strong> (<code>p_lock_hold</code>): <code>lock &amp;&amp; !unlock</code> implies <code>lock</code> is still high next cycle — the inductive "hold" step</li>
+  <li><strong>TODO 2</strong> (<code>p_writes_blocked</code>): while <code>lock</code> is high, <code>we</code> must be low — the main safety invariant</li>
+  <li><strong>TODO 3</strong> (<code>p_no_simultaneous</code>): <code>lock</code> and <code>unlock</code> must never both be high at the same time</li>
+</ul>
+<p>Click Verify — BMC proves all three hold for every possible input sequence up to its depth bound.</p>

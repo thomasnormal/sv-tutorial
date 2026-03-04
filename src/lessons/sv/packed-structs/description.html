@@ -1,56 +1,73 @@
-<p>
-<strong><dfn data-card="A packed struct maps named fields onto a single contiguous bit-vector, with no gaps or padding. The struct as a whole can be treated as a plain logic [N:0] — you can assign it, compare it, or wire it through a port. 
-There are also unpacked structs, which give the compiler more flexibility on how data is laid out in memory, but they are not synthesizable and are mostly used for testbench data structures.">Packed structs</dfn></strong>
-are simple data structures for packing multiple fields into a single bit-vector.
-We can use them to pack related signals, like (write-enable, address, and data) commands into a single port.
-<p>
-You define strucs with:
-</p>
+<p><strong><dfn data-card="A packed struct maps named fields onto a single contiguous bit-vector, with no gaps or padding. The struct as a whole can be treated as a plain logic [N:0] — you can assign it, compare it, or wire it through a port. Fields are declared MSB-first, so the first field occupies the most significant bits.">Packed structs</dfn></strong> bundle related signals — write-enable, address, and data — into a single named type. Instead of three separate ports you pass one <code>mem_cmd_t</code>; the receiver unpacks by field name.</p>
+
+<h2>Syntax</h2>
 <pre>typedef struct packed {
-    logic        we;
-    logic [3:0]  addr;
-    ...
-} my_struct_t;</pre>
-<p>
-You instantiate them with:
-</p>
-<pre>my_struct_t var;
-var.we = 1'b1;
-var.addr = 4'd3;</pre>
-or with struct literals:
-<pre>var = '{we: 1'b1, addr: 4'd3};</pre>
-<blockquote><p>Notice the <code>'{}</code> syntax for struct literals.
-The notation <code>{a, b, c}</code> means bit concatenation.
-E.g. we can write <code>logic [4:0] var = {we, addr}</code>,
-but it is less readable.
-   </p></blockquote>
-<p>
-Fields are laid out
-<dfn data-card="Most Significant Bit first (MSB-first) means that the leftmost bit of a multi-bit vector is the most significant, and the rightmost bit is the least significant.">
-MSB-first
-</dfn>
-in declaration order.
-You can even assign them with raw bit patterns:
-</p>
-<pre>var = 13'b1_0011_00110111;</pre>
-<p>Open <code>mem_cmd.sv</code>. Inside the <code><dfn data-card="typedef creates a type alias — a new name for an existing type. In SystemVerilog it is most commonly used with enum and struct to give a meaningful name to a bit-vector layout: typedef struct packed {...} mem_cmd_t creates a type called mem_cmd_t that you can use in port declarations and variable definitions. The _t suffix is a convention for type names, borrowed from C. typedef'd types can be exported from packages and imported by any module in the design.">typedef</dfn> struct packed { } mem_cmd_t;</code> skeleton, add the three fields of the SRAM command bus:</p>
-<ul>
-   <li>A single-bit write-enable flag (<code>we</code>)</li>
-   <li>A 4-bit address (<code>addr</code>) for a 16-entry SRAM</li>
-   <li>An 8-bit write-data bus (<code>wdata</code>)</li>
-</ul>
-<blockquote><p>This is the command bus for our memory chip. In Part 3 the UVM driver will assemble a <code>mem_cmd_t</code> from a sequence item and drive it onto the interface every clock cycle.</p></blockquote>
-<h2>SRAM design</h2>
-<p><code>sram_cmd.sv</code> imports the <dfn data-card="A SystemVerilog package is a named namespace for sharing type definitions, functions, parameters, and tasks across multiple modules without copy-pasting. Declare types once in a package; any module can access them with 'import pkg_name::*;' or use the scoped form 'pkg_name::type_name'. Packages are similar to C++ namespaces or Python modules. In this design, mem_pkg exports mem_cmd_t so both the DUT and the testbench use the identical struct definition.">package</dfn> and uses <code>cmd.we</code>, <code>cmd.addr</code>, and <code>cmd.wdata</code> by name. After you add the fields the design compiles and the testbench exercises writes and reads via both struct literals and raw bit assignments.</p>
-<h2>Packed unions</h2>
-<p>A <strong><dfn data-card="A packed union overlays multiple named views onto the same bit pattern. All members occupy the same bits — writing through one member and reading through another is intentional and well-defined. The most common use is pairing a struct view with a flat logic vector so the same data can be accessed by field name in one place and passed as a raw bus in another.">packed union</dfn></strong> overlays multiple views onto the same bit pattern:</p>
-<pre>typedef union packed {
-    &lt;type&gt; &lt;field&gt;;
-    &lt;type&gt; &lt;field&gt;;
+    logic        &lt;field&gt;;
+    logic [N:0]  &lt;field&gt;;
 } &lt;name&gt;_t;</pre>
-<p>All members share the same bits. A common pattern is pairing a struct with a flat bit-vector so you can pass data through a FIFO or parameterised bus as a raw logic value, then unpack it by field name at the other end:</p>
-<pre>typedef union packed {
-    mem_cmd_t    cmd;    // named-field access
-    logic [12:0] raw;    // flat-bus access
-} mem_word_t;</pre>
-<p>Both <code>.cmd</code> and <code>.raw</code> describe the same 13 bits — <code>we</code> + <code>addr</code> + <code>wdata</code>.</p>
+<p>Fields are laid out <dfn data-card="Most Significant Bit first (MSB-first) means the first field declared occupies the most significant bits of the bit-vector, and the last field occupies the least significant bits.">MSB-first</dfn> in declaration order. You read and write them by name:</p>
+<pre>mem_cmd_t cmd;
+cmd.we   = 1'b1;
+cmd.addr = 4'd3;</pre>
+<p>Or with a <strong>struct literal</strong> <code>'{...}</code>:</p>
+<pre>cmd = '{we: 1'b1, addr: 4'd3, wdata: 8'hA5};</pre>
+<blockquote><p><code>'{we: ..., addr: ..., wdata: ...}</code> is a struct literal. Do not confuse it with <code>{a, b, c}</code> which is bit concatenation — both produce the same 13-bit pattern here, but the literal form is much more readable.</p></blockquote>
+
+<h2>Bit layout of <code>mem_cmd_t</code></h2>
+<svg width="475" height="80" viewBox="0 0 475 80" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:11px;margin:8px auto">
+  <!-- we block: bit 12, x=10, w=35 -->
+  <rect x="10"  y="10" width="35"  height="30" rx="3" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1.5"/>
+  <text x="27"  y="30" text-anchor="middle" fill="#0d6f72" font-weight="bold">we</text>
+  <!-- addr block: bits 11-8, x=45, w=140 -->
+  <rect x="45"  y="10" width="140" height="30" rx="3" fill="#fff8ec" stroke="#c17d2a" stroke-width="1.5"/>
+  <text x="115" y="30" text-anchor="middle" fill="#c17d2a" font-weight="bold">addr [3:0]</text>
+  <!-- dividers inside addr -->
+  <line x1="80"  y1="10" x2="80"  y2="40" stroke="#c17d2a" stroke-width="0.8"/>
+  <line x1="115" y1="10" x2="115" y2="40" stroke="#c17d2a" stroke-width="0.8"/>
+  <line x1="150" y1="10" x2="150" y2="40" stroke="#c17d2a" stroke-width="0.8"/>
+  <!-- wdata block: bits 7-0, x=185, w=280 -->
+  <rect x="185" y="10" width="280" height="30" rx="3" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1.5"/>
+  <text x="325" y="30" text-anchor="middle" fill="#0d6f72" font-weight="bold">wdata [7:0]</text>
+  <!-- dividers inside wdata -->
+  <line x1="220" y1="10" x2="220" y2="40" stroke="#0d6f72" stroke-width="0.8"/>
+  <line x1="255" y1="10" x2="255" y2="40" stroke="#0d6f72" stroke-width="0.8"/>
+  <line x1="290" y1="10" x2="290" y2="40" stroke="#0d6f72" stroke-width="0.8"/>
+  <line x1="325" y1="10" x2="325" y2="40" stroke="#0d6f72" stroke-width="0.8"/>
+  <line x1="360" y1="10" x2="360" y2="40" stroke="#0d6f72" stroke-width="0.8"/>
+  <line x1="395" y1="10" x2="395" y2="40" stroke="#0d6f72" stroke-width="0.8"/>
+  <line x1="430" y1="10" x2="430" y2="40" stroke="#0d6f72" stroke-width="0.8"/>
+  <!-- bit numbers -->
+  <text x="27"  y="58" text-anchor="middle" fill="#555">12</text>
+  <text x="62"  y="58" text-anchor="middle" fill="#555">11</text>
+  <text x="97"  y="58" text-anchor="middle" fill="#555">10</text>
+  <text x="132" y="58" text-anchor="middle" fill="#555">9</text>
+  <text x="167" y="58" text-anchor="middle" fill="#555">8</text>
+  <text x="202" y="58" text-anchor="middle" fill="#555">7</text>
+  <text x="237" y="58" text-anchor="middle" fill="#555">6</text>
+  <text x="272" y="58" text-anchor="middle" fill="#555">5</text>
+  <text x="307" y="58" text-anchor="middle" fill="#555">4</text>
+  <text x="342" y="58" text-anchor="middle" fill="#555">3</text>
+  <text x="377" y="58" text-anchor="middle" fill="#555">2</text>
+  <text x="412" y="58" text-anchor="middle" fill="#555">1</text>
+  <text x="447" y="58" text-anchor="middle" fill="#555">0</text>
+  <!-- label below -->
+  <text x="237" y="75" text-anchor="middle" fill="#888" font-size="10">mem_cmd_t — 13 bits total</text>
+</svg>
+
+<p>The entire command fits in 13 bits. You can also assign or compare it as a raw pattern:</p>
+<pre>// we=1, addr=5 (4'b0101), wdata=0x4D — same as struct literal
+cmd = 13'b1_0101_01001101;</pre>
+
+<h2>Packages</h2>
+<p>The type is declared in a <dfn data-card="A SystemVerilog package is a named namespace for sharing type definitions, functions, parameters, and tasks across multiple modules without copy-pasting. Declare types once in a package; any module can access them with 'import pkg_name::*;' or use the scoped form 'pkg_name::type_name'. Packages are similar to C++ namespaces or Python modules. In this design, mem_pkg exports mem_cmd_t so both the DUT and the testbench use the identical struct definition.">package</dfn> so both the DUT (<code>sram_cmd.sv</code>) and the testbench share exactly one definition. The DUT receives a single <code>mem_cmd_t cmd</code> port and accesses <code>cmd.we</code>, <code>cmd.addr</code>, <code>cmd.wdata</code> by name.</p>
+
+<blockquote><p>This is the command bus for our memory chip. In Part 3 the UVM driver will assemble a <code>mem_cmd_t</code> from a sequence item and drive it onto the interface every clock cycle.</p></blockquote>
+
+<h2>Exercise</h2>
+<p>Open <code>mem_cmd.sv</code>. Inside the <code><dfn data-card="typedef creates a type alias — a new name for an existing type. In SystemVerilog it is most commonly used with enum and struct to give a meaningful name to a bit-vector layout: typedef struct packed {...} mem_cmd_t creates a type called mem_cmd_t that you can use in port declarations and variable definitions. The _t suffix is a convention for type names, borrowed from C. typedef'd types can be exported from packages and imported by any module in the design.">typedef</dfn> struct packed { } mem_cmd_t;</code> skeleton, add the three fields of the SRAM command bus (refer to the bit-layout diagram above):</p>
+<ul>
+  <li>A single-bit write-enable flag (<code>we</code>) — MSB, bit 12</li>
+  <li>A 4-bit address (<code>addr</code>) for a 16-entry SRAM — bits 11..8</li>
+  <li>An 8-bit write-data bus (<code>wdata</code>) — bits 7..0</li>
+</ul>
+<p>Run the simulation — you should see two PASS lines: one read-back via struct literal, one via raw bit assignment.</p>

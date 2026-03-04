@@ -1,0 +1,65 @@
+<p>A <strong><dfn data-card="A class is a blueprint that bundles data fields and the methods that operate on them. Unlike structs, class variables hold handles (pointers) to objects on the heap, not the objects themselves.">class</dfn></strong> bundles data and methods into a single unit:</p>
+<pre>class &lt;name&gt;;
+  &lt;field declarations&gt;
+  function new(&lt;args&gt;);  // constructor
+    &lt;initialization&gt;
+  endfunction
+  function string convert2string(); ... endfunction
+endclass</pre>
+<p>Classes are the foundation of UVM — every sequence item, driver, and monitor extends <code>uvm_object</code> or <code>uvm_component</code>, which are themselves classes.</p>
+
+<h3>Handle semantics</h3>
+<p>A class variable is a <strong><dfn data-card="A handle is a reference (pointer) to an object. Assigning one handle to another makes both variables point to the same object — they do not copy the data.">handle</dfn></strong>, not a value. Assigning one handle to another makes both variables point to the <em>same</em> object:</p>
+
+<svg width="430" height="110" viewBox="0 0 430 110" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:11px;margin:8px auto">
+  <!-- Left panel: t2 = t1 — shared -->
+  <text x="90" y="14" text-anchor="middle" fill="#0d6f72" font-weight="bold" font-size="12">t2 = t1</text>
+  <text x="20" y="42" fill="#1e2a2c">t1</text>
+  <line x1="36" y1="38" x2="70" y2="38" stroke="#1e2a2c" stroke-width="1.5" marker-end="url(#cls-a)"/>
+  <text x="20" y="80" fill="#1e2a2c">t2</text>
+  <line x1="36" y1="76" x2="70" y2="55" stroke="#1e2a2c" stroke-width="1.5" marker-end="url(#cls-a)"/>
+  <rect x="72" y="20" width="110" height="50" rx="4" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1.5"/>
+  <text x="127" y="40" text-anchor="middle" fill="#0d6f72" font-weight="bold">object A</text>
+  <text x="127" y="58" text-anchor="middle" fill="#0d6f72" font-size="10">wdata = A5</text>
+  <text x="90" y="100" text-anchor="middle" fill="#c17d2a" font-size="10">both share the same object</text>
+  <!-- Divider -->
+  <line x1="215" y1="8" x2="215" y2="102" stroke="#ccc" stroke-width="1" stroke-dasharray="4,2"/>
+  <!-- Right panel: t2 = new() — independent -->
+  <text x="320" y="14" text-anchor="middle" fill="#c17d2a" font-weight="bold" font-size="12">t2 = new(...)</text>
+  <text x="224" y="42" fill="#1e2a2c">t1</text>
+  <line x1="240" y1="38" x2="270" y2="38" stroke="#1e2a2c" stroke-width="1.5" marker-end="url(#cls-a)"/>
+  <rect x="272" y="20" width="80" height="30" rx="4" fill="#e6f5f5" stroke="#0d6f72" stroke-width="1.5"/>
+  <text x="312" y="39" text-anchor="middle" fill="#0d6f72" font-size="10">object A</text>
+  <text x="224" y="80" fill="#1e2a2c">t2</text>
+  <line x1="240" y1="76" x2="270" y2="76" stroke="#1e2a2c" stroke-width="1.5" marker-end="url(#cls-a)"/>
+  <rect x="272" y="60" width="80" height="30" rx="4" fill="#fff8ec" stroke="#c17d2a" stroke-width="1.5"/>
+  <text x="312" y="79" text-anchor="middle" fill="#c17d2a" font-size="10">object B</text>
+  <text x="320" y="100" text-anchor="middle" fill="#0d6f72" font-size="10">independent objects</text>
+  <defs>
+    <marker id="cls-a" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#1e2a2c"/>
+    </marker>
+  </defs>
+</svg>
+<pre>mem_item t1 = new(1, 4'd5, 8'hA5);
+mem_item t2 = t1;       // t2 and t1 share the object
+t2.wdata = 8'hFF;
+$display(t1.wdata);     // prints FF — same object!</pre>
+<p>To get an independent copy, call <code>new(...)</code> again:</p>
+<pre>t2 = new(0, 4'd3, 8'h00);  // t2 now points to a different object
+// t1.wdata is still 8'hFF</pre>
+
+<h3>The <code>this</code> keyword</h3>
+<p>Inside a constructor, argument names often shadow field names. Use <code>this.field</code> to refer to the field unambiguously:</p>
+<pre>function new(bit we, logic [3:0] addr, ...);
+  this.we   = we;    // 'this.we' is the field; 'we' is the argument
+  this.addr = addr;
+endfunction</pre>
+
+<p>Open <code>mem_item.sv</code> and complete three tasks:</p>
+<ol>
+  <li>Declare four fields: <code>bit we</code>, <code>logic [3:0] addr</code>, <code>logic [7:0] wdata</code>, <code>logic [7:0] rdata</code>.</li>
+  <li>Fill in the constructor body using <code>this.field = arg</code>; leave <code>rdata</code> at its default (0).</li>
+  <li>Implement <code>convert2string</code>: return <code>"WR[&lt;addr&gt;]=&lt;wdata&gt;"</code> for writes, <code>"RD[&lt;addr&gt;]"</code> for reads.</li>
+</ol>
+<p>The testbench (already in the file) demonstrates handle sharing: assigning <code>t2 = t1</code> and then modifying <code>t2.wdata</code> changes <code>t1.wdata</code> too. Then <code>t2 = new(...)</code> creates a fresh object, leaving <code>t1</code> unchanged.</p>

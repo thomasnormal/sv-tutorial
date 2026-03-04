@@ -1,4 +1,4 @@
-<p>The SRAM you are building has two very different kinds of code: the <strong>RTL</strong> that will be synthesized into silicon, and the <strong>testbench</strong> that exercises it in simulation. SystemVerilog gives each a different family of types, and choosing the wrong one causes real bugs.</p>
+<p>The SRAM you are building has two very different kinds of code: the <strong>RTL</strong> that will be synthesized into silicon, and the <strong>testbench</strong> that exercises it in simulation. SystemVerilog gives each a different family of types. Using the wrong one either hides bugs or causes unexpected behavior.</p>
 
 <h2>4-state vs 2-state</h2>
 <svg width="420" height="90" viewBox="0 0 420 90" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:8px auto">
@@ -13,17 +13,13 @@
   <text x="322" y="70" text-anchor="middle" fill="#c17d2a">2-state: 0  1</text>
 </svg>
 
-<p>RTL signals use <code><dfn data-card="logic is SystemVerilog's universal 4-state RTL type, replacing Verilog's wire and reg. Its four states are: 0 (driven low), 1 (driven high), X (unknown — uninitialised or conflicting drivers), and Z (high-impedance — no driver). X propagates through combinational logic: if any input to a gate is X, the output is usually X too. This makes uninitialised signals visible in simulation rather than silently defaulting to 0.">logic</dfn></code> — a 4-state type whose four states mean:</p>
+<p>RTL signals use <code><dfn data-card="logic is SystemVerilog's universal 4-state RTL type, replacing Verilog's wire and reg. Its four states are: 0 (driven low), 1 (driven high), X (unknown — uninitialised or conflicting drivers), and Z (high-impedance — no driver). X propagates through combinational logic: if any input to a gate is X, the output is usually X too. This makes uninitialised signals visible in simulation rather than silently defaulting to 0.">logic</dfn></code> — a 4-state type. The extra two states are:</p>
 <ul>
-  <li><code>0</code> — driven low</li>
-  <li><code>1</code> — driven high</li>
-  <li><code>X</code> — <strong>unknown</strong>: the signal is uninitialised, or two drivers are fighting over it. X propagates through logic gates, so one undriven input corrupts everything downstream — making the bug impossible to miss.</li>
-  <li><code>Z</code> — <strong><dfn data-card="High-impedance (Z) means the signal has no driver at all — it is electrically floating. On real silicon this occurs on tri-state buses, where only one device drives the wire at a time while others disconnect. In simulation, an undriven net defaults to Z. Most FPGA and ASIC synthesis tools do not support Z inside a module; it is mainly useful at top-level I/O pads and in testbenches that model off-chip buses.">high-impedance</dfn></strong>: no driver is connected. Common on tri-state buses and chip I/O pads; rarely used inside a synthesizable module.</li>
+  <li><code>X</code> — <strong>unknown</strong>: the signal is uninitialised, or two drivers are fighting. X propagates through logic gates, making the bug impossible to miss in the waveform or log.</li>
+  <li><code>Z</code> — <strong><dfn data-card="High-impedance (Z) means the signal has no driver — it is electrically floating. On real silicon this occurs on tri-state buses where only one device drives at a time. Most synthesis tools do not support Z inside a module; it is mainly used at chip I/O pads.">high-impedance</dfn></strong>: no driver is connected. Mainly used on tri-state buses and chip I/O pads.</li>
 </ul>
-<p>The <code>X</code> state is crucial for verification: if a signal is never driven, it stays <code>X</code> and propagates through your design, making the problem immediately visible in the waveform or log.</p>
 
-<p>Testbench code uses 2-state types — they only hold <code>0</code> and <code>1</code>, they initialize to <code>0</code> (not <code>X</code>), and they support signed arithmetic:</p>
-
+<p>Testbench code uses 2-state types. They only hold <code>0</code> and <code>1</code>, initialise to <code>0</code> automatically, and support signed arithmetic:</p>
 <table style="border-collapse:collapse;width:100%;font-size:0.9em;margin:0.5em 0">
   <thead><tr style="background:var(--teal-50,#e6f5f5)">
     <th style="padding:4px 8px;text-align:left;border:1px solid var(--border-color,#ccc)">Type</th>
@@ -39,46 +35,19 @@
   </tbody>
 </table>
 
-<blockquote><p>Using <code>bit [31:0]</code> instead of <code>int</code> for a testbench counter seems harmless — until you set it to <code>-1</code> and the comparison <code>count &lt; 0</code> silently returns false because <code>bit</code> is unsigned. Similarly, using <code>bit [7:0]</code> instead of <code>logic [7:0]</code> for an RTL port means <code>X</code> silently becomes <code>0</code>, hiding uninitialized-signal bugs.</p></blockquote>
+<blockquote><p>Using <code>bit [31:0]</code> instead of <code>int</code> for a counter seems harmless — until you set it to <code>-1</code> and <code>count &lt; 0</code> silently returns false because <code>bit</code> is unsigned. Using <code>bit [7:0]</code> instead of <code>logic [7:0]</code> for an RTL port means <code>X</code> silently becomes <code>0</code>, hiding uninitialised-signal bugs.</p></blockquote>
 
-<h2>Signed arithmetic and overflow</h2>
-<p>Signed types use <strong><dfn data-card="Two's complement is the standard binary encoding for signed integers. To negate a number: invert all bits and add 1. For an N-bit type the range is -2^(N-1) to 2^(N-1)-1. The key property that makes it useful in hardware is that addition and subtraction use the exact same circuit regardless of sign — no special-case logic needed. Overflow occurs when the carry into the sign bit differs from the carry out of the sign bit: adding two positives gives a negative, or adding two negatives gives a positive.">two's complement</dfn></strong> encoding. Overflow wraps silently:</p>
-<pre>byte a = 127;
-a = a + 1;  // wraps to -128, not 128 — overflow!</pre>
-<p>The rule: overflow occurs when you add two numbers of the same sign and the result has the opposite sign. Hardware detects this as <code>carry_in_to_sign_bit XOR carry_out_of_sign_bit</code>, but in SystemVerilog you usually just size your types large enough to prevent it.</p>
-
-<h2>The <code>$isunknown()</code> system function</h2>
-<p><code>$isunknown(expr)</code> returns <code>1</code> if any bit of <code>expr</code> is <code>X</code> or <code>Z</code>. It lets a testbench explicitly check that a <code>logic</code> signal is carrying unknown — which is exactly what you want to verify after writing to a 4-state type.</p>
-
-<h2>Arrays</h2>
-<p>SystemVerilog has two array syntaxes. The placement of the dimension brackets determines whether you get a packed bit-vector or an unpacked array of independent elements.</p>
-
-<table style="border-collapse:collapse;width:100%;font-size:0.9em;margin:0.5em 0">
-  <thead><tr style="background:var(--teal-50,#e6f5f5)">
-    <th style="padding:4px 8px;text-align:left;border:1px solid var(--border-color,#ccc)">Syntax</th>
-    <th style="padding:4px 8px;text-align:left;border:1px solid var(--border-color,#ccc)">Kind</th>
-    <th style="padding:4px 8px;text-align:left;border:1px solid var(--border-color,#ccc)">What <code>[0]</code> means</th>
-    <th style="padding:4px 8px;text-align:left;border:1px solid var(--border-color,#ccc)">Use for</th>
-  </tr></thead>
-  <tbody>
-    <tr><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)"><code>logic [7:0] x</code></td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">packed vector</td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">bit 0 of x (1 bit)</td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">RTL signals, data paths</td></tr>
-    <tr><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)"><code>logic [7:0] x [8]</code></td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">unpacked array</td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">element 0 (8 bits)</td><td style="padding:4px 8px;border:1px solid var(--border-color,#ccc)">memories, lookup tables</td></tr>
-  </tbody>
-</table>
-
-<p><strong><dfn data-card="Packed arrays place dimension brackets before the variable name. All bits are laid out contiguously, forming one large bit-vector. You can read any contiguous slice with [hi:lo] or a single bit with [n]. Packed arrays are fully synthesizable and are the standard syntax for RTL signals — logic [7:0] is already a 1-D packed array.">Packed</dfn> dimensions</strong> go <em>before</em> the variable name. The bits are contiguous — it is one big bit-vector you can slice with <code>[hi:lo]</code> or bit-select with <code>[n]</code>. This is the syntax you already know: <code>logic [7:0]</code> is an 8-bit packed array.</p>
-
-<p><strong><dfn data-card="Unpacked arrays place dimension brackets after the variable name, like C arrays. Each element is a separate storage location. The SRAM memory array logic [WIDTH-1:0] mem [0:DEPTH-1] is an unpacked array: addr selects the element, and [WIDTH-1:0] is that element's packed width. Unpacked arrays of logic are synthesizable; unpacked arrays of int or other 2-state types are testbench-only.">Unpacked</dfn> dimensions</strong> go <em>after</em> the variable name, like a C array. Each element is its own independent storage location. The SRAM memory from earlier uses exactly this: <code>logic [WIDTH-1:0] mem [0:DEPTH-1]</code>. The address <code>addr</code> selects an element; <code>[WIDTH-1:0]</code> is each element's packed width.</p>
-
-<blockquote><p>Mixing up the sides is a common bug. <code>logic [7:0] mem</code> is a scalar; <code>mem[0]</code> is a 1-bit bit-select. <code>logic [7:0] mem [4]</code> is an unpacked array; <code>mem[0]</code> is a full 8-bit element. The simulation will not refuse to compile either form — it silently does something different.</p></blockquote>
-
-<p>Testbench code can also use <dfn data-card="Dynamic arrays (T arr[]) are sized at runtime with new[n] and can be resized later. They are testbench-only — not synthesizable. Use them when the size of a collection is not known at compile time.">dynamic arrays</dfn> (<code>int arr[]</code>, sized with <code>new[n]</code>) and <dfn data-card="Queues (T q[$]) are like a double-ended queue. Elements are added with push_back and removed with pop_front. Queues are testbench-only — not synthesizable. They are commonly used for scoreboards and ordered stimulus lists.">queues</dfn> (<code>int q[$]</code>, with <code>push_back</code>/<code>pop_front</code>), but those are not synthesizable and are covered in later lessons.</p>
+<h2>Packed vs unpacked arrays</h2>
+<p>The bracket placement determines what you get:</p>
+<pre>logic [7:0] x      // packed vector: x[0] is 1 bit (bit-select)
+logic [7:0] x [4]  // unpacked array: x[0] is 8 bits (element-select)</pre>
+<p><strong><dfn data-card="Packed arrays place dimension brackets before the variable name. All bits are laid out contiguously, forming one large bit-vector. You can read any contiguous slice with [hi:lo] or a single bit with [n]. Packed arrays are fully synthesizable and are the standard syntax for RTL signals — logic [7:0] is already a 1-D packed array.">Packed</dfn></strong> brackets go <em>before</em> the name — they form one contiguous bit-vector. <strong><dfn data-card="Unpacked arrays place dimension brackets after the variable name, like C arrays. Each element is a separate storage location. The SRAM memory array logic [WIDTH-1:0] mem [0:DEPTH-1] is an unpacked array: addr selects the element, and [WIDTH-1:0] is that element's packed width. Unpacked arrays of logic are synthesizable; unpacked arrays of int or other 2-state types are testbench-only.">Unpacked</dfn></strong> brackets go <em>after</em> the name — each element is independent storage. The SRAM memory array <code>logic [WIDTH-1:0] mem [0:DEPTH-1]</code> is exactly this: <code>addr</code> selects an element; <code>[WIDTH-1:0]</code> is each element's packed width.</p>
 
 <h2>Exercise</h2>
-<p>Open <code>data_types.sv</code>. The module has three wrong type declarations:</p>
+<p>Open <code>data_types.sv</code>. Three declarations use the wrong type — each causes one test to fail. Fix them:</p>
 <ul>
-  <li><code>count</code> is declared as <code>bit [31:0]</code> — an unsigned 32-bit type that can't hold negative numbers. Change it to <code>int</code>.</li>
-  <li><code>data</code> is declared as <code>bit [7:0]</code> — a 2-state type that silently drops <code>X</code> to <code>0</code>. Change it to <code>logic [7:0]</code>.</li>
-  <li><code>mem</code> is declared as <code>logic [7:0] mem</code> — a scalar, so <code>mem[0]</code> is just bit 0. Add <code>[4]</code> <em>after</em> <code>mem</code> to make it an unpacked array of four bytes.</li>
+  <li><code>count</code> is <code>bit [31:0]</code> — unsigned, cannot hold <code>-100</code>. Change to <code>int</code>.</li>
+  <li><code>data</code> is <code>bit [7:0]</code> — 2-state, silently drops <code>X</code> to <code>0</code>. Change to <code>logic [7:0]</code>.</li>
+  <li><code>mem</code> is <code>logic [7:0] mem</code> — a scalar; <code>mem[0]</code> is just bit 0. Add <code>[4]</code> after <code>mem</code> to make it an unpacked array of four bytes.</li>
 </ul>
-<p>Run the simulation before and after — you should see three FAIL lines change to three OK lines and then <code>PASS</code>.</p>
+<p>Run before and after — three FAIL lines should become three OK lines, then <code>PASS</code>.</p>

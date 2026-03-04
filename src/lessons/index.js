@@ -82,6 +82,7 @@ export const parts = [
       { title: 'Interfaces & Procedures', lessons: [L('sv/interfaces'), L('sv/modports'), L('sv/tasks-functions')] },
       { title: 'State Machines',        lessons: [L('sv/enums'), L('sv/fsm')] },
       { title: 'Covergroups',            lessons: [L('sv/covergroup-basics'), L('sv/coverpoint-bins'), L('sv/cross-coverage')] },
+      { title: 'Testbench Essentials',  lessons: [L('sv/classes'), L('sv/queues-arrays'), L('sv/fork-join'), L('sv/randomization')] },
     ],
   },
   {

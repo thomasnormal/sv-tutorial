@@ -4,7 +4,7 @@ import uvm_pkg::*;
 class mem_scoreboard extends uvm_scoreboard;
   `uvm_component_utils(mem_scoreboard)
   uvm_analysis_imp #(mem_item, mem_scoreboard) analysis_export;
-  logic [7:0] shadow [16];
+  logic [7:0] shadow [16] = '{default: 0};
   int pass_count, fail_count;
   function new(string name, uvm_component parent); super.new(name, parent); endfunction
   function void build_phase(uvm_phase phase);

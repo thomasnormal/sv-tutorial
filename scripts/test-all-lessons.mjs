@@ -538,11 +538,14 @@ async function runLesson({ verilog, bmc, work, category, slug, lessonDir, result
   // The new circt-sim.js includes VPI support; use it for all lessons.
   const simTool  = 'circt-sim';
   const topName  = metaTop ?? (isUvm ? 'tb_top' : 'tb');
-  // UVM phase cleanup internally advances ~1 ns; give 10 ns to complete.
-  // sv/sva simulations use a 10 µs (10^10 fs) ceiling to guard against hangs
-  // in XFAIL lessons where $finish is never reached (e.g. tasks-functions).
-  // Normal tests finish in ≪ 1 µs of simulation time.
-  const simExtra = isUvm ? ['--max-time', '10000000'] : ['--max-time', '10000000000'];
+  // Default UVM ceiling: 10 ns (enough for delta-cycle-only tests like
+  // factory-override/ral/sequence/seq-item that complete at t=0).
+  // Clock-driven lessons (driver/env/monitor/…) set meta.simMaxTime (fs)
+  // to get more time without inflating the whole suite.
+  // sv/sva simulations use a 10 µs ceiling to guard against hangs.
+  const uvmDefault = '10000000';
+  const simMaxTime = lessonMeta.simMaxTime ? String(lessonMeta.simMaxTime) : (isUvm ? uvmDefault : '10000000000');
+  const simExtra = ['--max-time', simMaxTime];
 
   let compileSolFiles, compileStartFiles, extraFlags;
 
@@ -610,6 +613,9 @@ async function runLesson({ verilog, bmc, work, category, slug, lessonDir, result
     } else if (xfailReason) {
       process.stdout.write(`  ${Y}sol=XFAIL${X}`);
       results.xfail++;
+      if (process.env.VERBOSE_XFAIL) {
+        console.log('\n' + solSim.output.split('\n').map(l => '    ' + l).join('\n'));
+      }
     } else {
       process.stdout.write(`  ${R}sol=NO_PASS${X}\n`);
       results.failures.push({ label, mode: 'solution', reason: 'no PASS in output', output: solSim.output });
@@ -655,6 +661,10 @@ async function main() {
   }
 }
 
+// Optional lesson filter: node test-all-lessons.mjs uvm/env sv/fsm ...
+const FILTER = process.argv.slice(2).filter(a => !a.startsWith('--'));
+const shouldRun = (label) => FILTER.length === 0 || FILTER.includes(label);
+
 async function run(work) {
   const meta = await loadMeta();
 
@@ -672,6 +682,7 @@ async function run(work) {
 
   // ── sv/ ─────────────────────────────────────────────────────────────────────
   for (const slug of listDir('sv')) {
+    if (!shouldRun(`sv/${slug}`)) continue;
     await runLesson({ verilog, bmc, work, category: 'sv', slug, lessonDir: path.join(LESSONS_DIR, 'sv', slug), results, meta });
   }
 
@@ -680,13 +691,13 @@ async function run(work) {
     const runner = meta[`sva/${slug}`]?.runner;
 
     if (runner === 'lec') {
-      console.log(`  ${D}SKIP  sva/${slug} (lec runner)${X}`);
-      results.skip++;
+      if (shouldRun(`sva/${slug}`)) { console.log(`  ${D}SKIP  sva/${slug} (lec runner)${X}`); results.skip++; }
       continue;
     }
 
     // 'bmc' or 'both' → BMC path; null/undefined → sim
     const category = (runner === 'bmc' || runner === 'both') ? 'sva-bmc' : 'sva-sim';
+    if (!shouldRun(`${category}/${slug}`)) continue;
     await runLesson({ verilog, bmc, work, category, slug, lessonDir: path.join(LESSONS_DIR, 'sva', slug), results, meta });
   }
 
@@ -696,6 +707,7 @@ async function run(work) {
     console.log(`${D}Run: npm run sync:circt${X}\n`);
   } else {
     for (const slug of listDir('uvm')) {
+      if (!shouldRun(`uvm/${slug}`)) continue;
       await runLesson({ verilog, bmc, work, category: 'uvm', slug, lessonDir: path.join(LESSONS_DIR, 'uvm', slug), results, meta });
     }
   }
@@ -706,6 +718,7 @@ async function run(work) {
   {
     const mlirSim = await loadTool('circt-sim');
     for (const slug of listDir('mlir')) {
+      if (!shouldRun(`mlir/${slug}`)) continue;
       await runMlirLesson({ sim: mlirSim, slug, lessonDir: path.join(LESSONS_DIR, 'mlir', slug), results });
     }
   }
@@ -713,10 +726,13 @@ async function run(work) {
   // ── cocotb/ ─────────────────────────────────────────────────────────────────
   const cocotbDeps = checkCocotbDeps();
   if (!cocotbDeps.ok) {
-    console.log(`\n${D}Skipping cocotb/ — ${cocotbDeps.reason}${X}\n`);
-    for (const slug of listDir('cocotb')) results.skip++;
+    if (FILTER.length === 0) {
+      console.log(`\n${D}Skipping cocotb/ — ${cocotbDeps.reason}${X}\n`);
+      for (const slug of listDir('cocotb')) results.skip++;
+    }
   } else {
     for (const slug of listDir('cocotb')) {
+      if (!shouldRun(`cocotb/${slug}`)) continue;
       await runCocotbLesson({ slug, lessonDir: path.join(LESSONS_DIR, 'cocotb', slug), results, work });
     }
   }

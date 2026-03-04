@@ -1,0 +1,70 @@
+<p><strong><dfn data-card="fork...join spawns a set of parallel threads. The three variants differ in when the parent resumes: join waits for all, join_any waits for the first, join_none returns immediately.">fork...join</dfn></strong> spawns parallel threads inside a procedural block. The three variants control when the parent thread continues:</p>
+<pre>fork
+  &lt;thread 1&gt;;
+  &lt;thread 2&gt;;
+  &lt;thread 3&gt;;
+join          // parent resumes when ALL threads finish
+join_any      // parent resumes when the FIRST thread finishes
+join_none     // parent resumes immediately; threads run in background</pre>
+
+<p>Each entry in the fork block is an independent thread. Tasks marked <code>automatic</code> get their own local stack — without <code>automatic</code>, all calls share the same variables.</p>
+
+<h3>Choosing the variant</h3>
+<table style="border-collapse:collapse;width:100%;font-size:0.9em">
+  <thead><tr style="background:#f0f0ea">
+    <th style="padding:4px 8px;text-align:left">Variant</th>
+    <th style="padding:4px 8px;text-align:left">Parent resumes when…</th>
+    <th style="padding:4px 8px;text-align:left">Typical use</th>
+  </tr></thead>
+  <tbody>
+    <tr><td style="padding:4px 8px"><code>join</code></td><td style="padding:4px 8px">all threads done</td><td style="padding:4px 8px">Drive multiple signals simultaneously</td></tr>
+    <tr style="background:#f7f7f2"><td style="padding:4px 8px"><code>join_any</code></td><td style="padding:4px 8px">first thread done</td><td style="padding:4px 8px">Timeout: race stimulus vs. watchdog</td></tr>
+    <tr><td style="padding:4px 8px"><code>join_none</code></td><td style="padding:4px 8px">immediately</td><td style="padding:4px 8px">Background monitors, clock generators</td></tr>
+  </tbody>
+</table>
+
+<svg width="440" height="145" viewBox="0 0 440 145" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:10px;margin:8px auto">
+  <defs>
+    <marker id="fj-arr" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <path d="M0,0 L6,2.5 L0,5 Z" fill="#0d6f72"/>
+    </marker>
+  </defs>
+  <!-- Time axis labels -->
+  <text x="70"  y="10" text-anchor="middle" fill="#888" font-size="9">fork</text>
+  <text x="155" y="10" text-anchor="middle" fill="#888" font-size="9">10 ns</text>
+  <text x="240" y="10" text-anchor="middle" fill="#888" font-size="9">20 ns</text>
+  <text x="325" y="10" text-anchor="middle" fill="#888" font-size="9">30 ns</text>
+
+  <!-- Thread bars -->
+  <text x="10" y="32" fill="#555">thread1</text>
+  <line x1="70" y1="28" x2="155" y2="28" stroke="#0d6f72" stroke-width="5" stroke-linecap="round"/>
+  <text x="10" y="52" fill="#555">thread2</text>
+  <line x1="70" y1="48" x2="240" y2="48" stroke="#0d6f72" stroke-width="5" stroke-linecap="round"/>
+  <text x="10" y="72" fill="#555">thread3</text>
+  <line x1="70" y1="68" x2="325" y2="68" stroke="#0d6f72" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- join: parent resumes at 30ns -->
+  <line x1="70" y1="85" x2="430" y2="85" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="10" y="94" fill="#0d6f72" font-weight="bold">join</text>
+  <line x1="325" y1="80" x2="325" y2="100" stroke="#0d6f72" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <line x1="325" y1="90" x2="420" y2="90" stroke="#0d6f72" stroke-width="2" marker-end="url(#fj-arr)"/>
+  <text x="340" y="106" fill="#0d6f72" font-size="9">parent resumes (all done)</text>
+
+  <!-- join_any: parent resumes at 10ns -->
+  <line x1="70" y1="115" x2="430" y2="115" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="10" y="122" fill="#c17d2a" font-weight="bold">join_any</text>
+  <line x1="155" y1="110" x2="155" y2="130" stroke="#c17d2a" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <line x1="155" y1="120" x2="420" y2="120" stroke="#c17d2a" stroke-width="2" marker-end="url(#fj-arr)"/>
+  <text x="170" y="136" fill="#c17d2a" font-size="9">parent resumes (first done)</text>
+
+  <!-- join_none: parent resumes immediately -->
+  <text x="10" y="144" fill="#888" font-weight="bold">join_none</text>
+  <line x1="70" y1="139" x2="420" y2="139" stroke="#888" stroke-width="2" marker-end="url(#fj-arr)"/>
+  <text x="80" y="136" fill="#888" font-size="9">parent resumes immediately</text>
+</svg>
+
+<p>Open <code>concurrent.sv</code> and complete two tasks:</p>
+<ol>
+  <li>Add a <code>fork...join_any</code> block with the same three <code>delay_print</code> calls. After it, print <code>"first done at &lt;time&gt; ns"</code>. Expected: continues 10 ns after the fork.</li>
+  <li>Add a <code>fork...join_none</code> block that launches one 20 ns <code>delay_print</code>. Immediately after, print <code>"parent continues at &lt;time&gt; ns"</code> — this should print <em>before</em> the background thread fires.</li>
+</ol>

@@ -8,8 +8,8 @@ The syntax is:
    // task body
 endtask</code></pre>
 <p>
-Here <code>automatic</code> means the task is re-entrant: it can be called recursively or from multiple places without interference.
-Non-automatic tasks share state across calls.
+Here <code>automatic</code> means the task is re-entrant: it can be called recursively or from multiple places without interference — just like a normal C/C++ function whose local variables live on the stack, with a fresh copy created for each call.
+A non-<code>automatic</code> (static) task behaves like a C function where every local variable is declared <code>static</code>: all calls share the same memory, so concurrent calls will overwrite each other's state.
 </p>
 <p>
 Calling a task <code>write_word(addr, data)</code> is blocking.
@@ -21,6 +21,9 @@ If you want to "spawn and forget" you can use <code><dfn data-card="The fork ...
    <li><code>write_word(vif, addr, data)</code> — a task that drives one write transaction: assert <code>we</code>, set <code>addr</code> and <code>wdata</code>, wait one clock edge, then de-assert <code>we</code>.</li>
    <li><code>read_word(vif, addr, data)</code> — a task that drives one read transaction: set <code>addr</code>, wait one clock edge, then capture <code>rdata</code>.</li>
 </ul>
+<blockquote><p>
+  Waiting for <code>@(posedge clk)</code> is not enough on its own. The testbench and the DUT are both sensitive to the same edge, so driving or sampling signals <em>at</em> the edge puts you in a race against the simulator's scheduler. The safe pattern is to wait for the edge and then advance a small delta — <code>@(posedge clk); #1;</code> — so that your assignments land in a quiet moment after the DUT has already reacted to the clock.
+</p></blockquote>
 <blockquote><p>These are the exact helper routines a UVM driver uses internally. In Part 3 the driver wraps them in a class method that pulls transactions from a sequencer — but the core protocol logic is the same.</p></blockquote>
 <h2>Testbench structure</h2>
 <p>The <code>initial</code> block calls <code>write_word</code> and <code>read_word</code> using the shared <code>mem_if</code> virtual interface, then checks the parity of the returned data with <code>parity_check</code>.</p>

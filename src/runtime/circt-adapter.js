@@ -170,11 +170,21 @@ function needsUvmLibrary(files) {
 function removeInlinedPortsFromVcd(vcd) {
   if (typeof vcd !== 'string') return vcd;
   const lines = vcd.split('\n');
-  const skipIds = new Set();
+  const topLevelIds = new Set();   // ids used by non-dotted (top-level) signals
+  const dottedIds = new Map();     // id → true for dotted signal names
 
   for (const line of lines) {
     const m = line.match(/\$var\s+\S+\s+\d+\s+(\S+)\s+(\S+)(?:\s+\[\S+\])?\s+\$end/);
-    if (m && m[2].includes('.')) skipIds.add(m[1]);
+    if (!m) continue;
+    if (m[2].includes('.')) dottedIds.set(m[1], true);
+    else topLevelIds.add(m[1]);
+  }
+  // Only skip dotted signals whose VCD id is already claimed by a top-level
+  // signal (i.e. inlined port duplicates). Keep interface member signals that
+  // have their own unique id.
+  const skipIds = new Set();
+  for (const id of dottedIds.keys()) {
+    if (topLevelIds.has(id)) skipIds.add(id);
   }
   if (skipIds.size === 0) return vcd;
 
@@ -243,8 +253,9 @@ function fixLlhdVcdEncoding(vcd) {
         for (let i = 0; i < svWidth; i++) {
           decoded += flagBits[i] === '1' ? 'x' : valBits[i];
         }
-        // 1-bit results use the compact scalar form.
-        return (svWidth === 1 ? decoded : 'b' + decoded) + ' ' + id;
+        // 1-bit results use the compact scalar form (no space before id).
+        if (svWidth === 1) return decoded + id;
+        return 'b' + decoded + ' ' + id;
       }
     }
 

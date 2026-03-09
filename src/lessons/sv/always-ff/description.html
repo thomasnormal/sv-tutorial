@@ -25,6 +25,20 @@ end             // step 2: both mem and out update simultaneously
 </pre>
 <blockquote><p>
    We use <strong><dfn data-card="Non-blocking assignment (<=) schedules the update to happen after all right-hand sides in the current time step are evaluated. This means two flip-flops can swap values correctly: a <= b; b <= a; works as expected. Blocking assignment (=) takes effect immediately, like a variable assignment in C — correct for combinational logic but causes races in sequential logic.">non-blocking assignment</dfn></strong> (<code>&lt;=</code>) inside <code>always_ff</code>. It works in two steps: first, all right-hand sides are sampled using current values; then all left-hand sides update simultaneously. So <code>out</code> always captures the value <code>mem</code> held <em>before</em> this edge — creating a true one-cycle delay, not a zero-delay pass-through. The same rule is why <code>a &lt;= b; b &lt;= a;</code> correctly swaps two flip-flops.</p></blockquote>
+
+<p>The names describe how each operator behaves in the flow of your procedural code — whether the assignment <strong>blocks</strong> (pauses) execution until it completes.</p>
+<p><strong>Blocking <code>=</code></strong> — execution stops and waits. The assignment completes immediately, in place, before the next line runs. Think of it like hand-delivering a letter: the recipient has it before you walk away.</p>
+<pre>
+a = b;  // a gets b's value RIGHT NOW
+c = a;  // c sees the new value of a
+</pre>
+<p><strong>Non-blocking <code>&lt;=</code></strong> — execution continues without waiting. The assignment schedules a write for later and immediately moves on. Think of it like dropping a letter in a mailbox: you keep walking and it gets delivered later, when the NBA update region runs.</p>
+<pre>
+a &lt;= b;  // schedules a write to a, but doesn't apply it yet
+c &lt;= a;  // c gets a's OLD value — the write above hasn't happened yet
+</pre>
+<p>All right-hand sides are evaluated first, then all writes happen together at the end of the time step. This is what makes <code>always_ff</code> correctly model real hardware, where all flip-flops in a clocked stage sample their inputs and update simultaneously.</p>
+
 <p>
 An SRAM is an array of flip-flops — one per bit — indexed by address.
 We'll need a slightly more advanced pattern to model that array.

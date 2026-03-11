@@ -28,7 +28,7 @@ class seq_test extends uvm_test;
     if (drv.received == seq.num_items)
       `uvm_info("TEST", $sformatf("PASS: driver received all %0d items", drv.received), UVM_LOW)
     else
-      `uvm_error("TEST", $sformatf("FAIL: expected %0d items, driver received %0d", seq.num_items, drv.received))
+      $fatal(0, $sformatf("FAIL: expected %0d items, driver received %0d", seq.num_items, drv.received));
     phase.drop_objection(this);
   endtask
 endclass

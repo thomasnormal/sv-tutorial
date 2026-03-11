@@ -28,8 +28,6 @@ module cov_bins;
       addr <= $random;
       wdata <= $random;
     end
-    #1;
-    $display("PASS");
-    $finish;
+    #1 $finish;
   end
 endmodule

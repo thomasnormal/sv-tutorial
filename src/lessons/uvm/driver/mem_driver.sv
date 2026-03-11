@@ -15,6 +15,9 @@ class mem_driver extends uvm_driver #(mem_item);
   endfunction
   task run_phase(uvm_phase phase);
     mem_item req;
+    if (vif == null) begin
+      $fatal(0, "Virtual interface not set — implement uvm_config_db::get in build_phase");
+    end
     forever begin
       seq_item_port.get_next_item(req);
       // TODO: wait for a rising clock edge

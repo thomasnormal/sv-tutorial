@@ -5,9 +5,9 @@ module sram #(parameter int DEPTH = 16, parameter int WIDTH = 8) (
   input  logic [WIDTH-1:0]         wdata,
   output logic [WIDTH-1:0]         rdata
 );
-  logic [WIDTH-1:0] mem [0:DEPTH-1];
+  logic [WIDTH-1:0] mem [0:DEPTH-1] = '{default: '0};
   always_ff @(posedge clk) begin
     if (we) mem[addr] <= wdata;
-    rdata <= mem[addr];
   end
+  assign rdata = mem[addr];
 endmodule

@@ -13,5 +13,6 @@ class my_test extends uvm_test;
     `uvm_info("TEST", "Hello from UVM!", UVM_LOW)
     `uvm_error("TEST", "Intentional error — simulation continues")
     phase.drop_objection(this);
+    $display("PASS");
   endtask
 endclass

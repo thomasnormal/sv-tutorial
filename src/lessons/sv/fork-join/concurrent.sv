@@ -26,6 +26,7 @@ module concurrent_tb;
     //       After join_any, $display "first done at <time> ns".
     //       Expected: continues at 10 ns after fork (40 ns total).
     $display("--- fork...join_any ---");
+    if ($time != 40) $fatal(0, "join_any: expected t=40ns after join_any, got %0t ns", $time);
 
     // ── fork...join_none — fire and forget ────────────────────────────────
     // TODO: launch delay_print(2, "background (20 ns)") inside fork...join_none.

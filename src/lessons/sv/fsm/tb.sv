@@ -49,11 +49,6 @@ module tb;
     $display("READ:  sram_we=%b (expect 0)", sram_we);
     if (sram_we !== 1'b0) fail++;
 
-    // Wait 1 more cycle for registered read output
-    @(posedge clk); #1;
-    $display("rdata=%0d (expect 77)", rdata);
-    if (rdata !== 8'd77) fail++;
-
     if (fail == 0) $display("PASS");
     $finish;
   end

@@ -21,6 +21,8 @@ class mem_scoreboard extends uvm_scoreboard;
     end
   endfunction
   function void report_phase(uvm_phase phase);
+    if (pass_count + fail_count == 0)
+      $fatal(0, "No transactions processed — implement the write() method in mem_scoreboard.sv");
     `uvm_info("SCBD", $sformatf("Results: PASS=%0d FAIL=%0d", pass_count, fail_count), UVM_LOW)
   endfunction
 endclass

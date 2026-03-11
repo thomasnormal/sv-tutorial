@@ -14,7 +14,7 @@ class mem_monitor extends uvm_monitor;
   endfunction
   task run_phase(uvm_phase phase);
     mem_item item;
-    @(posedge vif.clk);
+    repeat (2) @(posedge vif.clk);
     forever begin
       @(posedge vif.clk);
       item = mem_item::type_id::create("item");

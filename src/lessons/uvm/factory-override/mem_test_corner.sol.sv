@@ -18,6 +18,13 @@ class mem_test_corner extends uvm_test;
       void'(item.randomize());
       `uvm_info("TEST", item.convert2string(), UVM_LOW)
     end
+    // Verify: with factory override, all created items must have boundary addresses (0 or 15).
+    repeat (20) begin
+      mem_item v = mem_item::type_id::create("v");
+      void'(v.randomize());
+      if (!(v.addr inside {0, 15}))
+        $fatal(0, $sformatf("addr=%0d is not a boundary — factory override not working", v.addr));
+    end
     phase.drop_objection(this);
   endtask
 endclass

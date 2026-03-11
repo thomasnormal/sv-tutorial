@@ -9,7 +9,8 @@ class mem_seq extends uvm_sequence #(mem_item);
     repeat (num_items) begin
       mem_item item = mem_item::type_id::create("item");
       start_item(item);
-      void'(item.randomize() with { addr inside {0, 4, 8, 12}; });
+      item.read_c.constraint_mode(0);
+      void'(item.randomize());
       `uvm_info("SEQ", item.convert2string(), UVM_MEDIUM)
       finish_item(item);
     end

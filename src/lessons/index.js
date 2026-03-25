@@ -114,6 +114,12 @@ export const parts = [
     ],
   },
   {
+    title: 'RTL Design Patterns',
+    chapters: [
+      { title: 'Synthesis', lessons: [L('rtl/rtl-to-gates'), L('rtl/synthesis-gotchas')] },
+    ],
+  },
+  {
     title: 'cocotb',
     chapters: [
       { title: 'cocotb Basics', lessons: [L('cocotb/first-test'), L('cocotb/clock-and-timing')] },

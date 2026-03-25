@@ -1,0 +1,61 @@
+              <p>The most common synthesis surprise for new RTL engineers is the <dfn data-card="A latch is a level-sensitive storage element: its output follows its input while the enable is high, and holds its value when enable goes low. Unlike a flip-flop, a latch has no clock — it is transparent for part of every cycle. Latches synthesised accidentally from incomplete if/case statements cause hold-time violations and are extremely difficult to debug in silicon.">inferred latch</dfn>. Write an <code>if</code> or <code>case</code> in <code>always_comb</code> without covering every possible input value, and the synthesiser adds a latch to hold the output when the uncovered case occurs:</p>
+              <pre>always_comb begin
+  case (sel)
+    2'b00: y = 4'b0001;
+    2'b01: y = 4'b0010;
+    2'b10: y = 4'b0100;
+    // 2'b11 missing → y must HOLD its value → synthesiser adds a latch
+  endcase
+end</pre>
+
+              <h2>Latch vs flip-flop</h2>
+              <svg viewBox="0 0 470 112" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:470px;display:block;margin:14px 0">
+                <!-- LATCH (left) -->
+                <text x="115" y="13" fill="#f87171" font-size="11" font-family="monospace" text-anchor="middle">LATCH  ⚠  (accidental)</text>
+                <line x1="15" y1="40" x2="68" y2="40" stroke="#6b7280" stroke-width="1.5"/>
+                <text x="11" y="44" fill="#d1d5db" font-size="11" font-family="monospace" text-anchor="end">D</text>
+                <line x1="15" y1="60" x2="68" y2="60" stroke="#6b7280" stroke-width="1.5"/>
+                <text x="11" y="64" fill="#d1d5db" font-size="11" font-family="monospace" text-anchor="end">EN</text>
+                <rect x="68" y="25" width="94" height="50" fill="#2d1515" stroke="#f87171" stroke-width="1.5" rx="2"/>
+                <text x="115" y="54" fill="#f87171" font-size="12" font-family="monospace" text-anchor="middle">LATCH</text>
+                <line x1="162" y1="50" x2="215" y2="50" stroke="#6b7280" stroke-width="1.5"/>
+                <text x="219" y="54" fill="#d1d5db" font-size="11" font-family="monospace">Q</text>
+                <text x="115" y="90" fill="#f87171" font-size="9" font-family="monospace" text-anchor="middle">level-sensitive, holds value</text>
+                <text x="115" y="103" fill="#f87171" font-size="9" font-family="monospace" text-anchor="middle">when EN is low — timing nightmare</text>
+                <!-- divider -->
+                <line x1="238" y1="4" x2="238" y2="108" stroke="#374151" stroke-width="1" stroke-dasharray="4,3"/>
+                <!-- DFF (right) -->
+                <text x="356" y="13" fill="#4ade80" font-size="11" font-family="monospace" text-anchor="middle">DFF  ✓  (intentional)</text>
+                <line x1="252" y1="40" x2="305" y2="40" stroke="#6b7280" stroke-width="1.5"/>
+                <text x="248" y="44" fill="#d1d5db" font-size="11" font-family="monospace" text-anchor="end">D</text>
+                <line x1="252" y1="60" x2="305" y2="60" stroke="#6b7280" stroke-width="1.5"/>
+                <text x="248" y="64" fill="#d1d5db" font-size="11" font-family="monospace" text-anchor="end">CLK</text>
+                <rect x="305" y="25" width="102" height="50" fill="#1e3a2e" stroke="#4ade80" stroke-width="1.5" rx="2"/>
+                <polygon points="305,53 316,59 305,65" fill="none" stroke="#6b7280" stroke-width="1.3"/>
+                <text x="316" y="44" fill="#4ade80" font-size="11" font-family="monospace">D</text>
+                <text x="397" y="44" fill="#4ade80" font-size="11" font-family="monospace" text-anchor="end">Q</text>
+                <line x1="407" y1="50" x2="455" y2="50" stroke="#6b7280" stroke-width="1.5"/>
+                <text x="459" y="54" fill="#d1d5db" font-size="11" font-family="monospace">Q</text>
+                <text x="356" y="90" fill="#4ade80" font-size="9" font-family="monospace" text-anchor="middle">edge-triggered, updates only</text>
+                <text x="356" y="103" fill="#4ade80" font-size="9" font-family="monospace" text-anchor="middle">on posedge clk — predictable</text>
+              </svg>
+
+              <h2>Two fixes</h2>
+              <p><strong>1. Cover all cases.</strong> Add the missing branch or a <code>default</code> assignment. The synthesiser sees that <code>y</code> always gets a value — no need to hold anything — so no latch is generated:</p>
+              <pre>case (sel)
+  2'b00: y = 4'b0001;
+  ...
+  2'b11: y = 4'b1000;   // or: default: y = '0;
+endcase</pre>
+              <p><strong>2. Add <code>unique</code>.</strong> The <code>unique case</code> keyword tells the synthesiser that exactly one branch will match — it can build a parallel MUX tree instead of a priority chain, which is smaller and faster:</p>
+              <pre>unique case (sel)   // ← one keyword, better hardware
+  ...
+endcase</pre>
+              <blockquote><p>In simulation, <code>unique case</code> also enables a runtime check: if two branches ever match simultaneously, or none matches, the simulator reports an error. This catches bugs the plain <code>case</code> would silently ignore.</p></blockquote>
+
+              <h2>Exercise</h2>
+              <p>Open <code>decoder.sv</code>. The testbench checks all four values of <code>sel</code> — it will fail on <code>sel=2'b11</code> because the missing case produces an X output. Fix the decoder:</p>
+              <ol>
+                <li>Add the missing <code>2'b11</code> branch (output <code>4'b1000</code>)</li>
+                <li>Change <code>case</code> to <code>unique case</code></li>
+              </ol>

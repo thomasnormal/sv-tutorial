@@ -71,6 +71,10 @@ export default {
   'uvm/factory-override':    { title: 'Factory Overrides',                            focus: '/src/mem_test_corner.sv' },
   'uvm/ral':                 { title: 'Register Abstraction Layer',                   focus: '/src/sram_reg_block.sv' },
 
+  // ── RTL Design Patterns ───────────────────────────────────────────────────
+  'rtl/rtl-to-gates':        { title: 'RTL to Gates',                                focus: '/src/mux_reg.sv' },
+  'rtl/synthesis-gotchas':   { title: 'Synthesis Gotchas',                           focus: '/src/decoder.sv' },
+
   // ── MLIR & CIRCT ──────────────────────────────────────────────────────────
   'mlir/intro':    { title: 'What is MLIR?',                    focus: '/src/adder.mlir' },
   'mlir/comb':     { title: 'The comb Dialect',                 focus: '/src/priority_enc.mlir' },

@@ -493,9 +493,10 @@
         Edit this page on GitHub
       </a>
 
+      {#each [data.lessons.findIndex(l => l.slug === lesson.slug)] as currentIndex}
       <div class="border-t border-border pt-3 flex justify-between items-center gap-2">
-        {#if data.lessons.indexOf(lesson) > 0}
-          {@const prevLesson = data.lessons[data.lessons.indexOf(lesson) - 1]}
+        {#if currentIndex > 0}
+          {@const prevLesson = data.lessons[currentIndex - 1]}
           <button
             onclick={() => { const [p,n] = prevLesson.slug.split('/'); goto(`${base}/lesson/${p}/${n}`); }}
             class="flex items-center gap-1 text-[0.8rem] text-muted-foreground hover:text-teal transition-colors text-left cursor-pointer"
@@ -506,8 +507,8 @@
         {:else}
           <div></div>
         {/if}
-        {#if data.lessons.indexOf(lesson) < data.lessons.length - 1}
-          {@const nextLesson = data.lessons[data.lessons.indexOf(lesson) + 1]}
+        {#if currentIndex >= 0 && currentIndex < data.lessons.length - 1}
+          {@const nextLesson = data.lessons[currentIndex + 1]}
           <button
             onclick={() => { const [p,n] = nextLesson.slug.split('/'); goto(`${base}/lesson/${p}/${n}`); }}
             class="flex items-center gap-1 text-[0.8rem] text-muted-foreground hover:text-teal transition-colors text-right ml-auto cursor-pointer"
@@ -517,6 +518,7 @@
           </button>
         {/if}
       </div>
+      {/each}
     </div>
   </article>
 

@@ -7,25 +7,25 @@
  *   • starter files (incomplete) → must NOT indicate success
  *
  * Runners:
- *   sv/, sva/ sim  — circt-verilog (LLHD IR) + fresh circt-sim per lesson
- *   uvm/           — circt-verilog (LLHD IR + --uvm-path) + fresh circt-sim (includes VPI)
- *   sva/ bmc       — circt-verilog (HW IR, no --ir-llhd) + circt-bmc
+ *   sv/, sva/ sim  — mox-verilog (LLHD IR) + fresh mox-sim per lesson
+ *   uvm/           — mox-verilog (LLHD IR + --uvm-path) + fresh mox-sim (includes VPI)
+ *   sva/ bmc       — mox-verilog (HW IR, no --ir-llhd) + mox-bmc
  *                    (exit-code check only; Z3 not bundled so sat/unsat unknown)
  *   cocotb/        — cocotb_test.simulator.run with icarus (Python subprocess)
  *                    requires: pip3 install cocotb cocotb-test  +  iverilog
  *
- *   mlir/           — circt-sim parse/run validation (no solution files; display-only lessons)
+ *   mlir/           — mox-sim parse/run validation (no solution files; display-only lessons)
  * Skipped: sva/lec (LEC tool)
  *
  * Design notes:
- *   - circt-verilog is loaded once and reused (compilation is stateless).
- *   - circt-sim is reloaded per lesson — global state leaks
+ *   - mox-verilog is loaded once and reused (compilation is stateless).
+ *   - mox-sim is reloaded per lesson — global state leaks
  *     between callMain invocations; V8 caches the WASM binary so subsequent
  *     loads are fast (~1-3 s after the first cold load of ~30 s).
  *   - UVM lessons: all source files are staged to a temp dir with canonical
  *     names (stripping .sol) so that `include "foo.sv"` in tb_top.sv finds the
  *     staged solution version. Only the staged files are passed to the compiler.
- *   - BMC lessons: compiled without --ir-llhd so circt-bmc receives HW IR
+ *   - BMC lessons: compiled without --ir-llhd so mox-bmc receives HW IR
  *     (hw.module), not LLHD entities. tb.sv is excluded from BMC inputs.
  *   - cocotb lessons: compiled with icarus via cocotb_test.simulator.run;
  *     a _timescale.v preamble sets `timescale 1ns/1ps for all lessons.
@@ -37,21 +37,22 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { Worker, isMainThread, parentPort, workerData } from 'node:worker_threads';
 import { spawnSync } from 'node:child_process';
 
 const REPO_ROOT   = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const CIRCT_DIR   = path.join(REPO_ROOT, 'static/circt');
+const MOX_DIR   = path.join(REPO_ROOT, 'static/mox');
 const LESSONS_DIR = path.join(REPO_ROOT, 'src/lessons');
 
-const UVM_CORE_PATH = path.join(CIRCT_DIR, 'uvm-core');
+const UVM_CORE_PATH = path.join(MOX_DIR, 'uvm-core');
 const UVM_SRC_PATH  = path.join(UVM_CORE_PATH, 'src');
 
 // ─── WASM tool loader ──────────────────────────────────────────────────────────
 
 async function loadTool(toolName, { initTimeout = 60_000 } = {}) {
-  const jsPath = path.join(CIRCT_DIR, `${toolName}.js`);
+  const jsPath = path.join(MOX_DIR, `${toolName}.js`);
   if (!fs.existsSync(jsPath)) {
-    throw new Error(`WASM artifact not found: ${jsPath}\nRun: npm run sync:circt`);
+    throw new Error(`WASM artifact not found: ${jsPath}\nRun: npm run sync:mox`);
   }
   const source  = fs.readFileSync(jsPath, 'utf8');
   const capture = { out: '', err: '' };
@@ -88,14 +89,14 @@ async function loadTool(toolName, { initTimeout = 60_000 } = {}) {
     process, console, Buffer, URL, WebAssembly,
     TextDecoder, TextEncoder, setTimeout, clearTimeout,
     setInterval, clearInterval, performance,
-    __dirname: CIRCT_DIR,
+    __dirname: MOX_DIR,
     __filename: jsPath,
   };
   context.globalThis = context;
   context.self       = context;
   context.Module = {
     noInitialRun: true,
-    locateFile: (f) => path.join(CIRCT_DIR, f),
+    locateFile: (f) => path.join(MOX_DIR, f),
     print:    (s) => { capture.out += s + '\n'; },
     printErr: (s) => { capture.err += s + '\n'; },
   };
@@ -224,10 +225,10 @@ function hasPass(output) {
 
 // ─── compile + simulate / bmc ─────────────────────────────────────────────────
 
-// Flags for LLHD IR (simulation): circt-sim consumes LLHD (includes VPI for UVM).
+// Flags for LLHD IR (simulation): mox-sim consumes LLHD (includes VPI for UVM).
 const SIM_VERILOG_FLAGS = ['--ir-llhd', '--timescale', '1ns/1ns', '--single-unit'];
 
-// Flags for HW IR (BMC): circt-bmc consumes hw.module, not llhd.entity.
+// Flags for HW IR (BMC): mox-bmc consumes hw.module, not llhd.entity.
 const BMC_VERILOG_FLAGS = ['--timescale', '1ns/1ns', '--single-unit'];
 
 const BMC_FLAGS = ['--assume-known-inputs', '-b', '20'];
@@ -257,7 +258,7 @@ function simulate(sim, mlirPath, { top = 'tb', extraArgs = [] } = {}) {
   return { ok: exitCode === 0, output: stdout + stderr, exitCode };
 }
 
-// Run circt-bmc (NODERAWFS — uses real filesystem paths).
+// Run mox-bmc (NODERAWFS — uses real filesystem paths).
 function runBmc(bmc, work, label, mlirPath, topModule) {
   if (!fs.existsSync(mlirPath)) {
     return { ok: false, smtPath: null, output: 'MLIR output not written' };
@@ -293,7 +294,7 @@ function runZ3(z3Path, smtPath) {
   return null;
 }
 
-// ─── mlir validator (circt-sim parse/run check) ───────────────────────────────
+// ─── mlir validator (mox-sim parse/run check) ───────────────────────────────
 
 async function runMlirLesson({ sim, slug, lessonDir, work, results }) {
   const label = `mlir/${slug}`;
@@ -351,13 +352,13 @@ async function runMlirLesson({ sim, slug, lessonDir, work, results }) {
       results.fail++;
     } else {
       console.log(`  ${R}FAIL${X}`);
-      results.failures.push({ label: fileLabel, mode: 'mlir', reason: 'circt-sim error', output });
+      results.failures.push({ label: fileLabel, mode: 'mlir', reason: 'mox-sim error', output });
       results.fail++;
     }
   }
 }
 
-// ─── LEC runner (circt-lec + Z3) ─────────────────────────────────────────────
+// ─── LEC runner (mox-lec + Z3) ─────────────────────────────────────────────
 
 const LEC_FLAGS = ['--assume-known-inputs'];
 
@@ -381,8 +382,8 @@ async function runLecLesson({ verilog, lec, z3Path, work, slug, lessonDir, resul
 
   process.stdout.write(`  ${label.padEnd(34)}`);
 
-  // circt-lec takes MLIR (hw dialect) as input — compile SV to MLIR first.
-  // circt-lec uses MEMFS in Node.js builds: write MLIR to virtual FS, read
+  // mox-lec takes MLIR (hw dialect) as input — compile SV to MLIR first.
+  // mox-lec uses MEMFS in Node.js builds: write MLIR to virtual FS, read
   // SMT output back from virtual FS, then persist to native for Z3.
   function invokeLec(svFile, label, nativeOutPath) {
     const mlirCompile = compile(verilog, work, label, [svFile], { forBmc: true });
@@ -413,7 +414,7 @@ async function runLecLesson({ verilog, lec, z3Path, work, slug, lessonDir, resul
   const solLec = invokeLec(solFile, `lec-${slug}-sol`, solSmt);
   if (solLec.exitCode !== 0) {
     process.stdout.write(`  ${R}sol=LEC_ERROR${X}\n`);
-    results.failures.push({ label, mode: 'solution', reason: 'circt-lec error', output: solLec.stdout + solLec.stderr });
+    results.failures.push({ label, mode: 'solution', reason: 'mox-lec error', output: solLec.stdout + solLec.stderr });
     results.fail++;
     return;
   }
@@ -563,15 +564,15 @@ const G = '\x1b[32m', R = '\x1b[31m', Y = '\x1b[33m', D = '\x1b[2m', X = '\x1b[0
 // working SRAM test (prints PASS); the student adds coverpoints on top of the passing design.
 //
 // UVM lessons below are ones where the starter still passes despite incompleteness:
-// - uvm/covergroup: empty covergroup returns 100% coverage in CIRCT (no bins → trivially covered)
+// - uvm/covergroup: empty covergroup returns 100% coverage in MOX (no bins → trivially covered)
 // - uvm/cross-coverage: basic bins reach 100% without cross; cannot distinguish starter/solution
-// - uvm/constrained-random: inline constraints still not applied by CIRCT (#69)
+// - uvm/constrained-random: inline constraints still not applied by MOX (#69)
 const SKIP_START_CHECK = new Set([
   'sva/concurrent-sim', 'sva/vacuous-pass',
   'uvm/constrained-random',  // inline constraints now work; starter (no inline) also passes via class constraints
-  'uvm/covergroup',          // empty covergroup returns 100% in CIRCT; cannot distinguish starter
+  'uvm/covergroup',          // empty covergroup returns 100% in MOX; cannot distinguish starter
   'uvm/cross-coverage',      // basic bins reach 100% without cross; starter appears to pass
-  'uvm/coverage-driven',     // uvm_subscriber::report_phase virtual dispatch fails in CIRCT; $fatal never propagates
+  'uvm/coverage-driven',     // uvm_subscriber::report_phase virtual dispatch fails in MOX; $fatal never propagates
   // BMC starters that can't be distinguished from solutions via Z3:
   'sva-bmc/disable-iff',     // req|=>ack is sat both with and without disable iff (both have counterexamples)
 ]);
@@ -583,12 +584,12 @@ const SKIP_SOL_PASS = new Set([
   'sv/welcome',
 ]);
 
-// Known CIRCT bugs that block solution verification.
+// Known MOX bugs that block solution verification.
 // When a bug is fixed, the test auto-promotes to PASS (XPASS is treated as pass).
 // Format: lesson-label → short reason string for display.
 //
-// Bug report files live in docs/circt-bugs/.
-// GitHub issues: https://github.com/thomasnormal/circt/issues
+// Bug report files live in docs/mox-bugs/.
+// GitHub issues: https://github.com/normal-computing/mox/issues
 //
 // Previously fixed (XPASS):
 // sv/parameters (#9 AllowHierarchicalConst): fixed in e1ea916d1.
@@ -597,14 +598,13 @@ const SKIP_SOL_PASS = new Set([
 // combinational SRAM read in UVM lesson SRAMs (eliminates monitor/scoreboard
 // misalignment caused by registered-read 1-cycle latency with 2-cycle driver).
 // 10 of 11 UVM lessons now XPASS; only constrained-random remains.
-const CIRCT_XFAIL = new Map([
+const MOX_XFAIL = new Map([
   // randomize() with {...} inline constraints not respected: weighted_c stays
   // active and boundary writes land at wrong addresses (#69).
   ['uvm/constrained-random', 'inline randomize() with{} constraints not applied (#69)'],
   // Factory type override (set_type_override) not applied at runtime (#74).
-  ['uvm/factory-override', 'type_id::set_type_override not applied by CIRCT UVM factory (#74)'],
-  // Queue pop_front() does not remove the element from the queue — infinite loop (#75).
-  ['sv/queues-arrays', 'queue pop_front() does not dequeue element in new CIRCT build (#75)'],
+  ['uvm/factory-override', 'type_id::set_type_override not applied by MOX UVM factory (#74)'],
+  // sv/queues-arrays (#75 pop_front) was XPASS'd by upstream MOX — no longer XFAIL.
 ]);
 
 async function runLesson({ verilog, bmc, z3Path, work, category, slug, lessonDir, results, meta }) {
@@ -672,7 +672,7 @@ async function runLesson({ verilog, bmc, z3Path, work, category, slug, lessonDir
       const bmcResult = runBmc(bmc, work, `sva-bmc-${slug}-sol`, solCompile.mlirPath, topModule);
       if (!bmcResult.ok) {
         process.stdout.write(`  ${R}sol=BMC_ERROR${X}\n`);
-        results.failures.push({ label, mode: 'solution', reason: 'circt-bmc error', output: bmcResult.output });
+        results.failures.push({ label, mode: 'solution', reason: 'mox-bmc error', output: bmcResult.output });
         results.fail++;
       } else {
         solZ3Result = runZ3(z3Path, bmcResult.smtPath);
@@ -683,7 +683,7 @@ async function runLesson({ verilog, bmc, z3Path, work, category, slug, lessonDir
           process.stdout.write(`  ${G}sol=SAT${X}`);  // cover-property lessons expect sat
           results.pass++;
         } else {
-          // Z3 unavailable — just check that circt-bmc succeeded
+          // Z3 unavailable — just check that mox-bmc succeeded
           process.stdout.write(`  ${G}sol=BMC_OK${X}`);
           results.pass++;
         }
@@ -704,7 +704,7 @@ async function runLesson({ verilog, bmc, z3Path, work, category, slug, lessonDir
         results.pass++;
       } else {
         // Check for negated property assertions in the SMT output.
-        // circt-bmc encodes assertions as (assert (not ...)); a module with no
+        // mox-bmc encodes assertions as (assert (not ...)); a module with no
         // assertions only emits (check-sat) which Z3 trivially proves unsat.
         const smtContent = startBmc.smtPath ? fs.readFileSync(startBmc.smtPath, 'utf8') : '';
         if (!smtContent.includes('(assert (not')) {
@@ -733,8 +733,8 @@ async function runLesson({ verilog, bmc, z3Path, work, category, slug, lessonDir
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Simulation path (sv, sva-sim, uvm)
-  // The new circt-sim.js includes VPI support; use it for all lessons.
-  const simTool  = 'circt-sim';
+  // The new mox-sim.js includes VPI support; use it for all lessons.
+  const simTool  = 'mox-sim';
   const topName  = metaTop ?? (isUvm ? 'tb_top' : 'tb');
   // Default UVM ceiling: 10 ns (enough for delta-cycle-only tests like
   // factory-override/ral/sequence/seq-item that complete at t=0).
@@ -772,7 +772,7 @@ async function runLesson({ verilog, bmc, z3Path, work, category, slug, lessonDir
   const sim = await loadTool(simTool);
 
   // ── Solution ─────────────────────────────────────────────────────────────────
-  const xfailReason = CIRCT_XFAIL.get(label);
+  const xfailReason = MOX_XFAIL.get(label);
 
   if (!solCompile.ok) {
     if (xfailReason) {
@@ -789,9 +789,9 @@ async function runLesson({ verilog, bmc, z3Path, work, category, slug, lessonDir
   } else if (skipSolPass) {
     // Observation lesson: verify the solution runs without crashing, no PASS expected.
     // Accept non-zero exit codes if the simulation produced output (e.g. UVM_FATAL in
-    // phase cleanup is a known CIRCT regression that doesn't affect the lesson itself).
+    // phase cleanup is a known MOX regression that doesn't affect the lesson itself).
     const solSim = simulate(sim, solCompile.mlirPath, { top: topName, extraArgs: simExtra });
-    const simRan = solSim.ok || solSim.output.includes('[circt-sim]');
+    const simRan = solSim.ok || solSim.output.includes('[mox-sim]');
     if (simRan) {
       process.stdout.write(`  ${Y}sol=RAN${X}`);  // neutral — no PASS expected
       results.skip++;
@@ -855,8 +855,13 @@ async function loadMeta() {
 
 async function main() {
   const work = fs.mkdtempSync(path.join(os.tmpdir(), 'sv-lesson-test-'));
+  if (!isMainThread) {
+    await workerLoop(work);
+    await new Promise(() => {});
+    return;
+  }
   try {
-    await run(work);
+    await orchestrate(work);
   } finally {
     fs.rmSync(work, { recursive: true, force: true });
   }
@@ -866,87 +871,169 @@ async function main() {
 const FILTER = process.argv.slice(2).filter(a => !a.startsWith('--'));
 const shouldRun = (label) => FILTER.length === 0 || FILTER.includes(label);
 
-async function run(work) {
+// Parallelism config (override via env or CLI):
+//   MOX_TEST_JOBS=N        — number of worker threads (default: 4)
+//   MOX_TEST_TIMEOUT_MS=MS — per-task wall-clock cap (default: 3000)
+const ENV_JOBS = parseInt(process.env.MOX_TEST_JOBS ?? '', 10);
+const ENV_TIMEOUT_MS = parseInt(process.env.MOX_TEST_TIMEOUT_MS ?? '', 10);
+const JOBS = Number.isFinite(ENV_JOBS) && ENV_JOBS > 0 ? ENV_JOBS : 4;
+const TIMEOUT_MS = Number.isFinite(ENV_TIMEOUT_MS) && ENV_TIMEOUT_MS > 0 ? ENV_TIMEOUT_MS : 3000;
+
+function listLessonDirs(sub) {
+  return fs.readdirSync(path.join(LESSONS_DIR, sub), { withFileTypes: true })
+    .filter(d => d.isDirectory()).map(d => d.name).sort();
+}
+
+function discoverTasks(meta) {
+  const tasks = [];
+  for (const slug of listLessonDirs('sv')) {
+    tasks.push({ type: 'lesson', category: 'sv', slug });
+  }
+  for (const slug of listLessonDirs('sva')) {
+    const runner = meta[`sva/${slug}`]?.runner;
+    if (runner === 'lec') {
+      tasks.push({ type: 'lec', category: 'sva-lec', slug });
+    } else {
+      const category = (runner === 'bmc' || runner === 'both') ? 'sva-bmc' : 'sva-sim';
+      tasks.push({ type: 'lesson', category, slug });
+    }
+  }
+  if (fs.existsSync(UVM_CORE_PATH)) {
+    for (const slug of listLessonDirs('uvm')) {
+      tasks.push({ type: 'lesson', category: 'uvm', slug });
+    }
+  }
+  for (const slug of listLessonDirs('mlir')) {
+    tasks.push({ type: 'mlir', category: 'mlir', slug });
+  }
+  for (const slug of listLessonDirs('cocotb')) {
+    tasks.push({ type: 'cocotb', category: 'cocotb', slug });
+  }
+  return tasks;
+}
+
+function taskLabel(t) {
+  return `${t.category}/${t.slug}`;
+}
+
+function mergeResults(into, from) {
+  into.pass += from.pass;
+  into.fail += from.fail;
+  into.xfail += from.xfail;
+  into.xpass += from.xpass;
+  into.skip += from.skip;
+  if (from.failures) into.failures.push(...from.failures);
+}
+
+async function orchestrate(workDir) {
   const meta = await loadMeta();
 
-  console.log('\nLoading circt-verilog…');
-  const verilog = await loadTool('circt-verilog');
-  console.log('Loading circt-bmc…');
-  const bmc = await loadTool('circt-bmc');
-  console.log('Loading circt-lec…');
-  const lec = await loadTool('circt-lec');
+  // Pre-check optional deps and pre-emit skips for unrunnable categories.
+  const results = { pass: 0, fail: 0, xfail: 0, xpass: 0, skip: 0, failures: [] };
+  const uvmReady = fs.existsSync(UVM_CORE_PATH);
+  if (!uvmReady) {
+    console.log(`\n${D}Skipping uvm/ — UVM library not found at ${UVM_CORE_PATH}${X}`);
+    console.log(`${D}Run: npm run sync:mox${X}\n`);
+  }
+  const cocotbDeps = checkCocotbDeps();
+  if (!cocotbDeps.ok && FILTER.length === 0) {
+    console.log(`\n${D}Skipping cocotb/ — ${cocotbDeps.reason}${X}\n`);
+    for (const _ of listLessonDirs('cocotb')) results.skip++;
+  }
+
+  let tasks = discoverTasks(meta).filter(t => shouldRun(taskLabel(t)));
+  if (!cocotbDeps.ok) tasks = tasks.filter(t => t.type !== 'cocotb');
+
+  if (tasks.length === 0) {
+    console.log('(no tasks selected)');
+    summarize(results);
+    return;
+  }
 
   const z3Path = findZ3();
+  console.log(`Running ${tasks.length} tasks across ${JOBS} workers, per-task cap ${TIMEOUT_MS}ms`);
   if (z3Path) console.log(`Z3 found: ${z3Path}`);
-  else         console.log('Z3 not found — BMC/LEC sat/unsat checks disabled');
+  else        console.log('Z3 not found — BMC/LEC sat/unsat checks disabled');
+  console.log('');
 
-  console.log('Ready.\n');
+  // Worker pool with per-task timeout monitor.
+  const queue = [...tasks];
+  let remaining = tasks.length;
+  const workers = new Array(JOBS).fill(null);
 
-  const results = { pass: 0, fail: 0, xfail: 0, xpass: 0, skip: 0, failures: [] };
+  const assignNext = (slot) => {
+    if (queue.length === 0) return;
+    const t = queue.shift();
+    workers[slot].currentTask = t;
+    workers[slot].taskStart = Date.now();
+    workers[slot].postMessage({ task: t, meta });
+  };
 
-  const listDir = (sub) =>
-    fs.readdirSync(path.join(LESSONS_DIR, sub), { withFileTypes: true })
-      .filter(d => d.isDirectory()).map(d => d.name).sort();
+  const spawnWorker = (slot) => {
+    const w = new Worker(fileURLToPath(import.meta.url));
+    w.currentTask = null;
+    w.taskStart = 0;
+    workers[slot] = w;
+    w.on('message', (msg) => {
+      if (msg.type === 'ready') {
+        assignNext(slot);
+        return;
+      }
+      if (msg.type === 'result') {
+        if (msg.output) process.stdout.write(msg.output);
+        mergeResults(results, msg.results);
+        workers[slot].currentTask = null;
+        remaining--;
+        assignNext(slot);
+      }
+    });
+    w.on('error', (e) => {
+      const t = workers[slot]?.currentTask;
+      const label = t ? taskLabel(t) : `<worker ${slot}>`;
+      console.log(`${R}WORKER ERROR${X} ${label}: ${e.message ?? e}`);
+      if (t) {
+        results.fail++;
+        results.failures.push({ label, mode: 'solution', reason: `worker error: ${e.message ?? e}`, output: '' });
+        remaining--;
+      }
+      try { workers[slot].terminate(); } catch {}
+      spawnWorker(slot);
+    });
+  };
 
-  // ── sv/ ─────────────────────────────────────────────────────────────────────
-  for (const slug of listDir('sv')) {
-    if (!shouldRun(`sv/${slug}`)) continue;
-    await runLesson({ verilog, bmc, z3Path, work, category: 'sv', slug, lessonDir: path.join(LESSONS_DIR, 'sv', slug), results, meta });
+  for (let i = 0; i < JOBS; i++) spawnWorker(i);
+
+  // Per-task timeout monitor.
+  const monitor = setInterval(() => {
+    for (let i = 0; i < workers.length; i++) {
+      const w = workers[i];
+      if (!w || !w.currentTask) continue;
+      if (Date.now() - w.taskStart > TIMEOUT_MS) {
+        const t = w.currentTask;
+        const label = taskLabel(t);
+        console.log(`${R}TIMEOUT${X} ${label} [solution]: exceeded ${TIMEOUT_MS}ms`);
+        results.fail++;
+        results.failures.push({ label, mode: 'solution', reason: `timeout (${TIMEOUT_MS}ms)`, output: '' });
+        try { w.terminate(); } catch {}
+        workers[i] = null;
+        remaining--;
+        spawnWorker(i);
+      }
+    }
+  }, 250);
+
+  // Wait until queue drained and all workers idle.
+  while (remaining > 0) await new Promise(r => setTimeout(r, 50));
+
+  clearInterval(monitor);
+  for (const w of workers) {
+    if (w) { try { await w.terminate(); } catch {} }
   }
 
-  // ── sva/ ────────────────────────────────────────────────────────────────────
-  for (const slug of listDir('sva')) {
-    const runner = meta[`sva/${slug}`]?.runner;
+  summarize(results);
+}
 
-    if (runner === 'lec') {
-      if (!shouldRun(`sva/${slug}`)) continue;
-      await runLecLesson({ verilog, lec, z3Path, work, slug, lessonDir: path.join(LESSONS_DIR, 'sva', slug), results, meta });
-      continue;
-    }
-
-    // 'bmc' or 'both' → BMC path; null/undefined → sim
-    const category = (runner === 'bmc' || runner === 'both') ? 'sva-bmc' : 'sva-sim';
-    if (!shouldRun(`${category}/${slug}`)) continue;
-    await runLesson({ verilog, bmc, z3Path, work, category, slug, lessonDir: path.join(LESSONS_DIR, 'sva', slug), results, meta });
-  }
-
-  // ── uvm/ ────────────────────────────────────────────────────────────────────
-  if (!fs.existsSync(UVM_CORE_PATH)) {
-    console.log(`\n${D}Skipping uvm/ — UVM library not found at ${UVM_CORE_PATH}${X}`);
-    console.log(`${D}Run: npm run sync:circt${X}\n`);
-  } else {
-    for (const slug of listDir('uvm')) {
-      if (!shouldRun(`uvm/${slug}`)) continue;
-      await runLesson({ verilog, bmc, z3Path, work, category: 'uvm', slug, lessonDir: path.join(LESSONS_DIR, 'uvm', slug), results, meta });
-    }
-  }
-
-  // ── mlir/ ────────────────────────────────────────────────────────────────────
-  // MLIR lessons are read-only display lessons (no exercises, no solution files).
-  // We validate that each .mlir file parses and runs without error via circt-sim.
-  {
-    const mlirSim = await loadTool('circt-sim');
-    for (const slug of listDir('mlir')) {
-      if (!shouldRun(`mlir/${slug}`)) continue;
-      await runMlirLesson({ sim: mlirSim, slug, lessonDir: path.join(LESSONS_DIR, 'mlir', slug), work, results });
-    }
-  }
-
-  // ── cocotb/ ─────────────────────────────────────────────────────────────────
-  const cocotbDeps = checkCocotbDeps();
-  if (!cocotbDeps.ok) {
-    if (FILTER.length === 0) {
-      console.log(`\n${D}Skipping cocotb/ — ${cocotbDeps.reason}${X}\n`);
-      for (const slug of listDir('cocotb')) results.skip++;
-    }
-  } else {
-    for (const slug of listDir('cocotb')) {
-      if (!shouldRun(`cocotb/${slug}`)) continue;
-      await runCocotbLesson({ slug, lessonDir: path.join(LESSONS_DIR, 'cocotb', slug), results, work });
-    }
-  }
-
-  // ── summary ──────────────────────────────────────────────────────────────────
+function summarize(results) {
   const { pass, fail, xfail, xpass, skip, failures } = results;
 
   if (failures.length > 0) {
@@ -958,16 +1045,16 @@ async function run(work) {
   }
 
   if (xfail > 0) {
-    console.log('\n── known CIRCT bugs (xfail) ─────────────────────');
-    for (const [label, reason] of CIRCT_XFAIL) {
+    console.log('\n── known MOX bugs (xfail) ─────────────────────');
+    for (const [label, reason] of MOX_XFAIL) {
       console.log(`  ${Y}XFAIL${X} ${label}: ${reason}`);
     }
   }
 
   const bar = '─────────────────────────────────────';
   console.log(`\n${bar}`);
-  const xpassNote = xpass > 0 ? `, ${xpass} XPASS (CIRCT bug fixed!)` : '';
-  const xfailNote = xfail > 0 ? `, ${xfail} xfail (known CIRCT bugs)` : '';
+  const xpassNote = xpass > 0 ? `, ${xpass} XPASS (MOX bug fixed!)` : '';
+  const xfailNote = xfail > 0 ? `, ${xfail} xfail (known MOX bugs)` : '';
   if (fail === 0) {
     console.log(`${G}ALL PASS${X}  ${pass} checks passed${xpassNote}${xfailNote}, ${skip} skipped`);
   } else {
@@ -976,6 +1063,53 @@ async function run(work) {
   console.log(`${bar}\n`);
 
   if (fail > 0) process.exit(1);
+}
+
+// ── worker thread entry ────────────────────────────────────────────────────────
+// Each worker loads its own tool instances (wasm Module state isn't thread-safe)
+// and processes tasks sequentially from the main thread's queue.
+async function workerLoop(work) {
+  const verilog = await loadTool('mox-verilog');
+  const bmc     = await loadTool('mox-bmc');
+  const lec     = await loadTool('mox-lec');
+  const z3Path  = findZ3();
+  let mlirSim   = null;  // lazy-loaded on first mlir/* task
+
+  parentPort.postMessage({ type: 'ready' });
+
+  parentPort.on('message', async ({ task, meta }) => {
+    const localResults = { pass: 0, fail: 0, xfail: 0, xpass: 0, skip: 0, failures: [] };
+    const captured = [];
+    const origWrite = process.stdout.write.bind(process.stdout);
+    process.stdout.write = (data) => {
+      captured.push(typeof data === 'string' ? data : data.toString('utf8'));
+      return true;
+    };
+    try {
+      const { type, category, slug } = task;
+      const lessonDir = type === 'lec'
+        ? path.join(LESSONS_DIR, 'sva', slug)
+        : path.join(LESSONS_DIR, category === 'sva-bmc' || category === 'sva-sim' ? 'sva' : category, slug);
+
+      if (type === 'lesson') {
+        await runLesson({ verilog, bmc, z3Path, work, category, slug, lessonDir, results: localResults, meta });
+      } else if (type === 'lec') {
+        await runLecLesson({ verilog, lec, z3Path, work, slug, lessonDir, results: localResults, meta });
+      } else if (type === 'mlir') {
+        if (!mlirSim) mlirSim = await loadTool('mox-sim');
+        await runMlirLesson({ sim: mlirSim, slug, lessonDir, work, results: localResults });
+      } else if (type === 'cocotb') {
+        await runCocotbLesson({ slug, lessonDir, results: localResults, work });
+      }
+    } catch (e) {
+      const label = taskLabel(task);
+      localResults.fail++;
+      localResults.failures.push({ label, mode: 'solution', reason: `runner error: ${e?.message ?? e}`, output: '' });
+    } finally {
+      process.stdout.write = origWrite;
+    }
+    parentPort.postMessage({ type: 'result', task, output: captured.join(''), results: localResults });
+  });
 }
 
 main().catch(e => { console.error(e); process.exit(1); });

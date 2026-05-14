@@ -101,14 +101,14 @@ for (const [index, lesson] of LESSONS.entries()) {
       await page.getByTestId('run-button').click();
       await expect(logs).not.toContainText('exit code: 1', { timeout: 120_000 });
       // Confirm a simulation tool actually executed
-      await expect(logs).toContainText('$ circt', { timeout: 120_000 });
+      await expect(logs).toContainText('$ mox', { timeout: 120_000 });
     }
 
     // Run formal / LEC (bmc / lec / both)
     if (lesson.runner === 'bmc' || lesson.runner === 'lec' || lesson.runner === 'both') {
       await page.getByTestId('verify-button').click();
       await expect(logs).not.toContainText('exit code: 1', { timeout: 120_000 });
-      await expect(logs).toContainText('$ circt', { timeout: 120_000 });
+      await expect(logs).toContainText('$ mox', { timeout: 120_000 });
     }
   });
 }

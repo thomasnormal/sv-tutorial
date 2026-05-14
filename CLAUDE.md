@@ -10,8 +10,8 @@ npm run dev          # Start dev server (Vite)
 npm run build        # Production build
 npm run preview      # Preview production build
 
-scripts/setup-circt.sh          # Clone/update the CIRCT fork into vendor/circt
-scripts/setup-circt.sh <dir>    # Clone into a custom directory
+scripts/setup-mox.sh          # Clone/update the MOX fork into vendor/mox
+scripts/setup-mox.sh <dir>    # Clone into a custom directory
 
 scripts/setup-surfer.sh         # Download Surfer waveform viewer web build into public/surfer
 scripts/setup-surfer.sh <dir>   # Download into a custom directory
@@ -38,41 +38,41 @@ All state lives in the single root component. Key derived values:
 - `completed = filesEqual(workspace, solutionFiles)` — drives the "solve"/"reset" toggle
 - Lesson navigation mutates `lessonIndex`; reactive blocks reset `workspace`, `logs`, and `lastWaveform` on lesson change
 
-### CIRCT WASM Runtime (`src/runtime/`)
+### MOX WASM Runtime (`src/runtime/`)
 
 Two files handle the runtime bridge:
 
-**`circt-config.js`** — reads Vite env vars and resolves runtime configuration:
-- `VITE_CIRCT_WASM_JS_URL` / `VITE_CIRCT_WASM_JS_URLS` — JS artifact URL(s) (comma-separated for fallback)
-- `VITE_CIRCT_WASM_URL` / `VITE_CIRCT_WASM_URLS` — WASM artifact URL(s)
-- `VITE_CIRCT_FACTORY_NAME` — optional Emscripten factory function name
-- `VITE_CIRCT_TOOL_ARGS` — args for `run` (JSON array preferred, space-split fallback)
-- `VITE_CIRCT_SELF_CHECK_ARGS` — args for the self-check smoke test
-- Default JS candidates: `/circt/circt.js`, `/circt/circt-bmc.js`
-- Default WASM candidates: `/circt/circt.wasm`, `/circt/circt-bmc.wasm`
+**`mox-config.js`** — reads Vite env vars and resolves runtime configuration:
+- `VITE_MOX_WASM_JS_URL` / `VITE_MOX_WASM_JS_URLS` — JS artifact URL(s) (comma-separated for fallback)
+- `VITE_MOX_WASM_URL` / `VITE_MOX_WASM_URLS` — WASM artifact URL(s)
+- `VITE_MOX_FACTORY_NAME` — optional Emscripten factory function name
+- `VITE_MOX_TOOL_ARGS` — args for `run` (JSON array preferred, space-split fallback)
+- `VITE_MOX_SELF_CHECK_ARGS` — args for the self-check smoke test
+- Default JS candidates: `/mox/mox.js`, `/mox/mox-bmc.js`
+- Default WASM candidates: `/mox/mox.wasm`, `/mox/mox-bmc.wasm`
 
-**`circt-adapter.js`** — `CirctWasmAdapter` class, lazy-initialized on first `run()` or `selfCheck()`:
+**`mox-adapter.js`** — `MoxWasmAdapter` class, lazy-initialized on first `run()` or `selfCheck()`:
 - Tries each JS candidate URL in order until one loads successfully
 - Detects runtime mode automatically:
-  - **`custom-runtime`**: `window.CIRCT_WASM_RUNTIME` global exposes `{ init, run, selfCheck? }`
-  - **`emscripten-module`**: raw Emscripten output; looks for factory functions (`createCirctBmcModule`, `createModule`, `Module`) then falls back to `window.Module`
+  - **`custom-runtime`**: `window.MOX_WASM_RUNTIME` global exposes `{ init, run, selfCheck? }`
+  - **`emscripten-module`**: raw Emscripten output; looks for factory functions (`createMoxBmcModule`, `createModule`, `Module`) then falls back to `window.Module`
 - In Emscripten mode, files are written into the module's virtual FS under `/workspace/`, and output waveform is read back from `/workspace/out/waves.vcd`
 - Arg templates support `{top}`, `{input}`, `{waveform}` placeholders
 
-### CIRCT WASM Artifacts
+### MOX WASM Artifacts
 
-Place built artifacts from the CIRCT fork (`git@github.com:thomasnormal/circt.git`) at:
-- `public/circt/circt-bmc.js` + `public/circt/circt-bmc.wasm`
-- or custom shim: `public/circt/circt.js` + `public/circt/circt.wasm`
+Place built artifacts from the MOX fork (`git@github.com:normal-computing/mox.git`) at:
+- `public/mox/mox-bmc.js` + `public/mox/mox-bmc.wasm`
+- or custom shim: `public/mox/mox.js` + `public/mox/mox.wasm`
 
-Without these files, the runtime will fail gracefully with a log message directing you to run `scripts/setup-circt.sh`.
+Without these files, the runtime will fail gracefully with a log message directing you to run `scripts/setup-mox.sh`.
 
 ### Surfer Waveform Viewer (`src/lib/components/WaveformViewer.svelte`)
 
 The waveform pane embeds [Surfer](https://surfer-project.org/) via an `<iframe src="/surfer/">`.
 
 - Surfer must be self-hosted (same origin) so that blob URLs created from in-memory VCD data are fetchable by the iframe.
-- When CIRCT produces a VCD string (`lastWaveform.text`), the component creates a `Blob` → `URL.createObjectURL` and sends `{ command: 'LoadUrl', url }` via `postMessage` with progressive retries (0 / 800 / 2200 / 4500 ms) to absorb Surfer's WASM initialization time.
+- When MOX produces a VCD string (`lastWaveform.text`), the component creates a `Blob` → `URL.createObjectURL` and sends `{ command: 'LoadUrl', url }` via `postMessage` with progressive retries (0 / 800 / 2200 / 4500 ms) to absorb Surfer's WASM initialization time.
 - If `/surfer/index.html` is not found (HEAD 404), the component shows a prompt to run `scripts/setup-surfer.sh`.
 
 Install artifacts:

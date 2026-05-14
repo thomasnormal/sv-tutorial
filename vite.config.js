@@ -94,7 +94,7 @@ export default defineConfig({
     target: 'esnext',
     minify: 'esbuild',
     sourcemap: true,
-    // Single chunk is ~218 kB gzipped (CodeMirror + Svelte + CIRCT adapter).
+    // Single chunk is ~218 kB gzipped (CodeMirror + Svelte + MOX adapter).
     // The raw size exceeds Rollup's 500 kB default but gzip makes it fine.
     chunkSizeWarningLimit: 800,
     rollupOptions: {

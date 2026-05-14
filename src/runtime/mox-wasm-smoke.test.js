@@ -1,9 +1,9 @@
 /**
- * Integration tests that load and run the real CIRCT WASM artifacts via Node.js.
- * These tests require `static/circt/` to be populated (run `npm run sync:circt` first).
+ * Integration tests that load and run the real MOX WASM artifacts via Node.js.
+ * These tests require `static/mox/` to be populated (run `npm run sync:mox` first).
  *
- * circt-verilog.js uses NODERAWFS (real filesystem in Node.js), so we use a real
- * temp directory as the workspace. circt-sim.js is patched to use MEMFS, so it
+ * mox-verilog.js uses NODERAWFS (real filesystem in Node.js), so we use a real
+ * temp directory as the workspace. mox-sim.js is patched to use MEMFS, so it
  * works with any virtual path.
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
@@ -14,21 +14,21 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
-const CIRCT_DIR = path.resolve(
+const MOX_DIR = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  '../../static/circt'
+  '../../static/mox'
 );
 
-const artifactsPresent = fs.existsSync(path.join(CIRCT_DIR, 'circt-verilog.js'));
+const artifactsPresent = fs.existsSync(path.join(MOX_DIR, 'mox-verilog.js'));
 
 /**
- * Load a CIRCT WASM tool into an isolated vm context.
+ * Load a MOX WASM tool into an isolated vm context.
  * Returns an object with `invoke(inputFiles, args)` that resets output capture per call.
  */
 async function loadTool(toolName, { initTimeout = 45_000 } = {}) {
-  const jsPath = path.join(CIRCT_DIR, `${toolName}.js`);
+  const jsPath = path.join(MOX_DIR, `${toolName}.js`);
   if (!fs.existsSync(jsPath)) {
-    throw new Error(`WASM artifact not found: ${jsPath}\nRun: npm run sync:circt`);
+    throw new Error(`WASM artifact not found: ${jsPath}\nRun: npm run sync:mox`);
   }
   const source = fs.readFileSync(jsPath, 'utf8');
 
@@ -36,7 +36,7 @@ async function loadTool(toolName, { initTimeout = 45_000 } = {}) {
   const capture = { out: '', err: '' };
 
   // Custom require that intercepts `require('fs')` to capture fd=1/2 writes.
-  // circt-verilog uses NODERAWFS which calls fs.writeSync(1, ...) for stdout,
+  // mox-verilog uses NODERAWFS which calls fs.writeSync(1, ...) for stdout,
   // bypassing Emscripten's `out` function and Module.print entirely.
   const realRequire = createRequire(jsPath);
   const patchedFsRequire = (id) => {
@@ -81,7 +81,7 @@ async function loadTool(toolName, { initTimeout = 45_000 } = {}) {
     setInterval,
     clearInterval,
     performance,
-    __dirname: CIRCT_DIR,
+    __dirname: MOX_DIR,
     __filename: jsPath,
   };
   context.globalThis = context;
@@ -91,7 +91,7 @@ async function loadTool(toolName, { initTimeout = 45_000 } = {}) {
   // instead of console.log / console.error.
   context.Module = {
     noInitialRun: true,
-    locateFile: (f) => path.join(CIRCT_DIR, f),
+    locateFile: (f) => path.join(MOX_DIR, f),
     print:    (s) => { capture.out += s + '\n'; },
     printErr: (s) => { capture.err += s + '\n'; },
   };
@@ -152,17 +152,17 @@ function waitForReady(context, ms) {
 
 // ---------------------------------------------------------------------------
 
-describe.skipIf(!artifactsPresent)('CIRCT WASM smoke tests', { timeout: 90_000 }, () => {
+describe.skipIf(!artifactsPresent)('MOX WASM smoke tests', { timeout: 90_000 }, () => {
   let verilog;
   let sim;
-  // Real temp directory — required because circt-verilog uses NODERAWFS (real fs).
+  // Real temp directory — required because mox-verilog uses NODERAWFS (real fs).
   let WORK;
 
   beforeAll(async () => {
-    WORK = fs.mkdtempSync(path.join(os.tmpdir(), 'circt-smoke-'));
+    WORK = fs.mkdtempSync(path.join(os.tmpdir(), 'mox-smoke-'));
     [verilog, sim] = await Promise.all([
-      loadTool('circt-verilog'),
-      loadTool('circt-sim'),
+      loadTool('mox-verilog'),
+      loadTool('mox-sim'),
     ]);
   }, 60_000);
 
@@ -170,15 +170,15 @@ describe.skipIf(!artifactsPresent)('CIRCT WASM smoke tests', { timeout: 90_000 }
     fs.rmSync(WORK, { recursive: true, force: true });
   });
 
-  // -- circt-verilog --
+  // -- mox-verilog --
 
-  it('circt-verilog --version exits 0', () => {
+  it('mox-verilog --version exits 0', () => {
     const { exitCode, stdout, stderr } = verilog.invoke({}, ['--version']);
     expect(exitCode).toBe(0);
-    expect(stdout + stderr).toMatch(/circt|CIRCT/i);
+    expect(stdout + stderr).toMatch(/mox|MOX/i);
   });
 
-  it('circt-verilog compiles a simple combinational module', () => {
+  it('mox-verilog compiles a simple combinational module', () => {
     const sv = `
 module top (input logic a, b, output logic y);
   assign y = a & b;
@@ -195,24 +195,24 @@ endmodule
     expect(mlir).toContain('hw.module @top');
   });
 
-  // -- circt-sim --
+  // -- mox-sim --
 
-  it('circt-sim --version exits 0', () => {
+  it('mox-sim --version exits 0', () => {
     const { exitCode, stdout, stderr } = sim.invoke({}, ['--version']);
     expect(exitCode).toBe(0);
-    expect(stdout + stderr).toMatch(/circt|CIRCT/i);
+    expect(stdout + stderr).toMatch(/mox|MOX/i);
   });
 
-  it('circt-sim simulates a minimal testbench end-to-end', () => {
+  it('mox-sim simulates a minimal testbench end-to-end', () => {
     const sv = `
 module tb;
   initial begin
-    $display("circt-sim-ok");
+    $display("mox-sim-ok");
     $finish;
   end
 endmodule
 `;
-    // Compile SV → MLIR via circt-verilog (NODERAWFS → real filesystem)
+    // Compile SV → MLIR via mox-verilog (NODERAWFS → real filesystem)
     const svPath   = `${WORK}/tb.sv`;
     const mlirPath = `${WORK}/tb.mlir`;
     const { exitCode: compileExit } = verilog.invoke(
@@ -222,12 +222,12 @@ endmodule
     expect(compileExit).toBe(0);
     const mlir = verilog.readFile(mlirPath);
 
-    // Simulate MLIR via circt-sim (MEMFS — NODERAWFS was patched out)
+    // Simulate MLIR via mox-sim (MEMFS — NODERAWFS was patched out)
     const { exitCode, stdout, stderr } = sim.invoke(
       { '/workspace/tb.mlir': mlir },
       ['--top', 'tb', '/workspace/tb.mlir'],
     );
     expect(exitCode).toBe(0);
-    expect(stdout + stderr).toContain('circt-sim-ok');
+    expect(stdout + stderr).toContain('mox-sim-ok');
   });
 });

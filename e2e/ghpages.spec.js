@@ -23,17 +23,17 @@ async function applySolution(page) {
 }
 
 async function expectCleanUvmRun(logs) {
-  await expect(logs).toContainText('$ circt-verilog', { timeout: 45_000 });
-  await expect(logs).toContainText('--uvm-path /circt/uvm-core', { timeout: 10_000 });
+  await expect(logs).toContainText('$ mox-verilog', { timeout: 45_000 });
+  await expect(logs).toContainText('--uvm-path /mox/uvm-core', { timeout: 10_000 });
   await expect.poll(
     async () => (await logs.textContent()) ?? '',
     { timeout: 60_000, intervals: [500, 1000] }
-  ).toMatch(/\$ circt-sim|runtime unavailable|# circt-verilog exit code: 1/);
+  ).toMatch(/\$ mox-sim|runtime unavailable|# mox-verilog exit code: 1/);
 
   const text = await logs.textContent();
-  expect(text).toContain('$ circt-sim');
-  expect(text).not.toContain('# circt-verilog exit code: 1');
-  expect(text).not.toContain('# circt-sim exit code: 1');
+  expect(text).toContain('$ mox-sim');
+  expect(text).not.toContain('# mox-verilog exit code: 1');
+  expect(text).not.toContain('# mox-sim exit code: 1');
   expect(text).not.toContain('runtime unavailable');
 }
 

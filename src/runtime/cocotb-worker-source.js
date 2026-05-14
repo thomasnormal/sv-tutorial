@@ -375,7 +375,7 @@ self.onmessage = async function(event) {
   }
 
   try {
-    // ── 1. Load the VPI circt-sim WASM ───────────────────────────────────────
+    // ── 1. Load the VPI mox-sim WASM ───────────────────────────────────────
     // Fetch the JS source first so we can detect NODERAWFS=1 (recognisable by
     // the unconditional require('path') / require('fs') calls at module level).
     var simInMemFS = null;
@@ -387,7 +387,7 @@ self.onmessage = async function(event) {
       printErr: function(line) { onLog(String(line)); },
       locateFile: function(path) { return path.endsWith('.wasm') ? simWasmUrl : path; },
       instantiateWasm: function(imports, callback) {
-        // Wrap _circt_vpi_wasm_yield (import 'r') with Asyncify.handleAsync so
+        // Wrap _mox_vpi_wasm_yield (import 'r') with Asyncify.handleAsync so
         // WASM calls to the yield import trigger Asyncify unwind/rewind instead
         // of running synchronously (instrumentWasmImports is never called by the
         // compiled artifact's createWasm(), so we must wrap here ourselves).
@@ -443,7 +443,7 @@ self.onmessage = async function(event) {
     });
 
     // ── 1b. Patch Module to expose Emscripten internals needed by VPI helpers ─
-    // circt-sim-vpi.js assigns _malloc/_free to module-level globals but not to
+    // mox-sim-vpi.js assigns _malloc/_free to module-level globals but not to
     // Module["_malloc"] / Module["_free"].  setValue/getValue and HEAPU8 are
     // absent from EXPORTED_RUNTIME_METHODS for this build.  After importScripts
     // (or indirect eval) these become worker-scope globals we can forward.
@@ -536,7 +536,7 @@ self.onmessage = async function(event) {
     // ── 7. Create a no-op cb_rtn function pointer for VPI callbacks ──────────
     // VPIRuntime::registerCb rejects null cb_rtn (returns 0 without storing).
     // We need a valid WASM (i32)->i32 function pointer for the cb_rtn field.
-    // Compile a tiny WASM module and insert its export into circt-sim's table.
+    // Compile a tiny WASM module and insert its export into mox-sim's table.
     // Fallback to WebAssembly.Function (Chrome 97+) or placeholder value 1.
     var noopCbPtr = wsAddFunctionToTable(WS_NOOP_CB_WASM);
     if (!noopCbPtr) { try {
@@ -544,7 +544,7 @@ self.onmessage = async function(event) {
       var tbl = wasmTable; var s = tbl.length; tbl.grow(1); tbl.set(s, cFn); noopCbPtr = s;
     } catch(_) {} }
     // Last resort: value 1 — registerCb only checks non-zero; the patched
-    // _circt_vpi_wasm_yield wraps the table call in try-catch.
+    // _mox_vpi_wasm_yield wraps the table call in try-catch.
     var cbRtn = noopCbPtr || 1;
 
     // ── 8. Install a VPI startup routine in the WASM function table ──────────
@@ -553,7 +553,7 @@ self.onmessage = async function(event) {
     //
     // Fix: compile a tiny WASM module (type ()->()) that imports one JS function
     // "r" and calls it. Insert the export into a null slot in the WASM table,
-    // then call _vpi_startup_register(slot). circt-sim invokes startup routines
+    // then call _vpi_startup_register(slot). mox-sim invokes startup routines
     // via invoke_v(slot) inside callMain once active=true, so "r" runs and can
     // call _vpi_register_cb successfully to register cbStartOfSimulation.
     //
@@ -604,12 +604,12 @@ self.onmessage = async function(event) {
     }
 
     // ── 9. Set up the Asyncify yield hook ─────────────────────────────────────
-    // _circt_vpi_wasm_yield (in circt-sim-vpi.js) calls:
-    //   await globalThis.circtSimVpiYieldHook(cbFuncPtr, cbDataPtr)
+    // _mox_vpi_wasm_yield (in mox-sim-vpi.js) calls:
+    //   await globalThis.moxSimVpiYieldHook(cbFuncPtr, cbDataPtr)
     //   try { wasmTable.get(cbFuncPtr)(cbDataPtr) } catch(e) {}  [patched]
     // Our hook handles all Python dispatch; cbRtn is always non-zero, which
     // satisfies registerCb's cb_rtn check. The wasmTable callback is wrapped.
-    self.circtSimVpiYieldHook = async function(_cbFuncPtr, cbDataPtr) {
+    self.moxSimVpiYieldHook = async function(_cbFuncPtr, cbDataPtr) {
       var reason    = simModule.getValue(cbDataPtr +  0, 'i32');
       var triggerId = simModule.getValue(cbDataPtr + 24, 'i32');
 
@@ -675,7 +675,7 @@ self.onmessage = async function(event) {
       '--top', topModule,
       mlirPath
     ];
-    onLog('$ ' + ['circt-sim'].concat(simArgs).map(wsShellQuote).join(' '));
+    onLog('$ ' + ['mox-sim'].concat(simArgs).map(wsShellQuote).join(' '));
     try {
       simModule.callMain(simArgs);
     } catch(e) {

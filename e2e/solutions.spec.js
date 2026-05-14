@@ -12,7 +12,7 @@
  * expectUnsat: true  — additionally asserts [z3] unsat.
  *   Only set for lessons whose solution module has real design logic that
  *   enforces the properties (formal-intro counter, formal-assume FSM, lec
- *   equivalence check). These are the only cases where circt-bmc can prove
+ *   equivalence check). These are the only cases where mox-bmc can prove
  *   unsat because the design itself rules out counterexamples.
  *
  * expectUnsat: false — only checks that [z3] ran and exit codes are 0.
@@ -69,7 +69,7 @@ async function goToLesson(page, chapterName, lessonName) {
 // runner: 'lec' → logical equivalence check (verify button; expects [z3] unsat)
 // runner: 'cocotb' → cocotb Python tests (run/test button)
 //
-// expectUnsat: true  → module has design logic; circt-bmc should prove unsat.
+// expectUnsat: true  → module has design logic; mox-bmc should prove unsat.
 // expectUnsat: false → property-only module; [z3] sat is expected and OK.
 
 const LESSONS = [
@@ -145,7 +145,7 @@ const COMPILE_TIMEOUT = 90_000;
 const Z3_TIMEOUT      = 120_000;
 
 function assertNoCompileError(logs) {
-  return expect(logs).not.toContainText('# circt-verilog exit code: 1', { timeout: COMPILE_TIMEOUT });
+  return expect(logs).not.toContainText('# mox-verilog exit code: 1', { timeout: COMPILE_TIMEOUT });
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -163,13 +163,13 @@ for (const lesson of LESSONS) {
     if (lesson.runner === 'lec') {
       await page.getByTestId('verify-button').click();
       await assertNoCompileError(logs);
-      await expect(logs).not.toContainText('# circt-lec exit code: 1', { timeout: COMPILE_TIMEOUT });
+      await expect(logs).not.toContainText('# mox-lec exit code: 1', { timeout: COMPILE_TIMEOUT });
       await expect(logs).toContainText('unsat', { timeout: Z3_TIMEOUT });
 
     } else if (lesson.runner === 'bmc' || lesson.runner === 'both') {
       await page.getByTestId('verify-button').click();
       await assertNoCompileError(logs);
-      await expect(logs).not.toContainText('# circt-bmc exit code: 1', { timeout: COMPILE_TIMEOUT });
+      await expect(logs).not.toContainText('# mox-bmc exit code: 1', { timeout: COMPILE_TIMEOUT });
       await expect(logs).toContainText('[z3]', { timeout: Z3_TIMEOUT });
       if (lesson.expectUnsat) {
         await expect(logs).toContainText('[z3] unsat', { timeout: Z3_TIMEOUT });

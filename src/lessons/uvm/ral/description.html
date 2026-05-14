@@ -51,7 +51,7 @@ endclass</pre>
               </svg>
 
               <h2>The starter model</h2>
-              <p>This lesson ships a hand-rolled register model that already compiles and simulates in CIRCT. Study how it maps to the skeleton above before converting it:</p>
+              <p>This lesson ships a hand-rolled register model that already compiles and simulates in MOX. Study how it maps to the skeleton above before converting it:</p>
               <ul>
                 <li><strong>Fields as class members</strong> — <code>logic enable</code> and <code>logic [1:0] mode</code> are plain variables; <code>uvm_reg_field</code> replaces them</li>
                 <li><strong><code>to_data()</code></strong> — packs fields by hand: <code>{5'b0, mode, enable}</code>; <code>uvm_reg::get()</code> does this automatically using the <code>lsb_pos</code> from <code>configure()</code></li>

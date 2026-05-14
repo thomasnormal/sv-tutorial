@@ -13,8 +13,8 @@ test('welcome lesson executes simulation output', async ({ page }) => {
 
   await page.getByTestId('run-button').click();
 
-  await expect(logs).toContainText('$ circt-verilog', { timeout: 120_000 });
-  await expect(logs).toContainText('$ circt-sim', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-verilog', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-sim', { timeout: 120_000 });
   await expectInterpretMode(logs);
   await expect(logs).not.toContainText('exit code: 0');
 });
@@ -35,12 +35,12 @@ async function runModulesAndPorts(page) {
   await page.getByTestId('solve-button').click();
   await page.getByTestId('run-button').click();
 
-  await expect(logs).toContainText('$ circt-verilog', { timeout: 120_000 });
-  await expect(logs).toContainText('$ circt-sim', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-verilog', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-sim', { timeout: 120_000 });
   await expectInterpretMode(logs);
   await expect(logs).not.toContainText('exit code: 0');
   await expect(page.getByTestId('runtime-tab-waves')).toBeVisible({ timeout: 120_000 });
-  await expect(logs).not.toContainText('[circt-mock]');
+  await expect(logs).not.toContainText('[mox-mock]');
 
   return { logs, consoleLines };
 }
@@ -248,9 +248,9 @@ test('concurrent-sim SVA assertion signal appears in VCD', async ({ page }) => {
   await page.getByTestId('run-button').click();
 
   // The testbench has a missing-grant scenario that fires the assertion.
-  // circt-sim exits with code 1 on assertion failure — that is expected and correct.
+  // mox-sim exits with code 1 on assertion failure — that is expected and correct.
   await expect(logs).toContainText('SVA assertion failed', { timeout: 90_000 });
-  await expect(logs).not.toContainText('# circt-verilog exit code: 1');
+  await expect(logs).not.toContainText('# mox-verilog exit code: 1');
 
   // The Waves tab should appear (VCD was produced).
   await expect(page.getByTestId('runtime-tab-waves')).toBeVisible();

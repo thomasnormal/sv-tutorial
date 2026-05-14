@@ -1,4 +1,4 @@
-import { CIRCT_FORK_REPO, getCirctRuntimeConfig, getRuntimeBasePath, Z3_SCRIPT_URL } from './circt-config.js';
+import { MOX_FORK_REPO, getMoxRuntimeConfig, getRuntimeBasePath, Z3_SCRIPT_URL } from './mox-config.js';
 import COCOTB_SHIM from './cocotb-shim.py?raw';
 import { COCOTB_WORKER_SOURCE } from './cocotb-worker-source.js';
 import { WORKER_RUNTIME_HELPERS_SOURCE } from './worker-runtime-helpers-source.js';
@@ -164,7 +164,7 @@ function needsUvmLibrary(files) {
   );
 }
 
-// circt-sim inlines child-instance ports as dotted names (e.g. "dut.sum") into
+// mox-sim inlines child-instance ports as dotted names (e.g. "dut.sum") into
 // the parent scope alongside the parent wire ("result"). Strip those duplicates
 // so the waveform viewer only shows the canonical wire name.
 function removeInlinedPortsFromVcd(vcd) {
@@ -202,7 +202,7 @@ function removeInlinedPortsFromVcd(vcd) {
   }).join('\n');
 }
 
-// CIRCT/LLHD encodes every 4-state `logic` bit as a 2-bit pair in VCD:
+// MOX/LLHD encodes every 4-state `logic` bit as a 2-bit pair in VCD:
 //   high bit = value (0 or 1)
 //   low bit  = 4-state flag (0 = known, 1 = x or z)
 // This doubles the declared width of every logic signal, so Surfer displays the
@@ -265,8 +265,8 @@ function fixLlhdVcdEncoding(vcd) {
 
 function addMissingLlhdSignalNames(mlirText) {
   if (typeof mlirText !== 'string') return null;
-  // Add name attributes to llhd.sig ops that lack them so circt-sim's VCD
-  // writer can emit $var entries. circt-verilog only sets name on module
+  // Add name attributes to llhd.sig ops that lack them so mox-sim's VCD
+  // writer can emit $var entries. mox-verilog only sets name on module
   // port connections; testbench-level logic signals get no name attribute.
   // We use the SSA result identifier (%clk -> name "clk") as the signal name.
   return mlirText.replace(
@@ -348,7 +348,7 @@ function isRetryableVerilogCrashText(text) {
   return /memory access out of bounds|Malformed attribute storage object|Aborted\(/i.test(value);
 }
 
-const UVM_FS_ROOT = '/circt/uvm-core';
+const UVM_FS_ROOT = '/mox/uvm-core';
 const UVM_INCLUDE_ROOT = `${UVM_FS_ROOT}/src`;
 const UVM_SIM_MAX_TIME_FS = '1000000';
 
@@ -472,7 +472,7 @@ function readWorkspaceFiles(FS, paths) {
 
 ${WORKER_RUNTIME_HELPERS_SOURCE}
 
-// In-memory filesystem for Emscripten NODERAWFS builds (like circt-sim.js).
+// In-memory filesystem for Emscripten NODERAWFS builds (like mox-sim.js).
 // NODERAWFS replaces the entire Emscripten FS layer with direct Node.js fs calls.
 // We provide a fake require('fs') that stores data in memory so that
 // module.FS.writeFile / callMain / module.FS.readFile all share the same store.
@@ -486,9 +486,9 @@ function makeInMemFS(onStdoutChunk = null, onStderrChunk = null) {
     '/workspace',
     '/workspace/src',
     '/workspace/out',
-    '/circt',
-    '/circt/uvm-core',
-    '/circt/uvm-core/src'
+    '/mox',
+    '/mox/uvm-core',
+    '/mox/uvm-core/src'
   ]);
   var fds = {};
   var nextFd = 3;
@@ -739,7 +739,7 @@ function makeInMemFS(onStdoutChunk = null, onStderrChunk = null) {
   };
 }
 
-var circtWorkerRuntimeReady = false;
+var moxWorkerRuntimeReady = false;
 
 function getModuleValue(module, name) {
   if (!module) return null;
@@ -791,7 +791,7 @@ function waitForRuntime(timeoutMs = 45000) {
         const fsApi = resolveFS(module);
 
         if (
-          circtWorkerRuntimeReady &&
+          moxWorkerRuntimeReady &&
           module &&
           !!callMain &&
           !!main &&
@@ -854,8 +854,8 @@ self.onmessage = async (event) => {
     self.Module = {
       noInitialRun: true,
       onRuntimeInitialized: () => {
-        console.log('[circt-worker] onRuntimeInitialized fired');
-        circtWorkerRuntimeReady = true;
+        console.log('[mox-worker] onRuntimeInitialized fired');
+        moxWorkerRuntimeReady = true;
       },
       print: (line) => appendStreamLine('stdout', line),
       printErr: (line) => appendStreamLine('stderr', line),
@@ -865,23 +865,23 @@ self.onmessage = async (event) => {
       },
       // Use streaming WASM compilation for all tools to avoid slow sync readBinary path.
       instantiateWasm: function(imports, callback) {
-        console.log('[circt-worker] instantiateWasm called for', req.wasmUrl);
+        console.log('[mox-worker] instantiateWasm called for', req.wasmUrl);
         WebAssembly.instantiateStreaming(fetch(req.wasmUrl), imports)
           .then(function(result) {
-            console.log('[circt-worker] instantiateStreaming succeeded');
+            console.log('[mox-worker] instantiateStreaming succeeded');
             callback(result.instance, result.module);
           })
           .catch(function(streamErr) {
-            console.log('[circt-worker] instantiateStreaming failed, trying ArrayBuffer fallback:', String(streamErr));
+            console.log('[mox-worker] instantiateStreaming failed, trying ArrayBuffer fallback:', String(streamErr));
             return fetch(req.wasmUrl)
               .then(function(r) { return r.arrayBuffer(); })
               .then(function(buf) { return WebAssembly.instantiate(buf, imports); })
               .then(function(result) {
-                console.log('[circt-worker] ArrayBuffer instantiate succeeded');
+                console.log('[mox-worker] ArrayBuffer instantiate succeeded');
                 callback(result.instance, result.module);
               })
               .catch(function(abErr) {
-                console.error('[circt-worker] both WASM instantiation paths failed:', String(abErr));
+                console.error('[mox-worker] both WASM instantiation paths failed:', String(abErr));
               });
           });
         return {};
@@ -895,7 +895,7 @@ self.onmessage = async (event) => {
       makeFs: function() {
         // NODERAWFS builds call require('path') / require('fs') at module scope.
         // Provide a Node-like fs backed by memory so tool I/O stays in-worker.
-        console.log('[circt-worker] NODERAWFS detected, setting up Node.js emulation');
+        console.log('[mox-worker] NODERAWFS detected, setting up Node.js emulation');
         inMemFS = makeInMemFS(
           (text) => appendStreamText('stdout', text),
           (text) => appendStreamText('stderr', text)
@@ -904,11 +904,11 @@ self.onmessage = async (event) => {
       },
       onStdout: function(s) { appendStreamText('stdout', s); },
       onStderr: function(s) { appendStreamText('stderr', s); },
-      beforeEval: function() { console.log('[circt-worker] starting eval of tool script'); },
-      afterEval: function() { console.log('[circt-worker] eval complete'); }
+      beforeEval: function() { console.log('[mox-worker] starting eval of tool script'); },
+      afterEval: function() { console.log('[mox-worker] eval complete'); }
     });
 
-    console.log('[circt-worker] waiting for runtime...');
+    console.log('[mox-worker] waiting for runtime...');
     const module = await waitForRuntime();
     const fsApi = resolveFS(module);
     if (!fsApi) {
@@ -962,7 +962,7 @@ self.onmessage = async (event) => {
 
       const rootPath = (manifest && typeof manifest.rootPath === 'string' && manifest.rootPath.length > 0)
         ? manifest.rootPath
-        : '/circt/uvm-core/src';
+        : '/mox/uvm-core/src';
       const relPaths = Array.isArray(manifest && manifest.files) ? manifest.files : [];
       const srcBaseUrl = new URL('src/', manifestUrl).href;
       for (const relRaw of relPaths) {
@@ -1001,7 +1001,7 @@ self.onmessage = async (event) => {
         }
       }
     }
-    console.log('[circt-worker] runtime ready, writing files');
+    console.log('[mox-worker] runtime ready, writing files');
     if (inMemFS) {
       for (const [path, content] of Object.entries(req.files || {})) {
         inMemFS.writeTextFile(String(path), content);
@@ -1016,12 +1016,12 @@ self.onmessage = async (event) => {
       }
     }
 
-    console.log('[circt-worker] calling callMain with args:', req.args);
+    console.log('[mox-worker] calling callMain with args:', req.args);
     let exitCode = 0;
     try {
       const callMain = resolveCallMain(module);
       if (!callMain) {
-        throw new Error('CIRCT runtime is missing callMain entrypoint');
+        throw new Error('MOX runtime is missing callMain entrypoint');
       }
       const ret = callMain(Array.isArray(req.args) ? req.args : []);
       if (typeof ret === 'number' && Number.isFinite(ret)) {
@@ -1031,7 +1031,7 @@ self.onmessage = async (event) => {
       if (!isExitException(error)) throw error;
       exitCode = extractExitCode(error);
     }
-    console.log('[circt-worker] callMain done, exitCode:', exitCode);
+    console.log('[mox-worker] callMain done, exitCode:', exitCode);
 
     flushStreamRemainders();
     const files = inMemFS
@@ -1233,18 +1233,18 @@ function toAbsoluteUrl(rawUrl) {
 }
 
 function getUvmManifestUrl() {
-  return toAbsoluteUrl(`${getRuntimeBasePath()}circt/uvm-core/uvm-manifest.json`);
+  return toAbsoluteUrl(`${getRuntimeBasePath()}mox/uvm-core/uvm-manifest.json`);
 }
 
 // ── Cocotb worker ─────────────────────────────────────────────────────────────
 // Self-contained Web Worker source for running cocotb tests via Pyodide +
-// a VPI-capable, Asyncify-transformed circt-sim WASM.
+// a VPI-capable, Asyncify-transformed mox-sim WASM.
 //
-// circt-sim-vpi may be built with NODERAWFS=1 (the Emscripten default).
+// mox-sim-vpi may be built with NODERAWFS=1 (the Emscripten default).
 // In that case importScripts() fails immediately because the script calls
 // require('path') at module level.  We detect this and fall back to eval()
 // with a fake Node.js environment backed by an in-memory filesystem, exactly
-// like WORKER_SOURCE does for the regular circt-sim.
+// like WORKER_SOURCE does for the regular mox-sim.
 
 let cocotbWorkerBlobUrl = null;
 
@@ -1328,10 +1328,10 @@ function runCocotbInWorker({
   });
 }
 
-export class CirctWasmAdapter {
+export class MoxWasmAdapter {
   constructor() {
-    this.repo = CIRCT_FORK_REPO;
-    this.config = getCirctRuntimeConfig();
+    this.repo = MOX_FORK_REPO;
+    this.config = getMoxRuntimeConfig();
     this.ready = false;
     this._runController = null;
   }
@@ -1350,7 +1350,7 @@ export class CirctWasmAdapter {
     });
 
     if (missing.length) {
-      throw new Error(`CIRCT toolchain is incomplete in config: ${missing.join(', ')}`);
+      throw new Error(`MOX toolchain is incomplete in config: ${missing.join(', ')}`);
     }
 
     this.ready = true;
@@ -1361,7 +1361,7 @@ export class CirctWasmAdapter {
     { args, files = {}, readFiles = [], createDirs = [], uvmManifestUrl = null, onOutput = null }
   ) {
     const tool = this.config.toolchain[toolName];
-    if (!tool) throw new Error(`Unknown CIRCT tool: ${toolName}`);
+    if (!tool) throw new Error(`Unknown MOX tool: ${toolName}`);
 
     return runToolInWorker({
       jsUrl: toAbsoluteUrl(tool.js),
@@ -1382,17 +1382,17 @@ export class CirctWasmAdapter {
     try {
       await this.init();
 
-      logs.push(formatCommand('circt-verilog', ['--help']));
+      logs.push(formatCommand('mox-verilog', ['--help']));
       const verilogHelp = await this._invokeTool('verilog', {
         args: ['--help']
       });
-      appendNonZeroExit(logs, 'circt-verilog', verilogHelp.exitCode);
+      appendNonZeroExit(logs, 'mox-verilog', verilogHelp.exitCode);
 
-      logs.push(formatCommand('circt-sim', ['--help']));
+      logs.push(formatCommand('mox-sim', ['--help']));
       const simHelp = await this._invokeTool('sim', {
         args: ['--help']
       });
-      appendNonZeroExit(logs, 'circt-sim', simHelp.exitCode);
+      appendNonZeroExit(logs, 'mox-sim', simHelp.exitCode);
 
       const ok = verilogHelp.exitCode === 0 && simHelp.exitCode === 0;
       if (verilogHelp.stderr) logs.push(`[stderr] ${verilogHelp.stderr}`);
@@ -1495,7 +1495,7 @@ export class CirctWasmAdapter {
         for (let attempt = 0; attempt < compilePlans.length; attempt += 1) {
           const plan = compilePlans[attempt];
           if (attempt > 0) {
-            emitLog(`# circt-verilog: retrying in ${plan.label}`);
+            emitLog(`# mox-verilog: retrying in ${plan.label}`);
           }
           if (plan.bundledCompile.bundled) {
             emitLog(
@@ -1503,7 +1503,7 @@ export class CirctWasmAdapter {
               'for stable UVM compilation'
             );
           }
-          emitLog(formatCommand('circt-verilog', plan.compileArgs));
+          emitLog(formatCommand('mox-verilog', plan.compileArgs));
 
           const compileStream = makeToolOutputHandler();
           let attemptCompile;
@@ -1519,7 +1519,7 @@ export class CirctWasmAdapter {
           } catch (error) {
             const text = String(error?.message || error || '');
             if (useFullUvm && text.includes('Aborted(OOM)')) {
-              emitLog('# circt-verilog: out of memory compiling UVM — rebuild wasm with larger heap');
+              emitLog('# mox-verilog: out of memory compiling UVM — rebuild wasm with larger heap');
               if (typeof onStatus === 'function') onStatus('done');
               return { ok: false, logs, waveform: null };
             }
@@ -1531,7 +1531,7 @@ export class CirctWasmAdapter {
             if (attemptCompile.stdout) emitLog(`[stdout] ${attemptCompile.stdout}`);
             if (attemptCompile.stderr) emitLog(`[stderr] ${attemptCompile.stderr}`);
           }
-          appendNonZeroExit(logs, 'circt-verilog', attemptCompile.exitCode, emitLog);
+          appendNonZeroExit(logs, 'mox-verilog', attemptCompile.exitCode, emitLog);
 
           const rawMlir = attemptCompile.files?.[mlirPath] || null;
           const attemptLoweredMlir = addMissingLlhdSignalNames(rawMlir);
@@ -1595,7 +1595,7 @@ export class CirctWasmAdapter {
         if (withTraceAll) simArgs.push('--trace-all');
         simArgs.push(mlirPath);
 
-        emitLog(formatCommand('circt-sim', simArgs));
+        emitLog(formatCommand('mox-sim', simArgs));
         const sim = await this._invokeTool('sim', {
           args: simArgs,
           files: {
@@ -1606,7 +1606,7 @@ export class CirctWasmAdapter {
           onOutput: simStream.onOutput
         });
         if (sim.exitCode !== 0 && isRetryableSimAbortText(sim.stderr)) {
-          throw new Error(String(sim.stderr || `circt-sim exited ${sim.exitCode}`));
+          throw new Error(String(sim.stderr || `mox-sim exited ${sim.exitCode}`));
         }
         return { sim, withVcd };
       };
@@ -1617,13 +1617,13 @@ export class CirctWasmAdapter {
       } catch (error) {
         const retryable = isRetryableSimAbortText(error?.message || error);
         if (!retryable) throw error;
-        emitLog('# circt-sim: runtime abort with --trace-all; retrying without --trace-all');
+        emitLog('# mox-sim: runtime abort with --trace-all; retrying without --trace-all');
         try {
           simResult = await runSimAttempt({ withTraceAll: false, withVcd: true });
         } catch (retryError) {
           const retryableNoTrace = isRetryableSimAbortText(retryError?.message || retryError);
           if (!retryableNoTrace) throw retryError;
-          emitLog('# circt-sim: runtime abort while writing VCD; retrying without waveform capture');
+          emitLog('# mox-sim: runtime abort while writing VCD; retrying without waveform capture');
           simResult = await runSimAttempt({ withTraceAll: false, withVcd: false });
         }
       }
@@ -1634,7 +1634,7 @@ export class CirctWasmAdapter {
         if (sim.stdout) emitLog(`[stdout] ${sim.stdout}`);
         if (sim.stderr) emitLog(`[stderr] ${sim.stderr}`);
       }
-      appendNonZeroExit(logs, 'circt-sim', sim.exitCode, emitLog);
+      appendNonZeroExit(logs, 'mox-sim', sim.exitCode, emitLog);
 
       const rawVcdText = simResult.withVcd ? sim.files?.[wavePath] || null : null;
       const vcdText = fixLlhdVcdEncoding(removeInlinedPortsFromVcd(rawVcdText));
@@ -1657,11 +1657,11 @@ export class CirctWasmAdapter {
         ok: false,
         logs: [
           `# runtime unavailable: ${error.message}`,
-          `# circt-verilog js: ${this.config.toolchain.verilog.js}`,
-          `# circt-verilog wasm: ${this.config.toolchain.verilog.wasm}`,
-          `# circt-sim js: ${this.config.toolchain.sim.js}`,
-          `# circt-sim wasm: ${this.config.toolchain.sim.wasm}`,
-          '# run scripts/setup-circt.sh and npm run sync:circt to refresh artifacts'
+          `# mox-verilog js: ${this.config.toolchain.verilog.js}`,
+          `# mox-verilog wasm: ${this.config.toolchain.verilog.wasm}`,
+          `# mox-sim js: ${this.config.toolchain.sim.js}`,
+          `# mox-sim wasm: ${this.config.toolchain.sim.wasm}`,
+          '# run scripts/setup-mox.sh and npm run sync:mox to refresh artifacts'
         ],
         waveform: null
       };
@@ -1735,7 +1735,7 @@ export class CirctWasmAdapter {
           'for stable UVM compilation'
         );
       }
-      emitLog(formatCommand('circt-verilog', compileArgs));
+      emitLog(formatCommand('mox-verilog', compileArgs));
 
       if (typeof onStatus === 'function') onStatus('compiling');
       let compile;
@@ -1754,7 +1754,7 @@ export class CirctWasmAdapter {
       } catch (error) {
         const text = String(error?.message || error || '');
         if (useFullUvm && text.includes('Aborted(OOM)')) {
-          emitLog('# circt-verilog: out of memory compiling UVM — rebuild wasm with larger heap');
+          emitLog('# mox-verilog: out of memory compiling UVM — rebuild wasm with larger heap');
           if (typeof onStatus === 'function') onStatus('done');
           return { ok: false, logs };
         }
@@ -1764,7 +1764,7 @@ export class CirctWasmAdapter {
         if (compile.stdout) emitLog(`[stdout] ${compile.stdout}`);
         if (compile.stderr) emitLog(`[stderr] ${compile.stderr}`);
       }
-      appendNonZeroExit(logs, 'circt-verilog', compile.exitCode, emitLog);
+      appendNonZeroExit(logs, 'mox-verilog', compile.exitCode, emitLog);
 
       const mlirText = compile.files?.[mlirPath] || null;
       if (compile.exitCode !== 0 || !mlirText) {
@@ -1779,7 +1779,7 @@ export class CirctWasmAdapter {
         arg.replace('{top}', topModule).replace('{input}', mlirPath)
       );
 
-      emitLog(formatCommand('circt-bmc', bmcArgs));
+      emitLog(formatCommand('mox-bmc', bmcArgs));
 
       if (typeof onStatus === 'function') onStatus('running');
       const bmcStream = makeToolOutputHandler();
@@ -1799,7 +1799,7 @@ export class CirctWasmAdapter {
         .join('\n')
         .trim();
       if (!bmcStream.sawStream() && bmcStderr) emitLog(`[stderr] ${bmcStderr}`);
-      appendNonZeroExit(logs, 'circt-bmc', bmc.exitCode, emitLog);
+      appendNonZeroExit(logs, 'mox-bmc', bmc.exitCode, emitLog);
 
       const smtlibText = bmc.files?.[smtPath] || null;
       if (!smtlibText) {
@@ -1829,9 +1829,9 @@ export class CirctWasmAdapter {
         ok: false,
         logs: [
           `# runtime unavailable: ${error.message}`,
-          `# circt-bmc js: ${this.config.toolchain.bmc.js}`,
-          `# circt-bmc wasm: ${this.config.toolchain.bmc.wasm}`,
-          '# run scripts/setup-circt.sh to refresh artifacts'
+          `# mox-bmc js: ${this.config.toolchain.bmc.js}`,
+          `# mox-bmc wasm: ${this.config.toolchain.bmc.wasm}`,
+          '# run scripts/setup-mox.sh to refresh artifacts'
         ]
       };
     }
@@ -1888,7 +1888,7 @@ export class CirctWasmAdapter {
           sawStream: () => sawStream
         };
       };
-      emitLog(formatCommand('circt-verilog', compileArgs));
+      emitLog(formatCommand('mox-verilog', compileArgs));
 
       if (typeof onStatus === 'function') onStatus('compiling');
       const compileStream = makeToolOutputHandler();
@@ -1905,7 +1905,7 @@ export class CirctWasmAdapter {
         if (compile.stdout) emitLog(`[stdout] ${compile.stdout}`);
         if (compile.stderr) emitLog(`[stderr] ${compile.stderr}`);
       }
-      appendNonZeroExit(logs, 'circt-verilog', compile.exitCode, emitLog);
+      appendNonZeroExit(logs, 'mox-verilog', compile.exitCode, emitLog);
 
       const mlirText = compile.files?.[mlirPath] || null;
       if (compile.exitCode !== 0 || !mlirText) {
@@ -1925,8 +1925,8 @@ export class CirctWasmAdapter {
       // Check that the VPI sim is configured.
       const simVpi = this.config.toolchain.simVpi;
       if (!simVpi?.js || !simVpi?.wasm) {
-        emitLog('# VPI-capable circt-sim not configured');
-        emitLog('# set VITE_CIRCT_SIM_VPI_JS_URL and VITE_CIRCT_SIM_VPI_WASM_URL in .env');
+        emitLog('# VPI-capable mox-sim not configured');
+        emitLog('# set VITE_MOX_SIM_VPI_JS_URL and VITE_MOX_SIM_VPI_WASM_URL in .env');
         if (typeof onStatus === 'function') onStatus('done');
         return { ok: false, logs };
       }
@@ -2010,7 +2010,7 @@ export class CirctWasmAdapter {
           sawStream: () => sawStream
         };
       };
-      emitLog(formatCommand('circt-verilog', compileArgs));
+      emitLog(formatCommand('mox-verilog', compileArgs));
 
       if (typeof onStatus === 'function') onStatus('compiling');
       const compileStream = makeToolOutputHandler();
@@ -2027,7 +2027,7 @@ export class CirctWasmAdapter {
         if (compile.stdout) emitLog(`[stdout] ${compile.stdout}`);
         if (compile.stderr) emitLog(`[stderr] ${compile.stderr}`);
       }
-      appendNonZeroExit(logs, 'circt-verilog', compile.exitCode, emitLog);
+      appendNonZeroExit(logs, 'mox-verilog', compile.exitCode, emitLog);
 
       const mlirText = compile.files?.[mlirPath] || null;
       if (compile.exitCode !== 0 || !mlirText) {
@@ -2042,7 +2042,7 @@ export class CirctWasmAdapter {
            .replace('{input}', mlirPath)
       );
 
-      emitLog(formatCommand('circt-lec', lecArgs));
+      emitLog(formatCommand('mox-lec', lecArgs));
 
       if (typeof onStatus === 'function') onStatus('running');
       const lecStream = makeToolOutputHandler();
@@ -2061,7 +2061,7 @@ export class CirctWasmAdapter {
         .join('\n')
         .trim();
       if (!lecStream.sawStream() && lecStderr) emitLog(`[stderr] ${lecStderr}`);
-      appendNonZeroExit(logs, 'circt-lec', lec.exitCode, emitLog);
+      appendNonZeroExit(logs, 'mox-lec', lec.exitCode, emitLog);
 
       const smtlibText = lec.files?.[smtPath] || null;
       if (!smtlibText) {
@@ -2090,7 +2090,7 @@ export class CirctWasmAdapter {
         try {
           emitLog(`$ z3 -model ${smtPath} | grep define-fun`);
           const freshEm = await getFreshZ3Module();
-          // Insert (get-model) before (reset) — circt-lec SMT-LIB ends with
+          // Insert (get-model) before (reset) — mox-lec SMT-LIB ends with
           // (reset) which clears solver state; appending after it loses the model.
           const resetIdx = smtlibText.lastIndexOf('(reset)');
           const smtWithModel = resetIdx >= 0
@@ -2111,7 +2111,7 @@ export class CirctWasmAdapter {
             if (/^c\d+_/.test(name)) continue;
             const width = parseInt(widthStr, 10);
             const raw = val.startsWith('#x') ? parseInt(val.slice(2), 16) : parseInt(val.slice(2), 2);
-            // CIRCT encodes N-bit SV signals as 2N-bit SMT bitvectors: the lower N
+            // MOX encodes N-bit SV signals as 2N-bit SMT bitvectors: the lower N
             // bits are "unknown" flags and the upper N bits are the logic values.
             // Decode to the plain N-bit value when all unknown bits are zero.
             let displayVal = raw;
@@ -2149,21 +2149,21 @@ export class CirctWasmAdapter {
         ok: false,
         logs: [
           `# runtime unavailable: ${error.message}`,
-          `# circt-lec js: ${this.config.toolchain.lec?.js}`,
-          `# circt-lec wasm: ${this.config.toolchain.lec?.wasm}`,
-          '# run scripts/setup-circt.sh to refresh artifacts'
+          `# mox-lec js: ${this.config.toolchain.lec?.js}`,
+          `# mox-lec wasm: ${this.config.toolchain.lec?.wasm}`,
+          '# run scripts/setup-mox.sh to refresh artifacts'
         ]
       };
     }
   }
 }
 
-export function createCirctWasmAdapter() {
-  return new CirctWasmAdapter();
+export function createMoxWasmAdapter() {
+  return new MoxWasmAdapter();
 }
 
 let _adapter = null;
-export function getCirctWasmAdapter() {
-  _adapter ??= createCirctWasmAdapter();
+export function getMoxWasmAdapter() {
+  _adapter ??= createMoxWasmAdapter();
   return _adapter;
 }

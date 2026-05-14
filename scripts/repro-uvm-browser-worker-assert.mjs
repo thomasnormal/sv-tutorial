@@ -19,11 +19,11 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const UVM_LESSON_DIR = path.join(REPO_ROOT, 'src', 'lessons', 'uvm');
 
 const REQUIRED_FILES = [
-  'static/circt/circt-verilog.js',
-  'static/circt/circt-verilog.wasm',
-  'static/circt/circt-sim.js',
-  'static/circt/circt-sim.wasm',
-  'static/circt/uvm-core/uvm-manifest.json'
+  'static/mox/mox-verilog.js',
+  'static/mox/mox-verilog.wasm',
+  'static/mox/mox-sim.js',
+  'static/mox/mox-sim.wasm',
+  'static/mox/uvm-core/uvm-manifest.json'
 ];
 
 const UVM_FILES = {
@@ -156,7 +156,7 @@ async function requireArtifacts() {
     } catch {
       throw new Error(
         `missing required artifact: ${relPath}\n` +
-        'run scripts/setup-circt.sh && npm run sync:circt before repro'
+        'run scripts/setup-mox.sh && npm run sync:mox before repro'
       );
     }
   }
@@ -242,11 +242,11 @@ async function runBrowserWorkerCompile(baseUrl, files, simulate) {
 
     const runEvaluate = async () =>
       page.evaluate(async ({ files, simulate }) => {
-        const { createCirctWasmAdapter } = await import('/src/runtime/circt-adapter.js');
-        const circt = createCirctWasmAdapter();
+        const { createMoxWasmAdapter } = await import('/src/runtime/mox-adapter.js');
+        const mox = createMoxWasmAdapter();
 
         const streamed = [];
-        const result = await circt.run({
+        const result = await mox.run({
           files,
           top: 'tb_top',
           simulate,
@@ -304,7 +304,7 @@ function analyzeLogs(payload) {
   const merged = [...payload.streamed, ...payload.resultLogs].join('\n');
   const hasMalformed = /Malformed attribute storage object/.test(merged);
   const hasAbort = /Aborted\(/.test(merged);
-  const hasSim = /\$ circt-sim\b/.test(merged);
+  const hasSim = /\$ mox-sim\b/.test(merged);
 
   return {
     ok: payload.ok,
@@ -332,7 +332,7 @@ function analyzeLogs(payload) {
       console.log(`# Using existing dev server at ${baseUrl}`);
     }
 
-    console.log('# Running minimal browser-worker UVM compile via createCirctWasmAdapter');
+    console.log('# Running minimal browser-worker UVM compile via createMoxWasmAdapter');
     console.log(`# mode: expect-${options.expect}, simulate=${options.simulate}`);
     const payload = await runBrowserWorkerCompile(baseUrl, files, options.simulate);
     const analysis = analyzeLogs(payload);

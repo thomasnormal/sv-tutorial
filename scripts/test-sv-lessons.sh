@@ -3,25 +3,25 @@
 #   • the solution files produce PASS output, and
 #   • the starter (incomplete) files do NOT produce PASS output.
 #
-# Requirements: native circt-verilog and circt-sim binaries.
-# Default location: vendor/circt/build-native/bin/
-# Override: CIRCT_VERILOG=/path/to/circt-verilog CIRCT_SIM=/path/to/circt-sim
+# Requirements: native mox-verilog and mox-sim binaries.
+# Default location: vendor/mox/build-native/bin/
+# Override: MOX_VERILOG=/path/to/mox-verilog MOX_SIM=/path/to/mox-sim
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 LESSONS_DIR="$REPO_ROOT/src/lessons/sv"
 
-CIRCT_VERILOG="${CIRCT_VERILOG:-$REPO_ROOT/vendor/circt/build-native/bin/circt-verilog}"
-CIRCT_SIM="${CIRCT_SIM:-$REPO_ROOT/vendor/circt/build-native/bin/circt-sim}"
+MOX_VERILOG="${MOX_VERILOG:-$REPO_ROOT/vendor/mox/build-native/bin/mox-verilog}"
+MOX_SIM="${MOX_SIM:-$REPO_ROOT/vendor/mox/build-native/bin/mox-sim}"
 
-if [[ ! -x "$CIRCT_VERILOG" ]]; then
-  echo "ERROR: circt-verilog not found: $CIRCT_VERILOG"
-  echo "Build native tools first, or set CIRCT_VERILOG=/path/to/binary"
+if [[ ! -x "$MOX_VERILOG" ]]; then
+  echo "ERROR: mox-verilog not found: $MOX_VERILOG"
+  echo "Build native tools first, or set MOX_VERILOG=/path/to/binary"
   exit 1
 fi
-if [[ ! -x "$CIRCT_SIM" ]]; then
-  echo "ERROR: circt-sim not found: $CIRCT_SIM"
-  echo "Build native tools first, or set CIRCT_SIM=/path/to/binary"
+if [[ ! -x "$MOX_SIM" ]]; then
+  echo "ERROR: mox-sim not found: $MOX_SIM"
+  echo "Build native tools first, or set MOX_SIM=/path/to/binary"
   exit 1
 fi
 
@@ -48,14 +48,14 @@ compile_and_sim() {
   local mlir="$WORK/${label}.mlir"
   local compile_log="$WORK/${label}.compile.log"
 
-  if ! "$CIRCT_VERILOG" "${VERILOG_FLAGS[@]}" "$@" -o "$mlir" \
+  if ! "$MOX_VERILOG" "${VERILOG_FLAGS[@]}" "$@" -o "$mlir" \
        >"$compile_log" 2>&1; then
     printf 'COMPILE_ERROR\n'
     cat "$compile_log"
     return 0
   fi
 
-  "$CIRCT_SIM" --top tb "$mlir" 2>&1 || true
+  "$MOX_SIM" --top tb "$mlir" 2>&1 || true
 }
 
 # has_pass <output>  — true if any line starts with "PASS"
@@ -63,7 +63,7 @@ has_pass() { echo "$1" | grep -q "^PASS"; }
 
 # ─── main loop ────────────────────────────────────────────────────────────────
 
-printf '\n%s\n' "$(dim "circt: $CIRCT_VERILOG")"
+printf '\n%s\n' "$(dim "mox: $MOX_VERILOG")"
 printf '%s\n\n' "$(dim "lessons: $LESSONS_DIR")"
 
 for lesson_dir in "$LESSONS_DIR"/*/; do

@@ -1,1 +1,1 @@
-export { getCirctWasmAdapter, createCirctWasmAdapter } from '../runtime/circt-adapter.js';
+export { getMoxWasmAdapter, createMoxWasmAdapter } from '../runtime/mox-adapter.js';

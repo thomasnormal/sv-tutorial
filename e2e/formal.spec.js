@@ -28,10 +28,10 @@ test('BMC: starter code has no assertion → verify does not prove anything', as
   await page.getByTestId('verify-button').click();
 
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ circt-verilog', { timeout: 120_000 });
-  await expect(logs).toContainText('$ circt-bmc', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-verilog', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-bmc', { timeout: 120_000 });
   // No assertion in the module → bmc may exit with 0 but won't say "proved"
-  await expect(logs).not.toContainText('# circt-verilog exit code: 1');
+  await expect(logs).not.toContainText('# mox-verilog exit code: 1');
 });
 
 test('BMC: solution proves all properties within the bound', async ({ page }) => {
@@ -41,11 +41,11 @@ test('BMC: solution proves all properties within the bound', async ({ page }) =>
   await page.getByTestId('verify-button').click();
 
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ circt-verilog', { timeout: 120_000 });
-  await expect(logs).toContainText('$ circt-bmc', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-verilog', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-bmc', { timeout: 120_000 });
   await expect(logs).toContainText('[z3] unsat', { timeout: 120_000 });
-  await expect(logs).not.toContainText('# circt-verilog exit code: 1');
-  await expect(logs).not.toContainText('# circt-bmc exit code: 1');
+  await expect(logs).not.toContainText('# mox-verilog exit code: 1');
+  await expect(logs).not.toContainText('# mox-bmc exit code: 1');
 });
 
 test('BMC: shows only verify button, no run button', async ({ page }) => {
@@ -83,10 +83,10 @@ test('LEC: buggy Impl is detected as NOT equivalent', async ({ page }) => {
   await page.getByTestId('verify-button').click();
 
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ circt-verilog', { timeout: 120_000 });
-  await expect(logs).toContainText('$ circt-lec', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-verilog', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-lec', { timeout: 120_000 });
   await expect(logs).toContainText('sat', { timeout: 120_000 });
-  await expect(logs).not.toContainText('# circt-verilog exit code: 1');
+  await expect(logs).not.toContainText('# mox-verilog exit code: 1');
 });
 
 test('LEC: fixed Impl is proved equivalent to Spec', async ({ page }) => {
@@ -97,6 +97,6 @@ test('LEC: fixed Impl is proved equivalent to Spec', async ({ page }) => {
 
   const logs = page.getByTestId('runtime-logs');
   await expect(logs).toContainText('unsat', { timeout: 120_000 });
-  await expect(logs).not.toContainText('# circt-verilog exit code: 1');
-  await expect(logs).not.toContainText('# circt-lec exit code: 1');
+  await expect(logs).not.toContainText('# mox-verilog exit code: 1');
+  await expect(logs).not.toContainText('# mox-lec exit code: 1');
 });

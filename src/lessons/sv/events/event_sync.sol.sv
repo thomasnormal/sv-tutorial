@@ -5,6 +5,7 @@ module event_sync;
 
   logic [7:0] mem [0:3];
   int         errors = 0;
+  bit         reader_ran = 0;
 
   initial begin
     #10;
@@ -17,13 +18,14 @@ module event_sync;
     @(write_done);
     if (mem[0] !== 8'd10 || mem[1] !== 8'd20) errors++;
     if (mem[2] !== 8'd30 || mem[3] !== 8'd40) errors++;
+    reader_ran = 1;
     $display("reader: %0d error(s)", errors);
     -> read_done;
   end
 
   initial begin
     @(read_done);
-    if (errors == 0) $display("PASS");
+    if (reader_ran && errors == 0) $display("PASS");
     $finish;
   end
 

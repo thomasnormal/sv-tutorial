@@ -1,6 +1,6 @@
 // The lowering pipeline — before and after.
 //
-// CIRCT transforms hardware IR through a sequence of passes.
+// MOX transforms hardware IR through a sequence of passes.
 // Each pass lowers one dialect level closer to SystemVerilog text.
 //
 // ─────────────────────────────────────────────────────────────────────────
@@ -51,9 +51,9 @@ hw.module @dff_after(in %d : i8, in %clk : i1, out q : i8) {
 
 
 // ─────────────────────────────────────────────────────────────────────────
-// BONUS: the formal verification path (what circt-bmc does)
+// BONUS: the formal verification path (what mox-bmc does)
 //
-// Instead of going to sv + ExportVerilog, circt-bmc takes the
+// Instead of going to sv + ExportVerilog, mox-bmc takes the
 // hw + comb + seq IR and lowers it to SMT (Satisfiability Modulo Theories):
 //
 //   hw.module + verif.assert
@@ -64,6 +64,6 @@ hw.module @dff_after(in %d : i8, in %clk : i1, out q : i8) {
 //        ↓  ExportSMTLIB
 //   SMTLIB text  →  Z3 solver  →  sat / unsat
 //
-// This is why circt-bmc can exhaustively check all input combinations
+// This is why mox-bmc can exhaustively check all input combinations
 // rather than just the ones your testbench happened to try.
 // ─────────────────────────────────────────────────────────────────────────

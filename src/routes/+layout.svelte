@@ -5,7 +5,7 @@
   import { browser } from '$app/environment';
   import { onMount, untrack } from 'svelte';
   import '../app.css';
-  import { getCirctRuntimeConfig, Z3_SCRIPT_URL } from '../runtime/circt-config.js';
+  import { getMoxRuntimeConfig, Z3_SCRIPT_URL } from '../runtime/mox-config.js';
   import {
     OFFLINE_APP_CACHE_PREFIX,
     OFFLINE_RUNTIME_CACHE,
@@ -267,7 +267,7 @@
 
     try {
       await ensureOfflineServiceWorker();
-      const config = getCirctRuntimeConfig();
+      const config = getMoxRuntimeConfig();
       const allUrls = await resolveOfflineAssetUrls(config);
       const urls = allUrls.filter((url) => isSameOriginAssetUrl(url));
       const skippedCrossOrigin = allUrls.length - urls.length;

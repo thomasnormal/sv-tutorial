@@ -2,7 +2,7 @@
 // Drive D=0xAA, apply one posedge, confirm Q==0xAA.
 //
 // Note: @dff_after uses sv.reg + sv.always posedge which requires SV-to-LLHD
-// lowering passes not run by circt-sim in standalone mode.  The testbench
+// lowering passes not run by mox-sim in standalone mode.  The testbench
 // therefore exercises only @dff_before (which uses seq.compreg directly).
 hw.module @tb() {
   %false   = hw.constant false

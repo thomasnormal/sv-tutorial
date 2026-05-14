@@ -1,7 +1,7 @@
 /**
  * Unit tests for LEC counterexample extraction.
  *
- * These tests exercise the same C API calls that circt-adapter.js uses in the
+ * These tests exercise the same C API calls that mox-adapter.js uses in the
  * browser (Z3_mk_config / Z3_mk_context / Z3_eval_smtlib2_string / Z3_del_context)
  * but run them in Node.js via the z3-solver package — the same WASM binary that
  * gets served to the browser at /z3/z3-built.js.
@@ -23,7 +23,7 @@ beforeAll(async () => {
   ({ em } = await init());
 }, 30_000);
 
-// Mirror the evalSmtlib function from circt-adapter.js exactly.
+// Mirror the evalSmtlib function from mox-adapter.js exactly.
 function evalSmtlib(smtlibText, { produceModels = false, em: emOverride = null } = {}) {
   const mod = emOverride ?? em;
   const cfg = mod.ccall('Z3_mk_config', 'number', [], []);
@@ -39,7 +39,7 @@ function evalSmtlib(smtlibText, { produceModels = false, em: emOverride = null }
   }
 }
 
-// Mirror the model parsing from circt-adapter.js exactly.
+// Mirror the model parsing from mox-adapter.js exactly.
 function parseModel(modelOut) {
   const modelFlat = (modelOut || '').replace(/\s+/g, ' ');
   const assignments = [];

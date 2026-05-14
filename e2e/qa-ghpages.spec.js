@@ -32,7 +32,7 @@ async function waitForSimStart(page, { timeout = 60_000 } = {}) {
   await expect.poll(
     async () => (await logs.textContent()) ?? '',
     { timeout, intervals: [500, 1000] }
-  ).toMatch(/\$ circt-sim|runtime unavailable|# circt-verilog exit code:/);
+  ).toMatch(/\$ mox-sim|runtime unavailable|# mox-verilog exit code:/);
 }
 
 /** Close the options menu by clicking the backdrop overlay. */
@@ -209,7 +209,7 @@ test('SV: welcome lesson compiles and prints Hello output', async ({ page }) => 
   await goTo(page, '/lesson/sv/welcome');
   await page.getByTestId('run-button').click();
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ circt-verilog', { timeout: 45_000 });
+  await expect(logs).toContainText('$ mox-verilog', { timeout: 45_000 });
   await waitForRunDone(page);
   const text = await logs.textContent();
   expect(text).not.toContain('exit code: 1');
@@ -221,10 +221,10 @@ test('SV: always-ff solution compiles and simulates cleanly', async ({ page }) =
   await applySolution(page);
   await page.getByTestId('run-button').click();
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ circt-verilog', { timeout: 45_000 });
+  await expect(logs).toContainText('$ mox-verilog', { timeout: 45_000 });
   await waitForRunDone(page, { timeout: 120_000 });
   const text = await logs.textContent();
-  expect(text).not.toContain('# circt-verilog exit code: 1');
+  expect(text).not.toContain('# mox-verilog exit code: 1');
   expect(text).not.toContain('runtime unavailable');
   expect(text).toContain('PASS');
 });
@@ -235,7 +235,7 @@ test('SV: starter code with TODO shows simulation failures', async ({ page }) =>
   // Starter always_ff body is incomplete — simulation should print FAIL lines
   await page.getByTestId('run-button').click();
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ circt-verilog', { timeout: 45_000 });
+  await expect(logs).toContainText('$ mox-verilog', { timeout: 45_000 });
   await waitForRunDone(page, { timeout: 120_000 });
   const text = await logs.textContent();
   expect(text).toContain('FAIL');
@@ -245,7 +245,7 @@ test('Ctrl+Enter triggers run', async ({ page }) => {
   await goTo(page, '/lesson/sv/welcome');
   await page.keyboard.press('Control+Enter');
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ circt-verilog', { timeout: 45_000 });
+  await expect(logs).toContainText('$ mox-verilog', { timeout: 45_000 });
 });
 
 test('SVA: concurrent simulation lesson runs cleanly', async ({ page }) => {
@@ -253,7 +253,7 @@ test('SVA: concurrent simulation lesson runs cleanly', async ({ page }) => {
   await applySolution(page);
   await page.getByTestId('run-button').click();
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ circt-verilog', { timeout: 45_000 });
+  await expect(logs).toContainText('$ mox-verilog', { timeout: 45_000 });
   await waitForRunDone(page);
   const text = await logs.textContent();
   expect(text).not.toContain('runtime unavailable');
@@ -264,13 +264,13 @@ test('UVM: driver lesson compiles and simulates', async ({ page }) => {
   await applySolution(page);
   await page.getByTestId('run-button').click();
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ circt-verilog', { timeout: 45_000 });
+  await expect(logs).toContainText('$ mox-verilog', { timeout: 45_000 });
   await expect.poll(
     async () => (await logs.textContent()) ?? '',
     { timeout: 90_000, intervals: [500, 1000] }
-  ).toMatch(/\$ circt-sim|runtime unavailable|# circt-verilog exit code: 1/);
+  ).toMatch(/\$ mox-sim|runtime unavailable|# mox-verilog exit code: 1/);
   const text = await logs.textContent();
-  expect(text).not.toContain('# circt-verilog exit code: 1');
+  expect(text).not.toContain('# mox-verilog exit code: 1');
   expect(text).not.toContain('runtime unavailable');
 });
 
@@ -334,7 +334,7 @@ test('vim mode: toggles on and off without breaking editor', async ({ page }) =>
   await closeOptionsMenu(page);
   // Run still works
   await page.getByTestId('run-button').click();
-  await expect(page.getByTestId('runtime-logs')).toContainText('$ circt-verilog', { timeout: 45_000 });
+  await expect(page.getByTestId('runtime-logs')).toContainText('$ mox-verilog', { timeout: 45_000 });
 });
 
 test('dark mode: toggle changes color scheme', async ({ page }) => {

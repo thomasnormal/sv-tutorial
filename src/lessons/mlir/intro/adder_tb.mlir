@@ -1,6 +1,6 @@
 // Testbench: instantiate @adder with a=5, b=3 and verify sum==8.
 //
-// Uses LLHD dialect for signal-driven simulation compatible with circt-sim.
+// Uses LLHD dialect for signal-driven simulation compatible with mox-sim.
 // The hw.instance output is driven onto a signal so the check process can
 // probe it after epsilon time, then print PASS or FAIL.
 hw.module @tb() {

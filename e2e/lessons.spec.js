@@ -1,6 +1,6 @@
 /**
  * Smoke tests for a representative sample of lessons across all parts.
- * Each test applies the solution and runs it, verifying that the CIRCT
+ * Each test applies the solution and runs it, verifying that the MOX
  * pipeline completes without errors.
  */
 import { test, expect } from '@playwright/test';
@@ -67,8 +67,8 @@ test('Welcome: run outputs Hello World', async ({ page }) => {
   await page.getByTestId('run-button').click();
 
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ circt-verilog', { timeout: 120_000 });
-  await expect(logs).toContainText('$ circt-sim', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-verilog', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-sim', { timeout: 120_000 });
   await expectInterpretMode(logs);
   await expect(logs).not.toContainText('exit code: 1');
 });
@@ -80,8 +80,8 @@ test('Up-Counter: solution simulates and produces a waveform', async ({ page }) 
   await page.getByTestId('run-button').click();
 
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ circt-verilog', { timeout: 120_000 });
-  await expect(logs).toContainText('$ circt-sim', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-verilog', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-sim', { timeout: 120_000 });
   await expectInterpretMode(logs);
   await expect(page.getByTestId('runtime-tab-waves')).toBeVisible({ timeout: 120_000 });
   await expect(logs).not.toContainText('exit code: 1');
@@ -107,7 +107,7 @@ test('Modules and Ports: waveform renders after solve and run', async ({ page })
   await page.getByTestId('run-button').click();
 
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ circt-sim', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-sim', { timeout: 120_000 });
   await expect(logs).not.toContainText('exit code: 1');
 
   // Waves tab must appear and clicking it must show rendered waveform data.
@@ -127,7 +127,7 @@ test('immediate-assert: solution passes assertions', async ({ page }) => {
   await page.getByTestId('verify-button').click();
 
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ circt-bmc', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-bmc', { timeout: 120_000 });
   await expect(logs).not.toContainText('exit code: 1');
 });
 
@@ -138,6 +138,6 @@ test('sequence-basics: solution runs without errors', async ({ page }) => {
   await page.getByTestId('verify-button').click();
 
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ circt-bmc', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-bmc', { timeout: 120_000 });
   await expect(logs).not.toContainText('exit code: 1');
 });

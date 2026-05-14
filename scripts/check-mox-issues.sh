@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Polls thomasnormal/circt issues blocking tutorial lessons for state changes.
-# Usage: ./scripts/check-circt-issues.sh [--loop]
+# Polls normal-computing/mox issues blocking tutorial lessons for state changes.
+# Usage: ./scripts/check-mox-issues.sh [--loop]
 #   --loop  : run every 5 minutes until interrupted (default: check once)
 #
 # Tracked issues (open):
@@ -48,16 +48,16 @@
 
 set -uo pipefail
 
-BASELINE_FILE="${XDG_CACHE_HOME:-$HOME/.cache}/circt-issue-baseline.txt"
+BASELINE_FILE="${XDG_CACHE_HOME:-$HOME/.cache}/mox-issue-baseline.txt"
 
 fetch_state() {
-  gh api repos/thomasnormal/circt/issues \
+  gh api repos/normal-computing/mox/issues \
     --jq '.[] | select(.number | IN(14,20,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,59,61,64,65)) | "\(.number)|\(.state)|\(.comments)|\(.updated_at)"' \
     2>/dev/null | grep -v '^$' | sort -t'|' -k1,1n
 }
 
 print_issues() {
-  gh api repos/thomasnormal/circt/issues \
+  gh api repos/normal-computing/mox/issues \
     --jq '.[] | select(.number | IN(14,20,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,59,61,64,65)) | "#\(.number) [\(.state)] \(.title)  (comments:\(.comments), updated:\(.updated_at))"' \
     2>/dev/null | sort -t'#' -k2,2n
 }
@@ -66,7 +66,7 @@ check_once() {
   local current
   current=$(fetch_state)
 
-  echo "=== thomasnormal/circt open issues (blocking tutorial) ==="
+  echo "=== normal-computing/mox open issues (blocking tutorial) ==="
   print_issues
   echo
 
@@ -90,7 +90,7 @@ check_once() {
 }
 
 if [[ "${1:-}" == "--loop" ]]; then
-  echo "Monitoring circt issues #14,#20,#24-#52,#53,#59,#61,#64-#65 (every 5 min, Ctrl+C to stop)…"
+  echo "Monitoring mox issues #14,#20,#24-#52,#53,#59,#61,#64-#65 (every 5 min, Ctrl+C to stop)…"
   while true; do
     echo
     echo "[$(date '+%H:%M:%S')]"

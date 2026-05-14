@@ -1,6 +1,6 @@
 // Testbench: instantiate @priority_enc with req=0b0010; verify grant==1, valid==1.
 //
-// Uses LLHD dialect for signal-driven simulation compatible with circt-sim.
+// Uses LLHD dialect for signal-driven simulation compatible with mox-sim.
 hw.module @tb() {
   %c0_i2 = hw.constant 0 : i2
   %c0_i1 = hw.constant false

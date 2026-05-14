@@ -3,7 +3,7 @@ export const OFFLINE_RUNTIME_CACHE = 'svt-runtime-v1';
 export const OFFLINE_STATE_KEY = 'svt:offline-ready-v1';
 export const OFFLINE_READY_SENTINEL_RELATIVE_PATH = '__offline__/ready';
 
-export const HEAVY_STATIC_PREFIXES = ['circt/', 'surfer/', 'z3/', 'pyodide/'];
+export const HEAVY_STATIC_PREFIXES = ['mox/', 'surfer/', 'z3/', 'pyodide/'];
 
 export const SURFER_RUNTIME_PATHS = [
   'surfer/index.html',
@@ -15,24 +15,24 @@ export const SURFER_RUNTIME_PATHS = [
 ];
 
 export const LOCAL_RUNTIME_PATHS = [
-  'circt/circt-verilog.js',
-  'circt/circt-verilog.wasm',
-  'circt/circt-sim.js',
-  'circt/circt-sim.wasm',
-  'circt/circt-bmc.js',
-  'circt/circt-bmc.wasm',
-  'circt/circt-sim-vpi.js',
-  'circt/circt-sim-vpi.wasm',
-  'circt/circt-lec.js',
-  'circt/circt-lec.wasm',
-  'circt/uvm-core/uvm-manifest.json',
+  'mox/mox-verilog.js',
+  'mox/mox-verilog.wasm',
+  'mox/mox-sim.js',
+  'mox/mox-sim.wasm',
+  'mox/mox-bmc.js',
+  'mox/mox-bmc.wasm',
+  'mox/mox-sim-vpi.js',
+  'mox/mox-sim-vpi.wasm',
+  'mox/mox-lec.js',
+  'mox/mox-lec.wasm',
+  'mox/uvm-core/uvm-manifest.json',
   'z3/z3-built.js',
   'z3/z3-built.wasm',
   ...SURFER_RUNTIME_PATHS,
 ];
 
 export const PYODIDE_MANIFEST_RELATIVE_PATH = 'pyodide/pyodide-manifest.json';
-export const UVM_MANIFEST_RELATIVE_PATH = 'circt/uvm-core/uvm-manifest.json';
+export const UVM_MANIFEST_RELATIVE_PATH = 'mox/uvm-core/uvm-manifest.json';
 
 export const PYODIDE_COMPANION_FILES = [
   'pyodide.js',

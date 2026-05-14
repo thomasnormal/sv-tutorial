@@ -1,4 +1,4 @@
-// priority_enc.sv — rewritten as CIRCT MLIR.
+// priority_enc.sv — rewritten as MOX MLIR.
 //
 // The comb dialect represents purely combinational logic:
 // no state, no clock, no side effects.

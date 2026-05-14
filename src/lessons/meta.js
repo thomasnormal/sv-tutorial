@@ -75,7 +75,7 @@ export default {
   'rtl/rtl-to-gates':        { title: 'RTL to Gates',                                focus: '/src/mux_reg.sv' },
   'rtl/synthesis-gotchas':   { title: 'Synthesis Gotchas',                           focus: '/src/decoder.sv' },
 
-  // ── MLIR & CIRCT ──────────────────────────────────────────────────────────
+  // ── MLIR & MOX ──────────────────────────────────────────────────────────
   'mlir/intro':    { title: 'What is MLIR?',                    focus: '/src/adder.mlir' },
   'mlir/comb':     { title: 'The comb Dialect',                 focus: '/src/priority_enc.mlir' },
   'mlir/seq':      { title: 'The seq Dialect: Registers',       focus: '/src/sram_core.mlir' },

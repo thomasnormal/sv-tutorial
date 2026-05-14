@@ -7,6 +7,7 @@ module event_sync;
 
   logic [7:0] mem [0:3];
   int         errors = 0;
+  bit         reader_ran = 0;  // set by the reader; checker must observe
 
   // ── Writer ────────────────────────────────────────────────────────────────
   // Fills the array after 10 time units, then signals it is done.
@@ -23,6 +24,7 @@ module event_sync;
     // TODO: wait for write_done before reading
     if (mem[0] !== 8'd10 || mem[1] !== 8'd20) errors++;
     if (mem[2] !== 8'd30 || mem[3] !== 8'd40) errors++;
+    reader_ran = 1;
     $display("reader: %0d error(s)", errors);
     // TODO: post read_done so the checker can report
   end
@@ -31,7 +33,7 @@ module event_sync;
   // Must wait for the reader before declaring the result.
   initial begin
     // TODO: wait for read_done before reporting
-    if (errors == 0) $display("PASS");
+    if (reader_ran && errors == 0) $display("PASS");
     $finish;
   end
 

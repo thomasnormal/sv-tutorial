@@ -34,16 +34,16 @@ jobs:
       - name: Prepare Surfer assets
         run: scripts/setup-surfer.sh
 
-      - name: Ensure CIRCT wasm artifacts
-        id: circt_artifacts
+      - name: Ensure MOX wasm artifacts
+        id: mox_artifacts
         run: |
-          mkdir -p static/circt
+          mkdir -p static/mox
 
           have_all_artifacts() {
-            [ -f static/circt/circt-verilog.js ] && \
-            [ -f static/circt/circt-verilog.wasm ] && \
-            [ -f static/circt/circt-sim.js ] && \
-            [ -f static/circt/circt-sim.wasm ]
+            [ -f static/mox/mox-verilog.js ] && \
+            [ -f static/mox/mox-verilog.wasm ] && \
+            [ -f static/mox/mox-sim.js ] && \
+            [ -f static/mox/mox-sim.wasm ]
           }
 
           if have_all_artifacts; then
@@ -51,10 +51,10 @@ jobs:
             exit 0
           fi
 
-          echo "Local CIRCT wasm artifacts missing; trying release 'circt-wasm'..."
-          if gh release download circt-wasm \
+          echo "Local MOX wasm artifacts missing; trying release 'mox-wasm'..."
+          if gh release download mox-wasm \
                --repo "$GITHUB_REPOSITORY" \
-               -D static/circt \
+               -D static/mox \
                --clobber 2>/dev/null; then
             if have_all_artifacts; then
               echo "ready=true" >> "$GITHUB_OUTPUT"
@@ -63,28 +63,28 @@ jobs:
           fi
 
           echo "ready=false" >> "$GITHUB_OUTPUT"
-          echo "::notice::Skipping waveform E2E: CIRCT wasm artifacts are missing (expected under static/circt or release circt-wasm)."
+          echo "::notice::Skipping waveform E2E: MOX wasm artifacts are missing (expected under static/mox or release mox-wasm)."
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build app
-        if: steps.circt_artifacts.outputs.ready == 'true'
+        if: steps.mox_artifacts.outputs.ready == 'true'
         run: npm run build
 
       - name: Run unit tests
-        if: steps.circt_artifacts.outputs.ready == 'true'
+        if: steps.mox_artifacts.outputs.ready == 'true'
         run: npm test
 
       - name: Install Playwright browser
-        if: steps.circt_artifacts.outputs.ready == 'true'
+        if: steps.mox_artifacts.outputs.ready == 'true'
         run: npx playwright install --with-deps chromium
 
       - name: Run waveform E2E
-        if: steps.circt_artifacts.outputs.ready == 'true'
+        if: steps.mox_artifacts.outputs.ready == 'true'
         run: npm run test:e2e -- e2e/waveform.spec.js
 
       - name: Upload Playwright artifacts
-        if: always() && steps.circt_artifacts.outputs.ready == 'true'
+        if: always() && steps.mox_artifacts.outputs.ready == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: playwright-waveform-${{ github.run_id }}

@@ -10,16 +10,16 @@ for arg in "$@"; do
   esac
 done
 
-SRC_DIR="${POSITIONAL[0]:-vendor/circt/build-wasm/bin}"
-DST_DIR="${POSITIONAL[1]:-static/circt}"
-UVM_SRC_DIR="${POSITIONAL[2]:-vendor/circt/lib/Runtime/uvm-core/src}"
+SRC_DIR="${POSITIONAL[0]:-vendor/mox/build-wasm/bin}"
+DST_DIR="${POSITIONAL[1]:-static/mox}"
+UVM_SRC_DIR="${POSITIONAL[2]:-vendor/mox/lib/Runtime/uvm-core/src}"
 UVM_DST_DIR="$DST_DIR/uvm-core/src"
 UVM_MANIFEST_PATH="$DST_DIR/uvm-core/uvm-manifest.json"
 
-TOOLS=("circt-bmc" "circt-sim" "circt-verilog")
+TOOLS=("mox-bmc" "mox-sim" "mox-verilog" "mox-lec")
 # VPI-capable sim is a separate build target (Asyncify + VPI exports).
 # It is optional — warn if missing but do not abort.
-VPI_TOOL="circt-sim-vpi"
+VPI_TOOL="mox-sim-vpi"
 missing=()
 
 for tool in "${TOOLS[@]}"; do
@@ -32,7 +32,7 @@ for tool in "${TOOLS[@]}"; do
 done
 
 if [ "${#missing[@]}" -ne 0 ]; then
-  echo "Missing CIRCT wasm artifacts in $SRC_DIR" >&2
+  echo "Missing MOX wasm artifacts in $SRC_DIR" >&2
   echo "Missing files: ${missing[*]}" >&2
   exit 1
 fi
@@ -73,18 +73,18 @@ for tool in "${TOOLS[@]}"; do
   patch_callmain_export "$DST_DIR/$tool.js"
 done
 
-# Sync VPI-capable sim. circt-sim already includes Asyncify + VPI exports
+# Sync VPI-capable sim. mox-sim already includes Asyncify + VPI exports
 # unconditionally in Emscripten builds, so use it as the VPI binary when a
-# separately-named circt-sim-vpi build is not present in the source dir.
+# separately-named mox-sim-vpi build is not present in the source dir.
 if [ -f "$SRC_DIR/$VPI_TOOL.js" ] && [ -f "$SRC_DIR/$VPI_TOOL.wasm" ]; then
   cp -f "$SRC_DIR/$VPI_TOOL.js" "$DST_DIR/$VPI_TOOL.js"
   cp -f "$SRC_DIR/$VPI_TOOL.wasm" "$DST_DIR/$VPI_TOOL.wasm"
-elif [ -f "$SRC_DIR/circt-sim.js" ] && [ -f "$SRC_DIR/circt-sim.wasm" ]; then
-  echo "Note: $VPI_TOOL not in $SRC_DIR — using circt-sim as VPI-capable fallback" >&2
-  cp -f "$SRC_DIR/circt-sim.js" "$DST_DIR/$VPI_TOOL.js"
-  cp -f "$SRC_DIR/circt-sim.wasm" "$DST_DIR/$VPI_TOOL.wasm"
+elif [ -f "$SRC_DIR/mox-sim.js" ] && [ -f "$SRC_DIR/mox-sim.wasm" ]; then
+  echo "Note: $VPI_TOOL not in $SRC_DIR — using mox-sim as VPI-capable fallback" >&2
+  cp -f "$SRC_DIR/mox-sim.js" "$DST_DIR/$VPI_TOOL.js"
+  cp -f "$SRC_DIR/mox-sim.wasm" "$DST_DIR/$VPI_TOOL.wasm"
 else
-  echo "Note: $VPI_TOOL not found and no circt-sim fallback — skipping (cocotb lessons will be unavailable)" >&2
+  echo "Note: $VPI_TOOL not found and no mox-sim fallback — skipping (cocotb lessons will be unavailable)" >&2
   HAVE_VPI=0
 fi
 if [ "${HAVE_VPI:-}" != "0" ]; then
@@ -128,7 +128,7 @@ function walk(dir, acc = []) {
 
 const files = walk(srcDir).sort();
 const manifest = {
-  rootPath: '/circt/uvm-core/src',
+  rootPath: '/mox/uvm-core/src',
   files
 };
 
@@ -139,13 +139,13 @@ NODE
 
 # Remove legacy mock shim artifacts so the runtime cannot silently pick stale
 # files from earlier experiments.
-rm -f "$DST_DIR/circt.js" "$DST_DIR/circt.wasm"
+rm -f "$DST_DIR/mox.js" "$DST_DIR/mox.wasm"
 rm -f "$DST_DIR/uvm-core/uvm-source-map.json"
 
-# Browser compatibility shim for circt-sim builds linked with NODERAWFS.
+# Browser compatibility shim for mox-sim builds linked with NODERAWFS.
 # Upstream sim wasm artifacts may include Node-only glue even when consumed
 # from a web worker. Patch those sections to keep the tutorial runtime web-safe.
-node - "$DST_DIR/circt-sim.js" <<'NODE'
+node - "$DST_DIR/mox-sim.js" <<'NODE'
 const fs = require('fs');
 
 const simPath = process.argv[2];
@@ -165,7 +165,7 @@ const replaceExact = (regex, replacement, label) => {
     console.log(`Skipped patch (${label}): already applied`);
     return;
   }
-  throw new Error(`failed to patch circt-sim.js (${label})`);
+  throw new Error(`failed to patch mox-sim.js (${label})`);
 };
 
 replaceExact(
@@ -190,9 +190,9 @@ fs.writeFileSync(simPath, source);
 console.log(`Patched browser compatibility in ${simPath}`);
 NODE
 
-# Apply the same browser compatibility patch to circt-sim-vpi.js if present.
+# Apply the same browser compatibility patch to mox-sim-vpi.js if present.
 if [ "$HAVE_VPI" -eq 1 ]; then
-node - "$DST_DIR/circt-sim-vpi.js" <<'NODE'
+node - "$DST_DIR/mox-sim-vpi.js" <<'NODE'
 const fs = require('fs');
 
 const simPath = process.argv[2];
@@ -212,7 +212,7 @@ const replaceExact = (regex, replacement, label) => {
     console.log(`Skipped patch (${label}): already applied`);
     return;
   }
-  throw new Error(`failed to patch circt-sim-vpi.js (${label})`);
+  throw new Error(`failed to patch mox-sim-vpi.js (${label})`);
 };
 
 replaceExact(
@@ -243,7 +243,7 @@ replaceExact(
 );
 
 // Fix instrumentWasmImports: the Emscripten stub detects async imports but
-// never wraps them.  Without this patch, _circt_vpi_wasm_yield is called as
+// never wraps them.  Without this patch, _mox_vpi_wasm_yield is called as
 // a plain async function from WASM, returns a Promise that gets coerced to 0,
 // and Asyncify never triggers (simulation runs synchronously with no VPI).
 replaceExact(
@@ -263,7 +263,7 @@ cat >"$DST_DIR/package.json" <<'EOF'
 }
 EOF
 
-echo "Synced CIRCT wasm artifacts:"
+echo "Synced MOX wasm artifacts:"
 for tool in "${TOOLS[@]}"; do
   ls -lh "$DST_DIR/$tool.js" "$DST_DIR/$tool.wasm"
 done
@@ -275,15 +275,15 @@ echo "Synced full UVM source files:"
 echo "  source dir: $UVM_DST_DIR"
 echo "  manifest: $UVM_MANIFEST_PATH"
 
-# --publish: upload artifacts to the circt-wasm GitHub release and update the
+# --publish: upload artifacts to the mox-wasm GitHub release and update the
 # toolchain lock so CI rebuilds from the same commit.
 if [ "$PUBLISH" -eq 1 ]; then
   ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
   source "$ROOT_DIR/scripts/toolchain.lock.sh"
 
-  CIRCT_COMMIT="$(git -C "${CIRCT_DIR:-vendor/circt}" rev-parse HEAD 2>/dev/null || true)"
-  if [ -z "$CIRCT_COMMIT" ]; then
-    echo "--publish: could not determine CIRCT commit from ${CIRCT_DIR:-vendor/circt}" >&2
+  MOX_COMMIT="$(git -C "${MOX_DIR:-vendor/mox}" rev-parse HEAD 2>/dev/null || true)"
+  if [ -z "$MOX_COMMIT" ]; then
+    echo "--publish: could not determine MOX commit from ${MOX_DIR:-vendor/mox}" >&2
     exit 1
   fi
 
@@ -294,23 +294,24 @@ if [ "$PUBLISH" -eq 1 ]; then
 
   # Upload all artifacts, replacing existing assets on the release.
   RELEASE_ASSETS=(
-    "$DST_DIR/circt-bmc.js"   "$DST_DIR/circt-bmc.wasm"
-    "$DST_DIR/circt-sim.js"   "$DST_DIR/circt-sim.wasm"
-    "$DST_DIR/circt-verilog.js" "$DST_DIR/circt-verilog.wasm"
+    "$DST_DIR/mox-bmc.js"   "$DST_DIR/mox-bmc.wasm"
+    "$DST_DIR/mox-sim.js"   "$DST_DIR/mox-sim.wasm"
+    "$DST_DIR/mox-verilog.js" "$DST_DIR/mox-verilog.wasm"
+    "$DST_DIR/mox-lec.js"   "$DST_DIR/mox-lec.wasm"
     "$UVM_BUNDLE"
   )
   if [ "$HAVE_VPI" -eq 1 ]; then
     RELEASE_ASSETS+=("$DST_DIR/$VPI_TOOL.js" "$DST_DIR/$VPI_TOOL.wasm")
   fi
 
-  echo "Uploading to GitHub release 'circt-wasm'..."
-  gh release upload circt-wasm "${RELEASE_ASSETS[@]}" --clobber
+  echo "Uploading to GitHub release 'mox-wasm'..."
+  gh release upload mox-wasm "${RELEASE_ASSETS[@]}" --clobber
   rm -f "$UVM_BUNDLE"
   echo "GitHub release updated."
 
-  # Update toolchain lock to the current CIRCT commit.
+  # Update toolchain lock to the current MOX commit.
   LOCK_FILE="$ROOT_DIR/scripts/toolchain.lock.sh"
-  sed -i.bak "s|^readonly CIRCT_REF_LOCKED=.*|readonly CIRCT_REF_LOCKED=\"$CIRCT_COMMIT\"|" "$LOCK_FILE"
+  sed -i.bak "s|^readonly MOX_REF_LOCKED=.*|readonly MOX_REF_LOCKED=\"$MOX_COMMIT\"|" "$LOCK_FILE"
   rm -f "$LOCK_FILE.bak"
-  echo "Updated CIRCT_REF_LOCKED to $CIRCT_COMMIT in $LOCK_FILE"
+  echo "Updated MOX_REF_LOCKED to $MOX_COMMIT in $LOCK_FILE"
 fi

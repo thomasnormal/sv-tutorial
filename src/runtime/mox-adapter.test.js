@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { CirctWasmAdapter } from './circt-adapter.js';
+import { MoxWasmAdapter } from './mox-adapter.js';
 
 function createAdapterWithInvokeTool(invokeTool) {
-  const adapter = new CirctWasmAdapter();
+  const adapter = new MoxWasmAdapter();
   adapter.init = async () => {
     adapter.ready = true;
   };
@@ -10,7 +10,7 @@ function createAdapterWithInvokeTool(invokeTool) {
   return adapter;
 }
 
-describe('CirctWasmAdapter.run with MLIR workspace input', () => {
+describe('MoxWasmAdapter.run with MLIR workspace input', () => {
   it('simulates MLIR input directly without requiring SystemVerilog files', async () => {
     const calls = [];
     const adapter = createAdapterWithInvokeTool(async (toolName, request) => {

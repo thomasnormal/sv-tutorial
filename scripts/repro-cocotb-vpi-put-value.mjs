@@ -18,10 +18,10 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, '..');
-const CIRCT_DIR = path.join(ROOT, 'public', 'circt');
-const VERILOG_JS = path.join(CIRCT_DIR, 'circt-verilog.js');
-const SIM_VPI_JS = path.join(CIRCT_DIR, 'circt-sim-vpi.js');
-const SIM_VPI_WASM = path.join(CIRCT_DIR, 'circt-sim-vpi.wasm');
+const MOX_DIR = path.join(ROOT, 'public', 'mox');
+const VERILOG_JS = path.join(MOX_DIR, 'mox-verilog.js');
+const SIM_VPI_JS = path.join(MOX_DIR, 'mox-sim-vpi.js');
+const SIM_VPI_WASM = path.join(MOX_DIR, 'mox-sim-vpi.wasm');
 const DEFAULT_SOURCE = path.join(ROOT, 'src', 'lessons', 'cocotb', 'first-test', 'adder.sol.sv');
 const DEFAULT_TOP = 'adder';
 
@@ -264,7 +264,7 @@ async function compileToMlir({ sourcePath, top, outMlirPath }) {
   if (code !== 0) {
     throw new Error(
       [
-        `circt-verilog failed (exit=${code})`,
+        `mox-verilog failed (exit=${code})`,
         stdout.trim(),
         stderr.trim()
       ].filter(Boolean).join('\n')
@@ -321,7 +321,7 @@ async function loadSimModule() {
   while (!ready && Date.now() - start < 30_000) {
     await new Promise((resolve) => setTimeout(resolve, 20));
   }
-  if (!ready) throw new Error('timed out waiting for circt-sim-vpi runtime initialization');
+  if (!ready) throw new Error('timed out waiting for mox-sim-vpi runtime initialization');
 
   const M = context.Module;
   ensureSimModuleHelpers(M, context);
@@ -391,7 +391,7 @@ async function main() {
       debug.notes.push('sim module has no _vpi_startup_register export');
     }
 
-    context.circtSimVpiYieldHook = async (cbFuncPtr, cbDataPtr) => {
+    context.moxSimVpiYieldHook = async (cbFuncPtr, cbDataPtr) => {
       const reason = M.getValue(cbDataPtr + 0, 'i32') | 0;
       debug.cbFuncPtr = cbFuncPtr | 0;
       if (reason !== VPI.cbStartOfSimulation) return;

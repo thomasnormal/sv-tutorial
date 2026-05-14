@@ -1,6 +1,6 @@
 /**
  * Unit tests for the NODERAWFS process shim used in WORKER_SOURCE and
- * COCOTB_WORKER_SOURCE inside circt-adapter.js.
+ * COCOTB_WORKER_SOURCE inside mox-adapter.js.
  *
  * Emscripten tools compiled with NODERAWFS call process.version.match(/v(\d+)/)
  * to detect the Node.js major version.  Before the fix, the shim set

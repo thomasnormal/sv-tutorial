@@ -1,4 +1,4 @@
-export const CIRCT_FORK_REPO = 'git@github.com:thomasnormal/circt.git';
+export const MOX_FORK_REPO = 'git@github.com:normal-computing/mox.git';
 
 function normalizeBaseUrl(raw) {
   const base = String(raw || '').trim();
@@ -11,7 +11,7 @@ function normalizeBaseUrl(raw) {
     ? withLeadingSlash
     : `${withLeadingSlash}/`;
 
-  // Remove "/./" segments so "/./circt" becomes "/circt".
+  // Remove "/./" segments so "/./mox" becomes "/mox".
   return withTrailingSlash.replace(/\/\.\//g, '/');
 }
 
@@ -24,24 +24,24 @@ export function getRuntimeBasePath() {
 export const Z3_SCRIPT_URL = `${BASE}z3/z3-built.js`;
 const DEFAULT_TOOLCHAIN = {
   verilog: {
-    js: `${BASE}circt/circt-verilog.js`,
-    wasm: `${BASE}circt/circt-verilog.wasm`
+    js: `${BASE}mox/mox-verilog.js`,
+    wasm: `${BASE}mox/mox-verilog.wasm`
   },
   sim: {
-    js: `${BASE}circt/circt-sim.js`,
-    wasm: `${BASE}circt/circt-sim.wasm`
+    js: `${BASE}mox/mox-sim.js`,
+    wasm: `${BASE}mox/mox-sim.wasm`
   },
   bmc: {
-    js: `${BASE}circt/circt-bmc.js`,
-    wasm: `${BASE}circt/circt-bmc.wasm`
+    js: `${BASE}mox/mox-bmc.js`,
+    wasm: `${BASE}mox/mox-bmc.wasm`
   },
   simVpi: {
-    js: `${BASE}circt/circt-sim-vpi.js`,
-    wasm: `${BASE}circt/circt-sim-vpi.wasm`
+    js: `${BASE}mox/mox-sim-vpi.js`,
+    wasm: `${BASE}mox/mox-sim-vpi.wasm`
   },
   lec: {
-    js: `${BASE}circt/circt-lec.js`,
-    wasm: `${BASE}circt/circt-lec.wasm`
+    js: `${BASE}mox/mox-lec.js`,
+    wasm: `${BASE}mox/mox-lec.wasm`
   }
 };
 
@@ -90,50 +90,50 @@ function pickUrlFromEnv(primary, fallback) {
   return primary || fallback;
 }
 
-export function getCirctRuntimeConfig() {
+export function getMoxRuntimeConfig() {
   return {
     toolchain: {
       verilog: {
-        js: pickUrlFromEnv(import.meta.env.VITE_CIRCT_VERILOG_JS_URL, DEFAULT_TOOLCHAIN.verilog.js),
-        wasm: pickUrlFromEnv(import.meta.env.VITE_CIRCT_VERILOG_WASM_URL, DEFAULT_TOOLCHAIN.verilog.wasm)
+        js: pickUrlFromEnv(import.meta.env.VITE_MOX_VERILOG_JS_URL, DEFAULT_TOOLCHAIN.verilog.js),
+        wasm: pickUrlFromEnv(import.meta.env.VITE_MOX_VERILOG_WASM_URL, DEFAULT_TOOLCHAIN.verilog.wasm)
       },
       sim: {
-        js: pickUrlFromEnv(import.meta.env.VITE_CIRCT_SIM_JS_URL, DEFAULT_TOOLCHAIN.sim.js),
-        wasm: pickUrlFromEnv(import.meta.env.VITE_CIRCT_SIM_WASM_URL, DEFAULT_TOOLCHAIN.sim.wasm)
+        js: pickUrlFromEnv(import.meta.env.VITE_MOX_SIM_JS_URL, DEFAULT_TOOLCHAIN.sim.js),
+        wasm: pickUrlFromEnv(import.meta.env.VITE_MOX_SIM_WASM_URL, DEFAULT_TOOLCHAIN.sim.wasm)
       },
       bmc: {
-        js: pickUrlFromEnv(import.meta.env.VITE_CIRCT_BMC_JS_URL, DEFAULT_TOOLCHAIN.bmc.js),
-        wasm: pickUrlFromEnv(import.meta.env.VITE_CIRCT_BMC_WASM_URL, DEFAULT_TOOLCHAIN.bmc.wasm)
+        js: pickUrlFromEnv(import.meta.env.VITE_MOX_BMC_JS_URL, DEFAULT_TOOLCHAIN.bmc.js),
+        wasm: pickUrlFromEnv(import.meta.env.VITE_MOX_BMC_WASM_URL, DEFAULT_TOOLCHAIN.bmc.wasm)
       },
       simVpi: {
-        js: pickUrlFromEnv(import.meta.env.VITE_CIRCT_SIM_VPI_JS_URL, DEFAULT_TOOLCHAIN.simVpi.js),
-        wasm: pickUrlFromEnv(import.meta.env.VITE_CIRCT_SIM_VPI_WASM_URL, DEFAULT_TOOLCHAIN.simVpi.wasm)
+        js: pickUrlFromEnv(import.meta.env.VITE_MOX_SIM_VPI_JS_URL, DEFAULT_TOOLCHAIN.simVpi.js),
+        wasm: pickUrlFromEnv(import.meta.env.VITE_MOX_SIM_VPI_WASM_URL, DEFAULT_TOOLCHAIN.simVpi.wasm)
       },
       lec: {
-        js: pickUrlFromEnv(import.meta.env.VITE_CIRCT_LEC_JS_URL, DEFAULT_TOOLCHAIN.lec.js),
-        wasm: pickUrlFromEnv(import.meta.env.VITE_CIRCT_LEC_WASM_URL, DEFAULT_TOOLCHAIN.lec.wasm)
+        js: pickUrlFromEnv(import.meta.env.VITE_MOX_LEC_JS_URL, DEFAULT_TOOLCHAIN.lec.js),
+        wasm: pickUrlFromEnv(import.meta.env.VITE_MOX_LEC_WASM_URL, DEFAULT_TOOLCHAIN.lec.wasm)
       }
     },
     pyodideUrl: import.meta.env.VITE_PYODIDE_URL || `${BASE}pyodide/pyodide.js`,
-    verilogArgs: parseArgs(import.meta.env.VITE_CIRCT_VERILOG_ARGS, DEFAULT_VERILOG_ARGS),
-    simArgs: parseArgs(import.meta.env.VITE_CIRCT_SIM_ARGS, DEFAULT_SIM_ARGS),
-    bmcArgs: parseArgs(import.meta.env.VITE_CIRCT_BMC_ARGS, DEFAULT_BMC_ARGS),
-    lecVerilogArgs: parseArgs(import.meta.env.VITE_CIRCT_LEC_VERILOG_ARGS, DEFAULT_LEC_VERILOG_ARGS),
-    lecArgs: parseArgs(import.meta.env.VITE_CIRCT_LEC_ARGS, DEFAULT_LEC_ARGS),
-    note: import.meta.env.VITE_CIRCT_NOTE || ''
+    verilogArgs: parseArgs(import.meta.env.VITE_MOX_VERILOG_ARGS, DEFAULT_VERILOG_ARGS),
+    simArgs: parseArgs(import.meta.env.VITE_MOX_SIM_ARGS, DEFAULT_SIM_ARGS),
+    bmcArgs: parseArgs(import.meta.env.VITE_MOX_BMC_ARGS, DEFAULT_BMC_ARGS),
+    lecVerilogArgs: parseArgs(import.meta.env.VITE_MOX_LEC_VERILOG_ARGS, DEFAULT_LEC_VERILOG_ARGS),
+    lecArgs: parseArgs(import.meta.env.VITE_MOX_LEC_ARGS, DEFAULT_LEC_ARGS),
+    note: import.meta.env.VITE_MOX_NOTE || ''
   };
 }
 
 export function getRuntimeEnvDoc() {
   return {
-    VITE_CIRCT_VERILOG_JS_URL: 'circt-verilog JS artifact URL.',
-    VITE_CIRCT_VERILOG_WASM_URL: 'circt-verilog WASM artifact URL.',
-    VITE_CIRCT_SIM_JS_URL: 'circt-sim JS artifact URL.',
-    VITE_CIRCT_SIM_WASM_URL: 'circt-sim WASM artifact URL.',
-    VITE_CIRCT_BMC_JS_URL: 'circt-bmc JS artifact URL.',
-    VITE_CIRCT_BMC_WASM_URL: 'circt-bmc WASM artifact URL.',
-    VITE_CIRCT_VERILOG_ARGS: 'JSON array or space-separated args passed before source files.',
-    VITE_CIRCT_SIM_ARGS: 'JSON array or space-separated args passed before MLIR input.',
-    VITE_CIRCT_BMC_ARGS: 'JSON array or space-separated args for BMC fallback.'
+    VITE_MOX_VERILOG_JS_URL: 'mox-verilog JS artifact URL.',
+    VITE_MOX_VERILOG_WASM_URL: 'mox-verilog WASM artifact URL.',
+    VITE_MOX_SIM_JS_URL: 'mox-sim JS artifact URL.',
+    VITE_MOX_SIM_WASM_URL: 'mox-sim WASM artifact URL.',
+    VITE_MOX_BMC_JS_URL: 'mox-bmc JS artifact URL.',
+    VITE_MOX_BMC_WASM_URL: 'mox-bmc WASM artifact URL.',
+    VITE_MOX_VERILOG_ARGS: 'JSON array or space-separated args passed before source files.',
+    VITE_MOX_SIM_ARGS: 'JSON array or space-separated args passed before MLIR input.',
+    VITE_MOX_BMC_ARGS: 'JSON array or space-separated args for BMC fallback.'
   };
 }

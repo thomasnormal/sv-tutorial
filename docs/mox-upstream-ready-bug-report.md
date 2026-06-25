@@ -1,26 +1,26 @@
-# Bug Report: `circt-verilog.wasm` aborts on full UVM in browser-like runtime
+# Bug Report: `mox-verilog.wasm` aborts on full UVM in browser-like runtime
 
 ## Title
-`circt-verilog.wasm` aborts compiling full `uvm_pkg` with:
+`mox-verilog.wasm` aborts compiling full `uvm_pkg` with:
 `Malformed attribute storage object` (MLIR `AttributeSupport.h:177`)
 
 ## Date
 February 24, 2026
 
 ## Revisions
-- CIRCT fork: `thomasnormal/circt`
-- CIRCT commit: `20fa81a69add402715db28203335596192ce7c39`
+- MOX fork: `normal-computing/mox`
+- MOX commit: `20fa81a69add402715db28203335596192ce7c39`
 - LLVM submodule: `972cd847efb20661ea7ee8982dd19730aa040c75`
 
 ## Why this report
-This is a clean CIRCT-only repro (no `sv-tutorial` runtime dependency). It reproduces using only CIRCT wasm artifacts + UVM sources from the CIRCT tree.
+This is a clean MOX-only repro (no `sv-tutorial` runtime dependency). It reproduces using only MOX wasm artifacts + UVM sources from the MOX tree.
 
 ## Repro (standalone, browser-like wasm path)
 
 ### Preconditions
-From CIRCT repo root:
-- `build-wasm/bin/circt-verilog.js`
-- `build-wasm/bin/circt-verilog.wasm`
+From MOX repo root:
+- `build-wasm/bin/mox-verilog.js`
+- `build-wasm/bin/mox-verilog.wasm`
 - `lib/Runtime/uvm-core/src/uvm_pkg.sv`
 
 If needed for the browser harness:
@@ -38,7 +38,7 @@ node utils/repro_wasm_uvm_browser_assert.mjs
 ```
 
 ## Expected
-`circt-verilog.wasm` lowers minimal UVM test to MLIR (or emits a normal diagnostic), without aborting.
+`mox-verilog.wasm` lowers minimal UVM test to MLIR (or emits a normal diagnostic), without aborting.
 
 ## Actual
 The run aborts before output MLIR is produced.
@@ -56,9 +56,9 @@ Representative log excerpt:
 ```text
 RuntimeError: Aborted(Assertion failed: abstractAttribute && "Malformed attribute storage object.", at: .../mlir/include/mlir/IR/AttributeSupport.h,177,getAbstractAttribute)
 
-../circt/uvm-core/src/base/uvm_config_db_implementation.svh:375:26: warning: unknown character escape sequence '\.' [-Wunknown-escape-code]
-../circt/uvm-core/src/uvm_pkg.sv:57:2: note: included from here
-../circt/uvm-core/src/base/uvm_base.svh:77:3: note: included from here
+../mox/uvm-core/src/base/uvm_config_db_implementation.svh:375:26: warning: unknown character escape sequence '\.' [-Wunknown-escape-code]
+../mox/uvm-core/src/uvm_pkg.sv:57:2: note: included from here
+../mox/uvm-core/src/base/uvm_base.svh:77:3: note: included from here
 
 Aborted(Assertion failed: abstractAttribute && "Malformed attribute storage object.", ...)
 ```

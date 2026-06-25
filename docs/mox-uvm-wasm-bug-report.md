@@ -1,16 +1,16 @@
-# circt-verilog.wasm aborts compiling full UVM (`uvm_pkg`)
+# mox-verilog.wasm aborts compiling full UVM (`uvm_pkg`)
 
 ## Title
-`circt-verilog.wasm` aborts compiling full UVM (`uvm_pkg`) with MLIR assert (`Malformed attribute storage object`)
+`mox-verilog.wasm` aborts compiling full UVM (`uvm_pkg`) with MLIR assert (`Malformed attribute storage object`)
 
-## CIRCT Revision
-- Fork: `thomasnormal/circt`
-- CIRCT commit tested: `0246e937a9e11f602c85a80dc2fcb2c69c5e5a84`
+## MOX Revision
+- Fork: `normal-computing/mox`
+- MOX commit tested: `0246e937a9e11f602c85a80dc2fcb2c69c5e5a84`
 - LLVM submodule: `972cd847efb20661ea7ee8982dd19730aa040c75`
 - Date observed: `2026-02-24`
 
 ## Environment
-- wasm build artifacts: `circt-verilog.js` + `circt-verilog.wasm`
+- wasm build artifacts: `mox-verilog.js` + `mox-verilog.wasm`
 - Browser worker execution (NODERAWFS-style, in-memory FS)
 - UVM sources loaded from `uvm-core/src` via manifest
 
@@ -19,8 +19,8 @@
 Command run in app logs:
 
 ```sh
-circt-verilog --resource-guard=false --ir-llhd --timescale 1ns/1ns \
-  --uvm-path /circt/uvm-core -I /circt/uvm-core/src \
+mox-verilog --resource-guard=false --ir-llhd --timescale 1ns/1ns \
+  --uvm-path /mox/uvm-core -I /mox/uvm-core/src \
   --top tb_top -o /workspace/out/design.llhd.mlir /workspace/src/tb_top.sv
 ```
 
@@ -30,8 +30,8 @@ Standalone browser-worker repro in this repo:
 node scripts/repro-uvm-browser-worker-assert.mjs
 ```
 
-This launches a headless Chromium page, imports `createCirctWasmAdapter` from
-`/src/runtime/circt-adapter.js`, runs compile-only (`simulate: false`) on a
+This launches a headless Chromium page, imports `createMoxWasmAdapter` from
+`/src/runtime/mox-adapter.js`, runs compile-only (`simulate: false`) on a
 minimal `tb_top + my_test` UVM input, and reproduces the same assert.
 
 `tb_top.sv`:
@@ -63,12 +63,12 @@ endclass
 ```
 
 ## Actual Result
-- `circt-verilog` aborts before producing MLIR.
+- `mox-verilog` aborts before producing MLIR.
 - Warning emitted first:
   - `uvm_config_db_implementation.svh:375:26: warning: unknown character escape sequence '\.'`
 - Then hard abort:
   - `Aborted(Assertion failed: abstractAttribute && "Malformed attribute storage object.", ... mlir/IR/AttributeSupport.h:177, getAbstractAttribute)`
-- Stack includes wasm frames inside `circt-verilog.wasm`.
+- Stack includes wasm frames inside `mox-verilog.wasm`.
 
 ## Expected Result
 - Successful lowering to LLHD MLIR for UVM input, or at minimum a graceful user-facing diagnostic (not assert/abort).

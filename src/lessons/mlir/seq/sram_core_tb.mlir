@@ -3,7 +3,7 @@
 // confirm Q==0x42 on the output.
 //
 // Note: @sram_core uses seq.hlmem which requires lowering passes not run by
-// circt-sim in standalone mode, so we test the simpler @dff example here.
+// mox-sim in standalone mode, so we test the simpler @dff example here.
 //
 // Uses LLHD dialect for clock generation and time-driven simulation:
 //   llhd.sig / llhd.prb / llhd.drv  — signals and drives

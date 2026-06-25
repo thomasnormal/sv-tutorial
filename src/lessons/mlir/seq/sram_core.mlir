@@ -1,4 +1,4 @@
-// sram_core.sv — rewritten as CIRCT MLIR.
+// sram_core.sv — rewritten as MOX MLIR.
 //
 // The seq dialect represents sequential (stateful) logic.
 // Its key operation is seq.compreg — an abstract D flip-flop:

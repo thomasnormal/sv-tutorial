@@ -16,7 +16,7 @@ describe('offline-cache helpers', () => {
     expect(normalizeBasePath('')).toBe('/');
     expect(normalizeBasePath('/sv-tutorial')).toBe('/sv-tutorial/');
     expect(normalizeBasePath('sv-tutorial')).toBe('/sv-tutorial/');
-    expect(joinBasePath('/sv-tutorial', '/circt/circt-sim.js')).toBe('/sv-tutorial/circt/circt-sim.js');
+    expect(joinBasePath('/sv-tutorial', '/mox/mox-sim.js')).toBe('/sv-tutorial/mox/mox-sim.js');
   });
 
   it('dedupes string values', () => {

@@ -9,9 +9,9 @@ scripts/check-requirements.sh
 npm ci
 scripts/setup-surfer.sh
 scripts/setup-pyodide.sh
-scripts/setup-circt.sh
-scripts/build-circt-wasm.sh
-npm run local-publish:circt
+scripts/setup-mox.sh
+scripts/build-mox-wasm.sh
+npm run local-publish:mox
 npm run build
 
 echo "Bootstrap complete."

@@ -8,7 +8,7 @@
 
 ## Resource Safety
 
-- Treat `ninja`, `circt-sim`, large link steps, and similarly heavy tools as high-risk for local system stability.
+- Treat `ninja`, `mox-sim`, large link steps, and similarly heavy tools as high-risk for local system stability.
 - Always run heavy commands with explicit resource limits (for example: CPU parallelism limits, memory caps, and wall-clock timeouts).
 - Prefer incremental/targeted builds over whole-tree builds when possible.
 - Avoid running multiple heavy builds concurrently.

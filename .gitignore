@@ -11,7 +11,7 @@ build.bak.*
 *.swp
 
 # Downloaded/built artifacts (run scripts/setup-*.sh to populate)
-static/circt/
+static/mox/
 static/surfer/
 static/pyodide/
 

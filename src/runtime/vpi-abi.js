@@ -1,5 +1,5 @@
 /**
- * Shared VPI ABI constants/helpers for wasm32 circt-sim bridges.
+ * Shared VPI ABI constants/helpers for wasm32 mox-sim bridges.
  *
  * Keep this as the single source of truth for:
  * - VPI enum values used by JS <-> wasm calls

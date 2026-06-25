@@ -36,24 +36,24 @@ jobs:
       - name: Setup Pyodide assets
         run: scripts/setup-pyodide.sh
 
-      - name: Download CIRCT wasm artifacts
-        # WASM artifacts are built locally and published to the circt-wasm release
-        # via: npm run build:circt && npm run publish:circt
+      - name: Download MOX wasm artifacts
+        # WASM artifacts are built locally and published to the mox-wasm release
+        # via: npm run build:mox && npm run publish:mox
         # CI just downloads the pre-built artifacts — no Emscripten build here.
         run: |
-          mkdir -p static/circt
-          if gh release download circt-wasm \
+          mkdir -p static/mox
+          if gh release download mox-wasm \
                --repo "$GITHUB_REPOSITORY" \
-               -D static/circt \
+               -D static/mox \
                --clobber 2>/dev/null; then
-            if [ -f static/circt/uvm-core.tar.gz ]; then
-              rm -rf static/circt/uvm-core
-              tar -xzf static/circt/uvm-core.tar.gz -C static/circt
+            if [ -f static/mox/uvm-core.tar.gz ]; then
+              rm -rf static/mox/uvm-core
+              tar -xzf static/mox/uvm-core.tar.gz -C static/mox
             fi
-            echo "CIRCT artifacts downloaded"
-            ls -lh static/circt/*.js
+            echo "MOX artifacts downloaded"
+            ls -lh static/mox/*.js
           else
-            echo "::warning::No circt-wasm release found — WASM smoke tests will be skipped"
+            echo "::warning::No mox-wasm release found — WASM smoke tests will be skipped"
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -127,7 +127,7 @@ export const parts = [
     ],
   },
   {
-    title: 'MLIR & CIRCT',
+    title: 'MLIR & MOX',
     chapters: [
       {
         title: 'Inside the Compiler',

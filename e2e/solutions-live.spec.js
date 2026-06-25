@@ -31,7 +31,7 @@ const COMPILE_TIMEOUT = 90_000;
 const Z3_TIMEOUT      = 120_000;
 
 function assertNoCompileError(logs) {
-  return expect(logs).not.toContainText('# circt-verilog exit code: 1', { timeout: COMPILE_TIMEOUT });
+  return expect(logs).not.toContainText('# mox-verilog exit code: 1', { timeout: COMPILE_TIMEOUT });
 }
 
 // Selected lessons covering all runner types
@@ -62,13 +62,13 @@ for (const lesson of LESSONS) {
     if (lesson.runner === 'lec') {
       await page.getByTestId('verify-button').click();
       await assertNoCompileError(logs);
-      await expect(logs).not.toContainText('# circt-lec exit code: 1', { timeout: COMPILE_TIMEOUT });
+      await expect(logs).not.toContainText('# mox-lec exit code: 1', { timeout: COMPILE_TIMEOUT });
       await expect(logs).toContainText('[z3] unsat', { timeout: Z3_TIMEOUT });
 
     } else if (lesson.runner === 'bmc' || lesson.runner === 'both') {
       await page.getByTestId('verify-button').click();
       await assertNoCompileError(logs);
-      await expect(logs).not.toContainText('# circt-bmc exit code: 1', { timeout: COMPILE_TIMEOUT });
+      await expect(logs).not.toContainText('# mox-bmc exit code: 1', { timeout: COMPILE_TIMEOUT });
       await expect(logs).toContainText('[z3]', { timeout: Z3_TIMEOUT });
       if (lesson.expectUnsat) {
         await expect(logs).toContainText('[z3] unsat', { timeout: Z3_TIMEOUT });

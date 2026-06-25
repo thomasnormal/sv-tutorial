@@ -122,7 +122,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
 | `sva/implication` | Implication: \|->, \|=> | ✅ | 23/27 ⚠️5,8,9 | `sva/sequence-basics` | `\|->` (overlapping), `\|=>` (non-overlapping), antecedent/consequent |
-| `sva/formal-intro` | Bounded Model Checking | ✅ | 22/27 ⚠️2,4,5,9 | `sva/implication` | BMC, `circt-bmc`, exhaustive proof vs simulation, bounded depth |
+| `sva/formal-intro` | Bounded Model Checking | ✅ | 22/27 ⚠️2,4,5,9 | `sva/implication` | BMC, `mox-bmc`, exhaustive proof vs simulation, bounded depth |
 
 ### Chapter: Core Sequences
 | Slug | Title | Status | Score | Prereqs | Teaches |
@@ -193,7 +193,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 > match — unlike `|->` / `|=>` which pass vacuously.
 > Exercise: compare the two forms on a burst read; observe the `#=#`
 > failure when the burst never occurs vs the `|=>` silent pass.
-> *Requires circt-bmc for the formal comparison half.*
+> *Requires mox-bmc for the formal comparison half.*
 
 ---
 

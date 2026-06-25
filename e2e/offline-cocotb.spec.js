@@ -49,9 +49,9 @@ test.describe('offline cocotb runtime', () => {
     await page.getByTestId('run-button').click();
 
     const logs = page.getByTestId('runtime-logs');
-    await expect(logs).toContainText('$ circt-verilog', { timeout: 240_000 });
+    await expect(logs).toContainText('$ mox-verilog', { timeout: 240_000 });
     await expect(logs).toContainText('$ python /workspace/src/test_adder.py', { timeout: 240_000 });
-    await expect(logs).toContainText('$ circt-sim', { timeout: 240_000 });
+    await expect(logs).toContainText('$ mox-sim', { timeout: 240_000 });
     await expect(logs).toContainText('PASS  adder_test', { timeout: 240_000 });
     await expect(logs).not.toContainText("Failed to execute 'importScripts'");
     await expect(logs).not.toContainText('is invalid');

@@ -2,17 +2,17 @@
 /**
  * test-sv-lessons.mjs
  *
- * Compiles and simulates every SV lesson through the WASM circt tools, checking:
+ * Compiles and simulates every SV lesson through the WASM mox tools, checking:
  *   • solution files (.sol.sv substituted for the corresponding .sv)
  *       → simulation output must contain a line starting with "PASS"
  *   • starter files (unmodified .sv, incomplete implementations)
  *       → simulation output must NOT contain such a line
  *
- * Requires static/circt/ to be populated (run `npm run sync:circt` first).
+ * Requires static/mox/ to be populated (run `npm run sync:mox` first).
  *
  * Design notes:
- *   - circt-verilog is loaded once and reused (compilation is stateless).
- *   - circt-sim is reloaded for each lesson because callMain does not fully
+ *   - mox-verilog is loaded once and reused (compilation is stateless).
+ *   - mox-sim is reloaded for each lesson because callMain does not fully
  *     reset global simulation state between invocations. After the first load
  *     V8 caches the compiled WASM binary, so subsequent loads are fast (~1-3s).
  */
@@ -25,21 +25,21 @@ import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const CIRCT_DIR = path.join(REPO_ROOT, 'static/circt');
+const MOX_DIR = path.join(REPO_ROOT, 'static/mox');
 const LESSONS_DIR = path.join(REPO_ROOT, 'src/lessons/sv');
 
 // ─── WASM tool loader ─────────────────────────────────────────────────────────
 
 async function loadTool(toolName, { initTimeout = 60_000 } = {}) {
-  const jsPath = path.join(CIRCT_DIR, `${toolName}.js`);
+  const jsPath = path.join(MOX_DIR, `${toolName}.js`);
   if (!fs.existsSync(jsPath)) {
-    throw new Error(`WASM artifact not found: ${jsPath}\nRun: npm run sync:circt`);
+    throw new Error(`WASM artifact not found: ${jsPath}\nRun: npm run sync:mox`);
   }
   const source = fs.readFileSync(jsPath, 'utf8');
   const capture = { out: '', err: '' };
 
   // Intercept require('fs') so that NODERAWFS fd=1/2 writes are captured.
-  // (circt-verilog.js uses NODERAWFS and calls fs.writeSync(1,...) for stdout.)
+  // (mox-verilog.js uses NODERAWFS and calls fs.writeSync(1,...) for stdout.)
   const realRequire = createRequire(jsPath);
   const patchedRequire = (id) => {
     const mod = realRequire(id);
@@ -73,14 +73,14 @@ async function loadTool(toolName, { initTimeout = 60_000 } = {}) {
     process, console, Buffer, URL, WebAssembly,
     TextDecoder, TextEncoder, setTimeout, clearTimeout,
     setInterval, clearInterval, performance,
-    __dirname: CIRCT_DIR,
+    __dirname: MOX_DIR,
     __filename: jsPath,
   };
   context.globalThis = context;
   context.self = context;
   context.Module = {
     noInitialRun: true,
-    locateFile: (f) => path.join(CIRCT_DIR, f),
+    locateFile: (f) => path.join(MOX_DIR, f),
     print:    (s) => { capture.out += s + '\n'; },
     printErr: (s) => { capture.err += s + '\n'; },
   };
@@ -195,8 +195,8 @@ async function main() {
 }
 
 async function run(work) {
-  console.log(`\nLoading circt-verilog…`);
-  const verilog = await loadTool('circt-verilog');
+  console.log(`\nLoading mox-verilog…`);
+  const verilog = await loadTool('mox-verilog');
   console.log('Ready.\n');
 
   const lessons = getLessonNames();
@@ -225,11 +225,11 @@ async function run(work) {
     const solCompile   = compile(verilog, work, `${lesson}-sol`,   buildSolutionFiles(starterFiles, lessonDir));
     const startCompile = compile(verilog, work, `${lesson}-start`, starterFiles);
 
-    // ── load a FRESH circt-sim for this lesson ───────────────────────────────
-    // circt-sim doesn't reset all global state between callMain calls, so we
+    // ── load a FRESH mox-sim for this lesson ───────────────────────────────
+    // mox-sim doesn't reset all global state between callMain calls, so we
     // create a new instance per lesson. After the first load V8 caches the
     // compiled WASM binary and subsequent loads take ~1-3s.
-    const sim = await loadTool('circt-sim');
+    const sim = await loadTool('mox-sim');
 
     // ── solution ─────────────────────────────────────────────────────────────
     if (!solCompile.ok) {

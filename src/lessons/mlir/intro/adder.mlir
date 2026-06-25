@@ -1,4 +1,4 @@
-// The adder from Part 1 — expressed as CIRCT MLIR.
+// The adder from Part 1 — expressed as MOX MLIR.
 //
 // Every MLIR file is a sequence of operations.
 // Here there is one top-level operation: hw.module.

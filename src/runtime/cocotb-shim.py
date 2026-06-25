@@ -1,5 +1,5 @@
 """
-Minimal cocotb-compatible API for in-browser simulation via Pyodide + CIRCT WASM VPI.
+Minimal cocotb-compatible API for in-browser simulation via Pyodide + MOX WASM VPI.
 
 User-facing API (matches real cocotb):
     import cocotb

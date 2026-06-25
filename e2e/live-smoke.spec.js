@@ -39,7 +39,7 @@ test('[sim] Welcome — run button produces output, no compile error', async ({ 
   await page.getByTestId('solve-button').click();
   await page.getByTestId('run-button').click();
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).not.toContainText('# circt-verilog exit code: 1', { timeout: COMPILE_TIMEOUT });
+  await expect(logs).not.toContainText('# mox-verilog exit code: 1', { timeout: COMPILE_TIMEOUT });
 });
 
 test('[sim] Concurrent Assertions — runtime assertions chapter visible, assertionFail produced', async ({ page }) => {
@@ -48,7 +48,7 @@ test('[sim] Concurrent Assertions — runtime assertions chapter visible, assert
   await page.getByTestId('solve-button').click();
   await page.getByTestId('run-button').click();
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).not.toContainText('# circt-verilog exit code: 1', { timeout: COMPILE_TIMEOUT });
+  await expect(logs).not.toContainText('# mox-verilog exit code: 1', { timeout: COMPILE_TIMEOUT });
   await expect(logs).toContainText('SVA assertion failed', { timeout: COMPILE_TIMEOUT });
 });
 
@@ -58,8 +58,8 @@ test('[bmc] Immediate Assertions — verify runs z3', async ({ page }) => {
   await page.getByTestId('solve-button').click();
   await page.getByTestId('verify-button').click();
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).not.toContainText('# circt-verilog exit code: 1', { timeout: COMPILE_TIMEOUT });
-  await expect(logs).not.toContainText('# circt-bmc exit code: 1', { timeout: COMPILE_TIMEOUT });
+  await expect(logs).not.toContainText('# mox-verilog exit code: 1', { timeout: COMPILE_TIMEOUT });
+  await expect(logs).not.toContainText('# mox-bmc exit code: 1', { timeout: COMPILE_TIMEOUT });
   await expect(logs).toContainText('[z3]', { timeout: Z3_TIMEOUT });
 });
 
@@ -69,8 +69,8 @@ test('[bmc] Implication — verify runs z3', async ({ page }) => {
   await page.getByTestId('solve-button').click();
   await page.getByTestId('verify-button').click();
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).not.toContainText('# circt-verilog exit code: 1', { timeout: COMPILE_TIMEOUT });
-  await expect(logs).not.toContainText('# circt-bmc exit code: 1', { timeout: COMPILE_TIMEOUT });
+  await expect(logs).not.toContainText('# mox-verilog exit code: 1', { timeout: COMPILE_TIMEOUT });
+  await expect(logs).not.toContainText('# mox-bmc exit code: 1', { timeout: COMPILE_TIMEOUT });
   await expect(logs).toContainText('[z3]', { timeout: Z3_TIMEOUT });
 });
 
@@ -80,7 +80,7 @@ test('[lec] Logical Equivalence Checking — z3 proves unsat', async ({ page }) 
   await page.getByTestId('solve-button').click();
   await page.getByTestId('verify-button').click();
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).not.toContainText('# circt-verilog exit code: 1', { timeout: COMPILE_TIMEOUT });
-  await expect(logs).not.toContainText('# circt-lec exit code: 1', { timeout: COMPILE_TIMEOUT });
+  await expect(logs).not.toContainText('# mox-verilog exit code: 1', { timeout: COMPILE_TIMEOUT });
+  await expect(logs).not.toContainText('# mox-lec exit code: 1', { timeout: COMPILE_TIMEOUT });
   await expect(logs).toContainText('[z3] unsat', { timeout: Z3_TIMEOUT });
 });

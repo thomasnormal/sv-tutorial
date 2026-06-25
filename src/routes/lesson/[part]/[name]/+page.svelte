@@ -3,7 +3,7 @@
   import { browser } from '$app/environment';
   import { beforeNavigate, goto } from '$app/navigation';
   import { base } from '$app/paths';
-  import { getCirctWasmAdapter } from '$lib/circt.js';
+  import { getMoxWasmAdapter } from '$lib/mox.js';
   import { darkMode, vimMode } from '$lib/stores/settings.js';
   import { completedSlugs } from '$lib/stores/completed.js';
   import { cloneFiles, mergeFiles, filesEqual, topNameFromFocus } from '$lib/lesson-utils.js';
@@ -38,7 +38,7 @@
   let showCopyModal = $state(false);
   let copyEnableChecked = $state(false);
   let didAnnounceTrimThisRun = $state(false);
-  let circt = $state(null);
+  let mox = $state(null);
   let glossaryCard = $state(null); // { body, top, left }
   let waveformRef = $state(null);
   let waveSignalsReady = $state(false);
@@ -131,7 +131,7 @@
   }
 
   onMount(() => {
-    circt = getCirctWasmAdapter();
+    mox = getMoxWasmAdapter();
     if (browser && sessionStorage.getItem('copyEnabled') === 'true') copyEnabled = true;
     _currentSlug = lesson.slug;
     _loadWorkspace(lesson);
@@ -347,7 +347,7 @@
   }
 
   async function runSim(mode = 'sim') {
-    if (running || !circt) return;
+    if (running || !mox) return;
     running = true;
     runMode = mode;
     runPhase = 'compiling';
@@ -374,7 +374,7 @@
       };
 
       if (lesson.runner === 'cocotb') {
-        const result = await circt.runCocotb({
+        const result = await mox.runCocotb({
           files: workspace,
           top: topNameFromFocus(lesson.focus),
           onStatus, onLog
@@ -382,7 +382,7 @@
         if (streamedEntries === 0) for (const entry of result.logs || []) appendLogEntry(entry);
         else mergeNonStreamResultLogs(result.logs);
       } else if (useLec) {
-        const result = await circt.runLec({
+        const result = await mox.runLec({
           files: workspace,
           module1: lesson.module1 || 'Spec',
           module2: lesson.module2 || 'Impl',
@@ -391,7 +391,7 @@
         if (streamedEntries === 0) for (const entry of result.logs || []) appendLogEntry(entry);
         else mergeNonStreamResultLogs(result.logs);
       } else if (useBmc) {
-        const result = await circt.runBmc({
+        const result = await mox.runBmc({
           files: workspace,
           top: topNameFromFocus(lesson.focus),
           onStatus, onLog
@@ -399,7 +399,7 @@
         if (streamedEntries === 0) for (const entry of result.logs || []) appendLogEntry(entry);
         else mergeNonStreamResultLogs(result.logs);
       } else {
-        const result = await circt.run({
+        const result = await mox.run({
           files: workspace,
           top: topNameFromFocus(lesson.focus),
           simulate: lesson.simulate,
@@ -418,8 +418,8 @@
   }
 
   function cancelRun() {
-    if (!running || !circt) return;
-    circt.cancel();
+    if (!running || !mox) return;
+    mox.cancel();
     appendLogEntry('# run cancelled');
   }
 

@@ -1,5 +1,5 @@
 /**
- * E2E tests for the cocotb runner (circt-verilog → circt-sim + Pyodide).
+ * E2E tests for the cocotb runner (mox-verilog → mox-sim + Pyodide).
  */
 import { test, expect } from '@playwright/test';
 
@@ -32,7 +32,7 @@ test('cocotb: Your First cocotb Test — solution passes all assertions', async 
   const logs = page.getByTestId('runtime-logs');
   await expect(logs).toContainText('$ python /workspace/src/test_adder.py', { timeout: 180_000 });
   await expect(logs).toContainText('PASS', { timeout: 180_000 });
-  await expect(logs).toContainText('[circt-sim] Simulation completed', { timeout: 180_000 });
+  await expect(logs).toContainText('[mox-sim] Simulation completed', { timeout: 180_000 });
   await expect(logs).not.toContainText('AssertionError');
   await expect(logs).not.toContainText("Failed to execute 'importScripts'");
   await expect(logs).not.toContainText('is invalid');
@@ -47,7 +47,7 @@ test('cocotb: Clock and Timing — solution passes all assertions', async ({ pag
   const logs = page.getByTestId('runtime-logs');
   await expect(logs).toContainText('$ python /workspace/src/test_counter.py', { timeout: 180_000 });
   await expect(logs).toContainText('PASS', { timeout: 180_000 });
-  await expect(logs).toContainText('[circt-sim] Simulation completed', { timeout: 180_000 });
+  await expect(logs).toContainText('[mox-sim] Simulation completed', { timeout: 180_000 });
   await expect(logs).not.toContainText('AssertionError');
   await expect(logs).not.toContainText("Failed to execute 'importScripts'");
   await expect(logs).not.toContainText('is invalid');

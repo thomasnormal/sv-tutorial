@@ -41,7 +41,7 @@ function makeMockModule(bytes = 1024) {
 }
 
 describe('vpi-abi constants', () => {
-  it('matches CIRCT VPI value/time enums', () => {
+  it('matches MOX VPI value/time enums', () => {
     expect(VPI.vpiIntVal).toBe(6);
     expect(VPI.vpiScalarVal).toBe(5);
     expect(VPI.vpiVectorVal).toBe(9);

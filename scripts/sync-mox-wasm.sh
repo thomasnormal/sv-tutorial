@@ -287,8 +287,13 @@ if [ "$PUBLISH" -eq 1 ]; then
     exit 1
   fi
 
-  # Bundle UVM sources for the release asset.
-  UVM_BUNDLE="$(mktemp /tmp/uvm-core.XXXXXX.tar.gz)"
+  # Bundle UVM sources for the release asset. The release asset name is the
+  # file's basename, and the deploy workflow looks for `uvm-core.tar.gz`, so the
+  # bundle must be named exactly that. Build it inside a mktemp -d directory for
+  # uniqueness instead of embedding Xs in the filename (mktemp only substitutes
+  # *trailing* Xs, so `uvm-core.XXXXXX.tar.gz` yields a literal-`XXXXXX` name).
+  UVM_BUNDLE_DIR="$(mktemp -d)"
+  UVM_BUNDLE="$UVM_BUNDLE_DIR/uvm-core.tar.gz"
   tar -czf "$UVM_BUNDLE" -C "$DST_DIR" uvm-core
   echo "Created UVM bundle: $UVM_BUNDLE"
 
@@ -306,7 +311,7 @@ if [ "$PUBLISH" -eq 1 ]; then
 
   echo "Uploading to GitHub release 'mox-wasm'..."
   gh release upload mox-wasm "${RELEASE_ASSETS[@]}" --clobber
-  rm -f "$UVM_BUNDLE"
+  rm -rf "$UVM_BUNDLE_DIR"
   echo "GitHub release updated."
 
   # Update toolchain lock to the current MOX commit.

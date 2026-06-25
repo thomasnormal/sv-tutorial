@@ -53,9 +53,13 @@ jobs:
           mkdir -p static/mox
 
           unpack_uvm_bundle_if_present() {
-            if [ -f static/mox/uvm-core.tar.gz ]; then
+            # Match uvm-core.tar.gz as well as older mis-named bundles such as
+            # uvm-core.XXXXXX.tar.gz (a past mktemp-template bug), newest first.
+            local bundle
+            bundle="$(ls -t static/mox/uvm-core*.tar.gz 2>/dev/null | head -1)"
+            if [ -n "$bundle" ]; then
               rm -rf static/mox/uvm-core
-              tar -xzf static/mox/uvm-core.tar.gz -C static/mox
+              tar -xzf "$bundle" -C static/mox
             fi
           }
 

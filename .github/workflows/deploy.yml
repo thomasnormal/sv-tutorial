@@ -72,6 +72,13 @@ jobs:
                -D static/mox \
                --clobber 2>/dev/null; then
             unpack_uvm_bundle_if_present
+            # Apply the browser-compatibility patches in-place. This makes the
+            # deploy self-healing: the release can hold raw (or partially
+            # patched) tool artifacts and CI rewrites the Node-only NODERAWFS
+            # path/fs + callMain glue to a browser/MEMFS-safe form. Idempotent,
+            # so already-patched artifacts pass through unchanged. Without this,
+            # mox-verilog/mox-bmc fail silently in the browser worker.
+            bash scripts/patch-mox-browser.sh static/mox
             echo "MOX artifacts downloaded from release 'mox-wasm'"
             ls -lh static/mox/
             if have_uvm_bundle; then

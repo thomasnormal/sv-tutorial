@@ -63,8 +63,11 @@ const DEFAULT_LEC_ARGS = [
 const DEFAULT_SIM_ARGS = ['--resource-guard=false'];
 // mox-run is the unified single-command compile+simulate driver. These are the
 // frontend/sim flags shared by every invocation; the adapter appends per-run
-// --top, --vcd and --trace-all. Interpret mode mirrors the mox-sim runner.
-const DEFAULT_RUN_ARGS = ['--resource-guard=false', '--timescale', '1ns/1ns', '--single-unit', '--mode', 'interpret'];
+// --top, --vcd and --trace-all. We deliberately omit flags whose defaults
+// already work in the wasm build: --mode interpret (no AOT is available, so
+// interpret is the default) and --resource-guard=false (the guard does not
+// interfere with these sims) — keeping the taught command minimal.
+const DEFAULT_RUN_ARGS = ['--timescale', '1ns/1ns', '--single-unit'];
 const DEFAULT_BMC_ARGS = [
   '--resource-guard=false',
   '--assume-known-inputs',

@@ -16,7 +16,7 @@ UVM_SRC_DIR="${POSITIONAL[2]:-vendor/mox/lib/Runtime/uvm-core/src}"
 UVM_DST_DIR="$DST_DIR/uvm-core/src"
 UVM_MANIFEST_PATH="$DST_DIR/uvm-core/uvm-manifest.json"
 
-TOOLS=("mox-bmc" "mox-sim" "mox-verilog" "mox-lec")
+TOOLS=("mox-bmc" "mox-sim" "mox-verilog" "mox-lec" "mox-run")
 # VPI-capable sim is a separate build target (Asyncify + VPI exports).
 # It is optional — warn if missing but do not abort.
 VPI_TOOL="mox-sim-vpi"
@@ -149,7 +149,7 @@ rm -f "$DST_DIR/uvm-core/uvm-source-map.json"
 # Emscripten's MEMFS instead, the same way mox-sim already works. mox-lec is a
 # MEMFS build and does not contain these patterns, so it is intentionally
 # omitted (patching it would error on the missing patterns).
-node - "$DST_DIR/mox-sim.js" "$DST_DIR/mox-verilog.js" "$DST_DIR/mox-bmc.js" <<'NODE'
+node - "$DST_DIR/mox-sim.js" "$DST_DIR/mox-verilog.js" "$DST_DIR/mox-bmc.js" "$DST_DIR/mox-run.js" <<'NODE'
 const fs = require('fs');
 
 const targetPaths = process.argv.slice(2);

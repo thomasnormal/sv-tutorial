@@ -1448,6 +1448,69 @@ export class MoxWasmAdapter {
       if (typeof onStatus === 'function') onStatus('compiling');
       let compileExitCode = 0;
       let loweredMlir = null;
+
+      // Plain SystemVerilog simulation: use mox-run — the unified single-command
+      // compile+simulate driver — so the tutorial teaches the real mox workflow
+      // ("mox-run design.sv --top top"). UVM (which needs the multi-strategy
+      // compile retries below) and MLIR-source lessons keep the explicit
+      // mox-verilog -> mox-sim pipeline.
+      if (simulate && svPaths.length > 0 && !useFullUvm) {
+        const compileRoots = compileRootSourcePaths(files).map((p) => normalizePath(p));
+        // Rebuild a plain, structured-cloneable object (the incoming `files`
+        // may be a reactive proxy that postMessage cannot clone).
+        const runWorkspaceFiles = Object.fromEntries(
+          Object.entries(files).map(([path, content]) => [normalizePath(path), String(content)])
+        );
+        const buildRunArgs = (withTraceAll) => {
+          const args = [...this.config.runArgs];
+          for (const topName of topModules) args.push('--top', topName);
+          args.push('--vcd', wavePath);
+          if (withTraceAll) args.push('--trace-all');
+          args.push(...compileRoots);
+          return args;
+        };
+        const runOnce = async (withTraceAll) => {
+          const runArgs = buildRunArgs(withTraceAll);
+          emitLog(formatCommand('mox-run', runArgs));
+          const stream = makeToolOutputHandler();
+          const res = await this._invokeTool('run', {
+            args: runArgs,
+            files: runWorkspaceFiles,
+            readFiles: [wavePath],
+            createDirs: ['/workspace/out'],
+            onOutput: stream.onOutput
+          });
+          return { res, stream };
+        };
+
+        let runRes;
+        try {
+          runRes = await runOnce(true);
+          if (runRes.res.exitCode !== 0 && isRetryableSimAbortText(runRes.res.stderr)) {
+            throw new Error(String(runRes.res.stderr || `mox-run exited ${runRes.res.exitCode}`));
+          }
+        } catch (error) {
+          if (error?.name === 'AbortError') throw error;
+          if (!isRetryableSimAbortText(error?.message || error)) throw error;
+          emitLog('# mox-run: runtime abort with --trace-all; retrying without waveform capture');
+          runRes = await runOnce(false);
+        }
+
+        const { res } = runRes;
+        if (!runRes.stream.sawStream()) {
+          if (res.stdout) emitLog(`[stdout] ${res.stdout}`);
+          if (res.stderr) emitLog(`[stderr] ${res.stderr}`);
+        }
+        appendNonZeroExit(logs, 'mox-run', res.exitCode, emitLog);
+        const vcdText = fixLlhdVcdEncoding(removeInlinedPortsFromVcd(res.files?.[wavePath] || null));
+        if (typeof onStatus === 'function') onStatus('done');
+        return {
+          ok: res.exitCode === 0,
+          logs,
+          waveform: vcdText ? { path: wavePath, text: vcdText } : null
+        };
+      }
+
       if (svPaths.length > 0) {
         const compileRootPaths = compileRootSourcePaths(files);
         const buildCompilePlan = ({ forceBundle, singleUnit, label }) => {

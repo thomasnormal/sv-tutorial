@@ -31,6 +31,10 @@ const DEFAULT_TOOLCHAIN = {
     js: `${BASE}mox/mox-sim.js`,
     wasm: `${BASE}mox/mox-sim.wasm`
   },
+  run: {
+    js: `${BASE}mox/mox-run.js`,
+    wasm: `${BASE}mox/mox-run.wasm`
+  },
   bmc: {
     js: `${BASE}mox/mox-bmc.js`,
     wasm: `${BASE}mox/mox-bmc.wasm`
@@ -57,6 +61,10 @@ const DEFAULT_LEC_ARGS = [
   '{input}'
 ];
 const DEFAULT_SIM_ARGS = ['--resource-guard=false'];
+// mox-run is the unified single-command compile+simulate driver. These are the
+// frontend/sim flags shared by every invocation; the adapter appends per-run
+// --top, --vcd and --trace-all. Interpret mode mirrors the mox-sim runner.
+const DEFAULT_RUN_ARGS = ['--resource-guard=false', '--timescale', '1ns/1ns', '--single-unit', '--mode', 'interpret'];
 const DEFAULT_BMC_ARGS = [
   '--resource-guard=false',
   '--assume-known-inputs',
@@ -101,6 +109,10 @@ export function getMoxRuntimeConfig() {
         js: pickUrlFromEnv(import.meta.env.VITE_MOX_SIM_JS_URL, DEFAULT_TOOLCHAIN.sim.js),
         wasm: pickUrlFromEnv(import.meta.env.VITE_MOX_SIM_WASM_URL, DEFAULT_TOOLCHAIN.sim.wasm)
       },
+      run: {
+        js: pickUrlFromEnv(import.meta.env.VITE_MOX_RUN_JS_URL, DEFAULT_TOOLCHAIN.run.js),
+        wasm: pickUrlFromEnv(import.meta.env.VITE_MOX_RUN_WASM_URL, DEFAULT_TOOLCHAIN.run.wasm)
+      },
       bmc: {
         js: pickUrlFromEnv(import.meta.env.VITE_MOX_BMC_JS_URL, DEFAULT_TOOLCHAIN.bmc.js),
         wasm: pickUrlFromEnv(import.meta.env.VITE_MOX_BMC_WASM_URL, DEFAULT_TOOLCHAIN.bmc.wasm)
@@ -117,6 +129,7 @@ export function getMoxRuntimeConfig() {
     pyodideUrl: import.meta.env.VITE_PYODIDE_URL || `${BASE}pyodide/pyodide.js`,
     verilogArgs: parseArgs(import.meta.env.VITE_MOX_VERILOG_ARGS, DEFAULT_VERILOG_ARGS),
     simArgs: parseArgs(import.meta.env.VITE_MOX_SIM_ARGS, DEFAULT_SIM_ARGS),
+    runArgs: parseArgs(import.meta.env.VITE_MOX_RUN_ARGS, DEFAULT_RUN_ARGS),
     bmcArgs: parseArgs(import.meta.env.VITE_MOX_BMC_ARGS, DEFAULT_BMC_ARGS),
     lecVerilogArgs: parseArgs(import.meta.env.VITE_MOX_LEC_VERILOG_ARGS, DEFAULT_LEC_VERILOG_ARGS),
     lecArgs: parseArgs(import.meta.env.VITE_MOX_LEC_ARGS, DEFAULT_LEC_ARGS),

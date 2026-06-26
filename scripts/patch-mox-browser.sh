@@ -20,7 +20,7 @@ set -euo pipefail
 DIR="${1:?usage: patch-mox-browser.sh <dir-containing-mox-*.js>}"
 
 # 1. callMain shim — every tool .js that exists in DIR.
-for tool in mox-verilog mox-sim mox-bmc mox-lec mox-sim-vpi; do
+for tool in mox-verilog mox-sim mox-bmc mox-lec mox-sim-vpi mox-run; do
   js="$DIR/$tool.js"
   [ -f "$js" ] || continue
   node - "$js" <<'NODE'
@@ -42,7 +42,7 @@ NODE
 done
 
 # 2. NODERAWFS -> browser/MEMFS path/fs rewrite for the NODERAWFS tools.
-node - "$DIR/mox-sim.js" "$DIR/mox-verilog.js" "$DIR/mox-bmc.js" <<'NODE'
+node - "$DIR/mox-sim.js" "$DIR/mox-verilog.js" "$DIR/mox-bmc.js" "$DIR/mox-run.js" <<'NODE'
 const fs = require('fs');
 const targetPaths = process.argv.slice(2);
 

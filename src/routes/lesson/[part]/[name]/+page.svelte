@@ -200,6 +200,13 @@
     return typeof entry === 'string' && entry.startsWith('[stderr] ');
   }
 
+  // Tool-tag lines like "[mox-sim] …", "[VPI] …", "[z3] …" are diagnostic
+  // chatter from the toolchain; pale them so actual program output ($display,
+  // assertion messages, etc.) stands out.
+  function isToolLogLine(line) {
+    return /^\s*\[[^\]]+\]/.test(line);
+  }
+
   function stripStreamPrefix(entry) {
     if (isStdoutEntry(entry)) return entry.slice('[stdout] '.length);
     if (isStderrEntry(entry)) return entry.slice('[stderr] '.length);
@@ -823,12 +830,12 @@
               {#if isStdoutEntry(entry)}
                 <details open>
                   <summary class="cursor-pointer select-none text-logs-text">stdout</summary>
-                  <pre class="m-0 mt-1 whitespace-pre-wrap break-words">{stripStreamPrefix(entry)}</pre>
+                  <pre class="m-0 mt-1 whitespace-pre-wrap break-words">{#each stripStreamPrefix(entry).split('\n') as line, i}{i ? '\n' : ''}<span class={isToolLogLine(line) ? 'opacity-60' : ''}>{line}</span>{/each}</pre>
                 </details>
               {:else if isStderrEntry(entry)}
                 <details open>
                   <summary class="cursor-pointer select-none text-logs-text">stderr</summary>
-                  <pre class="m-0 mt-1 whitespace-pre-wrap break-words">{stripStreamPrefix(entry)}</pre>
+                  <pre class="m-0 mt-1 whitespace-pre-wrap break-words">{#each stripStreamPrefix(entry).split('\n') as line, i}{i ? '\n' : ''}<span class={isToolLogLine(line) ? 'opacity-60' : ''}>{line}</span>{/each}</pre>
                 </details>
               {:else}
                 <div class="whitespace-pre-wrap break-words">{entry}</div>

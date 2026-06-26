@@ -312,14 +312,13 @@ if [ "$PUBLISH" -eq 1 ]; then
   tar -czf "$UVM_BUNDLE" -C "$DST_DIR" uvm-core
   echo "Created UVM bundle: $UVM_BUNDLE"
 
-  # Upload all artifacts, replacing existing assets on the release.
-  RELEASE_ASSETS=(
-    "$DST_DIR/mox-bmc.js"   "$DST_DIR/mox-bmc.wasm"
-    "$DST_DIR/mox-sim.js"   "$DST_DIR/mox-sim.wasm"
-    "$DST_DIR/mox-verilog.js" "$DST_DIR/mox-verilog.wasm"
-    "$DST_DIR/mox-lec.js"   "$DST_DIR/mox-lec.wasm"
-    "$UVM_BUNDLE"
-  )
+  # Upload all artifacts, replacing existing assets on the release. Derive the
+  # list from TOOLS so adding a tool there can't silently skip the upload.
+  RELEASE_ASSETS=()
+  for tool in "${TOOLS[@]}"; do
+    RELEASE_ASSETS+=("$DST_DIR/$tool.js" "$DST_DIR/$tool.wasm")
+  done
+  RELEASE_ASSETS+=("$UVM_BUNDLE")
   if [ "$HAVE_VPI" -eq 1 ]; then
     RELEASE_ASSETS+=("$DST_DIR/$VPI_TOOL.js" "$DST_DIR/$VPI_TOOL.wasm")
   fi

@@ -1,0 +1,48 @@
+<p>Verilog has two fundamental signal types: <code>wire</code> and <code>reg</code>. Understanding the difference is
+    critical — it determines how and where you can use a signal.</p>
+
+<h2>wire — Continuous Connections</h2>
+<p>A <code>wire</code> represents a physical connection between components. It must be driven by a continuous assignment
+    (<code>assign</code>) or a module output. It cannot hold a value on its own.</p>
+<pre>wire [7:0] data_bus;       // 8-bit wire
+assign data_bus = a & b;   // continuously driven</pre>
+
+<h2>reg — Procedural Storage</h2>
+<p>A <code>reg</code> holds a value assigned inside procedural blocks (<code>always</code>, <code>initial</code>).
+    Despite the name, <strong>a <code>reg</code> does not always become a hardware register</strong> — it depends on how
+    you use it.</p>
+<pre>reg [7:0] counter;
+always @(posedge clk)
+  counter <= counter + 1;  // THIS becomes a register</pre>
+
+<svg width="460" height="140" viewBox="0 0 460 140" xmlns="http://www.w3.org/2000/svg"
+    style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:10px auto">
+    <rect x="10" y="10" width="200" height="120" rx="8" fill="#e8f4f8" stroke="#0d6f72" stroke-width="2" />
+    <text x="110" y="40" text-anchor="middle" font-weight="bold" fill="#0d6f72" font-size="14">wire</text>
+    <text x="110" y="65" text-anchor="middle" fill="#3d9fa3" font-size="11">Driven by assign</text>
+    <text x="110" y="85" text-anchor="middle" fill="#3d9fa3" font-size="11">or module output</text>
+    <text x="110" y="105" text-anchor="middle" fill="#3d9fa3" font-size="11">Like a physical wire</text>
+    <rect x="250" y="10" width="200" height="120" rx="8" fill="#f0e8f8" stroke="#6b2fa0" stroke-width="2" />
+    <text x="350" y="40" text-anchor="middle" font-weight="bold" fill="#6b2fa0" font-size="14">reg</text>
+    <text x="350" y="65" text-anchor="middle" fill="#8b5fbf" font-size="11">Assigned in always</text>
+    <text x="350" y="85" text-anchor="middle" fill="#8b5fbf" font-size="11">or initial blocks</text>
+    <text x="350" y="105" text-anchor="middle" fill="#8b5fbf" font-size="11">Holds value until changed</text>
+</svg>
+
+<h2>Key Rules</h2>
+<ul>
+    <li><code>wire</code> is the default type for ports — no declaration needed for <code>input</code> ports</li>
+    <li><code>output reg</code> declares an output that is assigned procedurally</li>
+    <li>You <strong>cannot</strong> assign to a <code>wire</code> inside an <code>always</code> block</li>
+    <li>You <strong>cannot</strong> use <code>assign</code> to drive a <code>reg</code></li>
+</ul>
+
+<blockquote>
+    <p><strong>Note:</strong> SystemVerilog simplifies this with the <code>logic</code> type that can be used anywhere.
+        But understanding <code>wire</code> vs <code>reg</code> is essential for reading legacy Verilog code.</p>
+</blockquote>
+
+<blockquote>
+    <p><strong>Exercise:</strong> Complete the module in <code>signals.sv</code>. Use <code>assign</code> to drive the
+        <code>wire</code> output and an <code>always</code> block to drive the <code>reg</code> output.</p>
+</blockquote>

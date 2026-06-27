@@ -1,0 +1,56 @@
+<p>Every Verilog design starts with a <strong>module</strong> — the basic building block that represents a hardware
+    component. A module defines its interface through <dfn
+        data-card="Ports are the inputs and outputs of a module — like the pins on a physical chip. Each port has a direction (input, output, or inout) and a width (number of bits).">ports</dfn>
+    and describes its internal behavior.</p>
+
+<h2>Port Directions</h2>
+<svg width="400" height="140" viewBox="0 0 400 140" xmlns="http://www.w3.org/2000/svg"
+    style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:10px auto">
+    <defs>
+        <marker id="mp-a" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto">
+            <path d="M0,0 L7,3 L0,6 Z" fill="#1e2a2c" />
+        </marker>
+    </defs>
+    <rect x="120" y="10" width="160" height="120" rx="8" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2" />
+    <text x="200" y="55" text-anchor="middle" font-weight="bold" fill="#0d6f72" font-size="15">my_module</text>
+    <text x="200" y="75" text-anchor="middle" fill="#3d9fa3" font-size="11">behavior inside</text>
+    <text x="50" y="40" text-anchor="end" fill="#1e2a2c" font-weight="bold">input</text>
+    <line x1="55" y1="37" x2="118" y2="37" stroke="#1e2a2c" stroke-width="1.5" marker-end="url(#mp-a)" />
+    <text x="50" y="75" text-anchor="end" fill="#1e2a2c" font-weight="bold">input</text>
+    <line x1="55" y1="72" x2="118" y2="72" stroke="#1e2a2c" stroke-width="1.5" marker-end="url(#mp-a)" />
+    <line x1="282" y1="55" x2="340" y2="55" stroke="#1e2a2c" stroke-width="1.5" marker-end="url(#mp-a)" />
+    <text x="345" y="59" fill="#1e2a2c" font-weight="bold">output</text>
+    <text x="50" y="110" text-anchor="end" fill="#888" font-weight="bold">inout</text>
+    <line x1="55" y1="107" x2="95" y2="107" stroke="#888" stroke-width="1.5" marker-end="url(#mp-a)" />
+    <line x1="118" y1="107" x2="78" y2="107" stroke="#888" stroke-width="1.5" marker-end="url(#mp-a)" />
+</svg>
+
+<ul>
+    <li><code>input</code> — Data flows <em>into</em> the module (like a chip receiving a clock or data)</li>
+    <li><code>output</code> — Data flows <em>out</em> of the module (like a chip driving a result)</li>
+    <li><code>inout</code> — Bidirectional port (used for things like I²C data lines)</li>
+</ul>
+
+<h2>Module Syntax</h2>
+<p>A module declaration looks like this:</p>
+<pre>module adder(
+  input  [3:0] a,    // 4-bit input
+  input  [3:0] b,    // 4-bit input
+  output [4:0] sum   // 5-bit output (extra bit for carry)
+);
+  assign sum = a + b;
+endmodule</pre>
+
+<p>The <code>[3:0]</code> notation defines a <dfn
+        data-card="A vector (or bus) is a multi-bit signal. [3:0] means 4 bits numbered from 3 (MSB) down to 0 (LSB). [7:0] is an 8-bit byte. The left number is always the MSB in standard practice.">vector</dfn>
+    — a multi-bit signal. <code>[3:0]</code> means 4 bits (indices 3, 2, 1, 0).</p>
+
+<h2>Continuous Assignment</h2>
+<p>The <code>assign</code> statement creates a continuous connection — like a physical wire. Whenever <code>a</code> or
+    <code>b</code> changes, <code>sum</code> updates immediately.</p>
+
+<blockquote>
+    <p><strong>Exercise:</strong> Complete the <code>adder</code> module in <code>adder.sv</code>. It should take two
+        4-bit inputs <code>a</code> and <code>b</code>, and produce a 5-bit <code>sum</code> output equal to
+        <code>a + b</code>. The testbench will verify your design.</p>
+</blockquote>

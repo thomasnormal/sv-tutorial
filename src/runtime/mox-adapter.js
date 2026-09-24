@@ -164,6 +164,17 @@ function needsUvmLibrary(files) {
   );
 }
 
+// Mox, like Xcelium without -coverage, does not sample covergroups unless
+// coverage collection is enabled: get_coverage() then returns 0 and no report
+// is printed. Enable it only for designs that declare a covergroup so other
+// lessons don't get an empty coverage report appended to their output.
+function coverageArgs(files) {
+  const usesCoverage = Object.values(files).some((content) =>
+    typeof content === 'string' && /\bcovergroup\b/.test(content)
+  );
+  return usesCoverage ? ['--coverage-report'] : [];
+}
+
 // mox-sim inlines child-instance ports as dotted names (e.g. "dut.sum") into
 // the parent scope alongside the parent wire ("result"). Strip those duplicates
 // so the waveform viewer only shows the canonical wire name.
@@ -1462,7 +1473,7 @@ export class MoxWasmAdapter {
           Object.entries(files).map(([path, content]) => [normalizePath(path), String(content)])
         );
         const buildRunArgs = (withTraceAll) => {
-          const args = [...this.config.runArgs];
+          const args = [...this.config.runArgs, ...coverageArgs(files)];
           for (const topName of topModules) args.push('--top', topName);
           args.push('--vcd', wavePath);
           if (withTraceAll) args.push('--trace-all');
@@ -1647,7 +1658,7 @@ export class MoxWasmAdapter {
       if (typeof onStatus === 'function') onStatus('running');
       const simStream = makeToolOutputHandler();
       const runSimAttempt = async ({ withTraceAll, withVcd }) => {
-        const simArgs = forceInterpretSimMode([...this.config.simArgs]);
+        const simArgs = forceInterpretSimMode([...this.config.simArgs, ...coverageArgs(files)]);
         for (const topName of topModules) {
           simArgs.push('--top', topName);
         }

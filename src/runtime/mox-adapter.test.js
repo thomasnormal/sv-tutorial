@@ -81,3 +81,34 @@ describe('MoxWasmAdapter.run with MLIR workspace input', () => {
     expect(calls[0].request.args[topArgIndex + 1]).toBe('dff_after');
   });
 });
+
+describe('MoxWasmAdapter.run coverage collection', () => {
+  // Mox (like Xcelium without -coverage) does not sample covergroups unless
+  // coverage is enabled, so get_coverage() returns 0 and no report prints.
+  async function runArgsFor(source) {
+    const calls = [];
+    const adapter = createAdapterWithInvokeTool(async (toolName, request) => {
+      calls.push({ toolName, request });
+      return { exitCode: 0, stdout: '', stderr: '', files: {} };
+    });
+    await adapter.run({ files: { '/src/top.sv': source }, top: 'top' });
+    expect(calls).toHaveLength(1);
+    expect(calls[0].toolName).toBe('run');
+    return calls[0].request.args;
+  }
+
+  it('enables coverage when the design declares a covergroup', async () => {
+    const args = await runArgsFor(`module top;
+  bit v;
+  covergroup cg; coverpoint v; endgroup
+  cg c = new;
+endmodule
+`);
+    expect(args).toContain('--coverage-report');
+  });
+
+  it('does not enable coverage for designs without covergroups', async () => {
+    const args = await runArgsFor('module top; initial $display("hi"); endmodule\n');
+    expect(args).not.toContain('--coverage-report');
+  });
+});

@@ -42,6 +42,16 @@ run_configure() {
     -DLLVM_INCLUDE_BENCHMARKS=OFF
     -DLLVM_BUILD_BENCHMARKS=OFF
   )
+  # The NATIVE host sub-build (host TableGen tools) only sees these flag
+  # lists. Mox's configure_wasm_build.sh leaves CMAKE_CXX_STANDARD out of
+  # them, so NATIVE falls back to LLVM's C++17 and current Mox refuses to
+  # configure ("CMAKE_CXX_STANDARD=17 conflicts with MOX's required C++20").
+  # Re-pass the same list with C++20; the later -D wins.
+  local native_flags="-DCMAKE_CXX_STANDARD=20;-DMOX_SLANG_FRONTEND_ENABLED=ON;-DMOX_INCLUDE_TESTS=OFF;-DMOX_BINDINGS_TCL_ENABLED=OFF;-DMOX_INCLUDE_ARC_TOOLS=OFF;-DLLVM_ENABLE_ZLIB=OFF;-DLLVM_ENABLE_ZSTD=OFF;-DLLVM_INCLUDE_EXAMPLES=OFF"
+  extra_args+=(
+    "-DCROSS_TOOLCHAIN_FLAGS_LLVM_NATIVE=$native_flags"
+    "-DCROSS_TOOLCHAIN_FLAGS_mox_NATIVE=$native_flags"
+  )
   if [[ "$USE_CCACHE" == "1" && -n "$CCACHE_BIN" ]]; then
     echo "  using ccache launcher: $CCACHE_BIN"
     # PCH compiles (~90% of LLVM/MOX cxx work) are uncacheable by default

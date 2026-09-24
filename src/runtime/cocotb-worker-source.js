@@ -65,6 +65,14 @@ function wsRegisterVpiTrigger(M, spec, cbFnPtr) {
     M._free(cbData2);
     return handle2;
   }
+  if (spec.type === 'read_only') {
+    var roTimePtr = wsMakeVpiTime(M, 0n);
+    var roCbData = wsMakeCbData(M, VPI.cbReadOnlySynch, cbFnPtr, 0, roTimePtr, spec.id);
+    var roHandle = M._vpi_register_cb(roCbData);
+    M._free(roTimePtr);
+    M._free(roCbData);
+    return roHandle;
+  }
   return 0;
 }
 

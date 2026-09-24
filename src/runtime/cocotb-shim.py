@@ -3,7 +3,7 @@ Minimal cocotb-compatible API for in-browser simulation via Pyodide + MOX WASM V
 
 User-facing API (matches real cocotb):
     import cocotb
-    from cocotb.triggers import Timer, RisingEdge, FallingEdge, ClockCycles
+    from cocotb.triggers import Timer, RisingEdge, FallingEdge, ClockCycles, ReadOnly
     from cocotb.clock import Clock
 
     @cocotb.test()
@@ -64,9 +64,10 @@ def _register(trigger_spec):
 # ── Triggers ──────────────────────────────────────────────────────────────────
 
 class Timer:
-    """await Timer(2, units="ns")  — wait for a time delay."""
-    def __init__(self, time, units='ns'):
-        self._fs = _to_femtoseconds(time, units)
+    """await Timer(2, unit="ns")  — wait for a time delay."""
+    def __init__(self, time, unit='ns', units=None):
+        # cocotb 2.0 renamed units= to unit=; accept both.
+        self._fs = _to_femtoseconds(time, units or unit)
 
     def __await__(self):
         return self._wait().__await__()
@@ -102,6 +103,16 @@ class FallingEdge:
         await event.wait()
 
 
+class ReadOnly:
+    """await ReadOnly()  — wait until the current time step has settled."""
+    def __await__(self):
+        return self._wait().__await__()
+
+    async def _wait(self):
+        _id, event = _register({'type': 'read_only'})
+        await event.wait()
+
+
 class ClockCycles:
     """await ClockCycles(dut.clk, n)  — wait for n rising edges."""
     def __init__(self, signal, num_cycles, rising=True):
@@ -122,9 +133,9 @@ class ClockCycles:
 
 class Clock:
     """Continuous clock driver. Use with cocotb.start_soon(clock.start())."""
-    def __init__(self, signal, period, units='ns'):
+    def __init__(self, signal, period, unit='ns', units=None):
         self._signal = signal
-        self._half_fs = _to_femtoseconds(period, units) // 2
+        self._half_fs = _to_femtoseconds(period, units or unit) // 2
 
     async def start(self, start_high=True):
         val = 1 if start_high else 0
@@ -230,6 +241,7 @@ class _TriggersModule:
     RisingEdge = RisingEdge
     FallingEdge = FallingEdge
     ClockCycles = ClockCycles
+    ReadOnly = ReadOnly
 
 class _ClockModule:
     Clock = Clock
@@ -243,6 +255,7 @@ triggers_mod.Timer = Timer
 triggers_mod.RisingEdge = RisingEdge
 triggers_mod.FallingEdge = FallingEdge
 triggers_mod.ClockCycles = ClockCycles
+triggers_mod.ReadOnly = ReadOnly
 sys.modules['cocotb.triggers'] = triggers_mod
 
 clock_mod = types.ModuleType('cocotb.clock')

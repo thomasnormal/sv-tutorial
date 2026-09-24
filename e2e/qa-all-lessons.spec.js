@@ -40,6 +40,9 @@ async function openSolved(page, lesson) {
   const [part, name] = lesson.slug.split('/');
   await page.goto(`${base}/lesson/${part}/${name}`);
   await expect(page.getByTestId('lesson-title')).toHaveText(lesson.title, { timeout: 10_000 });
+  // The title is prerendered; the sidebar's lesson buttons appear only once
+  // Svelte has hydrated, and clicks before that are lost.
+  await page.locator('button[data-active]').first().waitFor({ timeout: 10_000 });
 
   await page.getByTestId('options-button').click();
   const solveBtn = page.getByTestId('solve-button');

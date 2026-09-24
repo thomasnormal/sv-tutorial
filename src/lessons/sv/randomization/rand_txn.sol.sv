@@ -2,7 +2,7 @@ class rand_txn;
   rand logic [3:0] addr;
   rand bit         we;
 
-  constraint low_bank_c { addr inside {[0:7]}; }
+  constraint low_bank_c { soft addr inside {[0:7]}; }
 endclass
 
 module rand_txn_tb;

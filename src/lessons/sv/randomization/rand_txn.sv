@@ -8,7 +8,8 @@ class rand_txn;
   //   rand bit         we
 
   // TODO: add a constraint named 'low_bank_c' that restricts addr to [0:7]
-  //   Hint: constraint low_bank_c { addr inside {[0:7]}; }
+  //   Hint: constraint low_bank_c { soft addr inside {[0:7]}; }
+  //   ('soft' lets an inline constraint in Scenario 2 override it)
 endclass
 
 module rand_txn_tb;

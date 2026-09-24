@@ -20,7 +20,6 @@ const KNOWN_FAILURES = {
   'sv/fsm run': `false "mem driven by always_ff" error on sram.sv: ${WASM_REBUILD}`,
   'sva/sequence-basics verify': 'Mox BMC crashes on an assert with a pass action (llhd.process handoff)',
   'sv/queues-arrays run': 'static initializer in the pop loop runs once (§6.21), so the loop never ends',
-  'sv/randomization run': 'hard low_bank_c conflicts with the inline high-bank constraint (§18.7)',
   'sva/formal-assume run': "assume on the design's state fails at the first edge (state is X)",
   'mlir/intro run': 'Run simulates the design module, not the @tb testbench, so no PASS is printed',
   'mlir/comb run': 'Run simulates the design module, not the @tb testbench, so no PASS is printed',

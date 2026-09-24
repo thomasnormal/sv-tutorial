@@ -26,13 +26,14 @@ endclass</pre>
   <text x="292" y="44" fill="#c17d2a" font-size="9">constraint_mode(0) → unlocks</text>
   <text x="10"  y="10" fill="#555" font-size="10" font-weight="bold">addr distribution</text>
 </svg>
-<pre>constraint low_bank_c  { addr inside {[0:7]};   }  // low 8 addresses
+<pre>constraint low_bank_c  { soft addr inside {[0:7]}; }  // low 8 addresses (default)
 constraint write_only  { we == 1;                }  // writes only
 constraint no_overlap  { !(addr == 4'd0 && we);  }  // never write address 0</pre>
 
 <h3>Inline override with <code>with</code></h3>
 <p>Add a temporary extra constraint at the call site without modifying the class:</p>
 <pre>void'(t.randomize() with { addr inside {[8:15]}; });  // high bank for this call only</pre>
+<p>Inline constraints are solved <em>together with</em> the class constraints, not instead of them. Had <code>low_bank_c</code> been an ordinary constraint, <code>[0:7]</code> and <code>[8:15]</code> could not both hold and <code>randomize()</code> would fail (return 0). Declaring it <code>soft</code> makes it a default: the solver drops it when it conflicts with a regular constraint such as the inline one.</p>
 
 <h3>Disabling constraints</h3>
 <p>Toggle a named constraint at runtime:</p>
@@ -42,7 +43,7 @@ t.low_bank_c.constraint_mode(1);  // re-enable</pre>
 <p>Open <code>rand_txn.sv</code> and complete three tasks:</p>
 <ol>
   <li>Declare <code>rand logic [3:0] addr</code> and <code>rand bit we</code>.</li>
-  <li>Add <code>constraint low_bank_c { addr inside {[0:7]}; }</code>.</li>
+  <li>Add <code>constraint low_bank_c { soft addr inside {[0:7]}; }</code>.</li>
   <li>In Scenario 2, call <code>t.randomize() with { addr inside {[8:15]}; }</code> and assert <code>addr >= 8</code>.</li>
 </ol>
 <blockquote><p>UVM's <code>uvm_sequence_item</code> uses the same mechanism. The sequence item you'll build in the UVM chapter is exactly this class — with <code>rand bit we</code>, <code>rand logic [3:0] addr</code>, and a <code>read_c</code> constraint — wired up to a driver that calls <code>randomize()</code> before each transaction.</p></blockquote>

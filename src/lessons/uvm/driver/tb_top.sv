@@ -29,7 +29,7 @@ module tb_top;
   mem_if mif(.clk(clk));
   sram dut(.clk(mif.clk), .we(mif.we), .addr(mif.addr), .wdata(mif.wdata), .rdata(mif.rdata));
   initial begin
-    uvm_top.finish_on_completion = 0;
+    uvm_root::get().set_finish_on_completion(0);
     uvm_config_db #(virtual mem_if)::set(null, "uvm_test_top.*", "vif", mif);
     run_test("driver_test");
     if (uvm_report_server::get_server().get_severity_count(UVM_ERROR) == 0)

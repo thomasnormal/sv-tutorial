@@ -6,7 +6,7 @@ import uvm_pkg::*;
 
 module tb_top;
   initial begin
-    uvm_top.finish_on_completion = 0;
+    uvm_root::get().set_finish_on_completion(0);
     run_test("mem_test_corner");
     if (uvm_report_server::get_server().get_severity_count(UVM_ERROR) == 0)
       $display("PASS");

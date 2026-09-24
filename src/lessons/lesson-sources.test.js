@@ -45,4 +45,15 @@ describe('lesson sources', () => {
     }
     expect(problems).toEqual([]);
   });
+
+  // IEEE 1800.2-2020 defines neither the uvm_top global nor a public
+  // finish_on_completion field; the portable API is
+  // uvm_root::get().set_finish_on_completion() (F.7.2.2, F.7.3.4).
+  // Xcelium's IEEE UVM rejects uvm_top with *E,CUVUNF.
+  it('use only IEEE 1800.2 uvm_root API', () => {
+    const offenders = SOURCES.filter(({ text }) =>
+      /\buvm_top\b|\.finish_on_completion\b/.test(text)
+    ).map(({ rel }) => rel);
+    expect(offenders).toEqual([]);
+  });
 });

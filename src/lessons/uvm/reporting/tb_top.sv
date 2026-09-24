@@ -4,7 +4,7 @@ import uvm_pkg::*;
 
 module tb_top;
   initial begin
-    uvm_top.finish_on_completion = 0;
+    uvm_root::get().set_finish_on_completion(0);
     run_test("my_test");
     $finish;
   end

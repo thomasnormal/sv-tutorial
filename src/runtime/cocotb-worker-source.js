@@ -380,9 +380,15 @@ self.onmessage = async function(event) {
     // the unconditional require('path') / require('fs') calls at module level).
     var simInMemFS = null;
     var simReady = false;
+    // An abort during an Asyncify rewind throws outside callMain, so
+    // Asyncify.whenDone() never settles; onAbort ends the run instead.
+    var simAborted = false;
+    var resolveSimAbort;
+    var simAbortPromise = new Promise(function(resolve) { resolveSimAbort = resolve; });
     self.Module = {
       noInitialRun: true,
       onRuntimeInitialized: function() { simReady = true; },
+      onAbort: function() { simAborted = true; resolveSimAbort(); },
       print:    function(line) { onLog(String(line)); },
       printErr: function(line) { onLog(String(line)); },
       locateFile: function(path) { return path.endsWith('.wasm') ? simWasmUrl : path; },
@@ -685,9 +691,9 @@ self.onmessage = async function(event) {
     }
     // If Asyncify triggered (currData is non-null after callMain), wait for the
     // full async simulation to complete before proceeding with cleanup.
-    if (typeof Asyncify !== 'undefined' && Asyncify.currData) {
+    if (typeof Asyncify !== 'undefined' && Asyncify.currData && !simAborted) {
       try {
-        await Asyncify.whenDone();
+        await Promise.race([Asyncify.whenDone(), simAbortPromise]);
       } catch(e) {
         if (!isExitException(e)) {
           onLog(String((e && e.message) || e));
@@ -705,7 +711,7 @@ self.onmessage = async function(event) {
       fsErr.split(/\r?\n/).forEach(function(line) { onLog(line); });
     }
 
-    self.postMessage({ type: 'result', ok: _testsOk, logs: logs });
+    self.postMessage({ type: 'result', ok: _testsOk && !simAborted, logs: logs });
 
   } catch(e) {
     self.postMessage({ type: 'result', ok: false, logs: [...logs, String((e && e.message) || e)] });

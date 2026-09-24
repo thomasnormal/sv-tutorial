@@ -12,7 +12,8 @@ module top(
     endcase
   end
 
-  assume property (@(posedge clk) rst |-> (state == 0));
+  // The environment holds reset during the first clock cycle.
+  initial assume property (@(posedge clk) rst);
   no_invalid: assert property (
     @(posedge clk) disable iff (rst) state != 2'd3);
 endmodule

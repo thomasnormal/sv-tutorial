@@ -12,6 +12,6 @@ module top(
     endcase
   end
 
-  // TODO: assume property — when rst is high, state must be 0 (constrains BMC's initial states)
+  // TODO: assume property — rst is high at the first clock edge (constrains BMC's initial states)
   // TODO: assert property — state 3 is never reached (disable during rst)
 endmodule

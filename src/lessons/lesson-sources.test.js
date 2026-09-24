@@ -56,4 +56,23 @@ describe('lesson sources', () => {
     ).map(({ rel }) => rel);
     expect(offenders).toEqual([]);
   });
+
+  // An assumption is a promise about the environment (§16.14.2), so it may
+  // only name the module's inputs. One on the design's own state is X at
+  // the first clock edge and fails in simulation.
+  it('assume only module inputs', () => {
+    const problems = [];
+    for (const { rel, text } of SOURCES.filter(({ rel }) => rel.endsWith('.sv'))) {
+      const inputs = new Set();
+      for (const m of text.matchAll(/\binput\b([\s\S]*?)(?=\b(?:input|output|inout)\b|\);)/g)) {
+        const decl = m[1].replace(/\/\/.*$/gm, '').replace(/\[[^\]]*\]/g, '');
+        for (const name of decl.match(/\b[A-Za-z_]\w*\b/g) ?? []) inputs.add(name);
+      }
+      for (const m of text.matchAll(/^[^\/\n]*\bassume\s+property\s*\(\s*@\([^)]*\)([^;]*)\);/gm)) {
+        const names = m[1].match(/\b[A-Za-z_]\w*\b/g) ?? [];
+        for (const name of names) if (!inputs.has(name)) problems.push(`${rel}: ${name}`);
+      }
+    }
+    expect(problems).toEqual([]);
+  });
 });

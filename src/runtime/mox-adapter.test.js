@@ -138,3 +138,42 @@ endmodule
     expect(args).not.toContain('--coverage-report');
   });
 });
+
+describe('MoxWasmAdapter.run without a mox-run artifact', () => {
+  // Mox does not build mox-run for wasm (tools/CMakeLists.txt gates it with
+  // `if(NOT EMSCRIPTEN)`), so a toolchain rebuilt from Mox has no mox-run.js.
+  // Plain SV lessons must still run through mox-verilog -> mox-sim.
+  it('falls back to mox-verilog + mox-sim when mox-run cannot load', async () => {
+    const calls = [];
+    const logs = [];
+    const adapter = createAdapterWithInvokeTool(async (toolName, request) => {
+      calls.push(toolName);
+      if (toolName === 'run') {
+        throw new Error('Failed to load tool script: http://localhost/mox/mox-run.js');
+      }
+      if (toolName === 'verilog') {
+        return {
+          exitCode: 0, stdout: '', stderr: '',
+          files: { '/workspace/out/design.llhd.mlir': 'hw.module @top() { hw.output }\n' }
+        };
+      }
+      return { exitCode: 0, stdout: 'PASS\n', stderr: '', files: {} };
+    });
+    const result = await adapter.run({
+      files: { '/src/top.sv': 'module top; initial $display("PASS"); endmodule\n' },
+      top: 'top',
+      onLog: (line) => logs.push(line)
+    });
+    expect(calls).toEqual(['run', 'verilog', 'sim']);
+    expect(result.ok).toBe(true);
+    expect(logs.join('\n')).toContain('mox-run is not available');
+
+    // Later runs skip the failed mox-run load.
+    calls.length = 0;
+    await adapter.run({
+      files: { '/src/top.sv': 'module top; initial $display("PASS"); endmodule\n' },
+      top: 'top'
+    });
+    expect(calls).toEqual(['verilog', 'sim']);
+  });
+});

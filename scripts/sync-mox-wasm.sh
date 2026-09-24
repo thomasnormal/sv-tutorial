@@ -16,7 +16,11 @@ UVM_SRC_DIR="${POSITIONAL[2]:-vendor/mox/lib/Runtime/uvm-core/src}"
 UVM_DST_DIR="$DST_DIR/uvm-core/src"
 UVM_MANIFEST_PATH="$DST_DIR/uvm-core/uvm-manifest.json"
 
-TOOLS=("mox-bmc" "mox-sim" "mox-verilog" "mox-lec" "mox-run")
+TOOLS=("mox-bmc" "mox-sim" "mox-verilog" "mox-lec")
+# mox-run is optional: Mox does not build it for wasm (tools/CMakeLists.txt
+# gates it with `if(NOT EMSCRIPTEN)`). Without it the adapter runs plain SV
+# lessons through mox-verilog -> mox-sim.
+RUN_TOOL="mox-run"
 # VPI-capable sim is a separate build target (Asyncify + VPI exports).
 # It is optional — warn if missing but do not abort.
 VPI_TOOL="mox-sim-vpi"
@@ -42,6 +46,17 @@ for tool in "${TOOLS[@]}"; do
   cp -f "$SRC_DIR/$tool.js" "$DST_DIR/$tool.js"
   cp -f "$SRC_DIR/$tool.wasm" "$DST_DIR/$tool.wasm"
 done
+
+if [ -f "$SRC_DIR/$RUN_TOOL.js" ] && [ -f "$SRC_DIR/$RUN_TOOL.wasm" ]; then
+  cp -f "$SRC_DIR/$RUN_TOOL.js" "$DST_DIR/$RUN_TOOL.js"
+  cp -f "$SRC_DIR/$RUN_TOOL.wasm" "$DST_DIR/$RUN_TOOL.wasm"
+  TOOLS+=("$RUN_TOOL")
+else
+  # Drop a stale mox-run from an older toolchain so it is not mixed with
+  # the tools copied above.
+  echo "Note: $RUN_TOOL not in $SRC_DIR — plain SV lessons will use mox-verilog + mox-sim" >&2
+  rm -f "$DST_DIR/$RUN_TOOL.js" "$DST_DIR/$RUN_TOOL.wasm"
+fi
 
 patch_callmain_export() {
   local js_path="$1"

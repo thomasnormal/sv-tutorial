@@ -329,6 +329,10 @@ function isRetryableSimAbortText(text) {
   return /Aborted\(/.test(value) || isWasmOomText(value);
 }
 
+function isToolLoadFailureText(text) {
+  return /^(Error: )?Failed to load tool script/.test(String(text || ''));
+}
+
 function isRetryableVerilogCrashText(text) {
   const value = String(text || '');
   return /memory access out of bounds|Malformed attribute storage object|Aborted\(/i.test(value);
@@ -1324,6 +1328,8 @@ export class MoxWasmAdapter {
     this.config = getMoxRuntimeConfig();
     this.ready = false;
     this._runController = null;
+    // Set once mox-run fails to load; plain SV then runs mox-verilog -> mox-sim.
+    this._runUnavailable = false;
   }
 
   cancel() {
@@ -1444,7 +1450,7 @@ export class MoxWasmAdapter {
       // ("mox-run design.sv --top top"). UVM (which needs the multi-strategy
       // compile retries below) and MLIR-source lessons keep the explicit
       // mox-verilog -> mox-sim pipeline.
-      if (simulate && svPaths.length > 0 && !useFullUvm) {
+      if (simulate && svPaths.length > 0 && !useFullUvm && !this._runUnavailable) {
         const compileRoots = compileRootSourcePaths(files).map((p) => normalizePath(p));
         // Rebuild a plain, structured-cloneable object (the incoming `files`
         // may be a reactive proxy that postMessage cannot clone).
@@ -1473,7 +1479,7 @@ export class MoxWasmAdapter {
           return { res, stream };
         };
 
-        let runRes;
+        let runRes = null;
         try {
           runRes = await runOnce(true);
           if (runRes.res.exitCode !== 0 && isRetryableSimAbortText(runRes.res.stderr)) {
@@ -1481,24 +1487,33 @@ export class MoxWasmAdapter {
           }
         } catch (error) {
           if (error?.name === 'AbortError') throw error;
-          if (!isRetryableSimAbortText(error?.message || error)) throw error;
-          emitLog('# mox-run: runtime abort with --trace-all; retrying without waveform capture');
-          runRes = await runOnce(false);
+          if (isToolLoadFailureText(error?.message || error)) {
+            // Mox does not build mox-run for wasm, so a toolchain rebuilt from
+            // Mox may lack it: fall through to mox-verilog -> mox-sim.
+            this._runUnavailable = true;
+            emitLog('# mox-run is not available in this toolchain build; using mox-verilog + mox-sim');
+          } else {
+            if (!isRetryableSimAbortText(error?.message || error)) throw error;
+            emitLog('# mox-run: runtime abort with --trace-all; retrying without waveform capture');
+            runRes = await runOnce(false);
+          }
         }
 
-        const { res } = runRes;
-        if (!runRes.stream.sawStream()) {
-          if (res.stdout) emitLog(`[stdout] ${res.stdout}`);
-          if (res.stderr) emitLog(`[stderr] ${res.stderr}`);
+        if (runRes) {
+          const { res } = runRes;
+          if (!runRes.stream.sawStream()) {
+            if (res.stdout) emitLog(`[stdout] ${res.stdout}`);
+            if (res.stderr) emitLog(`[stderr] ${res.stderr}`);
+          }
+          appendNonZeroExit(logs, 'mox-run', res.exitCode, emitLog);
+          const vcdText = fixLlhdVcdEncoding(removeInlinedPortsFromVcd(res.files?.[wavePath] || null));
+          if (typeof onStatus === 'function') onStatus('done');
+          return {
+            ok: res.exitCode === 0,
+            logs,
+            waveform: vcdText ? { path: wavePath, text: vcdText } : null
+          };
         }
-        appendNonZeroExit(logs, 'mox-run', res.exitCode, emitLog);
-        const vcdText = fixLlhdVcdEncoding(removeInlinedPortsFromVcd(res.files?.[wavePath] || null));
-        if (typeof onStatus === 'function') onStatus('done');
-        return {
-          ok: res.exitCode === 0,
-          logs,
-          waveform: vcdText ? { path: wavePath, text: vcdText } : null
-        };
       }
 
       if (svPaths.length > 0) {

@@ -130,31 +130,6 @@ function moduleNamesFromWorkspace(files) {
   return names;
 }
 
-function escapeRegExp(text) {
-  return String(text).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function pickMlirSourcePath(files, fallbackTop = '') {
-  const mlirPaths = mlirPathsFromWorkspace(files);
-  if (!mlirPaths.length) return null;
-
-  if (fallbackTop) {
-    const topPattern = new RegExp(`^\\s*hw\\.module\\s+@${escapeRegExp(fallbackTop)}\\b`, 'm');
-    const topMatchPath = mlirPaths.find((path) => {
-      const content = files[path];
-      return typeof content === 'string' && topPattern.test(content);
-    });
-    if (topMatchPath) return topMatchPath;
-
-    const basenameMatchPath = mlirPaths.find(
-      (path) => filename(path).replace(/\.[^.]+$/, '') === fallbackTop
-    );
-    if (basenameMatchPath) return basenameMatchPath;
-  }
-
-  return mlirPaths[0];
-}
-
 function needsUvmLibrary(files) {
   return Object.values(files).some((content) =>
     typeof content === 'string' &&
@@ -373,6 +348,10 @@ function pickTopModules(files, fallbackTop) {
     return ['tb_top'];
   }
   if (containsPath(files, 'tb.sv')) {
+    return ['tb'];
+  }
+  // MLIR lessons keep their testbench as `hw.module @tb` in a *_tb.mlir file.
+  if (mlirPathsFromWorkspace(files).some((path) => /^\s*hw\.module\s+@tb\b/m.test(files[path] || ''))) {
     return ['tb'];
   }
   if (fallbackTop && moduleNames.has(fallbackTop)) {
@@ -1628,9 +1607,11 @@ export class MoxWasmAdapter {
           return { ok: false, logs, waveform: null };
         }
       } else {
-        const mlirSourcePath = pickMlirSourcePath(files, top);
-        const rawMlir = mlirSourcePath ? files[mlirSourcePath] : null;
-        if (typeof rawMlir !== 'string' || !rawMlir.trim()) {
+        // Simulate all MLIR files as one module so a testbench can
+        // instantiate the design defined in another file.
+        const mlirSourcePaths = mlirPaths.filter((path) => typeof files[path] === 'string' && files[path].trim());
+        const rawMlir = mlirSourcePaths.map((path) => files[path]).join('\n');
+        if (!mlirSourcePaths.length) {
           if (typeof onStatus === 'function') onStatus('done');
           return {
             ok: false,
@@ -1638,7 +1619,7 @@ export class MoxWasmAdapter {
             waveform: null
           };
         }
-        emitLog(`# using MLIR source: ${mlirSourcePath}`);
+        emitLog(`# using MLIR source${mlirSourcePaths.length > 1 ? 's' : ''}: ${mlirSourcePaths.join(', ')}`);
         loweredMlir = addMissingLlhdSignalNames(rawMlir);
       }
 

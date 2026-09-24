@@ -80,6 +80,32 @@ describe('MoxWasmAdapter.run with MLIR workspace input', () => {
     const topArgIndex = calls[0].request.args.indexOf('--top');
     expect(calls[0].request.args[topArgIndex + 1]).toBe('dff_after');
   });
+
+  it('runs the @tb testbench together with the design it instantiates', async () => {
+    const calls = [];
+    const adapter = createAdapterWithInvokeTool(async (toolName, request) => {
+      calls.push({ toolName, request });
+      return { exitCode: 0, stdout: '', stderr: '', files: {} };
+    });
+
+    // Lessons keep the design in the focus file and the testbench in *_tb.mlir;
+    // the page passes the focus-derived top ('adder').
+    const result = await adapter.run({
+      files: {
+        '/src/adder.mlir': 'hw.module @adder(in %a : i8, in %b : i8, out sum : i8) {\n}\n',
+        '/src/adder_tb.mlir': 'hw.module @tb() {\n  %s = hw.instance "dut" @adder(a: %a: i8, b: %b: i8) -> (sum: i8)\n}\n'
+      },
+      top: 'adder'
+    });
+
+    expect(result.ok).toBe(true);
+    expect(calls).toHaveLength(1);
+    const { args, files } = calls[0].request;
+    expect(args[args.indexOf('--top') + 1]).toBe('tb');
+    const mlir = files['/workspace/out/design.llhd.mlir'];
+    expect(mlir).toContain('hw.module @adder');
+    expect(mlir).toContain('hw.module @tb');
+  });
 });
 
 describe('MoxWasmAdapter.run coverage collection', () => {

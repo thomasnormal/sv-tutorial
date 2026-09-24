@@ -8,7 +8,9 @@ test('MLIR intro: run executes via mox-sim without SV-source error', async ({ pa
 
   const logs = page.getByTestId('runtime-logs');
   await expect(logs).toContainText('$ mox-sim', { timeout: 120_000 });
-  await expect(logs).toContainText('# using MLIR source: /src/adder.mlir', { timeout: 120_000 });
+  await expect(logs).toContainText('# using MLIR sources: /src/adder.mlir, /src/adder_tb.mlir', { timeout: 120_000 });
+  await expect(logs).toContainText('--top tb');
+  await expect(logs).toContainText('PASS', { timeout: 120_000 });
   await expect(logs).not.toContainText('# no SystemVerilog source files found in workspace');
   await expect(logs).not.toContainText('# no SystemVerilog or MLIR source files found in workspace');
   await expect(logs).not.toContainText('exit code: 1');

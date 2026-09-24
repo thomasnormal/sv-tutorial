@@ -4,6 +4,7 @@
  * pipeline completes without errors.
  */
 import { test, expect } from '@playwright/test';
+import { runAndWait } from './lesson-run.js';
 
 async function goToLesson(page, chapterName, lessonName) {
   await page.goto('/');
@@ -123,20 +124,21 @@ test('immediate-assert: solution passes assertions', async ({ page }) => {
   await goToLesson(page, 'Your First Formal Assertion', 'Immediate Assertions');
 
   await clickSolve(page);
-  await page.getByTestId('verify-button').click();
-
-  const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ mox-bmc', { timeout: 120_000 });
-  await expect(logs).not.toContainText('exit code: 1');
+  // Check the log only once verification has finished; checking earlier
+  // passes before mox-bmc has reported anything.
+  const log = await runAndWait(page, 'verify-button');
+  expect(log).toContain('$ mox-bmc');
+  expect(log).not.toContain('exit code: 1');
 });
 
 test('sequence-basics: solution runs without errors', async ({ page }) => {
+  test.fail(true, 'Mox BMC crashes on an assert with a pass action (llhd.process handoff)');
   await goToLesson(page, 'Your First Formal Assertion', 'Sequences and Properties');
 
   await clickSolve(page);
-  await page.getByTestId('verify-button').click();
-
-  const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ mox-bmc', { timeout: 120_000 });
-  await expect(logs).not.toContainText('exit code: 1');
+  // Check the log only once verification has finished; checking earlier
+  // passes before mox-bmc has reported anything.
+  const log = await runAndWait(page, 'verify-button');
+  expect(log).toContain('$ mox-bmc');
+  expect(log).not.toContain('exit code: 1');
 });

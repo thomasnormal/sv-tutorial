@@ -90,9 +90,18 @@ test('surfer renders waveform when WebGL2 is available', async ({ page }) => {
 
 test('waveform toolbar buttons send correct commands', async ({ page }) => {
   // Intercept URL.createObjectURL so we can read the text of command blobs.
-  // sendCmd() creates a small text/plain blob for each toolbar action.
+  // sendCmd() creates a small text/plain blob for most toolbar actions; the
+  // transition buttons instead inject MoveCursorToTransition into Surfer, so
+  // also record the messages the Surfer iframe receives.
   await page.addInitScript(() => {
+    if (window !== window.top) {
+      window.addEventListener('message', (event) => {
+        if (event.data?.command === 'InjectMessage') window.top._injected?.push(JSON.parse(event.data.message));
+      });
+      return;
+    }
     window._cmdTexts = [];
+    window._injected = [];
     const orig = URL.createObjectURL.bind(URL);
     URL.createObjectURL = function (blob) {
       const url = orig(blob);
@@ -108,11 +117,13 @@ test('waveform toolbar buttons send correct commands', async ({ page }) => {
 
   const waveFrame = page.getByTestId('waveform-frame-wrapper');
   await expect(waveFrame).toHaveAttribute('data-wave-state', 'ready', { timeout: 30_000 });
+  // Transition buttons act on the auto-selected signal.
+  await expect(waveFrame).not.toHaveAttribute('data-selected-signal', '', { timeout: 10_000 });
 
   const buttons = [
     { title: 'Go to start',         cmd: 'goto_start' },
-    { title: 'Previous transition', cmd: 'transition_previous' },
-    { title: 'Next transition',     cmd: 'transition_next' },
+    { title: 'Previous transition', transition: { next: false } },
+    { title: 'Next transition',     transition: { next: true } },
     { title: 'Go to end',           cmd: 'goto_end' },
     { title: 'Zoom out',            cmd: 'zoom_out' },
     { title: 'Zoom in',             cmd: 'zoom_in' },
@@ -125,25 +136,31 @@ test('waveform toolbar buttons send correct commands', async ({ page }) => {
   }
 
   // Clear blobs captured during VCD load + initial scope/zoom_fit command file.
-  await page.evaluate(() => { window._cmdTexts = []; });
+  await page.evaluate(() => { window._cmdTexts = []; window._injected = []; });
 
-  // Click each button and verify it produces the correct command string.
-  for (const { title, cmd } of buttons) {
+  // Click each button and verify it produces the correct command.
+  for (const { title, cmd, transition } of buttons) {
     await page.getByTitle(title).click();
-    await expect.poll(
-      () => page.evaluate(() => window._cmdTexts),
-      { timeout: 3_000, message: `Expected command blob "${cmd}" for button "${title}"` }
-    ).toContainEqual(cmd + '\n');
-    await page.evaluate(() => { window._cmdTexts = []; });
+    if (cmd) {
+      await expect.poll(
+        () => page.evaluate(() => window._cmdTexts),
+        { timeout: 3_000, message: `Expected command blob "${cmd}" for button "${title}"` }
+      ).toContainEqual(cmd + '\n');
+    } else {
+      await expect.poll(
+        () => page.evaluate(() => window._injected.map((m) => m.MoveCursorToTransition).filter(Boolean)),
+        { timeout: 3_000, message: `Expected MoveCursorToTransition for button "${title}"` }
+      ).toContainEqual(expect.objectContaining(transition));
+    }
+    await page.evaluate(() => { window._cmdTexts = []; window._injected = []; });
   }
 });
 
 test('transition_next selects earliest-transitioning signal, not alphabetically first', async ({ page }) => {
-  // Surfer displays signals alphabetically. For priority-enc the order is:
-  //   grant (idx 0), req (idx 1), valid (idx 2)
-  // But req and valid both transition at t=1 (the first simulation step), while
-  // grant only changes at t=2. So the auto-selected signal should be req or valid,
-  // NOT grant — otherwise transition_next from t=0 skips to a later timestamp.
+  // Surfer displays signals alphabetically, so clk comes first for the
+  // counter lesson. But clk first changes at 5 ns, while en changes at 0 ns.
+  // So the auto-selected signal should be en, NOT clk — otherwise
+  // transition_next from t=0 skips to a later timestamp.
   await page.goto('/surfer/index.html#dev');
   const crashBanner = page.getByText('Sorry, Surfer crashed');
   let surferBootCrash = false;
@@ -155,7 +172,7 @@ test('transition_next selects earliest-transitioning signal, not alphabetically 
   }
   test.skip(surferBootCrash, 'Surfer crashes in this Playwright environment (WebGL unavailable)');
 
-  await page.goto('/lesson/sv/priority-enc');
+  await page.goto('/lesson/sv/counter');
   await page.evaluate(() => {
     for (const key of Object.keys(localStorage)) {
       if (key.startsWith('svt:')) localStorage.removeItem(key);
@@ -174,11 +191,11 @@ test('transition_next selects earliest-transitioning signal, not alphabetically 
 
   // data-selected-signal is set when SetItemSelected succeeds in the polling loop.
   // If it stays empty, id_of_name never returned a valid item (signals weren't ready).
-  // If it equals 'grant', the wrong signal was selected (alphabetically first ≠ earliest).
+  // If it equals 'clk', the wrong signal was selected (alphabetically first ≠ earliest).
   await expect.poll(
     () => waveFrame.getAttribute('data-selected-signal'),
-    { timeout: 10_000, message: 'data-selected-signal should be set to a transitioning signal (not grant or empty)' }
-  ).toMatch(/^(req|valid)$/);
+    { timeout: 10_000, message: 'data-selected-signal should be set to the earliest-transitioning signal (not clk or empty)' }
+  ).toBe('en');
 });
 
 test('open-in-surfer button opens Surfer popup and sends VCD', async ({ page }) => {
@@ -246,9 +263,9 @@ test('concurrent-sim SVA assertion signal appears in VCD', async ({ page }) => {
   await page.getByTestId('solve-button').click();
   await page.getByTestId('run-button').click();
 
-  // The testbench has a missing-grant scenario that fires the assertion.
-  // mox-sim exits with code 1 on assertion failure — that is expected and correct.
-  await expect(logs).toContainText('SVA assertion failed', { timeout: 90_000 });
+  // The testbench has a missing-grant scenario that fires the assertion, whose
+  // else action block reports it with $error (the run still completes).
+  await expect(logs).toContainText('req was not followed by gnt within 3 cycles!', { timeout: 90_000 });
   await expect(logs).not.toContainText('# mox-verilog exit code: 1');
 
   // The Waves tab should appear (VCD was produced).

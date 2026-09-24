@@ -19,7 +19,6 @@ const KNOWN_FAILURES = {
   'sv/tasks-functions run': `mox-run "memory access out of bounds": ${WASM_REBUILD}`,
   'sv/fsm run': `false "mem driven by always_ff" error on sram.sv: ${WASM_REBUILD}`,
   'sva/sequence-basics verify': 'Mox BMC crashes on an assert with a pass action (llhd.process handoff)',
-  'sv/queues-arrays run': 'static initializer in the pop loop runs once (§6.21), so the loop never ends',
   'sva/formal-assume run': "assume on the design's state fails at the first edge (state is X)",
   'mlir/intro run': 'Run simulates the design module, not the @tb testbench, so no PASS is printed',
   'mlir/comb run': 'Run simulates the design module, not the @tb testbench, so no PASS is printed',

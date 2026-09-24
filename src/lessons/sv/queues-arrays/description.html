@@ -39,8 +39,8 @@
 </svg>
 
 <h3>Dynamic arrays</h3>
-<pre>type name[];       // declared, but empty (null handle)
-name = new[n];     // allocate n elements — all zeroed
+<pre>type name[];       // declared, but empty (size 0)
+name = new[n];     // allocate n elements, each set to its type's default ('x for logic, 0 for bit/int)
 name.size()        // returns current length
 name[i]            // index access, same as static array</pre>
 

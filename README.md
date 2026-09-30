@@ -99,6 +99,10 @@ In `.env` (copy `.env.example`):
 - Runtime uses a real 2-stage wasm toolchain by default:
   - `mox-verilog` lowers SV/SVA/UVM source to MLIR
   - `mox-sim` executes lowered MLIR and emits VCD for the waveform pane
+- UVM lessons are currently qualified in interpreter mode only; `--mode=compile`
+  does not yet run the UVM-bench rows. Native receipt runs therefore report the
+  interpreter as the supported UVM path until the corresponding Mox AOT rows
+  land.
 - Tool invocations run in isolated Web Workers to avoid global Emscripten symbol collisions and re-entry issues.
 - UI includes a `self-check` action in the Runtime panel to validate artifact compatibility.
 - Waves tab appears automatically only when a valid VCD is generated.

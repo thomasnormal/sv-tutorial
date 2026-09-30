@@ -83,6 +83,10 @@ export const parts = [
       { title: 'State Machines',        lessons: [L('sv/enums'), L('sv/fsm')] },
       { title: 'Covergroups',            lessons: [L('sv/covergroup-basics'), L('sv/coverpoint-bins'), L('sv/cross-coverage')] },
       { title: 'Testbench Essentials',  lessons: [L('sv/classes'), L('sv/queues-arrays'), L('sv/fork-join'), L('sv/randomization')] },
+      { title: 'Macro Formal Continuations', lessons: [L('sv/macro-formal-continuation')] },
+      { title: 'Packed-Struct Field References', lessons: [L('sv/struct-field-refs')] },
+      { title: 'Indexed Part-Select Bounds', lessons: [L('sv/indexed-part-select')] },
+      { title: 'Nested Child Input Propagation', lessons: [L('sv/nested-child-input')] },
     ],
   },
   {

@@ -18,6 +18,26 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 
 ## Part 1 — SystemVerilog Basics
 
+### Chapter: Macro Formal Continuations (September 2026)
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `sv/macro-formal-continuation` | Macro Formal Continuations | ✅ | — | `sv/classes` | continued `` `define `` text, formal arguments, token pasting |
+
+### Chapter: Packed-Struct Field References (September 2026)
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `sv/struct-field-refs` | Packed-Struct Field References | ✅ | — | `sv/packed-structs` | named access to a packed struct through module connections |
+
+### Chapter: Indexed Part-Select Bounds (September 2026)
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `sv/indexed-part-select` | Indexed Part-Select Bounds | ✅ | — | `sv/data-types` | `+:` indexed selects and four-state out-of-range reads |
+
+### Chapter: Nested Child Input Propagation (September 2026)
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `sv/nested-child-input` | Nested Child Input Propagation | ✅ | — | `sv/always-ff` | live child input connections across nested modules |
+
 ### Chapter: Introduction
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|

@@ -1,0 +1,37 @@
+{
+  "slug": "sv/covergroup-basics",
+  "title": "covergroup and coverpoint",
+  "runner": "sim",
+  "mode": "interpret",
+  "command": [
+    "taskset",
+    "-c",
+    "0-79",
+    "timeout",
+    "--kill-after=3s",
+    "30s",
+    "/var/tmp/thomas-ahle/wt/landing/build-dev-fast/bin/mox-run",
+    "--single-unit",
+    "--timescale=1ns/1ns",
+    "--mode=interpret",
+    "--max-wall-ms=25000",
+    "--top",
+    "cov_intro",
+    "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/covergroup-basics/cov_intro.sol.sv",
+    "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/covergroup-basics/sram.sv"
+  ],
+  "exit": 0,
+  "elapsed_s": 0.046,
+  "first_lines": [
+    "[mox-sim] Found 4 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 1 hw.instance ops (out of 150 total ops) in module",
+    "[mox-sim] Registered 12 LLHD signals and 5 LLHD processes/initial blocks",
+    "[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0",
+    "[mox-sim] Starting simulation",
+    "PASS",
+    "[mox-sim] Simulation finished at time 196000000 fs",
+    "[mox-sim] Simulation completed at time 196000000 fs",
+    "[mox-sim] Simulation completed"
+  ],
+  "pass": true,
+  "log": "/var/tmp/thomas-ahle/sv-tutorial/artifacts/tutorial/receipts/sv__covergroup-basics__interpret.log"
+}

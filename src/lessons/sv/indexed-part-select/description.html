@@ -1,0 +1,9 @@
+<p>An indexed part-select chooses a fixed-width slice from a run-time base index. The <code>+: width</code> form starts at the base and counts upward through the packed vector.</p>
+
+<h2>Template</h2>
+<pre>&lt;vector&gt;[&lt;base&gt; +: &lt;constant width&gt;]
+&lt;vector&gt;[&lt;base&gt; -: &lt;constant width&gt;]</pre>
+
+<p>The first check uses a run-time base and selects four bits entirely inside the vector. The second selection is completely outside the declared range, so the four-state result is unknown. Keeping the example to these unambiguous cases makes the lesson agree across Mox and Xcelium while the rule remains visible.</p>
+
+<blockquote><p>IEEE 1800-2023 §11.5.1 defines indexed part-selects and requires a positive constant width. A partially out-of-range read returns <code>x</code> for out-of-range bits and preserves in-range bits.</p></blockquote>

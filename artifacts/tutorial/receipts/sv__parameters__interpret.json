@@ -1,0 +1,35 @@
+{
+  "slug": "sv/parameters",
+  "title": "Parameters",
+  "runner": "sim",
+  "mode": "interpret",
+  "command": [
+    "taskset",
+    "-c",
+    "0-79",
+    "timeout",
+    "--kill-after=3s",
+    "30s",
+    "/var/tmp/thomas-ahle/wt/landing/build-dev-fast/bin/mox-run",
+    "--single-unit",
+    "--timescale=1ns/1ns",
+    "--mode=interpret",
+    "--max-wall-ms=25000",
+    "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/parameters/sram.sol.sv",
+    "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/parameters/tb.sv"
+  ],
+  "exit": 0,
+  "elapsed_s": 0.043,
+  "first_lines": [
+    "Using module 'tb' as top module",
+    "[mox-sim] Found 4 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 2 hw.instance ops (out of 150 total ops) in module",
+    "[mox-sim] Registered 24 LLHD signals and 8 LLHD processes/initial blocks",
+    "[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0",
+    "[mox-sim] Starting simulation",
+    "small[5] = a (expect a)",
+    "large[200] = beef (expect beef)",
+    "PASS"
+  ],
+  "pass": true,
+  "log": "/var/tmp/thomas-ahle/sv-tutorial/artifacts/tutorial/receipts/sv__parameters__interpret.log"
+}

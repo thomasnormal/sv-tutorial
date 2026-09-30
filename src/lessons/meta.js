@@ -24,6 +24,10 @@ export default {
   'sv/queues-arrays':        { title: 'Dynamic Arrays and Queues',                    focus: '/src/addr_buf.sv',  top: 'addr_buf_tb' },
   'sv/fork-join':            { title: 'Concurrent Processes: fork...join',            focus: '/src/concurrent.sv', top: 'concurrent_tb' },
   'sv/randomization':        { title: 'Constrained Randomization',                   focus: '/src/rand_txn.sv',  top: 'rand_txn_tb' },
+  'sv/macro-formal-continuation': { title: 'Macro Formal Continuations',             focus: '/src/macro_formal.sv', top: 'tb' },
+  'sv/struct-field-refs':     { title: 'Packed-Struct Field References',             focus: '/src/struct_field.sv', top: 'tb' },
+  'sv/indexed-part-select':   { title: 'Indexed Part-Select Bounds',                 focus: '/src/indexed_part_select.sv', top: 'tb' },
+  'sv/nested-child-input':    { title: 'Nested Child Input Propagation',              focus: '/src/nested_child_input.sv', top: 'tb' },
 
   // ── SystemVerilog Assertions ───────────────────────────────────────────────
   'sva/concurrent-sim':      { title: 'Concurrent Assertions in Simulation',          focus: '/src/monitor.sv',         runner: null },

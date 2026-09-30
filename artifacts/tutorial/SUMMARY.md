@@ -8,7 +8,7 @@ install OS dependencies without sudo, but an existing Chromium ran the focused
 tests. The new findings and receipts are recorded at the top of
 `artifacts/tutorial/broken-census.md` and `artifacts/tutorial/content-census.md`.
 
-Branch `fleet/tutorial-fixes` (from main 1d90d97; 16 commits already pushed to main at `24175be`). Each commit fixes one issue and adds a vitest or e2e test that
+Branch `fleet/tutorial-fixes` starts at `origin/main` (`24175be`). Each fix adds a vitest or e2e test that
 fails before the commit and passes after it. The complete findings are in `broken-census.md` (things that break)
 and `content-census.md` (things that are wrong against IEEE 1800-2023 / 1800.2-2020).
 
@@ -87,6 +87,23 @@ One commit per issue, each with the test that fails before it and passes after:
 | `a8dcd88` | waveform: count changes at the dump time when picking the focused signal | `src/lib/vcd.test.js`; toolbar and transition_next e2e |
 | `46c7eed` | e2e: update the stale waveform and formal checks | `e2e/waveform.spec.js`, `e2e/lessons.spec.js` |
 | `a10a082` | e2e: the QA waits for hydration before clicking (a lost Run click flaked 1 of 90) | reproduced by delaying the app's JS 1.5 s |
+
+### Landed capability chapters
+
+Added four one-lesson chapters for capabilities landed in Mox by
+`bcdf57717c1` on September 30, 2026. The later `36b040f6190` UDP startup-input
+change is intentionally not documented because it is not in the coordinator's
+current tutorial baseline.
+
+| Lesson | IEEE reference | Mox native | Xcelium/refdiff | Evidence |
+|---|---|---|---|---|
+| `sv/macro-formal-continuation` | §22.5.1 | starter FAIL; solution PASS in interpreter and compile modes | solution PASS; output equal | `artifacts/tutorial/capability-receipts/*macro-formal-continuation*` |
+| `sv/struct-field-refs` | §7.2.1 | starter FAIL; solution PASS in interpreter and compile modes | solution PASS; output equal | `artifacts/tutorial/capability-receipts/*struct-field-refs*` |
+| `sv/indexed-part-select` | §11.5.1 | starter FAIL; solution PASS in interpreter and compile modes | solution PASS; output equal | `artifacts/tutorial/capability-receipts/*indexed-part-select*` |
+| `sv/nested-child-input` | §§23.2.2, 9.4.2 | starter FAIL; solution PASS in interpreter and compile modes | solution PASS; output equal | `artifacts/tutorial/capability-receipts/*nested-child-input*` |
+
+The capability receipt summaries are in
+`artifacts/tutorial/capability-receipts/{summary,final-summary}.tsv`.
 
 ## WASM rebuild (done locally, NOT published; release `mox-wasm` is unchanged)
 Built with emsdk 4.0.21 from Mox main `9c5418532b9` (and landing `ea0fcd2`): mox-verilog, mox-sim, mox-bmc and

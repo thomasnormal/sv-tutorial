@@ -1,0 +1,17 @@
+Using module 'tb' as top module
+[mox-sim] Found 2 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 1 hw.instance ops (out of 48 total ops) in module
+[mox-sim] Registered 7 LLHD signals and 3 LLHD processes/initial blocks
+[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0
+[mox-sim] Starting simulation
+sum = 42
+PASS
+[mox-sim] Simulation completed at time 1000000 fs
+[mox-sim] Simulation completed
+mox-run wall guards: compile=25000ms simulation=disabled
+[mox-run] parse (6ms, total: 6ms)
+[mox-run] lower (4ms, total: 10ms)
+[mox-run] simulate (0ms, total: 11ms)
+[mox-sim] Auto-enabling --skip-passes for module marked mox.sim.preprocessed
+[mox-sim] Stage: passes (prev: 0ms, total: 0ms)
+[mox-sim] Stage: init (prev: 0ms, total: 0ms)
+[mox-sim] Stage: run (prev: 1ms, total: 1ms)

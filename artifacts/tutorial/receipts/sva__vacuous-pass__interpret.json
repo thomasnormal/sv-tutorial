@@ -1,0 +1,35 @@
+{
+  "slug": "sva/vacuous-pass",
+  "title": "Vacuous Pass",
+  "runner": "sim",
+  "mode": "interpret",
+  "command": [
+    "taskset",
+    "-c",
+    "0-79",
+    "timeout",
+    "--kill-after=3s",
+    "30s",
+    "/var/tmp/thomas-ahle/wt/landing/build-dev-fast/bin/mox-run",
+    "--single-unit",
+    "--timescale=1ns/1ns",
+    "--mode=interpret",
+    "--max-wall-ms=25000",
+    "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/vacuous-pass/tb.sol.sv",
+    "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/vacuous-pass/vacuous.sol.sv"
+  ],
+  "exit": 0,
+  "elapsed_s": 0.042,
+  "first_lines": [
+    "Using module 'tb' as top module",
+    "[mox-sim] Found 2 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 1 hw.instance ops (out of 71 total ops) in module",
+    "[mox-sim] Registered 8 LLHD signals and 4 LLHD processes/initial blocks",
+    "[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0",
+    "[mox-sim] Starting simulation",
+    "req_gnt antecedent fired at t=65",
+    "done: rg_cover should have fired.",
+    "PASS"
+  ],
+  "pass": true,
+  "log": "/var/tmp/thomas-ahle/sv-tutorial/artifacts/tutorial/receipts/sva__vacuous-pass__interpret.log"
+}

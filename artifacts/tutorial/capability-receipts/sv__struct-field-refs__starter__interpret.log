@@ -1,0 +1,19 @@
+mox-run wall guards: compile=25000ms simulation=disabled
+[mox-run] parse (6ms, total: 6ms)
+[mox-run] lower (4ms, total: 11ms)
+[mox-run] simulate (0ms, total: 12ms)
+[mox-sim] Auto-enabling --skip-passes for module marked mox.sim.preprocessed
+[mox-sim] Stage: passes (prev: 0ms, total: 0ms)
+[mox-sim] Stage: init (prev: 0ms, total: 0ms)
+[mox-sim] Found 1 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 1 hw.instance ops (out of 51 total ops) in module
+[mox-sim] Registered 4 LLHD signals and 2 LLHD processes/initial blocks
+[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0
+[mox-sim] Stage: run (prev: 1ms, total: 2ms)
+[mox-sim] Starting simulation
+FAIL: got 00000000
+[mox-sim] sim.terminate triggered in process ID 2 at loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/struct-field-refs/struct_field.sv":23:5 to :13)
+[mox-sim] Simulation terminated at time 1000000 fs (success=true, verbose=true)
+[mox-sim] Main loop exit: shouldContinue()=false at time 1000000 fs, iter=2, deltas=1
+[mox-sim] Simulation finished at time 1000000 fs
+[mox-sim] Simulation completed at time 1000000 fs
+[mox-sim] Simulation completed

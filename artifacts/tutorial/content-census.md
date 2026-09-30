@@ -9,6 +9,21 @@ through `/var/tmp/thomas-ahle/fleet/bin/refdiff`; examples are bounded to 30 s
 and CPU affinity `0-79`. The browser cannot prove current native behaviour
 because the checked-in WASM predates the landing tip.
 
+## New landed-capability chapters
+
+These four short chapters correspond to capabilities present on Mox `origin/main`
+(`bcdf57717c1`) by September 30, 2026. They deliberately exclude the later
+landing-only UDP change at `36b040f6190`. Every solution passes Mox in both
+interpreter and compile mode and passes Xcelium through `refdiff`; every starter
+prints a failing check.
+
+| Lesson | Landed capability / Mox evidence | IEEE claim | Mox interpreter | Mox compile | Xcelium/refdiff | Fix |
+|---|---|---|---|---|---|---|
+| `sv/macro-formal-continuation` | `bcdf57717c1`, `test/Conversion/ImportVerilog/macro-formal-continuation.sv` | §22.5.1: backslash-newline continues macro text; formal arguments and token pasting are substituted before compilation. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS, output equal | added runnable macro exercise |
+| `sv/struct-field-refs` | `0585a62233b`, `test/mox-verilog/struct-extract-ref-module-level.sv` | §7.2.1: packed structs are vectors with named members; members can be selected by name. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS, output equal | added module-level packed-struct field exercise |
+| `sv/indexed-part-select` | `5a49d2b68cf`, `test/Tools/mox-sim/dyn-extract-unsigned-partial-runtime.sv` | §11.5.1: indexed part-select width is constant, base may vary, and a wholly out-of-range read is `x`. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS, output equal | uses a variable in-range base and unambiguous wholly out-of-range read |
+| `sv/nested-child-input` | `5fdce05081e`, `test/Tools/mox-sim/nested-child-input-propagation-runtime.sv` | §§23.2.2, 9.4.2: child inputs are connected expressions and clocked procedures sample them on edges. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS, output equal | added direct and nested sink propagation exercise |
+
 This census covers every lesson in `src/lessons/` (meta.js, 73 lessons) and CURRICULUM.md, checked against
 IEEE 1800-2023 (`spec/ieee-1800-2023.txt`) and IEEE 1800.2-2020 (UVM).
 

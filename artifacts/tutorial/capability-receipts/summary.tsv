@@ -1,0 +1,20 @@
+sv/macro-formal-continuation	starter	interpret	0	FAIL: macro expansion returned 2
+sv/macro-formal-continuation	starter	compile	0	FAIL: macro expansion returned 2
+sv/macro-formal-continuation	solution	interpret	0	PASS
+sv/macro-formal-continuation	solution	compile	0	PASS
+sv/macro-formal-continuation	solution	refdiff	0	{"source": "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/macro-formal-continuation/macro_formal.sol.sv", "sha256": "70bcc182fc6b32c4e8fac7eaee06196d845ffe8aed28318e592a8887a42224fd", "reference_cached": false, "reference": {"verdict": "PASS", "exit": 0, "final_status": "completed"}, "mox": {"verdict": "PASS", "exit": 0, "phase": "simulate", "final_status": "completed"}, "category": "both_pass", "output_equal": true, "equivalent": true, "metadata": {"_has_pass": true}, "build_dir": "/var/tmp/thomas-ahle/wt/landing/build-dev-fast", "artifacts": "/var/tmp/thomas-ahle/fleet/sv/capability-audit-ni7anw0j"} 
+sv/struct-field-refs	starter	interpret	0	FAIL: got 00000000
+sv/struct-field-refs	starter	compile	0	FAIL: got 00000000
+sv/struct-field-refs	solution	interpret	0	PASS
+sv/struct-field-refs	solution	compile	0	PASS
+sv/struct-field-refs	solution	refdiff	0	{"source": "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/struct-field-refs/struct_field.sol.sv", "sha256": "4eb7d716460e54ad94242d81f5f1d9c5fb67d1565c250a62ca6ec2d251d43555", "reference_cached": false, "reference": {"verdict": "PASS", "exit": 0, "final_status": "completed"}, "mox": {"verdict": "PASS", "exit": 0, "phase": "simulate", "final_status": "completed"}, "category": "both_pass", "output_equal": true, "equivalent": true, "metadata": {"_has_pass": true}, "build_dir": "/var/tmp/thomas-ahle/wt/landing/build-dev-fast", "artifacts": "/var/tmp/thomas-ahle/fleet/sv/capability-audit-_vbq7z4i"} 
+sv/indexed-part-select	starter	interpret	0	FAIL: inside=1010 partial=xx11
+sv/indexed-part-select	starter	compile	0	FAIL: inside=1010 partial=xx11
+sv/indexed-part-select	solution	interpret	0	PASS
+sv/indexed-part-select	solution	compile	0	PASS
+sv/indexed-part-select	solution	refdiff	1	{"source": "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/indexed-part-select/indexed_part_select.sol.sv", "sha256": "e49eb0d557b2b52f482f421a1fdf295e0a61b2d8a3ae0debe9dc7ac604f00137", "reference_cached": false, "reference": {"verdict": "FAIL", "exit": 0, "final_status": "fail"}, "mox": {"verdict": "PASS", "exit": 0, "phase": "simulate", "final_status": "completed"}, "category": "reference_only_fail", "output_equal": false, "equivalent": false, "metadata": {"_has_pass": true}, "build_dir": "/var/tmp/thomas-ahle/wt/landing/build-dev-fast", "artifacts": "/var/tmp/thomas-ahle/fleet/sv/capability-audit-rzhk1mw5"} 
+sv/nested-child-input	starter	interpret	0	PASS
+sv/nested-child-input	starter	compile	0	PASS
+sv/nested-child-input	solution	interpret	0	PASS
+sv/nested-child-input	solution	compile	0	PASS
+sv/nested-child-input	solution	refdiff	0	{"source": "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/nested-child-input/nested_child_input.sol.sv", "sha256": "353b4404864303525e4a800307026c25dbde4a0a27faee79c3c56d319afbaa62", "reference_cached": false, "reference": {"verdict": "PASS", "exit": 0, "final_status": "completed"}, "mox": {"verdict": "PASS", "exit": 0, "phase": "simulate", "final_status": "completed"}, "category": "both_pass", "output_equal": true, "equivalent": true, "metadata": {"_has_pass": true}, "build_dir": "/var/tmp/thomas-ahle/wt/landing/build-dev-fast", "artifacts": "/var/tmp/thomas-ahle/fleet/sv/capability-audit-61tngi8f"} 

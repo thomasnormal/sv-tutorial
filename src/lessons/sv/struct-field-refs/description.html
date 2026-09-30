@@ -1,0 +1,15 @@
+<p>A packed struct is one vector with named slices. That makes it useful at module boundaries: a child can read one field while the parent drives the complete value.</p>
+
+<h2>Template</h2>
+<pre>typedef struct packed {
+    logic [N:0] &lt;field&gt;;
+    logic [M:0] &lt;field&gt;;
+} &lt;name&gt;_t;
+
+module &lt;child&gt;(input &lt;name&gt;_t src);
+    assign &lt;output&gt; = src.&lt;field&gt;;
+endmodule</pre>
+
+<p>The driver reads only <code>exp_bits</code> from the packed struct and drives that field on the destination struct. The testbench changes the source field and checks the connected field after one time step.</p>
+
+<blockquote><p>IEEE 1800-2023 §7.2.1 says a packed struct is treated as one vector, with the first declared member as the most-significant member. Its members can still be selected by name.</p></blockquote>

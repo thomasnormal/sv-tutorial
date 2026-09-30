@@ -1,0 +1,34 @@
+{
+  "slug": "sva/until",
+  "title": "until and s_until",
+  "runner": "bmc",
+  "mode": "interpret",
+  "command": [
+    "taskset",
+    "-c",
+    "0-79",
+    "timeout",
+    "--kill-after=3s",
+    "30s",
+    "/var/tmp/thomas-ahle/wt/landing/build-dev-fast/bin/mox-run",
+    "--single-unit",
+    "--timescale=1ns/1ns",
+    "--mode=interpret",
+    "--max-wall-ms=25000",
+    "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/until/hold_check.sol.sv"
+  ],
+  "exit": 0,
+  "elapsed_s": 0.037,
+  "first_lines": [
+    "Using module 'hold_check' as top module",
+    "[mox-sim] Found 0 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 0 hw.instance ops (out of 35 total ops) in module",
+    "[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0",
+    "[mox-sim] Starting simulation",
+    "[mox-sim] Simulation completed at time 0 fs",
+    "[mox-sim] Simulation completed",
+    "mox-run wall guards: compile=25000ms simulation=disabled",
+    "[mox-run] parse (5ms, total: 5ms)"
+  ],
+  "pass": false,
+  "log": "/var/tmp/thomas-ahle/sv-tutorial/artifacts/tutorial/receipts/sva__until__interpret.log"
+}

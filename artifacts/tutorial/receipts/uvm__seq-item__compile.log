@@ -1,0 +1,60 @@
+mox-run wall guards: compile=25000ms simulation=disabled
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/base/uvm_config_db_implementation.svh:375:26: warning: unknown character escape sequence [-Wunknown-escape-code]
+            separator = "\.(" ;
+                         ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/uvm_pkg.sv:57:2: note: included from here
+ `include "base/uvm_base.svh"
+ ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/base/uvm_base.svh:77:3: note: included from here
+  `include "base/uvm_config_db_implementation.svh"
+  ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/dpi/uvm_svcmd_dpi.svh:44:10: remark: DPI-C import 'uvm_dpi_get_next_arg_c' will use runtime stub (link with MooreRuntime)
+  return uvm_dpi_get_next_arg_c(init);
+         ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/dpi/uvm_regex.svh:80:13: remark: DPI-C import 'uvm_re_compexecfree' will use runtime stub (link with MooreRuntime)
+  success = uvm_re_compexecfree(re, str, deglob, retval);
+            ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/dpi/uvm_regex.svh:82:39: remark: DPI-C import 'uvm_re_buffer' will use runtime stub (link with MooreRuntime)
+    uvm_report_error("UVM/DPI/REGEX", uvm_re_buffer());
+                                      ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/dpi/uvm_regex.svh:91:10: remark: DPI-C import 'uvm_re_deglobbed' will use runtime stub (link with MooreRuntime)
+  return uvm_re_deglobbed(glob, 1);
+         ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/sequences/uvm_reg_mem_hdl_paths_seq.svh:168:18: remark: DPI-C import 'uvm_hdl_read' will use runtime stub (link with MooreRuntime)
+            if (!uvm_hdl_read(p_,d)) begin
+                 ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/sequences/uvm_reg_mem_hdl_paths_seq.svh:173:18: remark: DPI-C import 'uvm_hdl_check_path' will use runtime stub (link with MooreRuntime)
+            if (!uvm_hdl_check_path(p_)) begin
+                 ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/sequences/uvm_reg_mem_hdl_paths_seq.svh:205:17: remark: DPI-C import 'uvm_hdl_check_path' will use runtime stub (link with MooreRuntime)
+            if(!uvm_hdl_check_path(p_)) begin
+                ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/uvm_mem.svh:1952:17: remark: DPI-C import 'uvm_hdl_deposit' will use runtime stub (link with MooreRuntime)
+          ok &= uvm_hdl_deposit({hdl_concat.slices[j].path,"[", idx, "]"},rw.get_value(mem_idx));
+                ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/uvm_mem.svh:1959:17: remark: DPI-C import 'uvm_hdl_deposit' will use runtime stub (link with MooreRuntime)
+          ok &= uvm_hdl_deposit({hdl_concat.slices[j].path, "[", idx, "]"}, slice);
+                ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/uvm_mem.svh:1888:17: remark: DPI-C import 'uvm_hdl_read' will use runtime stub (link with MooreRuntime)
+          ok &= uvm_hdl_read(hdl_path, val);
+                ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/uvm_mem.svh:1894:17: remark: DPI-C import 'uvm_hdl_read' will use runtime stub (link with MooreRuntime)
+          ok &= uvm_hdl_read(hdl_path, slice);
+                ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/uvm_reg.svh:2605:15: remark: DPI-C import 'uvm_hdl_deposit' will use runtime stub (link with MooreRuntime)
+        repeat (hdl_concat.slices[j].size) begin
+              ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/uvm_reg.svh:2612:15: remark: DPI-C import 'uvm_hdl_deposit' will use runtime stub (link with MooreRuntime)
+    val &= (1 << m_n_bits)-1;
+              ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/uvm_reg.svh:2642:15: remark: DPI-C import 'uvm_hdl_read' will use runtime stub (link with MooreRuntime)
+                   input  uvm_sequence_base parent = null,
+              ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/uvm_reg.svh:2649:15: remark: DPI-C import 'uvm_hdl_read' will use runtime stub (link with MooreRuntime)
+[mox-run] parse (3749ms, total: 3749ms)
+[mox-run] lower (8826ms, total: 12576ms)
+[mox-run] aot-start (824ms, total: 13401ms)
+[mox-run] AOT compile log: /tmp/mox-scratch/a8e5ccd3bff512bd85be743cbbba161ae06504793c695db14b39d861ac39713b/session-06d250cff79d3c1fab4378c3f6092ac5898f2272710c8fef119e52124306b181/mox-run-aot-e62f74.log
+[mox-run] external AOT compile still running (5001 ms elapsed, stage: initial-process-setup-fork-prepass)
+[mox-run] external AOT compile still running (10004 ms elapsed, stage: clone-candidates)
+error: resource guard triggered: wall time 25012 ms exceeded limit 25000 ms (phase: mox-run frontend/AOT compile); aborting.

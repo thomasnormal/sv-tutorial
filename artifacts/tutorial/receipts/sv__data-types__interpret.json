@@ -1,0 +1,36 @@
+{
+  "slug": "sv/data-types",
+  "title": "Data Types",
+  "runner": "sim",
+  "mode": "interpret",
+  "command": [
+    "taskset",
+    "-c",
+    "0-79",
+    "timeout",
+    "--kill-after=3s",
+    "30s",
+    "/var/tmp/thomas-ahle/wt/landing/build-dev-fast/bin/mox-run",
+    "--single-unit",
+    "--timescale=1ns/1ns",
+    "--mode=interpret",
+    "--max-wall-ms=25000",
+    "--top",
+    "top",
+    "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/data-types/data_types.sol.sv"
+  ],
+  "exit": 0,
+  "elapsed_s": 0.046,
+  "first_lines": [
+    "[mox-sim] Found 1 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 0 hw.instance ops (out of 77 total ops) in module",
+    "[mox-sim] Registered 8 LLHD signals and 1 LLHD processes/initial blocks",
+    "[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0",
+    "[mox-sim] Starting simulation",
+    "count = -100  OK",
+    "data  = X     OK",
+    "mem[]  = {AB,12}  OK",
+    "PASS"
+  ],
+  "pass": true,
+  "log": "/var/tmp/thomas-ahle/sv-tutorial/artifacts/tutorial/receipts/sv__data-types__interpret.log"
+}

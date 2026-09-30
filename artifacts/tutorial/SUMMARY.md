@@ -115,7 +115,9 @@ page for the current AOT census. Its browser run is interpreter-backed; native
 Mox `--mode=compile` passes the solution, while the S4 receipt for the five
 frozen UVM rows is honestly `0/5` with all rows classified `HELD`. The chapter
 and durable receipts are in `src/lessons/sv/compile-mode-status/` and
-`artifacts/tutorial/compile-mode-status/`.
+`artifacts/tutorial/compile-mode-status/`. The differential receipts bind
+their source hashes to the committed fixtures and preserve the refdiff cache
+keys; `src/lessons/landed-capabilities.test.js` guards that identity.
 
 ## WASM rebuild (done locally, NOT published; release `mox-wasm` is unchanged)
 Built with emsdk 4.0.21 from Mox main `9c5418532b9` (and landing `ea0fcd2`): mox-verilog, mox-sim, mox-bmc and

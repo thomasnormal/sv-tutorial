@@ -95,4 +95,24 @@ describe('landed Mox capability lessons and status pages', () => {
     expect(description).toContain('daily.sh d3');
     expect(description).toContain('pinned WASM');
   });
+
+  it('binds compile-mode refdiff receipts to committed source blobs', () => {
+    const dir = path.join(root, 'sv/compile-mode-status');
+    for (const [variant, filename] of [
+      ['starter', 'compile_mode_status.sv'],
+      ['solution', 'compile_mode_status.sol.sv']
+    ]) {
+      const sourcePath = path.join(dir, filename);
+      const sourceHash = createHash('sha256')
+        .update(readFileSync(sourcePath))
+        .digest('hex');
+      const receipt = JSON.parse(readFileSync(
+        path.resolve(process.cwd(), `artifacts/tutorial/compile-mode-status/${variant}-refdiff.json`),
+        'utf8'
+      ));
+      expect(receipt.source).toBe(sourcePath);
+      expect(receipt.sha256).toBe(sourceHash);
+      expect(receipt.refdiff_cache_key).toMatch(/^[0-9a-f]{64}$/);
+    }
+  });
 });

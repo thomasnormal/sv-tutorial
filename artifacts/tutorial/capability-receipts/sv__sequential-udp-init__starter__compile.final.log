@@ -1,11 +1,11 @@
 mox-run wall guards: compile=25000ms simulation=disabled
-[mox-run] parse (5ms, total: 5ms)
-[mox-run] lower (9ms, total: 15ms)
+[mox-run] parse (6ms, total: 6ms)
+[mox-run] lower (8ms, total: 15ms)
 [mox-run] aot-start (0ms, total: 15ms)
-[mox-run] AOT compile log: /tmp/mox-scratch/a8e5ccd3bff512bd85be743cbbba161ae06504793c695db14b39d861ac39713b/session-9a335a04332fb3d68d5e42546a1719d619215593b4876a221e8aae091fe2a91c/mox-run-aot-169638.log
-[mox-compile] Wrote /tmp/mox-scratch/a8e5ccd3bff512bd85be743cbbba161ae06504793c695db14b39d861ac39713b/session-9a335a04332fb3d68d5e42546a1719d619215593b4876a221e8aae091fe2a91c/mox-run-aot-412119.so (3 processes, 0 functions, 0 trampolines, 1.235077e-01s)
-[mox-run] aot-compile (141ms, total: 157ms)
-[mox-run] simulate (0ms, total: 157ms)
+[mox-run] AOT compile log: /tmp/mox-scratch/a8e5ccd3bff512bd85be743cbbba161ae06504793c695db14b39d861ac39713b/session-5dee83bd165b4d526cb72bb2889f9953609e90d60b3ef798a7c2f3b7686144de/mox-run-aot-217f72.log
+[mox-compile] Wrote /tmp/mox-scratch/a8e5ccd3bff512bd85be743cbbba161ae06504793c695db14b39d861ac39713b/session-5dee83bd165b4d526cb72bb2889f9953609e90d60b3ef798a7c2f3b7686144de/mox-run-aot-bb626c.so (3 processes, 0 functions, 0 trampolines, 1.158172e-01s)
+[mox-run] aot-compile (131ms, total: 147ms)
+[mox-run] simulate (0ms, total: 147ms)
 [mox-sim] Auto-enabling --skip-passes for module marked mox.sim.preprocessed
 [mox-sim] Stage: passes (prev: 0ms, total: 0ms)
 [mox-sim] aot-publication/v2 domain=module-loader-functions expected=0 accounted=0 positive=0 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:14a1ea4827eceb6099f752ac175f21d9feeed50ece269718c7050338ed779cdd

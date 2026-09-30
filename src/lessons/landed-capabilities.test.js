@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import meta from './meta.js';
@@ -55,5 +56,27 @@ describe('landed Mox capability lessons', () => {
     expect(description).toContain('§29.7');
     expect(receipts).toContain('sv/sequential-udp-init\tstarter\tinterpret\t0\tFAIL: initial q=0');
     expect(receipts).toContain('sv/sequential-udp-init\tsolution\trefdiff\t0\t');
+  });
+
+  it('binds sequential UDP refdiff receipts to committed source blobs', () => {
+    const dir = path.join(root, 'sv/sequential-udp-init');
+    for (const [variant, filename] of [
+      ['starter', 'sequential_udp.sv'],
+      ['solution', 'sequential_udp.sol.sv']
+    ]) {
+      const sourcePath = path.join(dir, filename);
+      const sourceHash = createHash('sha256')
+        .update(readFileSync(sourcePath))
+        .digest('hex');
+      const receipt = JSON.parse(readFileSync(
+        path.resolve(
+          process.cwd(),
+          `artifacts/tutorial/capability-receipts/sv__sequential-udp-init__${variant}__refdiff.final.txt`
+        ),
+        'utf8'
+      ));
+      expect(receipt.source).toBe(sourcePath);
+      expect(receipt.sha256).toBe(sourceHash);
+    }
   });
 });

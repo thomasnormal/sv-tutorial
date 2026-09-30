@@ -27,9 +27,15 @@ describe('landed Mox capability lessons', () => {
     const dir = path.join(root, 'sv/indexed-part-select');
     const source = readFileSync(path.join(dir, 'indexed_part_select.sv'), 'utf8');
     const description = readFileSync(path.join(dir, 'description.html'), 'utf8');
+    const receipts = readFileSync(
+      path.resolve(process.cwd(), 'artifacts/tutorial/capability-receipts/final-summary.tsv'),
+      'utf8'
+    );
     expect(source).toContain('base = 2;');
     expect(source).toContain("inside_slice !== 4'b1101");
     expect(description).toContain('completely out-of-range read');
     expect(description).not.toContain('A partially out-of-range read returns');
+    expect(receipts).toContain('sv/indexed-part-select\tstarter\tinterpret\t0\tFAIL: inside=0101 partial=xxxx');
+    expect(receipts).toContain('sv/indexed-part-select\tstarter\tcompile\t0\tFAIL: inside=0101 partial=xxxx');
   });
 });

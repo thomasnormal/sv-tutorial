@@ -29,6 +29,7 @@ export default {
   'sv/indexed-part-select':   { title: 'Indexed Part-Select Bounds',                 focus: '/src/indexed_part_select.sv', top: 'tb' },
   'sv/nested-child-input':    { title: 'Nested Child Input Propagation',              focus: '/src/nested_child_input.sv', top: 'tb' },
   'sv/sequential-udp-init':   { title: 'Sequential UDP Initialization',               focus: '/src/sequential_udp.sv', top: 'tb' },
+  'sv/compile-mode-status':    { title: 'Compile-Mode Status',                          focus: '/src/compile_mode_status.sv', top: 'tb' },
 
   // ── SystemVerilog Assertions ───────────────────────────────────────────────
   'sva/concurrent-sim':      { title: 'Concurrent Assertions in Simulation',          focus: '/src/monitor.sv',         runner: null },

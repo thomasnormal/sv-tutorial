@@ -88,6 +88,7 @@ export const parts = [
       { title: 'Indexed Part-Select Bounds', lessons: [L('sv/indexed-part-select')] },
       { title: 'Nested Child Input Propagation', lessons: [L('sv/nested-child-input')] },
       { title: 'Sequential UDP Initialization', lessons: [L('sv/sequential-udp-init')] },
+      { title: 'Compile-Mode Status', lessons: [L('sv/compile-mode-status')] },
     ],
   },
   {

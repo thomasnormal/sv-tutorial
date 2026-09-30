@@ -43,6 +43,11 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 |---|---|---|---|---|---|
 | `sv/sequential-udp-init` | Sequential UDP Initialization | ✅ | — | `sv/always-ff` | sequential UDP state, edge-sensitive tables, and output initialization |
 
+### Chapter: Compile-Mode Status (September 2026)
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `sv/compile-mode-status` | Compile-Mode Status | ✅ | — | `sv/modules-and-ports` | native `--mode=compile`, refusal vocabulary, and the S4 UVM qualification runner |
+
 ### Chapter: Introduction
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|

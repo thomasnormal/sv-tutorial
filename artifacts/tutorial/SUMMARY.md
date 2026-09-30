@@ -108,6 +108,15 @@ Their corrected-tip hashes, native/reference argv, and the final build/e2e
 receipt are recorded in
 `artifacts/tutorial/capability-receipts/PROVENANCE.md`.
 
+### Compile-mode status chapter
+
+`sv/compile-mode-status` is a runnable native compile smoke test plus a status
+page for the current AOT census. Its browser run is interpreter-backed; native
+Mox `--mode=compile` passes the solution, while the S4 receipt for the five
+frozen UVM rows is honestly `0/5` with all rows classified `HELD`. The chapter
+and durable receipts are in `src/lessons/sv/compile-mode-status/` and
+`artifacts/tutorial/compile-mode-status/`.
+
 ## WASM rebuild (done locally, NOT published; release `mox-wasm` is unchanged)
 Built with emsdk 4.0.21 from Mox main `9c5418532b9` (and landing `ea0fcd2`): mox-verilog, mox-sim, mox-bmc and
 mox-lec. Mox has no wasm target for mox-run (GAPS TUT-WASM-MOXRUN), so two more commits went in:

@@ -13,7 +13,7 @@ const capabilities = [
   ['sv/sequential-udp-init', 'sequential_udp']
 ];
 
-describe('landed Mox capability lessons', () => {
+describe('landed Mox capability lessons and status pages', () => {
   it('are registered with runnable simulation metadata', () => {
     for (const [slug, basename] of capabilities) {
       expect(meta[slug]?.runner ?? 'sim').toBe('sim');
@@ -78,5 +78,21 @@ describe('landed Mox capability lessons', () => {
       expect(receipt.source).toBe(sourcePath);
       expect(receipt.sha256).toBe(sourceHash);
     }
+  });
+
+  it('registers the compile-mode status chapter without claiming browser AOT', () => {
+    const slug = 'sv/compile-mode-status';
+    const dir = path.join(root, slug);
+    const description = readFileSync(path.join(dir, 'description.html'), 'utf8');
+    const source = readFileSync(path.join(dir, 'compile_mode_status.sv'), 'utf8');
+    const solution = readFileSync(path.join(dir, 'compile_mode_status.sol.sv'), 'utf8');
+    expect(meta[slug]?.runner ?? 'sim').toBe('sim');
+    expect(meta[slug]?.focus).toBe('/src/compile_mode_status.sv');
+    expect(source).toContain('assign sum = left - right;');
+    expect(solution).toContain('assign sum = left + right;');
+    expect(description).toContain('--mode=compile');
+    expect(description).toContain('0/5');
+    expect(description).toContain('daily.sh d3');
+    expect(description).toContain('pinned WASM');
   });
 });

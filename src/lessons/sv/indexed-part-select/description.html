@@ -6,4 +6,4 @@
 
 <p>The first check uses a run-time base and selects four bits entirely inside the vector. The second selection is completely outside the declared range, so the four-state result is unknown. Keeping the example to these unambiguous cases makes the lesson agree across Mox and Xcelium while the rule remains visible.</p>
 
-<blockquote><p>IEEE 1800-2023 §11.5.1 defines indexed part-selects and requires a positive constant width. A partially out-of-range read returns <code>x</code> for out-of-range bits and preserves in-range bits.</p></blockquote>
+<blockquote><p>IEEE 1800-2023 §11.5.1 defines indexed part-selects and requires a positive constant width. A completely out-of-range read returns <code>x</code>; a partially out-of-range read returns <code>x</code> only for its out-of-range bits.</p></blockquote>

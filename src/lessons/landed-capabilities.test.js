@@ -22,4 +22,14 @@ describe('landed Mox capability lessons', () => {
       expect(solution).toContain('$display("PASS")');
     }
   });
+
+  it('keeps the indexed-select starter unsolved and its range wording precise', () => {
+    const dir = path.join(root, 'sv/indexed-part-select');
+    const source = readFileSync(path.join(dir, 'indexed_part_select.sv'), 'utf8');
+    const description = readFileSync(path.join(dir, 'description.html'), 'utf8');
+    expect(source).toContain('base = 2;');
+    expect(source).toContain("inside_slice !== 4'b1101");
+    expect(description).toContain('completely out-of-range read');
+    expect(description).not.toContain('A partially out-of-range read returns');
+  });
 });

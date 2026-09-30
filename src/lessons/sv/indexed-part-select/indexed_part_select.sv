@@ -9,7 +9,7 @@ module tb;
     base = 2;
     inside_slice = data[base +: 4];
     partial_slice = data[8 +: 4];
-    if (inside_slice !== 4'b1010 || partial_slice !== 4'bxxxx)
+    if (inside_slice !== 4'b1101 || partial_slice !== 4'bxxxx)
       $display("FAIL: inside=%b partial=%b", inside_slice, partial_slice);
     else
       $display("PASS");

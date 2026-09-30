@@ -8,11 +8,11 @@ sv/struct-field-refs	starter	compile	0	FAIL: got 00000000
 sv/struct-field-refs	solution	interpret	0	PASS
 sv/struct-field-refs	solution	compile	0	PASS
 sv/struct-field-refs	solution	refdiff	0	{"source": "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/struct-field-refs/struct_field.sol.sv", "sha256": "4eb7d716460e54ad94242d81f5f1d9c5fb67d1565c250a62ca6ec2d251d43555", "reference_cached": true, "reference": {"verdict": "PASS", "exit": 0, "final_status": "completed"}, "mox": {"verdict": "PASS", "exit": 0, "phase": "simulate", "final_status": "completed"}, "category": "both_pass", "output_equal": true, "equivalent": true, "metadata": {"_has_pass": true}, "build_dir": "/var/tmp/thomas-ahle/wt/landing/build-dev-fast", "artifacts": "/var/tmp/thomas-ahle/fleet/sv/capability-audit-e9za9q_5"}
-sv/indexed-part-select	starter	interpret	0	PASS
-sv/indexed-part-select	starter	compile	0	PASS
+sv/indexed-part-select	starter	interpret	0	FAIL: inside=0101 partial=xxxx
+sv/indexed-part-select	starter	compile	0	FAIL: inside=0101 partial=xxxx
 sv/indexed-part-select	solution	interpret	0	PASS
 sv/indexed-part-select	solution	compile	0	PASS
-sv/indexed-part-select	solution	refdiff	0	{"source": "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/indexed-part-select/indexed_part_select.sol.sv", "sha256": "f1a2b57cbe76ce8b164718ecf8fe9b09d086b6b60bb201dcce7252b652d83e37", "reference_cached": true, "reference": {"verdict": "PASS", "exit": 0, "final_status": "completed"}, "mox": {"verdict": "PASS", "exit": 0, "phase": "simulate", "final_status": "completed"}, "category": "both_pass", "output_equal": true, "equivalent": true, "metadata": {"_has_pass": true}, "build_dir": "/var/tmp/thomas-ahle/wt/landing/build-dev-fast", "artifacts": "/var/tmp/thomas-ahle/fleet/sv/capability-audit-u38hyza2"}
+sv/indexed-part-select	solution	refdiff	0	{"source": "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/indexed-part-select/indexed_part_select.sol.sv", "sha256": "ece4013deb0c782d749812bba7586a9ea7dd9b2750bfa3747931782e4ea79c64", "reference_cached": false, "reference": {"verdict": "PASS", "exit": 0, "final_status": "completed"}, "mox": {"verdict": "PASS", "exit": 0, "phase": "simulate", "final_status": "completed"}, "category": "both_pass", "output_equal": true, "equivalent": true, "metadata": {"_has_pass": true}, "build_dir": "/var/tmp/thomas-ahle/wt/landing/build-dev-fast", "artifacts": "/var/tmp/thomas-ahle/fleet/sv/sv-harness-x0464xqr"}
 sv/nested-child-input	starter	interpret	0	FAIL: direct=1 nested=0
 sv/nested-child-input	starter	compile	0	FAIL: direct=1 nested=0
 sv/nested-child-input	solution	interpret	0	PASS

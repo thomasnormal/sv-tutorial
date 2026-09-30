@@ -33,6 +33,7 @@ for (const lesson of LESSONS) {
 
 // Lessons whose testbench deliberately violates the assertions it teaches.
 const EXPECTED_ASSERTION_FAILURES = {
+  'sva/concurrent-sim': ['req_gnt_check'],
   'sva/isunknown': ['we_a', 'addr_a', 'rdata_a']
 };
 

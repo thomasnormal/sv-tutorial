@@ -104,6 +104,9 @@ current tutorial baseline.
 
 The capability receipt summaries are in
 `artifacts/tutorial/capability-receipts/{summary,final-summary}.tsv`.
+Their corrected-tip hashes, native/reference argv, and the final build/e2e
+receipt are recorded in
+`artifacts/tutorial/capability-receipts/PROVENANCE.md`.
 
 ## WASM rebuild (done locally, NOT published; release `mox-wasm` is unchanged)
 Built with emsdk 4.0.21 from Mox main `9c5418532b9` (and landing `ea0fcd2`): mox-verilog, mox-sim, mox-bmc and

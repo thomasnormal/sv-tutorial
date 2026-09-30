@@ -1,19 +1,22 @@
 # Capability receipt provenance
 
-The corrected receipt bundle is pinned to tutorial commit
-`e096f9a814ad65cda0921c92c02ce070c9eb33c1` (the indexed-part-select starter
-calibration and its regression assertions). The bundle contains 42 files.
+The corrected receipt bundle contains 54 files and includes the sequential-UDP
+chapter validated against Mox landing tip `36b040f6190ce488d406ce49a1c5e0aafb85d6ac`.
+The tutorial's browser WASM remains the pinned release; it was not rebuilt.
 
 ## Immutable hashes
 
-- `final-summary.tsv`: `f6dd8c06383714e8ba95d2843cf03bfd40838338cb42cfb6d7a96c3bfe5dea6b`
-- Sorted `sha256sum` digest of the 42 receipt files in this directory,
-  excluding this provenance file: `f99454a7b7294b8b29d307333e6a56bb4ca7d07da284505701e24d2fab29033f`
+- `final-summary.tsv`: `aece85fd8dccb5db3f1c4004f47c2a1a0e10c214ab6c769969bd89e4711ecafc`
+- Sorted `sha256sum` digest of the 54 receipt files in this directory,
+  excluding this provenance file: `0d5e703cca3acd04b8539b5b3cef0e169e9fd1a199d0f6b47f8477f5617d7f4e`
 - Solution source hashes are recorded in each `refdiff` row of `final-summary.tsv`:
   `macro-formal-continuation` `70bcc182fc6b32c4e8fac7eaee06196d845ffe8aed28318e592a8887a42224fd`;
   `struct-field-refs` `4eb7d716460e54ad94242d81f5f1d9c5fb67d1565c250a62ca6ec2d251d43555`;
   `indexed-part-select` `ece4013deb0c782d749812bba7586a9ea7dd9b2750bfa3747931782e4ea79c64`;
   `nested-child-input` `353b4404864303525e4a800307026c25dbde4a0a27faee79c3c56d319afbaa62`.
+- Actual SHA-256 source hashes for the new UDP fixture are
+  `sequential_udp.sv` `8b4d8ad11e344f9dc8686bfb0dd7de116f9f6cf8820898f6b1e2350d2ba59557`
+  and `sequential_udp.sol.sv` `657718f5569a38a703a0a7795f34f317aac9f35bb83ae5f46b19c7220fa38540`.
 
 ## Native and reference argv
 
@@ -41,4 +44,5 @@ are the `*.final.txt` files beside the TSV summary.
 - `npm run test:e2e`: completed in 30.2 minutes with 175 passed and 53 failed;
   the failures are the existing pinned-browser-WASM/Mox limitations, including
   the expected macro, packed-struct, and nested-child rows that require a WASM
-  rebuild. Indexed part-select passed in the browser. No WASM rebuild was made.
+  rebuild. Indexed part-select passed in the browser. The sequential-UDP target
+  passed 1/1 against the pinned browser assets. No WASM rebuild was made.

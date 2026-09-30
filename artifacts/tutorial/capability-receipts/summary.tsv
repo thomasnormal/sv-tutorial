@@ -1,4 +1,10 @@
 sv/macro-formal-continuation	starter	interpret	0	FAIL: macro expansion returned 2
+sv/sequential-udp-init	starter	interpret	0	FAIL: initial q=0
+sv/sequential-udp-init	starter	compile	0	FAIL: initial q=0
+sv/sequential-udp-init	starter	refdiff	1	{"source": "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/sequential-udp-init/sequential_udp.sv", "sha256": "78175522a46f671de114db8b53687eae68987c36825d9a39ee0703da7406f928", "reference_cached": false, "reference": {"verdict": "FAIL", "exit": 0, "final_status": "fail"}, "mox": {"verdict": "FAIL", "exit": 0, "final_status": "fail"}, "category": "both_fail", "output_equal": true, "equivalent": false, "metadata": {"_has_pass": true}, "build_dir": "/var/tmp/thomas-ahle/wt/landing/build-dev-fast", "artifacts": "/var/tmp/thomas-ahle/fleet/sv/sv-harness-1koyq865"}
+sv/sequential-udp-init	solution	interpret	0	PASS
+sv/sequential-udp-init	solution	compile	0	PASS
+sv/sequential-udp-init	solution	refdiff	0	{"source": "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/sequential-udp-init/sequential_udp.sol.sv", "sha256": "55da9e6f94ce4318a4950db824caa71a0417f05dcf0e111a8745a1ffbcc6f4f1", "reference_cached": false, "reference": {"verdict": "PASS", "exit": 0, "final_status": "completed"}, "category": "both_pass", "output_equal": true, "equivalent": true, "metadata": {"_has_pass": true}, "build_dir": "/var/tmp/thomas-ahle/wt/landing/build-dev-fast", "artifacts": "/var/tmp/thomas-ahle/fleet/sv/sv-harness-lqdfskn_"}
 sv/macro-formal-continuation	starter	compile	0	FAIL: macro expansion returned 2
 sv/macro-formal-continuation	solution	interpret	0	PASS
 sv/macro-formal-continuation	solution	compile	0	PASS

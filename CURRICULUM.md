@@ -38,6 +38,11 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 |---|---|---|---|---|---|
 | `sv/nested-child-input` | Nested Child Input Propagation | ✅ | — | `sv/always-ff` | live child input connections across nested modules |
 
+### Chapter: Sequential UDP Initialization (September 2026)
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `sv/sequential-udp-init` | Sequential UDP Initialization | ✅ | — | `sv/always-ff` | sequential UDP state, edge-sensitive tables, and output initialization |
+
 ### Chapter: Introduction
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|

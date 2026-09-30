@@ -8,7 +8,8 @@ const capabilities = [
   ['sv/macro-formal-continuation', 'macro_formal'],
   ['sv/struct-field-refs', 'struct_field'],
   ['sv/indexed-part-select', 'indexed_part_select'],
-  ['sv/nested-child-input', 'nested_child_input']
+  ['sv/nested-child-input', 'nested_child_input'],
+  ['sv/sequential-udp-init', 'sequential_udp']
 ];
 
 describe('landed Mox capability lessons', () => {
@@ -37,5 +38,22 @@ describe('landed Mox capability lessons', () => {
     expect(description).not.toContain('A partially out-of-range read returns');
     expect(receipts).toContain('sv/indexed-part-select\tstarter\tinterpret\t0\tFAIL: inside=0101 partial=xxxx');
     expect(receipts).toContain('sv/indexed-part-select\tstarter\tcompile\t0\tFAIL: inside=0101 partial=xxxx');
+  });
+
+  it('calibrates the sequential UDP initializer exercise', () => {
+    const dir = path.join(root, 'sv/sequential-udp-init');
+    const starter = readFileSync(path.join(dir, 'sequential_udp.sv'), 'utf8');
+    const solution = readFileSync(path.join(dir, 'sequential_udp.sol.sv'), 'utf8');
+    const description = readFileSync(path.join(dir, 'description.html'), 'utf8');
+    const receipts = readFileSync(
+      path.resolve(process.cwd(), 'artifacts/tutorial/capability-receipts/final-summary.tsv'),
+      'utf8'
+    );
+    expect(starter).toContain("output reg q = 1'b0");
+    expect(solution).toContain("output reg q = 1'b1");
+    expect(description).toContain('§29.3.2');
+    expect(description).toContain('§29.7');
+    expect(receipts).toContain('sv/sequential-udp-init\tstarter\tinterpret\t0\tFAIL: initial q=0');
+    expect(receipts).toContain('sv/sequential-udp-init\tsolution\trefdiff\t0\t');
   });
 });

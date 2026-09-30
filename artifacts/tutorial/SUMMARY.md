@@ -90,10 +90,9 @@ One commit per issue, each with the test that fails before it and passes after:
 
 ### Landed capability chapters
 
-Added four one-lesson chapters for capabilities landed in Mox by
-`bcdf57717c1` on September 30, 2026. The later `36b040f6190` UDP startup-input
-change is intentionally not documented because it is not in the coordinator's
-current tutorial baseline.
+Added five one-lesson chapters for user-facing SystemVerilog capabilities
+landed in Mox between September 22 and September 30, 2026. The UDP chapter
+tracks landing tip `36b040f6190c`; the pinned browser WASM remains unchanged.
 
 | Lesson | IEEE reference | Mox native | Xcelium/refdiff | Evidence |
 |---|---|---|---|---|
@@ -101,6 +100,7 @@ current tutorial baseline.
 | `sv/struct-field-refs` | §7.2.1 | starter FAIL; solution PASS in interpreter and compile modes | solution PASS; output equal | `artifacts/tutorial/capability-receipts/*struct-field-refs*` |
 | `sv/indexed-part-select` | §11.5.1 | starter FAIL; solution PASS in interpreter and compile modes | solution PASS; output equal | `artifacts/tutorial/capability-receipts/*indexed-part-select*` |
 | `sv/nested-child-input` | §§23.2.2, 9.4.2 | starter FAIL; solution PASS in interpreter and compile modes | solution PASS; output equal | `artifacts/tutorial/capability-receipts/*nested-child-input*` |
+| `sv/sequential-udp-init` | §§29.3.2, 29.6, 29.7 | starter FAIL; solution PASS in interpreter and compile modes | starter both_fail; solution PASS; output equal | `artifacts/tutorial/capability-receipts/*sequential-udp-init*` |
 
 The capability receipt summaries are in
 `artifacts/tutorial/capability-receipts/{summary,final-summary}.tsv`.

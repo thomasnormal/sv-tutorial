@@ -87,6 +87,7 @@ export const parts = [
       { title: 'Packed-Struct Field References', lessons: [L('sv/struct-field-refs')] },
       { title: 'Indexed Part-Select Bounds', lessons: [L('sv/indexed-part-select')] },
       { title: 'Nested Child Input Propagation', lessons: [L('sv/nested-child-input')] },
+      { title: 'Sequential UDP Initialization', lessons: [L('sv/sequential-udp-init')] },
     ],
   },
   {

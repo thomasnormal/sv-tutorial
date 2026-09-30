@@ -4,8 +4,8 @@ const EXPECTED_TOOLBAR_HEIGHT = 40; // h-10 = 2.5rem = 40px at default font size
 
 test.describe('Split view header pills', () => {
   test('both file pills are compact and both bars are the same height', async ({ page }) => {
-    // priority-enc has two files (priority_enc.sv + tb.sv) — auto-opens in split view
-    await page.goto('/lesson/sv/priority-enc', { waitUntil: 'networkidle' });
+    // modules-and-ports has two source files (adder.sv + tb.sv) — auto-opens in split view
+    await page.goto('/lesson/sv/modules-and-ports', { waitUntil: 'networkidle' });
 
     const headerLeft  = page.getByTestId('split-header-left');
     const headerRight = page.getByTestId('split-header-right');
@@ -51,7 +51,7 @@ test.describe('Toolbar height consistency', () => {
     expect(treeBox.height).toBeCloseTo(EXPECTED_TOOLBAR_HEIGHT, 0);
 
     // 2. Split-view mode: open a 2-file lesson and activate split view
-    await page.goto('/lesson/sv/priority-enc', { waitUntil: 'networkidle' });
+    await page.goto('/lesson/sv/modules-and-ports', { waitUntil: 'networkidle' });
 
     const splitLeft  = page.getByTestId('split-header-left');
     const splitRight = page.getByTestId('split-header-right');
@@ -78,7 +78,7 @@ test.describe('Toolbar height consistency', () => {
     expect(treeBorderBottom).not.toBe('0px');
 
     // Split-view mode
-    await page.goto('/lesson/sv/priority-enc', { waitUntil: 'networkidle' });
+    await page.goto('/lesson/sv/modules-and-ports', { waitUntil: 'networkidle' });
     const splitRight = page.getByTestId('split-header-right');
     await expect(splitRight).toBeVisible();
     const splitBorderBottom = await splitRight.evaluate(

@@ -47,6 +47,7 @@ are the `*.final.txt` files beside the TSV summary.
 - `npm run test:e2e`: completed in 15.3 minutes with 131 passed and 98 failed
   (exit 1); the failures are the existing pinned-browser-WASM/Mox and stale
   route limitations. The sequential-UDP target passed 1/1 against the pinned
-  browser assets. The immutable full-suite log is `/tmp/tutorial-udp-full-e2e.log`
-  (SHA-256 `043df075681607526f60e3c0a1319dcd5fef170e2572335d8c1638ac9c1128c9`).
+  browser assets. The immutable full-suite log is
+  `artifacts/tutorial/e2e/tutorial-udp-full-e2e.log` (SHA-256
+  `043df075681607526f60e3c0a1319dcd5fef170e2572335d8c1638ac9c1128c9`).
   No WASM rebuild was made.

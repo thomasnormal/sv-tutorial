@@ -7,7 +7,8 @@ calibration and its regression assertions). The bundle contains 42 files.
 ## Immutable hashes
 
 - `final-summary.tsv`: `f6dd8c06383714e8ba95d2843cf03bfd40838338cb42cfb6d7a96c3bfe5dea6b`
-- Sorted `sha256sum` digest of all files in this directory: `f99454a7b7294b8b29d307333e6a56bb4ca7d07da284505701e24d2fab29033f`
+- Sorted `sha256sum` digest of the 42 receipt files in this directory,
+  excluding this provenance file: `f99454a7b7294b8b29d307333e6a56bb4ca7d07da284505701e24d2fab29033f`
 - Solution source hashes are recorded in each `refdiff` row of `final-summary.tsv`:
   `macro-formal-continuation` `70bcc182fc6b32c4e8fac7eaee06196d845ffe8aed28318e592a8887a42224fd`;
   `struct-field-refs` `4eb7d716460e54ad94242d81f5f1d9c5fb67d1565c250a62ca6ec2d251d43555`;

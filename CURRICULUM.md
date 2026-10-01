@@ -48,6 +48,11 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 |---|---|---|---|---|---|
 | `sv/compile-mode-status` | Compile-Mode Status | ✅ | — | `sv/modules-and-ports` | native `--mode=compile`, refusal vocabulary, and the S4 UVM qualification runner |
 
+### Chapter: Virtual Method Provider Closure (October 2026)
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `sv/virtual-provider-closure` | Virtual Method Provider Closure | ✅ | — | `sv/classes` | virtual overrides, base-class handles, and native AOT provider retention |
+
 ### Chapter: Introduction
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|

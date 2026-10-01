@@ -90,9 +90,10 @@ One commit per issue, each with the test that fails before it and passes after:
 
 ### Landed capability chapters
 
-Added five one-lesson chapters for user-facing SystemVerilog capabilities
-landed in Mox between September 22 and September 30, 2026. The UDP chapter
-tracks landing tip `36b040f6190c`; the pinned browser WASM remains unchanged.
+Added six one-lesson chapters for user-facing SystemVerilog capabilities
+landed in Mox between September 22 and October 1, 2026. The UDP chapter
+tracks landing tip `36b040f6190c`, and the virtual-provider chapter tracks
+`3bc88e77921e`; the pinned browser WASM remains unchanged.
 
 | Lesson | IEEE reference | Mox native | Xcelium/refdiff | Evidence |
 |---|---|---|---|---|
@@ -101,6 +102,7 @@ tracks landing tip `36b040f6190c`; the pinned browser WASM remains unchanged.
 | `sv/indexed-part-select` | §11.5.1 | starter FAIL; solution PASS in interpreter and compile modes | solution PASS; output equal | `artifacts/tutorial/capability-receipts/*indexed-part-select*` |
 | `sv/nested-child-input` | §§23.2.2, 9.4.2 | starter FAIL; solution PASS in interpreter and compile modes | solution PASS; output equal | `artifacts/tutorial/capability-receipts/*nested-child-input*` |
 | `sv/sequential-udp-init` | §§29.3.2, 29.6, 29.7 | starter FAIL; solution PASS in interpreter and compile modes | starter both_fail; solution PASS; output equal | `artifacts/tutorial/capability-receipts/*sequential-udp-init*` |
+| `sv/virtual-provider-closure` | §§8.20, 8.22 | starter FAIL; solution PASS in interpreter and compile modes | starter both_fail; solution both_pass; output equal | `artifacts/tutorial/virtual-provider-closure/*` |
 
 The capability receipt summaries are in
 `artifacts/tutorial/capability-receipts/{summary,final-summary}.tsv`.

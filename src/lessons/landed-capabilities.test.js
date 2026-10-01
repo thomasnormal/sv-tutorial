@@ -115,4 +115,40 @@ describe('landed Mox capability lessons and status pages', () => {
       expect(receipt.refdiff_cache_key).toMatch(/^[0-9a-f]{64}$/);
     }
   });
+
+  it('registers the virtual-provider closure chapter and its landed behavior', () => {
+    const slug = 'sv/virtual-provider-closure';
+    const dir = path.join(root, slug);
+    const description = readFileSync(path.join(dir, 'description.html'), 'utf8');
+    const source = readFileSync(path.join(dir, 'virtual_provider.sv'), 'utf8');
+    const solution = readFileSync(path.join(dir, 'virtual_provider.sol.sv'), 'utf8');
+    expect(meta[slug]?.runner ?? 'sim').toBe('sim');
+    expect(meta[slug]?.focus).toBe('/src/virtual_provider.sv');
+    expect(source).toContain('implementation_id = 606;');
+    expect(solution).toContain('implementation_id = 707;');
+    expect(description).toContain('§8.20');
+    expect(description).toContain('§8.22');
+    expect(description).toContain('3bc88e77921e');
+    expect(solution).toContain('$display("PASS: virtual provider');
+  });
+
+  it('binds virtual-provider refdiff receipts to committed source blobs', () => {
+    const dir = path.join(root, 'sv/virtual-provider-closure');
+    for (const [variant, filename] of [
+      ['starter', 'virtual_provider.sv'],
+      ['solution', 'virtual_provider.sol.sv']
+    ]) {
+      const sourcePath = path.join(dir, filename);
+      const sourceHash = createHash('sha256')
+        .update(readFileSync(sourcePath))
+        .digest('hex');
+      const receipt = JSON.parse(readFileSync(
+        path.resolve(process.cwd(), `artifacts/tutorial/virtual-provider-closure/${variant}-refdiff.json`),
+        'utf8'
+      ));
+      expect(receipt.source).toBe(sourcePath);
+      expect(receipt.sha256).toBe(sourceHash);
+      expect(receipt.refdiff_cache_key).toMatch(/^[0-9a-f]{64}$/);
+    }
+  });
 });

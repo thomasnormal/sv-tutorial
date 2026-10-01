@@ -58,7 +58,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 |---|---|---|---|---|---|
 | `sv/welcome` | Welcome | ✅ | 23/27 ⚠️4,5 | — | `module`/`endmodule`, `$display`, simulation loop, tutorial roadmap |
 | `sv/modules-and-ports` | Modules and Ports | ✅ | 25/27 ⚠️1,4 | `sv/welcome` | port directions (`input`/`output`), `logic`, vectors, `assign`, module instantiation |
-| `sv/data-types` | Data Types | ✅ | 25/27 ⚠️5 | `sv/modules-and-ports` | 4-state `logic` (RTL) vs 2-state `int`/`bit` (testbench), X state, `$isunknown()` |
+| `sv/data-types` | Data Types | ✅ | 25/27 ⚠️5 | `sv/modules-and-ports` | 4-state `logic` vs 2-state `int`/`bit`, X state, `$isunknown()` |
 
 ### Chapter: Combinational Logic
 | Slug | Title | Status | Score | Prereqs | Teaches |
@@ -76,7 +76,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 |---|---|---|---|---|---|
 | `sv/events` | Events | ✅ | 24/27 ⚠️4,5,7 | `sv/modules-and-ports` | `event`, `->` (post), `@(event_name)` (wait), concurrent-process synchronization |
 | `sv/always-ff` | Flip-Flops with always_ff | ✅ | 26/27 ⚠️1 | `sv/modules-and-ports`, `sv/always-comb` | `always_ff`, `posedge`, non-blocking `<=`, unpacked array `mem[]`, 1-cycle read latency |
-| `sv/counter` | Up-Counter | ✅ | 23/27 ⚠️1,8,9 | `sv/always-ff` | enable/reset counter, address stepping, `@(posedge clk)` in `initial` |
+| `sv/counter` | Up-Counter | ✅ | 23/27 ⚠️1,8,9 | `sv/always-ff` | enable/reset counter, cycle-counted stimulus, `@(posedge clk)` in `initial` |
 | `sv/shift-reg` | Shift Register | 📝 | — | `sv/always-ff` | bit shift, concatenation `{}`, serial-in/serial-out |
 
 > Introduces `[*]` bus shift and multi-bit `always_ff`; prerequisite
@@ -114,7 +114,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 ### Chapter: State Machines
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
-| `sv/enums` | typedef enum | ✅ | 24/27 ⚠️2,9 | `sv/always-ff`, `sv/always-comb` | `typedef enum`, named constants, enum in `case`, apostrophe cast `state_t'(bits)` |
+| `sv/enums` | typedef enum | ✅ | 24/27 ⚠️2,9 | `sv/always-ff`, `sv/always-comb` | `typedef enum`, named constants, enum-typed ports, enum in `case` |
 | `sv/fsm` | Two-Always Moore FSM | ✅ | 27/27 | `sv/enums`, `sv/always-ff`, `sv/always-comb` | two-always Moore pattern (FF state + comb output), FSM-gated SRAM write/read |
 | `sv/mealy-fsm` | Mealy FSM | 📝 | — | `sv/fsm` | Mealy output depends on current input, single-always style |
 
@@ -124,7 +124,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 ### Chapter: Covergroups
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
-| `sv/covergroup-basics` | covergroup and coverpoint | ✅ | 24/27 ⚠️2,9 | `sv/parameters` | `covergroup`, `coverpoint`, `sample()`, `$get_coverage()`, functional coverage concept |
+| `sv/covergroup-basics` | covergroup and coverpoint | ✅ | 24/27 ⚠️2,9 | `sv/parameters` | `covergroup`, `coverpoint`, event sampling, functional coverage concept |
 | `sv/coverpoint-bins` | Bins and ignore_bins | ✅ | 23/27 ⚠️7,8,9 | `sv/covergroup-basics` | explicit `bins`, range bins, `ignore_bins`, auto bins |
 | `sv/cross-coverage` | Cross coverage | ✅ | 25/27 ⚠️9 | `sv/coverpoint-bins` | `cross`, 2D coverage matrix, identifying uncovered `{addr, we}` pairs |
 

@@ -13,4 +13,12 @@ describe('curriculum integrity', () => {
     }
     expect(missing).toEqual([]);
   });
+
+  it('does not advertise concepts absent from the corresponding lessons', () => {
+    const curriculum = readFileSync(path.resolve(process.cwd(), 'CURRICULUM.md'), 'utf8');
+    expect(curriculum).not.toContain('2-state `int`/`bit` (testbench)');
+    expect(curriculum).not.toContain('apostrophe cast `state_t\'(bits)`');
+    expect(curriculum).not.toContain('`$get_coverage()`');
+    expect(curriculum).toContain('cycle-counted stimulus');
+  });
 });

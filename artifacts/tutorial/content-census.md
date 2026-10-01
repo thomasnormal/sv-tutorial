@@ -1,19 +1,23 @@
 # sv-tutorial CONTENT census
 
-## Current-main refresh — 2026-09-30
+## Current-main refresh — 2026-10-01
 
 The prior full lesson audit remains the authoritative per-lesson matrix below.
 This refresh adds the current-main execution status: native Mox is the landing
 build at `/var/tmp/thomas-ahle/wt/landing/build-dev-fast`; Xcelium is invoked
 through `/var/tmp/thomas-ahle/fleet/bin/refdiff`; examples are bounded to 30 s
 and CPU affinity `0-79`. The browser cannot prove current native behaviour
-because the checked-in WASM predates the landing tip.
+because the checked-in WASM predates the landing tip. The receipts use the
+existing landing binary (`e81e1f9272f`) while the separate Mox repository is now
+Mox `origin/main` at `9fe4bd9d5ac`; the only commit after published behavior tip
+`a0c4488a587` is a dependency-only Mako bump.
 
 ## New landed-capability chapters
 
-These four short chapters correspond to capabilities present on Mox `origin/main`
-(`bcdf57717c1`) by September 30, 2026. They deliberately exclude the later
-landing-only UDP change at `36b040f6190`. Every solution passes Mox in both
+These six short chapters correspond to the user-facing Mox capabilities present
+on the current `origin/main` by October 1, 2026. The compile-mode status page is
+listed separately below because it reports qualification status rather than
+teaching a new language capability. Every solution passes Mox in both
 interpreter and compile mode and passes Xcelium through `refdiff`; every starter
 prints a failing check.
 
@@ -21,8 +25,15 @@ prints a failing check.
 |---|---|---|---|---|---|---|
 | `sv/macro-formal-continuation` | `bcdf57717c1`, `test/Conversion/ImportVerilog/macro-formal-continuation.sv` | §22.5.1: backslash-newline continues macro text; formal arguments and token pasting are substituted before compilation. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS, output equal | added runnable macro exercise |
 | `sv/struct-field-refs` | `0585a62233b`, `test/mox-verilog/struct-extract-ref-module-level.sv` | §7.2.1: packed structs are vectors with named members; members can be selected by name. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS, output equal | added module-level packed-struct field exercise |
-| `sv/indexed-part-select` | `5a49d2b68cf`, `test/Tools/mox-sim/dyn-extract-unsigned-partial-runtime.sv` | §11.5.1: indexed part-select width is constant, base may vary, and a wholly out-of-range read is `x`. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS, output equal | uses a variable in-range base and unambiguous wholly out-of-range read |
+| `sv/indexed-part-select` | `5a49d2b68cf`, `test/Tools/mox-sim/dyn-extract-unsigned-partial-runtime.sv` | §11.5.1: indexed part-select width is constant, base may vary, and out-of-range result bits are `x`; the lesson uses a wholly out-of-range read so both engines agree. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS, output equal | keeps the cross-simulator example unambiguous |
 | `sv/nested-child-input` | `5fdce05081e`, `test/Tools/mox-sim/nested-child-input-propagation-runtime.sv` | §§23.2.2, 9.4.2: child inputs are connected expressions and clocked procedures sample them on edges. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS, output equal | added direct and nested sink propagation exercise |
+| `sv/sequential-udp-init` | `36b040f6190`, `test/Tools/mox-sim/sequential-udp-initial-state-runtime.sv` | §§29.3.2, 29.6, 29.7: sequential UDP state may be initialized and edge-sensitive tables update it. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS, output equal | added an initialized sequential-UDP exercise |
+| `sv/virtual-provider-closure` | `3bc88e77921`, Mox mapped-vlib provider-closure regression | §§8.20, 8.22: virtual overrides dispatch through a base-class handle to the derived object. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS, output equal | added a base-handle/derived-provider dispatch exercise |
+
+The remaining pushed commits after `a0c4488a587` do not add a tutorial
+capability: `b8f8f8d4e67` changes a cutpoint-checker script and `9fe4bd9d5ac`
+only bumps the Mako dependency. No additional user-facing language capability
+is therefore omitted from this chapter set.
 
 This census covers every lesson in `src/lessons/` (meta.js, 73 lessons) and CURRICULUM.md, checked against
 IEEE 1800-2023 (`spec/ieee-1800-2023.txt`) and IEEE 1800.2-2020 (UVM).

@@ -8,9 +8,8 @@ Pinned versions are centralized in `scripts/toolchain.lock.sh`:
 
 - Node major: `22`
 - Emscripten (emsdk): `4.0.21`
-- MOX repo: `https://github.com/normal-computing/mox.git`
-- MOX ref: `8e8ca87dcda1c8abd47103ae7789c8ed261d5de3`
-- LLVM submodule ref: `972cd847efb20661ea7ee8982dd19730aa040c75`
+- MOX repo: `https://github.com/normal-computing/mox.git` (ref and LLVM ref are
+  read from `scripts/toolchain.lock.sh`)
 
 Host tools:
 

@@ -73,6 +73,7 @@ jobs:
           mkdir -p "$LOG_DIR"
           ./scripts/run-uvm-browser-worker-matrix.sh \
             --smoke \
+            --known-failure pinned-wasm-uvm-abort \
             --retries 3 \
             --log-dir "$LOG_DIR"
 

@@ -193,6 +193,14 @@ BMC-LTL-NOT (25, 47, 48). Still do not publish; 0033 is in review.
 a runtime `UVM/DPI/REGEX` error. `mox-verilog.wasm` itself aborts while compiling uvm-core (log:
 `ci/ci-36034279627-failed.log`). Recheck it against the rebuilt WASM before planning any DPI bridge change.
 
+**Follow-up CI disposition (October 1, 2026).** The released `mox-verilog.wasm` is still the exact stale artifact
+(`eb6badaf759c72dd4a7dff97d025e58dea75ea0863c2461464219bee69ec65a2`) that produces the
+`uvm_config_db_implementation.svh:375` warning followed by `Aborted()`. Current-tip Mox WASM built from the
+`eb9d0b6cf5d` lineage avoids that abort but does not finish the same browser-worker UVM compile within 600 seconds,
+so it is not safe to repin. The ordinary `ci` reporting smoke now uses an explicit hash- and log-signature-checked
+quarantine; `uvm-nightly` remains strict and reports the parity failure. A qualified WASM rebuild or Mox parity fix is
+still required before removing the quarantine.
+
 ## Left open (documentation and a legacy harness; no behaviour change, so no test)
 - B14: `scripts/test-all-lessons.mjs` predates mox-run and accepts any `PASS` line. Retire it in favour of
   `e2e/qa-all-lessons.spec.js`, or port it to mox-run and require a final PASS with exit 0.

@@ -90,6 +90,7 @@ export const parts = [
       { title: 'Sequential UDP Initialization', lessons: [L('sv/sequential-udp-init')] },
       { title: 'Compile-Mode Status', lessons: [L('sv/compile-mode-status')] },
       { title: 'Clocking Sampler Retention', lessons: [L('sv/clocking-sampler-retention')] },
+      { title: 'Protected Envelope Boundary', lessons: [L('sv/protected-envelope-boundary')] },
       { title: 'Virtual Method Provider Closure', lessons: [L('sv/virtual-provider-closure')] },
     ],
   },

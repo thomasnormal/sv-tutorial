@@ -53,6 +53,11 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 |---|---|---|---|---|---|
 | `sv/clocking-sampler-retention` | Clocking Sampler Retention | ✅ | — | `sv/interfaces` | explicit `#0` clocking-input sampling and same-slot sample retention |
 
+### Chapter: Protected Envelope Boundary (October 2026)
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `sv/protected-envelope-boundary` | Protected Envelope Boundary | ✅ | — | `sv/modules-and-ports` | same-buffer protected-envelope delimiters and no-key opaque handling |
+
 ### Chapter: Virtual Method Provider Closure (October 2026)
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|

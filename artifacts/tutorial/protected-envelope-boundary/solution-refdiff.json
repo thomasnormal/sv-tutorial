@@ -1,0 +1,14 @@
+{
+  "source": "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/protected-envelope-boundary/protected_envelope.sol.sv",
+  "sha256": "7e668eec39dc000cdb73c70e6df8584aa647d028b86eab34dae86997d240e08f",
+  "refdiff_cache_key": "49c8824d6b6f4a93e7019050d253a17858c37b9d67e2d82532029ff02fe2b419",
+  "reference_cached": false,
+  "reference": {"verdict": "FAIL", "exit": 1, "final_status": "fail"},
+  "mox": {"verdict": "PASS", "exit": 0, "phase": "simulate", "final_status": "completed"},
+  "category": "reference_only_fail",
+  "output_equal": false,
+  "equivalent": false,
+  "metadata": {"_has_pass": true},
+  "build_dir": "/var/tmp/thomas-ahle/wt/landing/build-dev-fast",
+  "artifacts": "/var/tmp/thomas-ahle/fleet/sv/sv-harness-teseh60m"
+}

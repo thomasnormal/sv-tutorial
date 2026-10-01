@@ -19,12 +19,13 @@ before the current source tip, and no lesson source uses readmem.
 
 ## New landed-capability chapters
 
-These seven short chapters correspond to the user-facing Mox capabilities present
+These eight short chapters correspond to the user-facing Mox capabilities present
 on the current `origin/main` by October 1, 2026. The compile-mode status page is
 listed separately below because it reports qualification status rather than
 teaching a new language capability. Every solution passes Mox in both
-interpreter and compile mode and passes Xcelium through `refdiff`; every starter
-prints a failing check.
+interpreter and compile mode. Reference parity is recorded per row; the
+protected-envelope row is an explicit reference-only failure because Xcelium
+attempts decryption without a key.
 
 | Lesson | Landed capability / Mox evidence | IEEE claim | Mox interpreter | Mox compile | Xcelium/refdiff | Fix |
 |---|---|---|---|---|---|---|
@@ -35,13 +36,13 @@ prints a failing check.
 | `sv/sequential-udp-init` | `36b040f6190ce488d406ce49a1c5e0aafb85d6ac`, `test/Tools/mox-sim/sequential-udp-initial-state-runtime.sv` | §§29.3.2, 29.6, 29.7: sequential UDP state may be initialized and edge-sensitive tables update it. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS, output equal | added an initialized sequential-UDP exercise |
 | `sv/virtual-provider-closure` | `3bc88e77921e5e776411d00e133f2b497c750943`, Mox mapped-vlib provider-closure regression | §§8.20, 8.22: virtual overrides dispatch through a base-class handle to the derived object. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS, output equal | added a base-handle/derived-provider dispatch exercise |
 | `sv/clocking-sampler-retention` | `3b1760ff2030378cfde16ca319e2c1b806ab9d31`, `test/Tools/mox-sim/mq93-m2-clock-sampler.sv` | §§14.3, 14.13: default `1step` samples before the clock event; explicit `#0` samples in Observed and retains the sample through same-slot re-entry. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS / both FAIL, output equal | added an explicit-`#0` sampler-retention exercise |
+| `sv/protected-envelope-boundary` | `c3799f427f1e51abcd389dcf15771150223cae75`, `test/Conversion/ImportVerilog/protected-comment-callback.sv` | §§34.2, 34.3, 34.4, 34.5.3–34.5.4: protected text is transformed before analysis and delimiters close the envelope; this lesson does not claim decryption. | solution PASS; starter FAIL | solution PASS; starter FAIL | `reference_only_fail` for solution; Xcelium attempts unkeyed decryption | added same-buffer opaque callback-boundary exercise |
 
 The remaining current-main capability commits are queued for their own short
-chapters and are not silently folded into an existing lesson: protected callback
-envelopes (`c3799f427f1`), coverage-option string preservation
-(`b481355f9fe`), VPI system-function argument marshalling (`d83c4b1dde8`), and
-interface-method `%m` receiver scope plus parenthesized virtual-interface
-receivers (`ed441eb5b58`).
+chapters and are not silently folded into an existing lesson: coverage-option
+string preservation (`b481355f9fe`), VPI system-function argument marshalling
+(`d83c4b1dde8`), and interface-method `%m` receiver scope plus parenthesized
+virtual-interface receivers (`ed441eb5b58`).
 
 This census covers every lesson in `src/lessons/` (meta.js, 73 lessons) and CURRICULUM.md, checked against
 IEEE 1800-2023 (`spec/ieee-1800-2023.txt`) and IEEE 1800.2-2020 (UVM).

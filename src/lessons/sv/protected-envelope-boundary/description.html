@@ -1,0 +1,17 @@
+<p>A protected envelope is transformed before the ordinary SystemVerilog source is analyzed. This lesson uses Mox's comment-form <code>//pragma protect</code> ingress to keep a same-buffer opaque payload out of the design's syntax tree.</p>
+
+<h2>Exercise</h2>
+<p>Add the matching <code>end_protected</code> marker. With no protected keyring, Mox does not decrypt the payload; it replaces the opaque envelope and compiles the public wrapper. The finished testbench prints <code>PASS: opaque protected wrapper</code>.</p>
+
+<pre>//pragma protect begin_protected
+//pragma protect data_block
+opaque_payload
+//pragma protect end_data_block
+//pragma protect end_protected</pre>
+
+<p>Keep this example within one source buffer. The landed callback path diagnoses an active envelope when an included buffer ends, so this tutorial does not claim that a protected envelope may begin in one file and end in another.</p>
+
+<blockquote><p>IEEE 1800-2023 §§34.2, 34.3, 34.4, 34.5.3, and 34.5.4 define protected regions, their transformation before analysis, the <code>protect</code> pragma, and the <code>begin_protected</code>/<code>end_protected</code> delimiters. Decryption requires the proper key; this lesson intentionally demonstrates Mox's no-key opaque boundary instead of decryption.</p></blockquote>
+
+<h2>What landed in Mox</h2>
+<p>Mox commit <code>c3799f427f1</code> routes active comment-form protected envelopes through the existing callback. The browser's <strong>Run</strong> action uses the pinned WASM runtime. Xcelium's reference receipt is intentionally retained as a reference-only failure because it attempts protected-envelope decryption without a key; this lesson does not present the comment-form wrapper as cross-simulator parity.</p>

@@ -31,6 +31,7 @@ export default {
   'sv/sequential-udp-init':   { title: 'Sequential UDP Initialization',               focus: '/src/sequential_udp.sv', top: 'tb' },
   'sv/compile-mode-status':    { title: 'Compile-Mode Status',                          focus: '/src/compile_mode_status.sv', top: 'tb' },
   'sv/clocking-sampler-retention': { title: 'Clocking Sampler Retention',               focus: '/src/clocking_sampler.sv', top: 'tb' },
+  'sv/protected-envelope-boundary': { title: 'Protected Envelope Boundary',             focus: '/src/protected_envelope.sv', top: 'tb' },
   'sv/virtual-provider-closure': { title: 'Virtual Method Provider Closure',            focus: '/src/virtual_provider.sv', top: 'tb' },
 
   // ── SystemVerilog Assertions ───────────────────────────────────────────────

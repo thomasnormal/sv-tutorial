@@ -1,0 +1,5 @@
+variant	mode	exit	result
+starter	interpret	1	FAIL: protected envelope transform failed: unterminated protected envelope
+starter	compile	1	FAIL: protected envelope transform failed: unterminated protected envelope
+solution	interpret	0	PASS: opaque protected wrapper
+solution	compile	0	PASS: opaque protected wrapper

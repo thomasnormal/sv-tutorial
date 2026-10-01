@@ -151,6 +151,44 @@ describe('landed Mox capability lessons and status pages', () => {
     }
   });
 
+  it('records the protected-envelope callback boundary without claiming decryption', () => {
+    const dir = path.join(root, 'sv/protected-envelope-boundary');
+    const starter = readFileSync(path.join(dir, 'protected_envelope.sv'), 'utf8');
+    const solution = readFileSync(path.join(dir, 'protected_envelope.sol.sv'), 'utf8');
+    const description = readFileSync(path.join(dir, 'description.html'), 'utf8');
+    expect(meta['sv/protected-envelope-boundary']?.runner ?? 'sim').toBe('sim');
+    expect(meta['sv/protected-envelope-boundary']?.focus).toBe('/src/protected_envelope.sv');
+    expect(starter).not.toContain('//pragma protect end_protected');
+    expect(solution).toContain('//pragma protect end_protected');
+    expect(description).toContain('§§34.2, 34.3, 34.4, 34.5.3, and 34.5.4');
+    expect(description).toContain('c3799f427f1');
+    const receipt = JSON.parse(readFileSync(
+      path.resolve(process.cwd(), 'artifacts/tutorial/protected-envelope-boundary/solution-refdiff.json'),
+      'utf8'
+    ));
+    expect(receipt.category).toBe('reference_only_fail');
+  });
+
+  it('binds protected-envelope refdiff receipts to committed source blobs', () => {
+    const dir = path.join(root, 'sv/protected-envelope-boundary');
+    for (const [variant, filename] of [
+      ['starter', 'protected_envelope.sv'],
+      ['solution', 'protected_envelope.sol.sv']
+    ]) {
+      const sourcePath = path.join(dir, filename);
+      const sourceHash = createHash('sha256')
+        .update(readFileSync(sourcePath))
+        .digest('hex');
+      const receipt = JSON.parse(readFileSync(
+        path.resolve(process.cwd(), `artifacts/tutorial/protected-envelope-boundary/${variant}-refdiff.json`),
+        'utf8'
+      ));
+      expect(receiptSourceMatches(receipt.source, sourcePath)).toBe(true);
+      expect(receipt.sha256).toBe(sourceHash);
+      expect(receipt.refdiff_cache_key).toMatch(/^[0-9a-f]{64}$/);
+    }
+  });
+
   it('binds compile-mode refdiff receipts to committed source blobs', () => {
     const dir = path.join(root, 'sv/compile-mode-status');
     for (const [variant, filename] of [

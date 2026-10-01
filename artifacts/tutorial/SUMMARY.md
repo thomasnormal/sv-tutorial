@@ -151,6 +151,17 @@ receipts. The focused browser run is 1/1 through the pinned interpreter-backed
 WASM runtime. Receipts and current-main MQ93 provenance are under
 `artifacts/tutorial/clocking-sampler-retention/`.
 
+### Protected envelope boundary chapter
+
+`sv/protected-envelope-boundary` documents only Mox's landed same-buffer,
+comment-form callback with no keyring. The solution passes native interpreter
+and compile modes; the starter fails on the missing `end_protected` marker.
+Xcelium's `refdiff` is deliberately recorded as `reference_only_fail` because
+it attempts decryption of the unkeyed envelope, and the pinned browser WASM is
+an expected known failure until a WASM rebuild. The cross-include limitation
+from the protected-envelope audit is stated in the lesson rather than hidden.
+Receipts are under `artifacts/tutorial/protected-envelope-boundary/`.
+
 ## WASM rebuild (done locally, NOT published; release `mox-wasm` is unchanged)
 Built with emsdk 4.0.21 from Mox main `9c5418532b9` (and landing `ea0fcd2`): mox-verilog, mox-sim, mox-bmc and
 mox-lec. Mox has no wasm target for mox-run (GAPS TUT-WASM-MOXRUN), so two more commits went in:

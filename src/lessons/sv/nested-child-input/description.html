@@ -1,0 +1,14 @@
+<p>Module inputs are live connections from the parent. When a child publishes a value, another child reached through a nested module must see that value before its clocked process samples it.</p>
+
+<h2>Template</h2>
+<pre>module &lt;source&gt;(input logic clk, output logic &lt;signal&gt;);
+    always @(negedge clk) &lt;signal&gt; &lt;= &lt;value&gt;;
+endmodule
+
+module &lt;sink&gt;(input logic clk, input logic &lt;signal&gt;);
+    always @(posedge clk) &lt;check the input&gt;;
+endmodule</pre>
+
+<p>The source raises <code>valid</code> on a falling edge. The direct sink, a sink behind a wire wrapper, and a sink behind an output bridge all sample the same value on the following rising edge. The testbench counts four successful samples.</p>
+
+<blockquote><p>IEEE 1800-2023 §23.2.2 describes module port connections; a child input is driven by its connected parent expression. The clocked behavior uses procedural timing from §9.4.2.</p></blockquote>

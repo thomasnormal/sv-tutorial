@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/var/tmp/thomas-ahle/wt/landing/build-dev-fast/bin/mox-cocotb-driver.py", line 8, in <module>
+    import cocotb_test.simulator as csim
+  File "/tmp/cocotb-test-20261001/cocotb_test/simulator.py", line 5, in <module>
+    import cocotb
+  File "/tmp/cocotb-test-20261001-cb18/cocotb/__init__.py", line 43, in <module>
+    import cocotb.handle
+  File "/tmp/cocotb-test-20261001-cb18/cocotb/handle.py", line 39, in <module>
+    from cocotb import simulator
+ImportError: cannot import name 'simulator' from partially initialized module 'cocotb' (most likely due to a circular import) (/tmp/cocotb-test-20261001-cb18/cocotb/__init__.py)

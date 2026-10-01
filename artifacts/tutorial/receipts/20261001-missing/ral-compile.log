@@ -1,0 +1,13 @@
+mox-run wall guards: compile=25000ms simulation=disabled
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/base/uvm_config_db_implementation.svh:375:26: warning: unknown character escape sequence [-Wunknown-escape-code]
+            separator = "\.(" ;
+                         ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/uvm_pkg.sv:57:2: note: included from here
+ `include "base/uvm_base.svh"
+ ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/base/uvm_base.svh:77:3: note: included from here
+  `include "base/uvm_config_db_implementation.svh"
+  ^
+/var/tmp/thomas-ahle/sv-tutorial/src/lessons/uvm/ral/sram_reg_block.sol.sv:2:17: error: type of class property 'enable' could not be resolved
+  uvm_reg_field enable;
+                ^

@@ -1,0 +1,43 @@
+mox-run wall guards: compile=25000ms simulation=disabled
+[mox-run] parse (5ms, total: 5ms)
+[mox-run] lower (9ms, total: 15ms)
+[mox-run] aot-start (0ms, total: 16ms)
+[mox-run] AOT compile log: /tmp/mox-scratch/a8e5ccd3bff512bd85be743cbbba161ae06504793c695db14b39d861ac39713b/session-6158424687e44f0fccb43412ac36849a307ea5aff3072b1be365f9fdebdaa0c2/mox-run-aot-cffd75.log
+[mox-compile] Wrote /tmp/mox-scratch/a8e5ccd3bff512bd85be743cbbba161ae06504793c695db14b39d861ac39713b/session-6158424687e44f0fccb43412ac36849a307ea5aff3072b1be365f9fdebdaa0c2/mox-run-aot-283ab6.so (3 processes, 0 functions, 0 trampolines, 1.176473e-01s)
+[mox-run] aot-compile (142ms, total: 158ms)
+[mox-run] simulate (0ms, total: 158ms)
+[mox-sim] Auto-enabling --skip-passes for module marked mox.sim.preprocessed
+[mox-sim] Stage: passes (prev: 0ms, total: 0ms)
+[mox-sim] aot-publication/v2 domain=module-loader-functions expected=0 accounted=0 positive=0 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:14a1ea4827eceb6099f752ac175f21d9feeed50ece269718c7050338ed779cdd
+[mox-sim] aot-publication/v2 domain=module-loader-processes expected=3 accounted=3 positive=3 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:14c4f2818531ab3ee9a008d5544a1559d205b61a18688dc4b998d6d8504bab7d
+[mox-sim] aot-publication/v2 domain=module-loader-address-bound-globals expected=15 accounted=15 positive=15 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:1fddbb3af4eb444c858912560e5e375123679201478ab1a795a869634120e9fb
+[mox-sim] aot-publication/v2 domain=module-loader-entry-table expected=0 accounted=0 positive=0 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:14a1ea4827eceb6099f752ac175f21d9feeed50ece269718c7050338ed779cdd
+[mox-sim] Loaded compiled module '/proc/self/fd/4': 0 functions, 3 processes, 15 address-bound globals (build: mox-sim-abi-v19-x86_64-unknown-linux-gnu-4d528cb3662b8408a24b3cd659743505)
+[mox-sim] Address-bound global ownership: role=main, module='/proc/self/fd/4', descriptor-declared=15, retained=15
+[mox-sim] M3 loaded callable union: artifacts=1 raw-rows=0 demand-rows=0 distinct-demand-keys=0 slot-rows=0 provider-rows=0 checked-keys=0 missing=0 duplicate=0 malformed=0 unresolved=0 dropped=0 digest=sha256:d7163475c11eea17747b41fe821aa1652ad7c44674ead406b1d142ac6d259009 status=ok
+[mox-sim] Stage: init (prev: 0ms, total: 0ms)
+[mox-sim] Pre-aliased 15 address-bound globals to .so storage
+[mox-sim] Unmapped native func.call policy: default deny runtime bridges and pointer-typed get_/set_/create_/m_initialize* (allow others)
+[mox-sim] Loaded 0 compiled functions: 0 native-dispatched, 0 not-native-dispatched, 0 intercepted
+[mox-sim] aot-publication/v2 domain=compiled-function-dispatch expected=0 accounted=0 positive=0 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:14a1ea4827eceb6099f752ac175f21d9feeed50ece269718c7050338ed779cdd
+[mox-sim] Address-bound final-LLVM-global probes: 15/15 rows, 39/39 bytes bidirectional, owner-generation=1
+[mox-sim] Compiled process dispatch: 3/3 processes wired
+[mox-sim] aot-publication/v2 domain=process-dispatch expected=3 accounted=3 positive=3 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:178b7d417c9782d0869a164dfb4e0fb05e1232d6d8fe81f233004ec4c17d4d50
+[mox-sim] aot-publication/v2 domain=process-dispatch identity='tb.process_0' outcome=wired polarity=positive reason=''
+[mox-sim] aot-publication/v2 domain=process-dispatch identity='tb.process_1' outcome=wired polarity=positive reason=''
+[mox-sim] aot-publication/v2 domain=process-dispatch identity='tb.process_2' outcome=wired polarity=positive reason=''
+[mox-sim] Stage: load-compiled (prev: 2ms, total: 3ms)
+Using module 'tb' as top module
+[mox-sim] Found 3 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 0 hw.instance ops (out of 238 total ops) in module
+[mox-sim] Registered 11 LLHD signals and 3 LLHD processes/initial blocks
+[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0
+[mox-sim] Stage: run (prev: 0ms, total: 3ms)
+[mox-sim] Starting simulation
+INITIAL q=1
+PASS
+[mox-sim] Simulation terminated at time 3000000 fs (success=true, verbose=true)
+[mox-sim] Main loop exit: shouldContinue()=false at time 3000000 fs, iter=4, deltas=1
+[mox-sim] Simulation finished at time 3000000 fs
+[mox-sim] Simulation completed at time 3000000 fs
+[mox-sim] whole-design AOT zero-interpreter gate satisfied: counted process=0 combinational=0 initializer-operation=0 direct-call=0 ABI-demotion=0 deferred-initial-prewait-operation=0 deferred-initial-prewait-binding=PROVEN dpi-export-function-binding=NOT-REQUIRED; residual-compiled-process=false interpreted-continuous-assignment=0 initializer-operation-filtered=0; instrumented-classes=interpreted-process,interpreted-callable,interpreted-continuous-assignment,module-initializer-operation,deferred-initial-prewait-operation measured-classes=interpreted-process,interpreted-callable,interpreted-continuous-assignment,module-initializer-operation,deferred-initial-prewait-operation unavailable-classes=NONE operation-level-other=UNMEASURED
+[mox-sim] Simulation completed

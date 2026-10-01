@@ -1,0 +1,36 @@
+{
+  "slug": "sv/welcome",
+  "title": "Welcome",
+  "runner": "sim",
+  "mode": "interpret",
+  "command": [
+    "taskset",
+    "-c",
+    "0-79",
+    "timeout",
+    "--kill-after=3s",
+    "30s",
+    "/var/tmp/thomas-ahle/wt/landing/build-dev-fast/bin/mox-run",
+    "--single-unit",
+    "--timescale=1ns/1ns",
+    "--mode=interpret",
+    "--max-wall-ms=25000",
+    "--top",
+    "top",
+    "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/welcome/top.sol.sv"
+  ],
+  "exit": 0,
+  "elapsed_s": 0.035,
+  "first_lines": [
+    "[mox-sim] Found 1 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 0 hw.instance ops (out of 7 total ops) in module",
+    "[mox-sim] Registered 0 LLHD signals and 1 LLHD processes/initial blocks",
+    "[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0",
+    "[mox-sim] Starting simulation",
+    "Hello, SRAM world!",
+    "[mox-sim] Simulation finished at time 0 fs",
+    "[mox-sim] Simulation completed at time 0 fs",
+    "[mox-sim] Simulation completed"
+  ],
+  "pass": false,
+  "log": "/var/tmp/thomas-ahle/sv-tutorial/artifacts/tutorial/receipts/sv__welcome__interpret.log"
+}

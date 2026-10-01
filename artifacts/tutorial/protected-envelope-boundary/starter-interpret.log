@@ -1,0 +1,7 @@
+mox-run wall guards: compile=25000ms simulation=disabled
+src/lessons/sv/protected-envelope-boundary/protected_envelope.sv:2:1: error: protected envelope transform failed: unterminated protected envelope
+//pragma protect begin_protected
+^
+src/lessons/sv/protected-envelope-boundary/protected_envelope.sv:5:18: warning: unknown pragma protect keyword 'end_data_block' [-Wunknown-protect-keyword]
+//pragma protect end_data_block
+                 ^

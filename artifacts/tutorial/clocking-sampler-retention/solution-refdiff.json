@@ -1,0 +1,14 @@
+{
+  "source": "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/clocking-sampler-retention/clocking_sampler.sol.sv",
+  "sha256": "7231082a4cd4f46b798b65be466590f27927b22a783f50faf67529e068376d96",
+  "refdiff_cache_key": "e4a21ce79f011dcbd439935ecad93d7cfbcd6bf54dc7acbe7432e923670ec117",
+  "reference_cached": true,
+  "reference": {"verdict": "PASS", "exit": 0, "final_status": "completed"},
+  "mox": {"verdict": "PASS", "exit": 0, "phase": "simulate", "final_status": "completed"},
+  "category": "both_pass",
+  "output_equal": true,
+  "equivalent": true,
+  "metadata": {"_has_pass": true},
+  "build_dir": "/var/tmp/thomas-ahle/wt/landing/build-dev-fast",
+  "artifacts": "/var/tmp/thomas-ahle/fleet/sv/sv-harness-823kixr2"
+}

@@ -1,0 +1,41 @@
+{
+  "slug": "uvm/sequence",
+  "title": "Sequences",
+  "runner": "sim",
+  "mode": "compile",
+  "command": [
+    "taskset",
+    "-c",
+    "0-79",
+    "timeout",
+    "--kill-after=3s",
+    "30s",
+    "/var/tmp/thomas-ahle/wt/landing/build-dev-fast/bin/mox-run",
+    "--single-unit",
+    "--timescale=1ns/1ns",
+    "--mode=compile",
+    "--max-wall-ms=25000",
+    "--uvm-path",
+    "/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core",
+    "-I",
+    "/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src",
+    "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/uvm/sequence/mem_driver.sv",
+    "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/uvm/sequence/mem_item.sv",
+    "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/uvm/sequence/mem_seq.sol.sv",
+    "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/uvm/sequence/tb_top.sv"
+  ],
+  "exit": 1,
+  "elapsed_s": 0.775,
+  "first_lines": [
+    "mox-run wall guards: compile=25000ms simulation=disabled",
+    "/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/base/uvm_config_db_implementation.svh:375:26: warning: unknown character escape sequence [-Wunknown-escape-code]",
+    "            separator = \"\\.(\" ;",
+    "                         ^",
+    "/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/uvm_pkg.sv:57:2: note: included from here",
+    " `include \"base/uvm_base.svh\"",
+    " ^",
+    "/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/base/uvm_base.svh:77:3: note: included from here"
+  ],
+  "pass": false,
+  "log": "/var/tmp/thomas-ahle/sv-tutorial/artifacts/tutorial/receipts/uvm__sequence__compile.log"
+}

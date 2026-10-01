@@ -8,9 +8,8 @@ Pinned versions are centralized in `scripts/toolchain.lock.sh`:
 
 - Node major: `22`
 - Emscripten (emsdk): `4.0.21`
-- MOX repo: `https://github.com/normal-computing/mox.git`
-- MOX ref: `8e8ca87dcda1c8abd47103ae7789c8ed261d5de3`
-- LLVM submodule ref: `972cd847efb20661ea7ee8982dd19730aa040c75`
+- MOX repo: `https://github.com/normal-computing/mox.git` (ref and LLVM ref are
+  read from `scripts/toolchain.lock.sh`)
 
 Host tools:
 
@@ -99,6 +98,10 @@ In `.env` (copy `.env.example`):
 - Runtime uses a real 2-stage wasm toolchain by default:
   - `mox-verilog` lowers SV/SVA/UVM source to MLIR
   - `mox-sim` executes lowered MLIR and emits VCD for the waveform pane
+- UVM lessons are currently qualified in interpreter mode only; `--mode=compile`
+  does not yet run the UVM-bench rows. Native receipt runs therefore report the
+  interpreter as the supported UVM path until the corresponding Mox AOT rows
+  land.
 - Tool invocations run in isolated Web Workers to avoid global Emscripten symbol collisions and re-entry issues.
 - UI includes a `self-check` action in the Runtime panel to validate artifact compatibility.
 - Waves tab appears automatically only when a valid VCD is generated.

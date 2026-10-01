@@ -1,0 +1,17 @@
+slug	mode	exit	first_result
+uvm/constrained-random	interpret	0	[mox-sim] WARNING: MOX-DPI-IMPORT-STRING-RESULT (1/8): converter=__moore_c_string_to_string abi=dpi-import-string-return reason=null-pointer native_ptr=(nil) result-policy=empty-string/continue
+uvm/constrained-random	compile	1	[mox-run] AOT compile log: /tmp/mox-scratch/a8e5ccd3bff512bd85be743cbbba161ae06504793c695db14b39d861ac39713b/session-f3d415c5c310d092e6130fbc4b63f1c6e2a376cf3cda16bc19f7453d414215e3/mox-run-aot-eaec13.log
+uvm/monitor	interpret	1	
+uvm/monitor	compile	1	
+uvm/env	interpret	1	
+uvm/env	compile	1	
+uvm/covergroup	interpret	1	
+uvm/covergroup	compile	1	
+uvm/cross-coverage	interpret	1	
+uvm/cross-coverage	compile	1	
+uvm/coverage-driven	interpret	1	
+uvm/coverage-driven	compile	1	
+uvm/factory-override	interpret	1	
+uvm/factory-override	compile	1	
+uvm/ral	interpret	1	
+uvm/ral	compile	1	

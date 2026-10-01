@@ -1,0 +1,21 @@
+[mox-sim] Found 3 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 0 hw.instance ops (out of 134 total ops) in module
+[mox-sim] Registered 6 LLHD signals and 3 LLHD processes/initial blocks
+[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0
+[mox-sim] Starting simulation
+writer: stored 10 20 30 40
+reader: 0 error(s)
+PASS
+[mox-sim] Simulation finished at time 10000000 fs
+[mox-sim] Simulation completed at time 10000000 fs
+[mox-sim] Simulation completed
+mox-run wall guards: compile=25000ms simulation=disabled
+[mox-run] parse (6ms, total: 6ms)
+[mox-run] lower (6ms, total: 12ms)
+[mox-run] simulate (0ms, total: 13ms)
+[mox-sim] Auto-enabling --skip-passes for module marked mox.sim.preprocessed
+[mox-sim] Stage: passes (prev: 0ms, total: 0ms)
+[mox-sim] Stage: init (prev: 0ms, total: 0ms)
+[mox-sim] Stage: run (prev: 1ms, total: 1ms)
+[mox-sim] sim.terminate triggered in process ID 3 at loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/events/event_sync.sol.sv":29:5 to :13)
+[mox-sim] Simulation terminated at time 10000000 fs (success=true, verbose=true)
+[mox-sim] Main loop exit: shouldContinue()=false at time 10000000 fs, iter=2, deltas=1

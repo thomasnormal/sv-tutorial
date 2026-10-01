@@ -1,0 +1,12 @@
+[mox-sim] Stage: passes (prev: 0ms, total: 0ms)
+[mox-sim] Stage: init (prev: 0ms, total: 0ms)
+[mox-sim] Found 3 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 1 hw.instance ops (out of 45 total ops) in module
+[mox-sim] Registered 4 LLHD signals and 4 LLHD processes/initial blocks
+[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0
+[mox-sim] Stage: run (prev: 1ms, total: 2ms)
+[mox-sim] Starting simulation
+PASS
+[mox-sim] Simulation terminated at time 11000000 fs (success=true, verbose=false)
+[mox-sim] Main loop exit: shouldContinue()=false at time 11000000 fs, iter=4, deltas=1
+[mox-sim] Simulation completed at time 11000000 fs
+[mox-sim] Simulation completed

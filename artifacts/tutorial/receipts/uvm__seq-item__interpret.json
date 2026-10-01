@@ -1,0 +1,39 @@
+{
+  "slug": "uvm/seq-item",
+  "title": "Sequence Items",
+  "runner": "sim",
+  "mode": "interpret",
+  "command": [
+    "taskset",
+    "-c",
+    "0-79",
+    "timeout",
+    "--kill-after=3s",
+    "30s",
+    "/var/tmp/thomas-ahle/wt/landing/build-dev-fast/bin/mox-run",
+    "--single-unit",
+    "--timescale=1ns/1ns",
+    "--mode=interpret",
+    "--max-wall-ms=25000",
+    "--uvm-path",
+    "/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core",
+    "-I",
+    "/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src",
+    "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/uvm/seq-item/mem_item.sol.sv",
+    "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/uvm/seq-item/tb_top.sv"
+  ],
+  "exit": 0,
+  "elapsed_s": 15.326,
+  "first_lines": [
+    "Using module 'tb_top' as top module",
+    "[mox-sim] Found 1 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 0 hw.instance ops (out of 52 total ops) in module",
+    "UVM_INFO static/mox/uvm-core/src/base/uvm_root.svh(476) @ 0: reporter [UVM/RELNOTES] ",
+    "  ***********       IMPORTANT RELEASE NOTES         ************",
+    "  This implementation of the UVM Library deviates from the 1800.2-2020",
+    "  standard.  See the DEVIATIONS.md file contained in the release",
+    "  for more details.",
+    "----------------------------------------------------------------"
+  ],
+  "pass": true,
+  "log": "/var/tmp/thomas-ahle/sv-tutorial/artifacts/tutorial/receipts/uvm__seq-item__interpret.log"
+}

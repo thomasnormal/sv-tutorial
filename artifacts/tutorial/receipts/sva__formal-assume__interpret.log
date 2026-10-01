@@ -1,0 +1,33 @@
+Using module 'tb' as top module
+[mox-sim] Found 3 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 1 hw.instance ops (out of 61 total ops) in module
+[mox-sim] Registered 7 LLHD signals and 4 LLHD processes/initial blocks
+[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0
+[mox-sim] Starting simulation
+PASS
+[mox-sim] Simulation finished at time 135000000 fs
+[mox-sim] Simulation completed at time 135000000 fs
+[mox-sim] Simulation finished with exit code 1
+mox-run wall guards: compile=25000ms simulation=disabled
+[mox-run] parse (9ms, total: 9ms)
+[mox-run] lower (6ms, total: 16ms)
+[mox-run] simulate (0ms, total: 16ms)
+[mox-sim] Auto-enabling --skip-passes for module marked mox.sim.preprocessed
+[mox-sim] Stage: passes (prev: 0ms, total: 0ms)
+[mox-sim] Stage: init (prev: 0ms, total: 0ms)
+[mox-sim] Stage: run (prev: 1ms, total: 1ms)
+[mox-sim] SVA assumption failed at time 25000000 fs (loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/formal-assume/top.sol.sv":16:11 to :48))
+[mox-sim] SVA assumption failed at time 35000000 fs (loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/formal-assume/top.sol.sv":16:11 to :48))
+[mox-sim] SVA assumption failed at time 45000000 fs (loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/formal-assume/top.sol.sv":16:11 to :48))
+[mox-sim] SVA assumption failed at time 55000000 fs (loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/formal-assume/top.sol.sv":16:11 to :48))
+[mox-sim] SVA assumption failed at time 65000000 fs (loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/formal-assume/top.sol.sv":16:11 to :48))
+[mox-sim] SVA assumption failed at time 75000000 fs (loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/formal-assume/top.sol.sv":16:11 to :48))
+[mox-sim] SVA assumption failed at time 85000000 fs (loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/formal-assume/top.sol.sv":16:11 to :48))
+[mox-sim] SVA assumption failed at time 95000000 fs (loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/formal-assume/top.sol.sv":16:11 to :48))
+[mox-sim] SVA assumption failed at time 105000000 fs (loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/formal-assume/top.sol.sv":16:11 to :48))
+[mox-sim] SVA assumption failed at time 115000000 fs (loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/formal-assume/top.sol.sv":16:11 to :48))
+[mox-sim] SVA assumption failed at time 125000000 fs (loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/formal-assume/top.sol.sv":16:11 to :48))
+[mox-sim] sim.terminate triggered in process ID 6 at loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/formal-assume/tb.sv":12:5 to :13)
+[mox-sim] SVA assumption failed at time 135000000 fs (loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/formal-assume/top.sol.sv":16:11 to :48))
+[mox-sim] Simulation terminated at time 135000000 fs (success=true, verbose=true)
+[mox-sim] Main loop exit: shouldContinue()=false at time 135000000 fs, iter=28, deltas=1
+[mox-sim] 12 SVA assumption failure(s)

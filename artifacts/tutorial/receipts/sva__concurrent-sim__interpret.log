@@ -1,0 +1,23 @@
+Using module 'tb' as top module
+[mox-sim] Found 2 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 1 hw.instance ops (out of 79 total ops) in module
+[mox-sim] Registered 6 LLHD signals and 3 LLHD processes/initial blocks
+[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0
+[mox-sim] Starting simulation
+Error: req was not followed by gnt within 3 cycles!
+PASS
+[mox-sim] Simulation finished at time 145000000 fs
+[mox-sim] Simulation completed at time 145000000 fs
+[mox-sim] Simulation finished with exit code 1
+mox-run wall guards: compile=25000ms simulation=disabled
+[mox-run] parse (6ms, total: 6ms)
+[mox-run] lower (5ms, total: 12ms)
+[mox-run] simulate (0ms, total: 12ms)
+[mox-sim] Auto-enabling --skip-passes for module marked mox.sim.preprocessed
+[mox-sim] Stage: passes (prev: 0ms, total: 0ms)
+[mox-sim] Stage: init (prev: 0ms, total: 0ms)
+[mox-sim] Stage: run (prev: 1ms, total: 1ms)
+[mox-sim] SVA assertion failed: req_gnt_check at time 85000000 fs (loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/concurrent-sim/monitor.sol.sv":8:3 to 9:65))
+[mox-sim] sim.terminate triggered in process ID 5 at loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/concurrent-sim/tb.sv":37:5 to :13)
+[mox-sim] Simulation terminated at time 145000000 fs (success=true, verbose=true)
+[mox-sim] Main loop exit: shouldContinue()=false at time 145000000 fs, iter=30, deltas=1
+[mox-sim] 1 SVA assertion failure(s)

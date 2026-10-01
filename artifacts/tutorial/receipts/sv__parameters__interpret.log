@@ -1,0 +1,22 @@
+Using module 'tb' as top module
+[mox-sim] Found 4 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 2 hw.instance ops (out of 150 total ops) in module
+[mox-sim] Registered 24 LLHD signals and 8 LLHD processes/initial blocks
+[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0
+[mox-sim] Starting simulation
+small[5] = a (expect a)
+large[200] = beef (expect beef)
+PASS
+[mox-sim] Simulation finished at time 36000000 fs
+[mox-sim] Simulation completed at time 36000000 fs
+[mox-sim] Simulation completed
+mox-run wall guards: compile=25000ms simulation=disabled
+[mox-run] parse (8ms, total: 8ms)
+[mox-run] lower (8ms, total: 16ms)
+[mox-run] simulate (0ms, total: 17ms)
+[mox-sim] Auto-enabling --skip-passes for module marked mox.sim.preprocessed
+[mox-sim] Stage: passes (prev: 0ms, total: 0ms)
+[mox-sim] Stage: init (prev: 0ms, total: 0ms)
+[mox-sim] Stage: run (prev: 1ms, total: 2ms)
+[mox-sim] sim.terminate triggered in process ID 8 at loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/parameters/tb.sv":35:5 to :13)
+[mox-sim] Simulation terminated at time 36000000 fs (success=true, verbose=true)
+[mox-sim] Main loop exit: shouldContinue()=false at time 36000000 fs, iter=12, deltas=1

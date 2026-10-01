@@ -1,0 +1,5 @@
+variant	mode	exit	result
+starter	interpret	0	FAIL: first sample=aa
+starter	compile	0	FAIL: first sample=aa
+solution	interpret	0	PASS: clocking sample retained=bb
+solution	compile	0	PASS: clocking sample retained=bb

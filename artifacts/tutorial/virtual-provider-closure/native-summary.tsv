@@ -1,0 +1,7 @@
+variant	mode	exit	pass_line
+starter	interpret	0	FAIL: virtual provider value=6 id=606
+starter	compile	0	FAIL: virtual provider value=6 id=606
+starter	refdiff	1	both_fail ref=FAIL mox=FAIL equal=true
+solution	interpret	0	PASS: virtual provider value=7 id=707
+solution	compile	0	PASS: virtual provider value=7 id=707
+solution	refdiff	0	both_pass ref=PASS mox=PASS equal=true

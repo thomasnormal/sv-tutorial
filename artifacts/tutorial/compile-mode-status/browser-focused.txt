@@ -1,0 +1,11 @@
+Focused browser receipt for `sv/compile-mode-status`.
+
+Date: 2026-09-30 UTC
+Command:
+  npx playwright test e2e/qa-all-lessons.spec.js --grep 'Compile-Mode Status'
+
+Result: 1 passed in 38.8s
+
+The browser run is the lesson's interpreter-backed smoke test. It does not
+claim native `--mode=compile` support; the native compile receipt is captured
+in `solution-compile.log`.

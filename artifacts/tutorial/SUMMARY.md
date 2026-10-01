@@ -110,6 +110,24 @@ Their corrected-tip hashes, native/reference argv, and the final build/e2e
 receipt are recorded in
 `artifacts/tutorial/capability-receipts/PROVENANCE.md`.
 
+## Receipt coverage on origin/main
+
+The 80 registered lesson slugs are now accounted for by either the original
+generic receipts, a capability-specific bundle, or the missing-matrix bundle
+at `artifacts/tutorial/receipts/20261001-missing/`. That matrix records the
+18 previously uncovered slugs: native Mox passes for both RTL lessons and all
+four MLIR testbench runs; the advanced UVM rows retain their current native
+compile failures; and the cocotb native prerequisite failure is recorded as
+`BLOCKED`, not a pass. The coverage invariant is enforced by
+`src/lessons/receipt-matrix.test.js`.
+
+The full browser route receipt is
+`artifacts/tutorial/e2e/tutorial-full-e2e-20261001.log`: `npm run test:e2e`
+completed on October 1, 2026 with 177 passed and 54 failed (exit 1). The log
+is intentionally kept even though the suite is red, so pinned-WASM failures
+and current route behavior remain visible rather than being described as
+landed functionality.
+
 ### Compile-mode status chapter
 
 `sv/compile-mode-status` is a runnable native compile smoke test plus a status

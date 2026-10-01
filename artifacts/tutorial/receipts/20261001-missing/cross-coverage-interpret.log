@@ -1,0 +1,15 @@
+mox-run wall guards: compile=25000ms simulation=disabled
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/base/uvm_config_db_implementation.svh:375:26: warning: unknown character escape sequence [-Wunknown-escape-code]
+            separator = "\.(" ;
+                         ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/uvm_pkg.sv:57:2: note: included from here
+ `include "base/uvm_base.svh"
+ ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/base/uvm_base.svh:77:3: note: included from here
+  `include "base/uvm_config_db_implementation.svh"
+  ^
+/var/tmp/thomas-ahle/sv-tutorial/src/lessons/uvm/cross-coverage/mem_coverage.sv:38:118: error: expected ';'
+      $fatal(0, $sformatf("Coverage %.1f%% — add addr_x_we cross and ignore_bins, then implement this check", pct))
+/var/tmp/thomas-ahle/sv-tutorial/src/lessons/uvm/cross-coverage/tb_top.sv:9:1: note: included from here
+`include "mem_coverage.sv"
+^

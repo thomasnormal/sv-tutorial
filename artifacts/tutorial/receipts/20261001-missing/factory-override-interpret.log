@@ -1,0 +1,25 @@
+mox-run wall guards: compile=25000ms simulation=disabled
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/base/uvm_config_db_implementation.svh:375:26: warning: unknown character escape sequence [-Wunknown-escape-code]
+            separator = "\.(" ;
+                         ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/uvm_pkg.sv:57:2: note: included from here
+ `include "base/uvm_base.svh"
+ ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/base/uvm_base.svh:77:3: note: included from here
+  `include "base/uvm_config_db_implementation.svh"
+  ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/dpi/uvm_svcmd_dpi.svh:44:10: remark: DPI-C import 'uvm_dpi_get_next_arg_c' will use runtime stub (link with MooreRuntime)
+  return uvm_dpi_get_next_arg_c(init);
+         ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/dpi/uvm_regex.svh:80:13: remark: DPI-C import 'uvm_re_compexecfree' will use runtime stub (link with MooreRuntime)
+  success = uvm_re_compexecfree(re, str, deglob, retval);
+            ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/dpi/uvm_regex.svh:82:39: remark: DPI-C import 'uvm_re_buffer' will use runtime stub (link with MooreRuntime)
+    uvm_report_error("UVM/DPI/REGEX", uvm_re_buffer());
+                                      ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/dpi/uvm_regex.svh:91:10: remark: DPI-C import 'uvm_re_deglobbed' will use runtime stub (link with MooreRuntime)
+  return uvm_re_deglobbed(glob, 1);
+         ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/base/uvm_spell_chkr.svh:123:7: error: invalid expression
+      `uvm_info("UVM/CONFIGDB/SPELLCHK",$sformatf("%s not located, no alternatives to suggest", s),UVM_NONE)
+      ^

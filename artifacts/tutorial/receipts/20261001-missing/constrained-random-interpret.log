@@ -1,0 +1,125 @@
+mox-run wall guards: compile=25000ms simulation=disabled
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/base/uvm_config_db_implementation.svh:375:26: warning: unknown character escape sequence [-Wunknown-escape-code]
+            separator = "\.(" ;
+                         ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/uvm_pkg.sv:57:2: note: included from here
+ `include "base/uvm_base.svh"
+ ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/base/uvm_base.svh:77:3: note: included from here
+  `include "base/uvm_config_db_implementation.svh"
+  ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/dpi/uvm_svcmd_dpi.svh:44:10: remark: DPI-C import 'uvm_dpi_get_next_arg_c' will use runtime stub (link with MooreRuntime)
+  return uvm_dpi_get_next_arg_c(init);
+         ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/dpi/uvm_regex.svh:80:13: remark: DPI-C import 'uvm_re_compexecfree' will use runtime stub (link with MooreRuntime)
+  success = uvm_re_compexecfree(re, str, deglob, retval);
+            ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/dpi/uvm_regex.svh:82:39: remark: DPI-C import 'uvm_re_buffer' will use runtime stub (link with MooreRuntime)
+    uvm_report_error("UVM/DPI/REGEX", uvm_re_buffer());
+                                      ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/dpi/uvm_regex.svh:91:10: remark: DPI-C import 'uvm_re_deglobbed' will use runtime stub (link with MooreRuntime)
+  return uvm_re_deglobbed(glob, 1);
+         ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/sequences/uvm_reg_mem_hdl_paths_seq.svh:168:18: remark: DPI-C import 'uvm_hdl_read' will use runtime stub (link with MooreRuntime)
+            if (!uvm_hdl_read(p_,d)) begin
+                 ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/sequences/uvm_reg_mem_hdl_paths_seq.svh:173:18: remark: DPI-C import 'uvm_hdl_check_path' will use runtime stub (link with MooreRuntime)
+            if (!uvm_hdl_check_path(p_)) begin
+                 ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/sequences/uvm_reg_mem_hdl_paths_seq.svh:205:17: remark: DPI-C import 'uvm_hdl_check_path' will use runtime stub (link with MooreRuntime)
+            if(!uvm_hdl_check_path(p_)) begin
+                ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/uvm_mem.svh:1952:17: remark: DPI-C import 'uvm_hdl_deposit' will use runtime stub (link with MooreRuntime)
+          ok &= uvm_hdl_deposit({hdl_concat.slices[j].path,"[", idx, "]"},rw.get_value(mem_idx));
+                ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/uvm_mem.svh:1959:17: remark: DPI-C import 'uvm_hdl_deposit' will use runtime stub (link with MooreRuntime)
+          ok &= uvm_hdl_deposit({hdl_concat.slices[j].path, "[", idx, "]"}, slice);
+                ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/uvm_mem.svh:1888:17: remark: DPI-C import 'uvm_hdl_read' will use runtime stub (link with MooreRuntime)
+          ok &= uvm_hdl_read(hdl_path, val);
+                ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/uvm_mem.svh:1894:17: remark: DPI-C import 'uvm_hdl_read' will use runtime stub (link with MooreRuntime)
+          ok &= uvm_hdl_read(hdl_path, slice);
+                ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/uvm_reg.svh:2605:15: remark: DPI-C import 'uvm_hdl_deposit' will use runtime stub (link with MooreRuntime)
+        repeat (hdl_concat.slices[j].size) begin
+              ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/uvm_reg.svh:2612:15: remark: DPI-C import 'uvm_hdl_deposit' will use runtime stub (link with MooreRuntime)
+    val &= (1 << m_n_bits)-1;
+              ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/uvm_reg.svh:2642:15: remark: DPI-C import 'uvm_hdl_read' will use runtime stub (link with MooreRuntime)
+                   input  uvm_sequence_base parent = null,
+              ^
+/var/tmp/thomas-ahle/sv-tutorial/static/mox/uvm-core/src/reg/uvm_reg.svh:2649:15: remark: DPI-C import 'uvm_hdl_read' will use runtime stub (link with MooreRuntime)
+[mox-sim] WARNING: MOX-DPI-IMPORT-STRING-RESULT (1/8): converter=__moore_c_string_to_string abi=dpi-import-string-return reason=null-pointer native_ptr=(nil) result-policy=empty-string/continue
+[mox-sim] Found 1 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 0 hw.instance ops (out of 49 total ops) in module
+UVM_INFO static/mox/uvm-core/src/base/uvm_root.svh(476) @ 0: reporter [UVM/RELNOTES] 
+  ***********       IMPORTANT RELEASE NOTES         ************
+
+  This implementation of the UVM Library deviates from the 1800.2-2020
+  standard.  See the DEVIATIONS.md file contained in the release
+  for more details.
+
+----------------------------------------------------------------
+Accellera:1800.2:UVM:2020.3.1
+
+All copyright owners for this kit are listed in NOTICE.txt
+All Rights Reserved Worldwide
+----------------------------------------------------------------
+
+      (Specify +UVM_NO_RELNOTES to turn off this notice)
+
+[mox-sim] Registered 0 LLHD signals and 1 LLHD processes/initial blocks
+[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0
+[mox-sim] Starting simulation
+UVM_INFO @ 0: reporter [RNTST] Running test mem_test...
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(13) @ 0: uvm_test_top [TEST] === Scenario 1: weighted_c active ===
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(16) @ 0: uvm_test_top [TEST] WR [15] = 45
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(16) @ 0: uvm_test_top [TEST] WR [10] = 164
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(16) @ 0: uvm_test_top [TEST] RD [15]
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(16) @ 0: uvm_test_top [TEST] RD [10]
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(20) @ 0: uvm_test_top [TEST] === Scenario 2: inline override (boundary writes only) ===
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(23) @ 0: uvm_test_top [TEST] WR [15] = 176
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(23) @ 0: uvm_test_top [TEST] WR [15] = 72
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(23) @ 0: uvm_test_top [TEST] WR [15] = 251
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(23) @ 0: uvm_test_top [TEST] WR [15] = 246
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(27) @ 0: uvm_test_top [TEST] PASS: all 4 items were boundary writes
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(30) @ 0: uvm_test_top [TEST] === Scenario 3: weighted_c disabled ===
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(36) @ 0: uvm_test_top [TEST] RD [12]
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(36) @ 0: uvm_test_top [TEST] WR [0] = 138
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(36) @ 0: uvm_test_top [TEST] RD [14]
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(36) @ 0: uvm_test_top [TEST] RD [6]
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(36) @ 0: uvm_test_top [TEST] RD [7]
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(36) @ 0: uvm_test_top [TEST] RD [5]
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(36) @ 0: uvm_test_top [TEST] WR [1] = 85
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(36) @ 0: uvm_test_top [TEST] WR [10] = 81
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(36) @ 0: uvm_test_top [TEST] WR [10] = 247
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(36) @ 0: uvm_test_top [TEST] RD [11]
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(36) @ 0: uvm_test_top [TEST] RD [5]
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(36) @ 0: uvm_test_top [TEST] RD [12]
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(36) @ 0: uvm_test_top [TEST] RD [1]
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(36) @ 0: uvm_test_top [TEST] RD [1]
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(36) @ 0: uvm_test_top [TEST] RD [15]
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(36) @ 0: uvm_test_top [TEST] RD [0]
+UVM_INFO src/lessons/uvm/constrained-random/mem_test.sol.sv(40) @ 0: uvm_test_top [TEST] PASS: 13/16 items hit interior addresses (uniform spread)
+UVM_INFO static/mox/uvm-core/src/base/uvm_report_server.svh(1009) @ 0: reporter [UVM/REPORT/SERVER] 
+--- UVM Report Summary ---
+
+** Report counts by severity
+UVM_INFO :   31
+UVM_WARNING :    0
+UVM_ERROR :    0
+UVM_FATAL :    0
+** Report counts by id
+[RNTST]     1
+[TEST]    29
+[UVM/RELNOTES]     1
+
+PASS
+[mox-sim] sim.terminate triggered in process ID 1 at loc("/var/tmp/thomas-ahle/sv-tutorial/src/lessons/uvm/constrained-random/tb_top.sv":12:5 to :13)
+[mox-sim] Simulation terminated at time 0 fs (success=true, verbose=true)
+[mox-sim] Main loop exit: shouldContinue()=false at time 0 fs, iter=1, deltas=1
+[mox-sim] Simulation finished at time 0 fs
+[mox-sim] Simulation completed at time 0 fs
+[mox-sim] integrity summary: runtime-warnings=1 runtime-errors=0 vpi-masked-string-decodes=0 aot-abi-demotions=0
+[mox-sim] Simulation completed

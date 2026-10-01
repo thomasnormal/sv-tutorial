@@ -1,0 +1,133 @@
+{
+  "generated": "2026-10-01",
+  "base": "origin/main 24175be0f38db6f468e73883384b74dc01713a2f",
+  "native_mox": {
+    "build_dir": "/var/tmp/thomas-ahle/wt/landing/build-dev-fast",
+    "version": "e81e1f9272f85df16ed1a479d2b3eba670f022f1",
+    "cpu_set": "0-79",
+    "wall_guard": "30s",
+    "compile_guard_ms": 25000
+  },
+  "entries": [
+    {
+      "slug": "uvm/constrained-random",
+      "runner": "sim",
+      "runs": [
+        {"mode": "interpret", "exit": 0, "result": "PASS", "log": "constrained-random-interpret.log", "note": "UVM test prints PASS; native Mox emits a DPI string-result warning."},
+        {"mode": "compile", "exit": 1, "result": "FAIL", "log": "constrained-random-compile.log", "note": "AOT frontend wall guard at 25000 ms."}
+      ]
+    },
+    {
+      "slug": "uvm/monitor",
+      "runner": "sim",
+      "runs": [
+        {"mode": "interpret", "exit": 1, "result": "FAIL", "log": "monitor-interpret.log", "note": "Mox cannot resolve mem_agent.drv class-property type."},
+        {"mode": "compile", "exit": 1, "result": "FAIL", "log": "monitor-compile.log", "note": "Mox cannot resolve mem_agent.drv class-property type."}
+      ]
+    },
+    {
+      "slug": "uvm/env",
+      "runner": "sim",
+      "runs": [
+        {"mode": "interpret", "exit": 1, "result": "FAIL", "log": "env-interpret.log", "note": "Mox cannot resolve mem_agent.drv class-property type."},
+        {"mode": "compile", "exit": 1, "result": "FAIL", "log": "env-compile.log", "note": "Mox cannot resolve mem_agent.drv class-property type."}
+      ]
+    },
+    {
+      "slug": "uvm/covergroup",
+      "runner": "sim",
+      "runs": [
+        {"mode": "interpret", "exit": 1, "result": "FAIL", "log": "covergroup-interpret.log", "note": "Mox reports expected ';' in the lesson source."},
+        {"mode": "compile", "exit": 1, "result": "FAIL", "log": "covergroup-compile.log", "note": "Mox reports expected ';' in the lesson source."}
+      ]
+    },
+    {
+      "slug": "uvm/cross-coverage",
+      "runner": "sim",
+      "runs": [
+        {"mode": "interpret", "exit": 1, "result": "FAIL", "log": "cross-coverage-interpret.log", "note": "Mox reports expected ';' in the lesson source."},
+        {"mode": "compile", "exit": 1, "result": "FAIL", "log": "cross-coverage-compile.log", "note": "Mox reports expected ';' in the lesson source."}
+      ]
+    },
+    {
+      "slug": "uvm/coverage-driven",
+      "runner": "sim",
+      "runs": [
+        {"mode": "interpret", "exit": 1, "result": "FAIL", "log": "coverage-driven-interpret.log", "note": "Mox cannot resolve mem_agent.drv class-property type."},
+        {"mode": "compile", "exit": 1, "result": "FAIL", "log": "coverage-driven-compile.log", "note": "Mox cannot resolve mem_agent.drv class-property type."}
+      ]
+    },
+    {
+      "slug": "uvm/factory-override",
+      "runner": "sim",
+      "runs": [
+        {"mode": "interpret", "exit": 1, "result": "FAIL", "log": "factory-override-interpret.log", "note": "Mox reports an invalid expression in uvm_spell_chkr.svh."},
+        {"mode": "compile", "exit": 1, "result": "FAIL", "log": "factory-override-compile.log", "note": "Mox reports an invalid expression in uvm_spell_chkr.svh."}
+      ]
+    },
+    {
+      "slug": "uvm/ral",
+      "runner": "sim",
+      "runs": [
+        {"mode": "interpret", "exit": 1, "result": "FAIL", "log": "ral-interpret.log", "note": "Mox cannot resolve the uvm_reg_field enable property type."},
+        {"mode": "compile", "exit": 1, "result": "FAIL", "log": "ral-compile.log", "note": "Mox cannot resolve the uvm_reg_field enable property type."}
+      ]
+    },
+    {
+      "slug": "rtl/rtl-to-gates",
+      "runner": "sim",
+      "runs": [
+        {"mode": "interpret", "exit": 0, "result": "PASS", "log": "rtl-to-gates-interpret.log", "note": "Solution testbench prints PASS."},
+        {"mode": "compile", "exit": 0, "result": "PASS", "log": "rtl-to-gates-compile.log", "note": "AOT solution testbench prints PASS."}
+      ]
+    },
+    {
+      "slug": "rtl/synthesis-gotchas",
+      "runner": "sim",
+      "runs": [
+        {"mode": "interpret", "exit": 0, "result": "PASS", "log": "synthesis-gotchas-interpret.log", "note": "Solution testbench prints PASS."},
+        {"mode": "compile", "exit": 0, "result": "PASS", "log": "synthesis-gotchas-compile.log", "note": "AOT solution testbench prints PASS."}
+      ]
+    },
+    {
+      "slug": "mlir/intro",
+      "runner": "sim",
+      "runs": [{"mode": "sim", "exit": 0, "result": "PASS", "log": "mlir-intro.log", "note": "Combined adder and testbench MLIR prints PASS."}]
+    },
+    {
+      "slug": "mlir/comb",
+      "runner": "sim",
+      "runs": [{"mode": "sim", "exit": 0, "result": "PASS", "log": "mlir-comb.log", "note": "Combined priority encoder and testbench MLIR prints PASS."}]
+    },
+    {
+      "slug": "mlir/seq",
+      "runner": "sim",
+      "runs": [{"mode": "sim", "exit": 0, "result": "PASS", "log": "mlir-seq.log", "note": "Combined register and testbench MLIR prints PASS."}]
+    },
+    {
+      "slug": "mlir/lowering",
+      "runner": "sim",
+      "runs": [{"mode": "sim", "exit": 0, "result": "PASS", "log": "mlir-lowering.log", "note": "Combined lowering example and testbench MLIR prints PASS."}]
+    },
+    {
+      "slug": "cocotb/first-test",
+      "runner": "cocotb",
+      "runs": [{"mode": "icarus-cocotb-smoke", "exit": 1, "result": "BLOCKED", "log": "first-test-cb18.log", "note": "The generated Mox driver imports cocotb_test, which is unavailable with the installed cocotb ABI; browser receipt is tracked by the full Playwright run."}]
+    },
+    {
+      "slug": "cocotb/clock-and-timing",
+      "runner": "cocotb",
+      "runs": [{"mode": "icarus-cocotb-smoke", "exit": 1, "result": "BLOCKED", "log": "clock-and-timing-cb18.log", "note": "The generated Mox driver imports cocotb_test, which is unavailable with the installed cocotb ABI; browser receipt is tracked by the full Playwright run."}]
+    },
+    {
+      "slug": "cocotb/edge-triggers",
+      "runner": "cocotb",
+      "runs": [{"mode": "icarus-cocotb-smoke", "exit": 1, "result": "BLOCKED", "log": "edge-triggers-cb18.log", "note": "The generated Mox driver imports cocotb_test, which is unavailable with the installed cocotb ABI; browser receipt is tracked by the full Playwright run."}]
+    },
+    {
+      "slug": "cocotb/clockcycles-patterns",
+      "runner": "cocotb",
+      "runs": [{"mode": "icarus-cocotb-smoke", "exit": 1, "result": "BLOCKED", "log": "clockcycles-patterns-cb18.log", "note": "The generated Mox driver imports cocotb_test, which is unavailable with the installed cocotb ABI; browser receipt is tracked by the full Playwright run."}]
+    }
+  ]
+}

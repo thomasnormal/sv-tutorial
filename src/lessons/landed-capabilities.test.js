@@ -258,6 +258,7 @@ describe('landed Mox capability lessons and status pages', () => {
     expect(solution).toContain('logic [64:0] memory [0:2]');
     expect(description).toContain('§21.4.1');
     expect(description).toContain('e7da9630dcd');
+    expect(description).toContain('writable temporary directory');
     expect(solution).toContain('$display("PASS")');
 
     for (const [variant, filename] of [

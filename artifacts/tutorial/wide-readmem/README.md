@@ -54,7 +54,8 @@ does not qualify native AOT.
   memory through the test's value check.
 - `solution-refdiff.json`: `both_pass`; outputs are equivalent.
 - Both JSON receipts bind their `sha256` values to the committed source and
-  retain their `refdiff_cache_key` values.
+  retain their `refdiff_cache_key` values. Standing ruling — `general:
+  refdiff_cache_key is receipt provenance, not a runtime performance cache`.
 
 ## Browser qualification
 
@@ -66,4 +67,8 @@ npx playwright test e2e/qa-all-lessons.spec.js --grep 'Wide Four-State Memory Lo
 
 The route used the pinned interpreter-backed WASM fallback because
 `/mox/mox-run.js` is absent. This is browser interpreter qualification only,
-not native AOT qualification.
+not native AOT qualification. Standing ruling — `general: pinned interpreter
+fallback is an explicitly scoped browser compatibility path`.
+
+The lesson writes its input file under `/tmp`; the run environment must provide
+a writable temporary directory, as stated in the lesson itself.

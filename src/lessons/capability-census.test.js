@@ -68,7 +68,7 @@ describe('landed capability census', () => {
     expect(census).toContain('| `sv/clocking-sampler-retention` | `3b1760ff2030378cfde16ca319e2c1b806ab9d31`,');
     expect(census).toContain('| `sv/protected-envelope-boundary` | `c3799f427f1e51abcd389dcf15771150223cae75`,');
     expect(census).toContain('same-buffer opaque callback-boundary exercise');
-    expect(census).toContain('interface-method `%m` receiver scope');
+    expect(census).toContain('| `sv/interface-method-receiver` | `ed441eb5b58`,');
   });
 
   it('labels the native receipt binary as an intermediate landing build', () => {

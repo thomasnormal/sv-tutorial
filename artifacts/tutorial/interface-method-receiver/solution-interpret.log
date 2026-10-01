@@ -1,0 +1,18 @@
+
+=== solution interpret ===
+[mox-sim] Auto-enabling --skip-passes for module marked mox.sim.preprocessed
+[mox-sim] Stage: passes (prev: 0ms, total: 0ms)
+[mox-sim] Stage: init (prev: 0ms, total: 0ms)
+[mox-sim] Found 5 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 0 hw.instance ops (out of 589 total ops) in module
+[mox-sim] Registered 3 LLHD signals and 5 LLHD processes/initial blocks
+[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0
+[mox-sim] Stage: run (prev: 2ms, total: 2ms)
+[mox-sim] Starting simulation
+PASS
+[mox-sim] sim.terminate triggered in process ID 3 at loc("/tmp/interface-method-receiver.R8sOGl/design.mlir":756:7)
+[mox-sim] Simulation terminated at time 0 fs (success=true, verbose=true)
+[mox-sim] Main loop exit: shouldContinue()=false at time 0 fs, iter=1, deltas=1
+[mox-sim] Simulation finished at time 0 fs
+[mox-sim] Simulation completed at time 0 fs
+[mox-sim] Simulation completed
+import_exit=0 run_exit=0

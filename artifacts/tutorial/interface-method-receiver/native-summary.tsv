@@ -1,0 +1,7 @@
+variant	mode	exit	pass_line
+starter	interpret	0	FAIL: path=tb.u_a cast=tb.u_a paren=tb.u_a answers=1/1
+starter	compile	0	FAIL: path=tb.u_a cast=tb.u_a paren=tb.u_a answers=1/1
+starter	refdiff	1	both_fail ref=FAIL mox=FAIL equal=true
+solution	interpret	0	PASS
+solution	compile	0	PASS
+solution	refdiff	0	both_pass ref=PASS mox=PASS equal=true

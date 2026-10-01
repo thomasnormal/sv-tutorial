@@ -12,7 +12,8 @@ const capabilities = [
   ['sv/nested-child-input', 'nested_child_input'],
   ['sv/sequential-udp-init', 'sequential_udp'],
   ['sv/wide-readmem', 'wide_readmem'],
-  ['sv/coverage-option-text', 'coverage_option_text']
+  ['sv/coverage-option-text', 'coverage_option_text'],
+  ['sv/interface-method-receiver', 'interface_method_receiver']
 ];
 
 function receiptSourceMatches(receiptSource, sourcePath) {
@@ -313,6 +314,39 @@ describe('landed Mox capability lessons and status pages', () => {
         path.resolve(process.cwd(), `artifacts/tutorial/coverage-option-text/${variant}-source.sha256`),
         'utf8'
       ).trim()).toBe(sourceHash);
+    }
+  });
+
+  it('registers the interface-method receiver chapter and its landed behavior', () => {
+    const slug = 'sv/interface-method-receiver';
+    const dir = path.join(root, slug);
+    const starter = readFileSync(path.join(dir, 'interface_method_receiver.sv'), 'utf8');
+    const solution = readFileSync(path.join(dir, 'interface_method_receiver.sol.sv'), 'utf8');
+    const description = readFileSync(path.join(dir, 'description.html'), 'utf8');
+    expect(meta[slug]?.runner ?? 'sim').toBe('sim');
+    expect(meta[slug]?.focus).toBe('/src/interface_method_receiver.sv');
+    expect(starter).toContain('h.vif = u_a;');
+    expect(solution).toContain('h.vif = u_b;');
+    expect(description).toContain('§21.2.1.5');
+    expect(description).toContain('§25.9');
+    expect(description).toContain('ed441eb5b58');
+    expect(solution).toContain('$display("PASS")');
+
+    for (const [variant, filename] of [
+      ['starter', 'interface_method_receiver.sv'],
+      ['solution', 'interface_method_receiver.sol.sv']
+    ]) {
+      const sourcePath = path.join(dir, filename);
+      const sourceHash = createHash('sha256')
+        .update(readFileSync(sourcePath))
+        .digest('hex');
+      const receipt = JSON.parse(readFileSync(
+        path.resolve(process.cwd(), `artifacts/tutorial/interface-method-receiver/${variant}-refdiff.json`),
+        'utf8'
+      ));
+      expect(receiptSourceMatches(receipt.source, sourcePath)).toBe(true);
+      expect(receipt.sha256).toBe(sourceHash);
+      expect(receipt.refdiff_cache_key).toMatch(/^[0-9a-f]{64}$/);
     }
   });
 });

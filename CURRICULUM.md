@@ -73,6 +73,11 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 |---|---|---|---|---|---|
 | `sv/coverage-option-text` | Coverage Option Text | ✅ | — | `sv/covergroup-basics` | default and procedural assignment of a covergroup instance's `option.comment` |
 
+### Chapter: Interface Method Receivers (October 2026)
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `sv/interface-method-receiver` | Interface Method Receivers | ✅ | — | `sv/interfaces`, `sv/classes` | receiver-specific `%m` paths and parenthesized calls through a virtual interface |
+
 ### Chapter: Introduction
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|

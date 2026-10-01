@@ -20,7 +20,7 @@ tutorial's runnable coverage for the landed readmem behavior.
 
 ## New landed-capability chapters
 
-These nine short chapters correspond to the user-facing Mox capabilities present
+These ten short chapters correspond to the user-facing Mox capabilities present
 on the current `origin/main` by October 1, 2026. The compile-mode status page is
 listed separately below because it reports qualification status rather than
 teaching a new language capability. Every solution passes Mox in both
@@ -39,14 +39,14 @@ attempts decryption without a key.
 | `sv/clocking-sampler-retention` | `3b1760ff2030378cfde16ca319e2c1b806ab9d31`, `test/Tools/mox-sim/mq93-m2-clock-sampler.sv` | §§14.3, 14.13: default `1step` samples before the clock event; explicit `#0` samples in Observed and retains the sample through same-slot re-entry. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS / both FAIL, output equal | added an explicit-`#0` sampler-retention exercise |
 | `sv/protected-envelope-boundary` | `c3799f427f1e51abcd389dcf15771150223cae75`, `test/Conversion/ImportVerilog/protected-comment-callback.sv` | §§34.2, 34.3, 34.4, 34.5.3–34.5.4: protected text is transformed before analysis and delimiters close the envelope; this lesson does not claim decryption. | solution PASS; starter FAIL | solution PASS; starter FAIL | `reference_only_fail` for solution; Xcelium attempts unkeyed decryption | added same-buffer opaque callback-boundary exercise |
 | `sv/wide-readmem` | `e7da9630dcd`, `test/Tools/mox-sim/aot-readmem-wide-fourstate.sv` | §§21.4, 21.4.1: `$readmemh` accepts optional address bounds and loads packed elements of an unpacked memory, preserving four-state digits. | solution PASS; starter FAIL | solution PASS; starter FAIL | starter `both_fail`; solution `both_pass`, output equal | added a width-calibration readmem exercise |
+| `sv/coverage-option-text` | `b481355f9fe`, `test/Tools/mox-sim/coverage-covergroup-option-comment-assignment.sv` | §19.7 and Table 19-1: an instance-specific covergroup `comment` defaults to `""` and may be assigned procedurally after instantiation. | solution PASS; starter FAIL | solution PASS; starter FAIL | starter `both_fail`; solution `both_pass`, output equal | added a default-and-assignment coverage-option exercise |
 
 The remaining current-main capability commits are queued for their own short
-chapters and are not silently folded into an existing lesson: coverage-option
-string preservation (`b481355f9fe`), VPI system-function argument marshalling
-(`d83c4b1dde8`), and interface-method `%m` receiver scope plus parenthesized
+chapters and are not silently folded into an existing lesson: VPI system-function
+argument marshalling (`d83c4b1dde8`), and interface-method `%m` receiver scope plus parenthesized
 virtual-interface receivers (`ed441eb5b58`).
 
-This census covers every lesson in `src/lessons/` (meta.js, 73 lessons) and CURRICULUM.md, checked against
+This census covers every lesson in `src/lessons/` (meta.js, 84 lessons) and CURRICULUM.md, checked against
 IEEE 1800-2023 (`spec/ieee-1800-2023.txt`) and IEEE 1800.2-2020 (UVM).
 
 Each row gives: lesson | claim/example | what is wrong | IEEE clause | evidence | proposed fix | severity.

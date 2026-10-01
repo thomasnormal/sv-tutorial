@@ -93,6 +93,7 @@ export const parts = [
       { title: 'Protected Envelope Boundary', lessons: [L('sv/protected-envelope-boundary')] },
       { title: 'Virtual Method Provider Closure', lessons: [L('sv/virtual-provider-closure')] },
       { title: 'Wide Four-State Memory Loading', lessons: [L('sv/wide-readmem')] },
+      { title: 'Coverage Option Text', lessons: [L('sv/coverage-option-text')] },
     ],
   },
   {

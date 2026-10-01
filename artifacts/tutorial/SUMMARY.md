@@ -90,7 +90,7 @@ One commit per issue, each with the test that fails before it and passes after:
 
 ### Landed capability chapters
 
-Added seven one-lesson chapters for user-facing SystemVerilog capabilities
+Added eight one-lesson chapters for user-facing SystemVerilog capabilities
 landed in Mox between September 22 and October 1, 2026. The UDP chapter
 tracks landing tip `36b040f6190c`, and the virtual-provider chapter tracks
 `3bc88e77921e`; the pinned browser WASM remains unchanged.
@@ -104,6 +104,7 @@ tracks landing tip `36b040f6190c`, and the virtual-provider chapter tracks
 | `sv/sequential-udp-init` | §§29.3.2, 29.6, 29.7 | starter FAIL; solution PASS in interpreter and compile modes | starter both_fail; solution PASS; output equal | `artifacts/tutorial/capability-receipts/*sequential-udp-init*` |
 | `sv/virtual-provider-closure` | §§8.20, 8.22 | starter FAIL; solution PASS in interpreter and compile modes | starter both_fail; solution both_pass; output equal | `artifacts/tutorial/virtual-provider-closure/*` |
 | `sv/wide-readmem` | §§21.4, 21.4.1 | starter FAIL; solution PASS in interpreter and compile modes | starter both_fail; solution both_pass; output equal | `artifacts/tutorial/wide-readmem/*` |
+| `sv/coverage-option-text` | §19.7, Table 19-1 | starter FAIL; solution PASS in interpreter and compile modes | starter both_fail; solution both_pass; output equal | `artifacts/tutorial/coverage-option-text/*` |
 
 The capability receipt summaries are in
 `artifacts/tutorial/capability-receipts/{summary,final-summary}.tsv`.
@@ -113,7 +114,7 @@ receipt are recorded in
 
 ## Receipt coverage on origin/main
 
-The 80 registered lesson slugs are now accounted for by either the original
+The 84 registered lesson slugs are now accounted for by either the original
 generic receipts, a capability-specific bundle, or the missing-matrix bundle
 at `artifacts/tutorial/receipts/20261001-missing/`. That matrix records the
 18 previously uncovered slugs: native Mox passes for both RTL lessons and all
@@ -172,6 +173,18 @@ and Mox agree: the starter is `both_fail` and the solution is `both_pass`.
 The focused browser run is 1/1 through the pinned interpreter-backed WASM
 fallback, not native AOT. Receipts and the Mox landing provenance are under
 `artifacts/tutorial/wide-readmem/`.
+
+### Coverage option text chapter
+
+`sv/coverage-option-text` teaches the empty default for a covergroup instance's
+`option.comment` and its procedural assignment under IEEE 1800-2023 §19.7 and
+Table 19-1. The starter deliberately rejects the empty default; the solution
+passes native interpreter and compile modes. Xcelium and Mox agree on the
+starter `both_fail` and solution `both_pass` receipts. The focused browser run
+is an explicit expected failure for the pinned WASM's unlinked coverage runtime
+host-allocation call; native AOT is not claimed. Receipts and the b481 landing
+provenance are under
+`artifacts/tutorial/coverage-option-text/`.
 
 ## WASM rebuild (done locally, NOT published; release `mox-wasm` is unchanged)
 Built with emsdk 4.0.21 from Mox main `9c5418532b9` (and landing `ea0fcd2`): mox-verilog, mox-sim, mox-bmc and

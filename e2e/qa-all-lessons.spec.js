@@ -19,6 +19,7 @@ const KNOWN_FAILURES = {
   'sv/tasks-functions run': `mox-run "memory access out of bounds": ${WASM_REBUILD}`,
   'sv/fsm run': `false "mem driven by always_ff" error on sram.sv: ${WASM_REBUILD}`,
   'sv/protected-envelope-boundary run': `comment-form protected envelope support is not in the pinned WASM; native Mox passes: ${WASM_REBUILD}`,
+  'sv/coverage-option-text run': 'pinned browser WASM lacks the coverage runtime host-allocation linkage; native Mox passes — needs a WASM rebuild',
   'sva/sequence-basics verify': 'Mox BMC crashes on an assert with a pass action (llhd.process handoff)',
   'sva/formal-assume run': 'Mox evaluates an initial assume property at every clock edge, not once (§16.14.6)',
   'cocotb/first-test run': `mox-sim-vpi aborts when the simulation starts: ${WASM_REBUILD}`,

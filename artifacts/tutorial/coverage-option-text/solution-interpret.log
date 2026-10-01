@@ -1,0 +1,26 @@
+[mox-sim] Auto-enabling --skip-passes for module marked mox.sim.preprocessed
+[mox-sim] Stage: passes (prev: 0ms, total: 0ms)
+[mox-sim] Stage: init (prev: 0ms, total: 0ms)
+[mox-sim] Found 1 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 0 hw.instance ops (out of 90 total ops) in module
+[mox-sim] Registered 1 LLHD signals and 1 LLHD processes/initial blocks
+[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0
+[mox-sim] Stage: run (prev: 2ms, total: 2ms)
+[mox-sim] Starting simulation
+PASS
+[mox-sim] sim.terminate triggered in process ID 1 at loc("/tmp/sv-tutorial-coverage-option.nQfn4Y/solution.mlir":130:7)
+[mox-sim] Simulation terminated at time 0 fs (success=true, verbose=true)
+[mox-sim] Main loop exit: shouldContinue()=false at time 0 fs, iter=1, deltas=1
+[mox-sim] Simulation finished at time 0 fs
+[mox-sim] Simulation completed at time 0 fs
+
+=================================================
+          Coverage Report
+=================================================
+
+Covergroup: coverage_model
+  Overall coverage: 25.00%
+  Coverpoints: 1
+    - cp_value: 1 hits, 25.00% coverage [range: 2..2, 1 unique values]
+
+=================================================
+[mox-sim] Simulation completed

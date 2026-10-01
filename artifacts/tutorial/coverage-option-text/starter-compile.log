@@ -1,0 +1,195 @@
+[mox-sim] Auto-enabling --skip-passes for module marked mox.sim.preprocessed
+[mox-sim] Stage: passes (prev: 0ms, total: 0ms)
+[mox-sim] aot-publication/v2 domain=module-loader-functions expected=0 accounted=0 positive=0 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:14a1ea4827eceb6099f752ac175f21d9feeed50ece269718c7050338ed779cdd
+[mox-sim] aot-publication/v2 domain=module-loader-processes expected=1 accounted=1 positive=1 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:dbece0947e8df29c3d674a06bb85a08e2b7bd4a0382cd6522ab2c5fa69007e8e
+[mox-sim] aot-publication/v2 domain=module-loader-address-bound-globals expected=12 accounted=12 positive=12 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:7a2ec44b3ffd00e87dafe9cdbdadf8c4ba94b0aeafa5e2f6e25ddaee5959eadc
+[mox-sim] aot-publication/v2 domain=module-loader-entry-table expected=0 accounted=0 positive=0 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:14a1ea4827eceb6099f752ac175f21d9feeed50ece269718c7050338ed779cdd
+[mox-sim] Loaded compiled module '/tmp/mox-scratch/a8e5ccd3bff512bd85be743cbbba161ae06504793c695db14b39d861ac39713b/session-86c1acf952916bb4e880fc2cdd48b4f0b35258071cc3bad161cd2f83b8134994/mox-sim-autocompile-6d9a20.so': 0 functions, 1 processes, 12 address-bound globals (build: mox-sim-abi-v19-x86_64-unknown-linux-gnu-ad2c1e7c1d3e485b1c78a8afbd4fb17a)
+[mox-sim] Address-bound global ownership: role=main, module='/tmp/mox-scratch/a8e5ccd3bff512bd85be743cbbba161ae06504793c695db14b39d861ac39713b/session-86c1acf952916bb4e880fc2cdd48b4f0b35258071cc3bad161cd2f83b8134994/mox-sim-autocompile-6d9a20.so', descriptor-declared=12, retained=12
+[mox-sim] M3 loaded callable union: artifacts=1 raw-rows=0 demand-rows=0 distinct-demand-keys=0 slot-rows=0 provider-rows=0 checked-keys=0 missing=0 duplicate=0 malformed=0 unresolved=0 dropped=0 digest=sha256:828ce4b8ae7317f1fb249596fd3af1cad68d4e5f81bc454856723af0d5634050 status=ok
+[mox-sim] Stage: init (prev: 123ms, total: 123ms)
+[mox-sim] Pre-aliased 12 address-bound globals to .so storage
+[mox-sim] Unmapped native func.call policy: default deny runtime bridges and pointer-typed get_/set_/create_/m_initialize* (allow others)
+[mox-sim] Loaded 0 compiled functions: 0 native-dispatched, 0 not-native-dispatched, 0 intercepted
+[mox-sim] aot-publication/v2 domain=compiled-function-dispatch expected=0 accounted=0 positive=0 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:14a1ea4827eceb6099f752ac175f21d9feeed50ece269718c7050338ed779cdd
+[mox-sim] Address-bound final-LLVM-global probes: 12/12 rows, 66/66 bytes bidirectional, owner-generation=1
+[mox-sim] Compiled process dispatch: 1/1 processes wired
+[mox-sim] aot-publication/v2 domain=process-dispatch expected=1 accounted=1 positive=1 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:979054643387faf73ad0f08f4cac05733060ee3d4ac3b9ff2b77a69eefd36c41
+[mox-sim] aot-publication/v2 domain=process-dispatch identity='tb.process_0' outcome=wired polarity=positive reason=''
+[mox-sim] Stage: load-compiled (prev: 2ms, total: 126ms)
+[mox-sim] Found 1 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 0 hw.instance ops (out of 117 total ops) in module
+[mox-sim] Registered 1 LLHD signals and 1 LLHD processes/initial blocks
+[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0
+[mox-sim] Stage: run (prev: 0ms, total: 126ms)
+[mox-sim] Starting simulation
+FAIL: starter rejected the empty default comment
+[mox-sim] Simulation terminated at time 0 fs (success=true, verbose=true)
+[mox-sim] Main loop exit: shouldContinue()=false at time 0 fs, iter=1, deltas=1
+[mox-sim] Simulation finished at time 0 fs
+[mox-sim] Simulation completed at time 0 fs
+[mox-sim] === AOT Statistics ===
+[mox-sim] parse_ms:                         0
+[mox-sim] passes_ms:                        0
+[mox-sim] init_ms:                          125
+[mox-sim] so_load_ms:                       1
+[mox-sim] snapshot_restore_ms:              0
+[mox-sim] run_ms:                           0
+[mox-sim] total_ms:                         126
+[mox-sim] arena_globals:                    0
+[mox-sim] arena_size_bytes:                 0
+[mox-sim] global_patch_count:               0
+[mox-sim] global_patch_bytes:               0
+[mox-sim] mutable_globals_total:            0
+[mox-sim] mutable_globals_arena:            0
+[mox-sim] mutable_globals_patch:            0
+[mox-sim] mutable_bytes_total:              0
+[mox-sim] mutable_bytes_arena:              0
+[mox-sim] mutable_bytes_patch:              0
+[mox-sim] static_aot_reachability_functions_total: 14
+[mox-sim] static_aot_reachability_functions_native: 0
+[mox-sim] static_aot_reachability_functions_native_root: 0
+[mox-sim] static_aot_reachability_functions_native_closure: 0
+[mox-sim] static_aot_reachability_functions_interp_only: 0
+[mox-sim] static_aot_reachability_functions_unattributed: 14
+[mox-sim] static_aot_reachability_functions_unknown: 0
+[mox-sim] static_aot_reachability_processes_total: 1
+[mox-sim] static_aot_reachability_processes_native: 0
+[mox-sim] static_aot_reachability_processes_native_root: 0
+[mox-sim] static_aot_reachability_processes_native_closure: 0
+[mox-sim] static_aot_reachability_processes_interp_only: 0
+[mox-sim] static_aot_reachability_processes_unattributed: 1
+[mox-sim] static_aot_reachability_processes_unknown: 0
+[mox-sim] dynamic_aot_process_invocations_total: 1
+[mox-sim] dynamic_aot_process_invocations_native: 1
+[mox-sim] dynamic_aot_process_invocations_interpreted: 0
+[mox-sim] dynamic_aot_process_native_pct: 100.00
+[mox-sim] dynamic_aot_callable_invocations_total: 0
+[mox-sim] dynamic_aot_callable_invocations_native: 0
+[mox-sim] dynamic_aot_callable_invocations_interpreted: 0
+[mox-sim] dynamic_aot_callable_native_pct: n/a
+[mox-sim] simulated_time_fs:                0
+[mox-sim] process_activations_total:        1
+[mox-sim] delta_cycles_total:               1
+[mox-sim] event_activations_total:          1
+[mox-sim] events_total:                     1
+[mox-sim] signal_updates_total:             0
+[mox-sim] edges_detected_total:             0
+[mox-sim] signal_dispatches_total:          0
+[mox-sim] signal_fanout_dispatches_total:   0
+[mox-sim] signal_fanout_candidates_checked_total: 0
+[mox-sim] priority_clocking_sampler_pre_scan_candidates_total: 0
+[mox-sim] process_activations_per_s:        4556
+[mox-sim] delta_cycles_per_s:               4556
+[mox-sim] event_activations_per_s:          4556
+[mox-sim] events_per_s:                     4556
+[mox-sim] signal_updates_per_s:             0
+[mox-sim] edges_detected_per_s:             0
+[mox-sim] simulated_fs_per_s:               0
+[mox-sim] simulated_ns_per_s:               0
+[mox-sim] Compiled process activations:    1
+[mox-sim] Compiled callback invocations:   1
+[mox-sim] Compiled frame-suspend invocations: 0
+[mox-sim] Compiled coroutine activations:  0
+[mox-sim] Deferred initial compiled process handoffs: 0
+[mox-sim] Init-phase interpreter activations:  0
+[mox-sim] Static-init interpreter activations: 0
+[mox-sim] Static-init one-shot discounts: 0
+[mox-sim] Static-init excess activations: 0
+[mox-sim] Interpreter process invocations:  0
+[mox-sim] Interpreter combinational invocations: 0
+[mox-sim] BEGIN interpreter-edge/v1
+[mox-sim] edge=interpreter-combinational-execution
+[mox-sim] operation=llhd.combinational
+[mox-sim] status=PRESENT
+[mox-sim] event_binding_status=NOT-PROVEN
+[mox-sim] event_binding_opened=0
+[mox-sim] event_binding_missing=0
+[mox-sim] event_binding_mismatch=0
+[mox-sim] event_binding_count_mismatch=0
+[mox-sim] event_binding_reason=producer-absent
+[mox-sim] calibration=NOT-REQUESTED
+[mox-sim] END interpreter-edge/v1
+[mox-sim] Interpreter continuous assignment invocations: 0
+[mox-sim] Initializer interpreter operations: 0
+[mox-sim] Filtered initializer interpreter operations: 0
+[mox-sim] AOT interpreter invocations total: 0
+[mox-sim] native pause ($stop) invocations: 0
+[mox-sim] Compiled function calls:          0
+[mox-sim] AOT reentry trampoline calls:     0
+[mox-sim] Trampoline calls:                 0
+[mox-sim] Entry-table native calls:         0
+[mox-sim] Entry-table skipped (depth):      0
+[mox-sim] Entry-table skipped (yield):      0
+[mox-sim] Entry MAY_YIELD skip (non-native-default): 0
+[mox-sim] Entry MAY_YIELD skip (trampoline-default): 0
+[mox-sim] Entry MAY_YIELD skip (native-default):     0
+[mox-sim] Entry MAY_YIELD skip (optin-no-proc):      0
+[mox-sim] Entry MAY_YIELD skip (optin-non-coro):     0
+[mox-sim] Max AOT depth:                    0
+[mox-sim] func.call skipped (depth):        0
+[mox-sim] func.call skipped (yield):        0
+[mox-sim] func.call MAY_YIELD skip (default):        0
+[mox-sim] func.call MAY_YIELD skip (optin-no-proc):  0
+[mox-sim] func.call MAY_YIELD skip (optin-non-coro): 0
+[mox-sim] indirect_calls_total:             0
+[mox-sim] indirect_calls_native:            0
+[mox-sim] function_identity_vtable_symbol_dispatches: 0
+[mox-sim] function_identity_vtable_legacy_fallbacks: 0
+[mox-sim] function_identity_vtable_missing_sidecar_fallbacks: 0
+[mox-sim] function_identity_vtable_mismatch_fallbacks: 0
+[mox-sim] function_identity_vtable_dropped_sidecar_rows: 0
+[mox-sim] function_identity_vtable_slot_pointer_rows: 0
+[mox-sim] function_identity_slot_pointer_key_lookups: 0
+[mox-sim] native_dispatch_abi_demotions: 0
+[mox-sim] native_dispatch_tagged_arm: 0
+[mox-sim] native_dispatch_slot_arm: 0
+[mox-sim] direct_calls_native:              0
+[mox-sim] aotDepth_max:                     0
+[mox-sim] entry_calls_total:                0
+[mox-sim] entry_calls_native:               0
+[mox-sim] entry_skipped_yield_non_native_default: 0
+[mox-sim] entry_skipped_yield_trampoline_default: 0
+[mox-sim] entry_skipped_yield_native_default:     0
+[mox-sim] entry_skipped_yield_optin_no_proc:      0
+[mox-sim] entry_skipped_yield_optin_non_coro:     0
+[mox-sim] direct_skipped_yield_default:            0
+[mox-sim] direct_skipped_yield_optin_no_proc:      0
+[mox-sim] direct_skipped_yield_optin_non_coro:     0
+[mox-sim] wait_event_count:                 0
+[mox-sim] wait_count:                       0
+[mox-sim] fork_count:                       0
+[mox-sim] join_count:                       0
+[mox-sim] yield_count_total:               0
+[mox-sim] Hot native FuncIds (top 50):
+[mox-sim]   (none)
+[mox-sim] Hot uncompiled FuncIds (top 50):
+[mox-sim]   (none)
+[mox-sim] Hot entry-table MAY_YIELD skips (top 50):
+[mox-sim]   (none)
+[mox-sim] Hot func.call MAY_YIELD skips (top 50):
+[mox-sim]   (none)
+[mox-sim] Deferred-initial pre-wait interpreted operations: 0
+[mox-sim] BEGIN interpreter-edge/v1
+[mox-sim] edge=deferred-initial-prewait-operation
+[mox-sim] status=PRESENT
+[mox-sim] count=0
+[mox-sim] event_binding_status=PROVEN
+[mox-sim] event_binding_opened=0
+[mox-sim] event_binding_missing=0
+[mox-sim] event_binding_mismatch=0
+[mox-sim] event_binding_count_mismatch=0
+[mox-sim] event_binding_reason=none
+[mox-sim] END interpreter-edge/v1
+[mox-sim] whole-design AOT zero-interpreter gate satisfied: counted process=0 combinational=0 initializer-operation=0 direct-call=0 ABI-demotion=0 deferred-initial-prewait-operation=0 deferred-initial-prewait-binding=PROVEN dpi-export-function-binding=NOT-REQUIRED; residual-compiled-process=false interpreted-continuous-assignment=0 initializer-operation-filtered=0; instrumented-classes=interpreted-process,interpreted-callable,interpreted-continuous-assignment,module-initializer-operation,deferred-initial-prewait-operation measured-classes=interpreted-process,interpreted-callable,interpreted-continuous-assignment,module-initializer-operation,deferred-initial-prewait-operation unavailable-classes=NONE operation-level-other=UNMEASURED
+
+=================================================
+          Coverage Report
+=================================================
+
+Covergroup: coverage_model
+  Overall coverage: 0.00%
+  Coverpoints: 1
+    - cp_value: 0 hits, 0.00% coverage
+
+=================================================
+[mox-sim] Simulation completed

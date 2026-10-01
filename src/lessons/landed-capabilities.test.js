@@ -13,6 +13,14 @@ const capabilities = [
   ['sv/sequential-udp-init', 'sequential_udp']
 ];
 
+function receiptSourceMatches(receiptSource, sourcePath) {
+  const relativeSource = path
+    .relative(process.cwd(), sourcePath)
+    .split(path.sep)
+    .join('/');
+  return receiptSource.replaceAll('\\', '/').endsWith(relativeSource);
+}
+
 describe('landed Mox capability lessons and status pages', () => {
   it('are registered with runnable simulation metadata', () => {
     for (const [slug, basename] of capabilities) {
@@ -75,9 +83,17 @@ describe('landed Mox capability lessons and status pages', () => {
         ),
         'utf8'
       ));
-      expect(receipt.source).toBe(sourcePath);
+      expect(receiptSourceMatches(receipt.source, sourcePath)).toBe(true);
       expect(receipt.sha256).toBe(sourceHash);
     }
+  });
+
+  it('accepts receipt source paths from another checkout root', () => {
+    const sourcePath = path.join(root, 'sv/sequential-udp-init/sequential_udp.sv');
+    expect(receiptSourceMatches(
+      '/home/runner/work/sv-tutorial/sv-tutorial/src/lessons/sv/sequential-udp-init/sequential_udp.sv',
+      sourcePath
+    )).toBe(true);
   });
 
   it('registers the compile-mode status chapter without claiming browser AOT', () => {
@@ -116,7 +132,7 @@ describe('landed Mox capability lessons and status pages', () => {
         path.resolve(process.cwd(), `artifacts/tutorial/compile-mode-status/${variant}-refdiff.json`),
         'utf8'
       ));
-      expect(receipt.source).toBe(sourcePath);
+      expect(receiptSourceMatches(receipt.source, sourcePath)).toBe(true);
       expect(receipt.sha256).toBe(sourceHash);
       expect(receipt.refdiff_cache_key).toMatch(/^[0-9a-f]{64}$/);
     }
@@ -152,7 +168,7 @@ describe('landed Mox capability lessons and status pages', () => {
         path.resolve(process.cwd(), `artifacts/tutorial/virtual-provider-closure/${variant}-refdiff.json`),
         'utf8'
       ));
-      expect(receipt.source).toBe(sourcePath);
+      expect(receiptSourceMatches(receipt.source, sourcePath)).toBe(true);
       expect(receipt.sha256).toBe(sourceHash);
       expect(receipt.refdiff_cache_key).toMatch(/^[0-9a-f]{64}$/);
     }

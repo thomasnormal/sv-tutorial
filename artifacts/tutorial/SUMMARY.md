@@ -90,7 +90,7 @@ One commit per issue, each with the test that fails before it and passes after:
 
 ### Landed capability chapters
 
-Added eight one-lesson chapters for user-facing SystemVerilog capabilities
+Added nine one-lesson chapters for user-facing SystemVerilog capabilities
 landed in Mox between September 22 and October 1, 2026. The UDP chapter
 tracks landing tip `36b040f6190c`, and the virtual-provider chapter tracks
 `3bc88e77921e`; the pinned browser WASM remains unchanged.
@@ -105,6 +105,7 @@ tracks landing tip `36b040f6190c`, and the virtual-provider chapter tracks
 | `sv/virtual-provider-closure` | §§8.20, 8.22 | starter FAIL; solution PASS in interpreter and compile modes | starter both_fail; solution both_pass; output equal | `artifacts/tutorial/virtual-provider-closure/*` |
 | `sv/wide-readmem` | §§21.4, 21.4.1 | starter FAIL; solution PASS in interpreter and compile modes | starter both_fail; solution both_pass; output equal | `artifacts/tutorial/wide-readmem/*` |
 | `sv/coverage-option-text` | §19.7, Table 19-1 | starter FAIL; solution PASS in interpreter and compile modes | starter both_fail; solution both_pass; output equal | `artifacts/tutorial/coverage-option-text/*` |
+| `sv/interface-method-receiver` | §§21.2.1.5, 25.9 | starter FAIL; solution PASS in interpreter and compile modes | starter both_fail; solution both_pass; output equal | `artifacts/tutorial/interface-method-receiver/*` |
 
 The capability receipt summaries are in
 `artifacts/tutorial/capability-receipts/{summary,final-summary}.tsv`.
@@ -114,7 +115,7 @@ receipt are recorded in
 
 ## Receipt coverage on origin/main
 
-The 84 registered lesson slugs are now accounted for by either the original
+The 85 registered lesson slugs are now accounted for by either the original
 generic receipts, a capability-specific bundle, or the missing-matrix bundle
 at `artifacts/tutorial/receipts/20261001-missing/`. That matrix records the
 18 previously uncovered slugs: native Mox passes for both RTL lessons and all
@@ -187,6 +188,18 @@ not claimed. The corrected refdiff receipts retain separate source hashes and
 cache keys even when `reference_cached` is true. Receipts and the b481 landing
 provenance are under
 `artifacts/tutorial/coverage-option-text/`.
+
+### Interface method receiver chapter
+
+`sv/interface-method-receiver` teaches that a method inside an interface keeps
+the receiver instance selected by a virtual-interface handle, including casts
+and parenthesized calls. The exercise uses two interface instances with
+different answers; the starter binds `u_a`, while the solution binds `u_b`.
+The solution passes native interpreter and compile modes, and Xcelium and Mox
+agree on the starter `both_fail` and solution `both_pass` receipts. The browser
+entry is an expected pinned-WASM failure because this receiver lowering landed
+after the checked-in WASM; it does not qualify native AOT. Receipts and landing
+provenance are under `artifacts/tutorial/interface-method-receiver/`.
 
 ## WASM rebuild (done locally, NOT published; release `mox-wasm` is unchanged)
 Built with emsdk 4.0.21 from Mox main `9c5418532b9` (and landing `ea0fcd2`): mox-verilog, mox-sim, mox-bmc and

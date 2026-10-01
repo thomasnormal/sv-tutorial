@@ -1,0 +1,25 @@
+{
+  "source": "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sv/interface-method-receiver/interface_method_receiver.sv",
+  "sha256": "49c083aa8714757d81ac040cccc3e67b179de1cd1f5f562b4e4f8cc0c765d84b",
+  "reference_cached": false,
+  "reference": {
+    "verdict": "FAIL",
+    "exit": 0,
+    "final_status": "fail"
+  },
+  "mox": {
+    "verdict": "FAIL",
+    "exit": 0,
+    "phase": "simulate",
+    "final_status": "fail"
+  },
+  "category": "both_fail",
+  "output_equal": true,
+  "equivalent": false,
+  "metadata": {
+    "_has_pass": true
+  },
+  "build_dir": "/var/tmp/thomas-ahle/fleet-probes/ed441-tutorial-20261001/build-dev-fast",
+  "artifacts": "/var/tmp/thomas-ahle/fleet/sv/sv-harness-5a6kv03a",
+  "refdiff_cache_key": "871b74b8defde2e23f1d2cff70d0260078ebafe3e83e3dec22104f6e2570580f"
+}

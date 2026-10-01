@@ -35,6 +35,7 @@ export default {
   'sv/virtual-provider-closure': { title: 'Virtual Method Provider Closure',            focus: '/src/virtual_provider.sv', top: 'tb' },
   'sv/wide-readmem':            { title: 'Wide Four-State Memory Loading',               focus: '/src/wide_readmem.sv', top: 'tb' },
   'sv/coverage-option-text':    { title: 'Coverage Option Text',                       focus: '/src/coverage_option_text.sv', top: 'tb' },
+  'sv/interface-method-receiver': { title: 'Interface Method Receivers',               focus: '/src/interface_method_receiver.sv', top: 'tb' },
 
   // ── SystemVerilog Assertions ───────────────────────────────────────────────
   'sva/concurrent-sim':      { title: 'Concurrent Assertions in Simulation',          focus: '/src/monitor.sv',         runner: null },

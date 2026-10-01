@@ -27,7 +27,8 @@ describe('tutorial receipt coverage', () => {
       'sv/struct-field-refs',
       'sv/virtual-provider-closure',
       'sv/wide-readmem',
-      'sv/coverage-option-text'
+      'sv/coverage-option-text',
+      'sv/interface-method-receiver'
     ];
     const covered = new Set([
       ...genericReceiptSlugs(),

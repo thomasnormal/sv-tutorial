@@ -1,0 +1,42 @@
+
+=== starter compile ===
+[mox-sim] Auto-enabling --skip-passes for module marked mox.sim.preprocessed
+[mox-sim] Stage: passes (prev: 0ms, total: 0ms)
+[mox-sim] aot-publication/v2 domain=module-loader-functions expected=3 accounted=3 positive=3 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:42403e255eb93ebfd84bd1b4f678cfd9b4ecf9dbedd8a2cc455eab79f8d8db5d
+[mox-sim] aot-publication/v2 domain=module-loader-processes expected=5 accounted=5 positive=5 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:4f6af561e3453305089281dccbf5af4eb3179386260a94c249572b79469558e3
+[mox-sim] aot-publication/v2 domain=module-loader-address-bound-globals expected=173 accounted=173 positive=173 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:329abfbd0388ee100456c8d635a0b09f9603db498312a70276ab41839b7ef8e0
+[mox-sim] aot-publication/v2 domain=module-loader-entry-table expected=3 accounted=3 positive=3 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:3d8a7d8d0991adcee0bdb14b8f5137b5e86a46768fe22c68fb4ee866536761c0
+[mox-sim] Loaded RTTI parent table: 2 entries
+[mox-sim] Loaded compiled module '/tmp/mox-scratch/768049c71d419e041f39edd530f4670752ae26167b2ac730406bc5d55491bf5e/session-be88f33f9c8393eb407ae6028c4d1eef2ee17f416350ca866fe0570ce7cae8e4/mox-sim-autocompile-d5ce78.so': 3 functions, 5 processes, 173 address-bound globals, 3 entry table entries (build: mox-sim-abi-v19-x86_64-unknown-linux-gnu-f429dfbbd8fcfc98268ece2eb983063e)
+[mox-sim] Address-bound global ownership: role=main, module='/tmp/mox-scratch/768049c71d419e041f39edd530f4670752ae26167b2ac730406bc5d55491bf5e/session-be88f33f9c8393eb407ae6028c4d1eef2ee17f416350ca866fe0570ce7cae8e4/mox-sim-autocompile-d5ce78.so', descriptor-declared=173, retained=173
+[mox-sim] M3 loaded callable union: artifacts=1 raw-rows=6 demand-rows=3 distinct-demand-keys=3 slot-rows=0 provider-rows=3 checked-keys=3 missing=0 duplicate=0 malformed=0 unresolved=0 dropped=0 digest=sha256:5dd3eb169bdedecfa9998b64f09dba4bc2d0543e417d03e4a9320a3c32ed92e9 status=ok
+[mox-sim] Stage: init (prev: 376ms, total: 376ms)
+[mox-sim] Pre-aliased 173 address-bound globals to .so storage
+[mox-sim] Pre-aliased 1 globals to .so storage
+[mox-sim] Unmapped native func.call policy: default deny runtime bridges and pointer-typed get_/set_/create_/m_initialize* (allow others)
+[mox-sim] Loaded 3 compiled functions: 3 native-dispatched, 0 not-native-dispatched, 0 intercepted
+[mox-sim] aot-publication/v2 domain=compiled-function-dispatch expected=3 accounted=3 positive=3 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:89a20dbec599cdbb92beaae3c359c879c17d3c5997c579a344460c58123922de
+[mox-sim] Entry table: 3 entries for tagged-FuncId dispatch (3 native, 0 non-native)
+[mox-sim] Address-bound final-LLVM-global probes: 173/173 rows, 1015/1015 bytes bidirectional, owner-generation=1
+[mox-sim] Aliased 0 globals to .so storage (1 already pre-aliased, unified)
+[mox-sim] Compiled process dispatch: 5/5 processes wired
+[mox-sim] aot-publication/v2 domain=process-dispatch expected=5 accounted=5 positive=5 negative=0 missing=0 duplicate=0 unexpected=0 malformed=0 status=ok digest=sha256:bce0429c6f2cc9ab2eb2c0515f3d79ff95c9e77e5a2eea3ff489f0c47d2784b3
+[mox-sim] aot-publication/v2 domain=process-dispatch identity='tb.process_0' outcome=wired polarity=positive reason=''
+[mox-sim] aot-publication/v2 domain=process-dispatch identity='tb.process_1' outcome=wired polarity=positive reason=''
+[mox-sim] aot-publication/v2 domain=process-dispatch identity='tb.process_2' outcome=wired polarity=positive reason=''
+[mox-sim] aot-publication/v2 domain=process-dispatch identity='tb.process_3' outcome=wired polarity=positive reason=''
+[mox-sim] aot-publication/v2 domain=process-dispatch identity='tb.process_4' outcome=wired polarity=positive reason=''
+[mox-sim] Stage: load-compiled (prev: 9ms, total: 386ms)
+[mox-sim] Found 5 LLHD processes, 0 LLHD finals, 0 seq.initial blocks, and 0 hw.instance ops (out of 603 total ops) in module
+[mox-sim] Registered 3 LLHD signals and 5 LLHD processes/initial blocks
+[mox-sim] Receipt: INIT_COMPLETE_OK execution_failure=0 process_dispatches=0
+[mox-sim] Stage: run (prev: 0ms, total: 386ms)
+[mox-sim] Starting simulation
+FAIL: path=tb.u_a cast=tb.u_a paren=tb.u_a answers=1/1
+[mox-sim] Simulation terminated at time 0 fs (success=true, verbose=true)
+[mox-sim] Main loop exit: shouldContinue()=false at time 0 fs, iter=1, deltas=1
+[mox-sim] Simulation finished at time 0 fs
+[mox-sim] Simulation completed at time 0 fs
+[mox-sim] whole-design AOT zero-interpreter gate satisfied: counted process=0 combinational=0 initializer-operation=0 direct-call=0 ABI-demotion=0 deferred-initial-prewait-operation=0 deferred-initial-prewait-binding=PROVEN dpi-export-function-binding=NOT-REQUIRED; residual-compiled-process=false interpreted-continuous-assignment=0 initializer-operation-filtered=0; instrumented-classes=interpreted-process,interpreted-callable,interpreted-continuous-assignment,module-initializer-operation,deferred-initial-prewait-operation measured-classes=interpreted-process,interpreted-callable,interpreted-continuous-assignment,module-initializer-operation,deferred-initial-prewait-operation unavailable-classes=NONE operation-level-other=UNMEASURED
+[mox-sim] Simulation completed
+import_exit=0 run_exit=0

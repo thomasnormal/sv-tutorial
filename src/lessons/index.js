@@ -94,6 +94,7 @@ export const parts = [
       { title: 'Virtual Method Provider Closure', lessons: [L('sv/virtual-provider-closure')] },
       { title: 'Wide Four-State Memory Loading', lessons: [L('sv/wide-readmem')] },
       { title: 'Coverage Option Text', lessons: [L('sv/coverage-option-text')] },
+      { title: 'Interface Method Receivers', lessons: [L('sv/interface-method-receiver')] },
     ],
   },
   {

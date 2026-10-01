@@ -8,7 +8,7 @@ seconds on CPUs `0-79`.
 
 The solution passes both native modes with Mox build
 `/var/tmp/thomas-ahle/wt/landing/build-dev-fast` at Mox tip
-`640b4195ed1b1bfbb90520db9064aecd9099290b`:
+`e81e1f9272f85df16ed1a479d2b3eba670f022f1`:
 
 ```text
 taskset -c 0-79 timeout --kill-after=3s 30s /var/tmp/thomas-ahle/wt/landing/build-dev-fast/bin/mox-run --single-unit --timescale=1ns/1ns --mode=interpret --max-wall-ms=25000 src/lessons/sv/compile-mode-status/compile_mode_status.sol.sv
@@ -27,12 +27,13 @@ compile_mode_status.sol.sv 0cf6f9c5a4934046f1ce9d12b54fcc9f8700e5d8228466b549bf0
 
 ## S4 status
 
-`s4-d0-report.md` is copied from the prepared `pc-runner` receipt for landing
-tip `36b040f6190ce488d406ce49a1c5e0aafb85d6ac`. It reports interpreter 5/5
-and compile 0/5. Every compile row is `HELD`; rows 0 and 2 stop at
-`apply-demotions` on mandatory-retain obligations, and rows 1, 3, and 4 stop
-at `no-reentry-closure-after-process-externalization` on provider-dirty
-obligations. The positive and negative counter controls both pass.
+`s4-d2-report.md` is copied from the end-to-end `pc-runner` receipt for
+published Mox tip `a0c4488a587` on 2026-10-01. It reports interpreter 5/5 and
+compile 0/5. Rows 0 and 2 are `HELD`; rows 1, 3, and 4 are `NEW-REFUSAL`
+because their refusal stage moved after provider closure landed. All five now
+stop at `apply-demotions` on the same mandatory-retain body promise. The
+positive and negative counter controls both pass. The earlier `d0` snapshot at
+`s4-d0-report.md` remains for comparison.
 
 The daily check is not a browser lesson action; run it from the perf worktree
 with a fresh label:

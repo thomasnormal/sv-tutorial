@@ -94,6 +94,12 @@ describe('landed Mox capability lessons and status pages', () => {
     expect(description).toContain('0/5');
     expect(description).toContain('daily.sh d3');
     expect(description).toContain('pinned WASM');
+    expect(description).toContain('a0c4488a587');
+    expect(description).toContain('NEW-REFUSAL');
+    expect(readFileSync(
+      path.resolve(process.cwd(), 'artifacts/tutorial/compile-mode-status/s4-d2-report.md'),
+      'utf8'
+    )).toContain('Compile PASS: 0/5 rows');
   });
 
   it('binds compile-mode refdiff receipts to committed source blobs', () => {

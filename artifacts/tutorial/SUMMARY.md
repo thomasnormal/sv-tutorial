@@ -113,10 +113,12 @@ receipt are recorded in
 ### Compile-mode status chapter
 
 `sv/compile-mode-status` is a runnable native compile smoke test plus a status
-page for the current AOT census. Its browser run is interpreter-backed; native
-Mox `--mode=compile` passes the solution, while the S4 receipt for the five
-frozen UVM rows is honestly `0/5` with all rows classified `HELD`. The chapter
-and durable receipts are in `src/lessons/sv/compile-mode-status/` and
+page for the AOT census. Its browser run is interpreter-backed; native Mox
+`--mode=compile` passes the solution, while the latest S4 receipt for the five
+frozen UVM rows is honestly `0/5` at published tip `a0c4488a587`. Rows 0 and 2
+are `HELD`; rows 1, 3, and 4 are `NEW-REFUSAL` after provider closure moved
+their refusal stage. The chapter and durable receipts are in
+`src/lessons/sv/compile-mode-status/` and
 `artifacts/tutorial/compile-mode-status/`. The differential receipts bind
 their source hashes to the committed fixtures and preserve the refdiff cache
 keys; `src/lessons/landed-capabilities.test.js` guards that identity.

@@ -1,4 +1,4 @@
-<p><code>$readmemh</code> loads hexadecimal words from a text file into an unpacked memory array. The file can contain four-state digits, so <code>x</code>, <code>z</code>, and underscores are meaningful data rather than comments.</p>
+<p><code>$readmemh</code> loads hexadecimal words from a text file into an unpacked memory array. The file can contain four-state digits, so <code>x</code> and <code>z</code> preserve unknown and high-impedance values; underscores are legal separators within a number.</p>
 
 <h2>Template</h2>
 <pre>logic [&lt;width-1&gt;:0] &lt;memory&gt; [&lt;low&gt;:&lt;high&gt;];

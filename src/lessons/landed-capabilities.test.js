@@ -11,7 +11,8 @@ const capabilities = [
   ['sv/indexed-part-select', 'indexed_part_select'],
   ['sv/nested-child-input', 'nested_child_input'],
   ['sv/sequential-udp-init', 'sequential_udp'],
-  ['sv/wide-readmem', 'wide_readmem']
+  ['sv/wide-readmem', 'wide_readmem'],
+  ['sv/coverage-option-text', 'coverage_option_text']
 ];
 
 function receiptSourceMatches(receiptSource, sourcePath) {
@@ -276,6 +277,42 @@ describe('landed Mox capability lessons and status pages', () => {
       expect(receiptSourceMatches(receipt.source, sourcePath)).toBe(true);
       expect(receipt.sha256).toBe(sourceHash);
       expect(receipt.refdiff_cache_key).toMatch(/^[0-9a-f]{64}$/);
+    }
+  });
+
+  it('registers the coverage option text chapter and its landed behavior', () => {
+    const slug = 'sv/coverage-option-text';
+    const dir = path.join(root, slug);
+    const starter = readFileSync(path.join(dir, 'coverage_option_text.sv'), 'utf8');
+    const solution = readFileSync(path.join(dir, 'coverage_option_text.sol.sv'), 'utf8');
+    const description = readFileSync(path.join(dir, 'description.html'), 'utf8');
+    expect(meta[slug]?.runner ?? 'sim').toBe('sim');
+    expect(meta[slug]?.focus).toBe('/src/coverage_option_text.sv');
+    expect(starter).toContain('FAIL: starter rejected the empty default comment');
+    expect(solution).toContain('coverage.option.comment = "runtime coverage comment"');
+    expect(description).toContain('§19.7');
+    expect(description).toContain('b481355f9fe');
+    expect(solution).toContain('$display("PASS")');
+
+    for (const [variant, filename] of [
+      ['starter', 'coverage_option_text.sv'],
+      ['solution', 'coverage_option_text.sol.sv']
+    ]) {
+      const sourcePath = path.join(dir, filename);
+      const sourceHash = createHash('sha256')
+        .update(readFileSync(sourcePath))
+        .digest('hex');
+      const receipt = JSON.parse(readFileSync(
+        path.resolve(process.cwd(), `artifacts/tutorial/coverage-option-text/${variant}-refdiff.json`),
+        'utf8'
+      ));
+      expect(receiptSourceMatches(receipt.source, sourcePath)).toBe(true);
+      expect(receipt.sha256).toBe(sourceHash);
+      expect(receipt.refdiff_cache_key).toMatch(/^[0-9a-f]{64}$/);
+      expect(readFileSync(
+        path.resolve(process.cwd(), `artifacts/tutorial/coverage-option-text/${variant}-source.sha256`),
+        'utf8'
+      ).trim()).toBe(sourceHash);
     }
   });
 });

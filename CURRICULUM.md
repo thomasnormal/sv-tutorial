@@ -68,6 +68,11 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 |---|---|---|---|---|---|
 | `sv/wide-readmem` | Wide Four-State Memory Loading | ✅ | — | `sv/always-ff` | `$readmemh`, address ranges, and non-power-of-two four-state packed words |
 
+### Chapter: Coverage Option Text (October 2026)
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `sv/coverage-option-text` | Coverage Option Text | ✅ | — | `sv/covergroup-basics` | default and procedural assignment of a covergroup instance's `option.comment` |
+
 ### Chapter: Introduction
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|

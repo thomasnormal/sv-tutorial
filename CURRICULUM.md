@@ -48,6 +48,11 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 |---|---|---|---|---|---|
 | `sv/compile-mode-status` | Compile-Mode Status | ✅ | — | `sv/modules-and-ports` | native `--mode=compile`, refusal vocabulary, and the S4 UVM qualification runner |
 
+### Chapter: Clocking Sampler Retention (October 2026)
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `sv/clocking-sampler-retention` | Clocking Sampler Retention | ✅ | — | `sv/interfaces` | explicit `#0` clocking-input sampling and same-slot sample retention |
+
 ### Chapter: Virtual Method Provider Closure (October 2026)
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|

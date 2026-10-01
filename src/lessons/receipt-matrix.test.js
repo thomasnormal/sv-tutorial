@@ -22,6 +22,7 @@ describe('tutorial receipt coverage', () => {
       'sv/macro-formal-continuation',
       'sv/nested-child-input',
       'sv/sequential-udp-init',
+      'sv/clocking-sampler-retention',
       'sv/struct-field-refs',
       'sv/virtual-provider-closure'
     ];

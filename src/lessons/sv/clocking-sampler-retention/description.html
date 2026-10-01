@@ -1,0 +1,15 @@
+<p>A clocking block input is a sampled value, not a live alias of the signal. An explicit <code>#0</code> input skew samples in the Observed region, after the Active-region writer has run.</p>
+
+<h2>Exercise</h2>
+<p>Add the explicit <code>#0</code> skew to <code>cb.sig</code>. The testbench writes <code>BB</code> in an Active-region process, then writes <code>CC</code> after the clocking event has published its sample. The correct solution therefore observes <code>BB</code> at the first event, keeps <code>BB</code> through the same-slot Reactive re-entry and the following negedge, and samples <code>BB</code> again at the next positive edge.</p>
+
+<pre>clocking cb @(posedge clk);
+  input #0 sig;
+endclocking</pre>
+
+<p>Without <code>#0</code>, the default <code>1step</code> input skew samples in the preceding Postponed region and the starter observes the old <code>AA</code> value. The clocking input still retains that sample until the next clocking event.</p>
+
+<blockquote><p>IEEE 1800-2023 §14.3 says the default input skew is <code>1step</code> and samples the preceding Postponed region. §14.13 says that an explicit <code>#0</code> samples in Observed, makes the new value available before the clocking-block event wakes its waiters, and does not resample during same-slot Active re-entry after Reactive unless a new clocking event occurs.</p></blockquote>
+
+<h2>What landed in Mox</h2>
+<p>Mox's MQ93 M2 regression lock is <code>3b1760ff203</code>; it preserves this sampler-retention behavior in both interpreter and compiled execution. The browser's <strong>Run</strong> action uses the pinned WASM runtime, while the native receipts record the current lesson's interpreter, compile, and reference runs separately.</p>

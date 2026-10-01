@@ -89,6 +89,7 @@ export const parts = [
       { title: 'Nested Child Input Propagation', lessons: [L('sv/nested-child-input')] },
       { title: 'Sequential UDP Initialization', lessons: [L('sv/sequential-udp-init')] },
       { title: 'Compile-Mode Status', lessons: [L('sv/compile-mode-status')] },
+      { title: 'Clocking Sampler Retention', lessons: [L('sv/clocking-sampler-retention')] },
       { title: 'Virtual Method Provider Closure', lessons: [L('sv/virtual-provider-closure')] },
     ],
   },

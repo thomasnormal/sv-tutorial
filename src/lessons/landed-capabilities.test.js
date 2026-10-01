@@ -118,6 +118,39 @@ describe('landed Mox capability lessons and status pages', () => {
     )).toContain('Compile PASS: 0/5 rows');
   });
 
+  it('calibrates the MQ93 clocking sampler exercise', () => {
+    const dir = path.join(root, 'sv/clocking-sampler-retention');
+    const starter = readFileSync(path.join(dir, 'clocking_sampler.sv'), 'utf8');
+    const solution = readFileSync(path.join(dir, 'clocking_sampler.sol.sv'), 'utf8');
+    const description = readFileSync(path.join(dir, 'description.html'), 'utf8');
+    expect(meta['sv/clocking-sampler-retention']?.runner ?? 'sim').toBe('sim');
+    expect(meta['sv/clocking-sampler-retention']?.focus).toBe('/src/clocking_sampler.sv');
+    expect(starter).toContain('input sig;');
+    expect(solution).toContain('input #0 sig;');
+    expect(description).toContain('§14.13');
+    expect(description).toContain('3b1760ff203');
+  });
+
+  it('binds clocking sampler refdiff receipts to committed source blobs', () => {
+    const dir = path.join(root, 'sv/clocking-sampler-retention');
+    for (const [variant, filename] of [
+      ['starter', 'clocking_sampler.sv'],
+      ['solution', 'clocking_sampler.sol.sv']
+    ]) {
+      const sourcePath = path.join(dir, filename);
+      const sourceHash = createHash('sha256')
+        .update(readFileSync(sourcePath))
+        .digest('hex');
+      const receipt = JSON.parse(readFileSync(
+        path.resolve(process.cwd(), `artifacts/tutorial/clocking-sampler-retention/${variant}-refdiff.json`),
+        'utf8'
+      ));
+      expect(receiptSourceMatches(receipt.source, sourcePath)).toBe(true);
+      expect(receipt.sha256).toBe(sourceHash);
+      expect(receipt.refdiff_cache_key).toMatch(/^[0-9a-f]{64}$/);
+    }
+  });
+
   it('binds compile-mode refdiff receipts to committed source blobs', () => {
     const dir = path.join(root, 'sv/compile-mode-status');
     for (const [variant, filename] of [

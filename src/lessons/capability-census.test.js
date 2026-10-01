@@ -50,7 +50,7 @@ describe('landed capability census', () => {
 
     expect(census).toContain('## Current-main refresh — 2026-10-01');
     expect(census).toContain(
-      'Mox `origin/main` at\n`9fe4bd9d5acf057243078f7656d8907a276ba5da`'
+      'Mox `origin/main` at\n`ed441eb5b583c8ae6146bbb4b32073fedd4d7b77`'
     );
     expect(census).toContain('e81e1f9272f85df16ed1a479d2b3eba670f022f1');
     expect(census).toContain('4d6185ae036d939c9b7266fe89a25f92ed9c294e');
@@ -65,8 +65,9 @@ describe('landed capability census', () => {
       expect(receipt.sha256).toBe(sourceHash);
     }
 
-    expect(census).toContain('No additional user-facing language capability');
-    expect(census).toContain('omitted from this chapter set');
+    expect(census).toContain('| `sv/clocking-sampler-retention` | `3b1760ff2030378cfde16ca319e2c1b806ab9d31`,');
+    expect(census).toContain('protected callback\nenvelopes');
+    expect(census).toContain('interface-method `%m` receiver scope');
   });
 
   it('labels the native receipt binary as an intermediate landing build', () => {

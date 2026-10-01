@@ -11,16 +11,15 @@ because the checked-in WASM predates the landing tip. The receipts use the
 existing intermediate landing binary
 (`e81e1f9272f85df16ed1a479d2b3eba670f022f1`) while the separate Mox
 repository is now Mox `origin/main` at
-`9fe4bd9d5acf057243078f7656d8907a276ba5da`; the only commit after published
-behavior tip `a0c4488a587d753fa9f26d465814aaa44e77586e` is a dependency-only
-Mako bump. The intermediate binary is not evidence that this binary is
-published; its unqualified readmem change was reverted by
-`4d6185ae036d939c9b7266fe89a25f92ed9c294e` before the current source tip, and
-no lesson source uses readmem.
+`ed441eb5b583c8ae6146bbb4b32073fedd4d7b77`; the commits after published
+behavior tip `a0c4488a587d753fa9f26d465814aaa44e77586e` are listed below. The
+intermediate binary is not evidence that this binary is published; its
+unqualified readmem change was reverted by `4d6185ae036d939c9b7266fe89a25f92ed9c294e`
+before the current source tip, and no lesson source uses readmem.
 
 ## New landed-capability chapters
 
-These six short chapters correspond to the user-facing Mox capabilities present
+These seven short chapters correspond to the user-facing Mox capabilities present
 on the current `origin/main` by October 1, 2026. The compile-mode status page is
 listed separately below because it reports qualification status rather than
 teaching a new language capability. Every solution passes Mox in both
@@ -35,11 +34,14 @@ prints a failing check.
 | `sv/nested-child-input` | `5fdce05081ea458d7d9c6f9934d614f09b498b2e`, `test/Tools/mox-sim/nested-child-input-propagation-runtime.sv` | §§23.2.2, 9.4.2: child inputs are connected expressions and clocked procedures sample them on edges. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS, output equal | added direct and nested sink propagation exercise |
 | `sv/sequential-udp-init` | `36b040f6190ce488d406ce49a1c5e0aafb85d6ac`, `test/Tools/mox-sim/sequential-udp-initial-state-runtime.sv` | §§29.3.2, 29.6, 29.7: sequential UDP state may be initialized and edge-sensitive tables update it. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS, output equal | added an initialized sequential-UDP exercise |
 | `sv/virtual-provider-closure` | `3bc88e77921e5e776411d00e133f2b497c750943`, Mox mapped-vlib provider-closure regression | §§8.20, 8.22: virtual overrides dispatch through a base-class handle to the derived object. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS, output equal | added a base-handle/derived-provider dispatch exercise |
+| `sv/clocking-sampler-retention` | `3b1760ff2030378cfde16ca319e2c1b806ab9d31`, `test/Tools/mox-sim/mq93-m2-clock-sampler.sv` | §§14.3, 14.13: default `1step` samples before the clock event; explicit `#0` samples in Observed and retains the sample through same-slot re-entry. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS / both FAIL, output equal | added an explicit-`#0` sampler-retention exercise |
 
-The remaining pushed commits after `a0c4488a587` do not add a tutorial
-capability: `b8f8f8d4e67` changes a cutpoint-checker script and `9fe4bd9d5ac`
-only bumps the Mako dependency. No additional user-facing language capability
-is therefore omitted from this chapter set.
+The remaining current-main capability commits are queued for their own short
+chapters and are not silently folded into an existing lesson: protected callback
+envelopes (`c3799f427f1`), coverage-option string preservation
+(`b481355f9fe`), VPI system-function argument marshalling (`d83c4b1dde8`), and
+interface-method `%m` receiver scope plus parenthesized virtual-interface
+receivers (`ed441eb5b58`).
 
 This census covers every lesson in `src/lessons/` (meta.js, 73 lessons) and CURRICULUM.md, checked against
 IEEE 1800-2023 (`spec/ieee-1800-2023.txt`) and IEEE 1800.2-2020 (UVM).

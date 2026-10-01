@@ -141,6 +141,16 @@ their refusal stage. The chapter and durable receipts are in
 their source hashes to the committed fixtures and preserve the refdiff cache
 keys; `src/lessons/landed-capabilities.test.js` guards that identity.
 
+### Clocking sampler retention chapter
+
+`sv/clocking-sampler-retention` is a runnable lesson for explicit `#0`
+clocking-input sampling and same-slot retention under IEEE 1800-2023 §14.3 and
+§14.13. The starter fails with the default `1step` skew; the solution passes in
+native interpreter and compile modes and both variants have Xcelium `refdiff`
+receipts. The focused browser run is 1/1 through the pinned interpreter-backed
+WASM runtime. Receipts and current-main MQ93 provenance are under
+`artifacts/tutorial/clocking-sampler-retention/`.
+
 ## WASM rebuild (done locally, NOT published; release `mox-wasm` is unchanged)
 Built with emsdk 4.0.21 from Mox main `9c5418532b9` (and landing `ea0fcd2`): mox-verilog, mox-sim, mox-bmc and
 mox-lec. Mox has no wasm target for mox-run (GAPS TUT-WASM-MOXRUN), so two more commits went in:

@@ -15,11 +15,12 @@ repository is now Mox `origin/main` at
 behavior tip `a0c4488a587d753fa9f26d465814aaa44e77586e` are listed below. The
 intermediate binary is not evidence that this binary is published; its
 unqualified readmem change was reverted by `4d6185ae036d939c9b7266fe89a25f92ed9c294e`
-before the current source tip, and no lesson source uses readmem.
+before the current source tip; the new `sv/wide-readmem` lesson is the
+tutorial's runnable coverage for the landed readmem behavior.
 
 ## New landed-capability chapters
 
-These eight short chapters correspond to the user-facing Mox capabilities present
+These nine short chapters correspond to the user-facing Mox capabilities present
 on the current `origin/main` by October 1, 2026. The compile-mode status page is
 listed separately below because it reports qualification status rather than
 teaching a new language capability. Every solution passes Mox in both
@@ -37,6 +38,7 @@ attempts decryption without a key.
 | `sv/virtual-provider-closure` | `3bc88e77921e5e776411d00e133f2b497c750943`, Mox mapped-vlib provider-closure regression | §§8.20, 8.22: virtual overrides dispatch through a base-class handle to the derived object. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS, output equal | added a base-handle/derived-provider dispatch exercise |
 | `sv/clocking-sampler-retention` | `3b1760ff2030378cfde16ca319e2c1b806ab9d31`, `test/Tools/mox-sim/mq93-m2-clock-sampler.sv` | §§14.3, 14.13: default `1step` samples before the clock event; explicit `#0` samples in Observed and retains the sample through same-slot re-entry. | solution PASS; starter FAIL | solution PASS; starter FAIL | both PASS / both FAIL, output equal | added an explicit-`#0` sampler-retention exercise |
 | `sv/protected-envelope-boundary` | `c3799f427f1e51abcd389dcf15771150223cae75`, `test/Conversion/ImportVerilog/protected-comment-callback.sv` | §§34.2, 34.3, 34.4, 34.5.3–34.5.4: protected text is transformed before analysis and delimiters close the envelope; this lesson does not claim decryption. | solution PASS; starter FAIL | solution PASS; starter FAIL | `reference_only_fail` for solution; Xcelium attempts unkeyed decryption | added same-buffer opaque callback-boundary exercise |
+| `sv/wide-readmem` | `e7da9630dcd`, `test/Tools/mox-sim/aot-readmem-wide-fourstate.sv` | §§21.4, 21.4.1: `$readmemh` accepts optional address bounds and loads packed elements of an unpacked memory, preserving four-state digits. | solution PASS; starter FAIL | solution PASS; starter FAIL | starter `both_fail`; solution `both_pass`, output equal | added a width-calibration readmem exercise |
 
 The remaining current-main capability commits are queued for their own short
 chapters and are not silently folded into an existing lesson: coverage-option

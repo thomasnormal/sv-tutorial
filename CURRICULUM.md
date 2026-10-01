@@ -63,6 +63,11 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 |---|---|---|---|---|---|
 | `sv/virtual-provider-closure` | Virtual Method Provider Closure | ✅ | — | `sv/classes` | virtual overrides, base-class handles, and native AOT provider retention |
 
+### Chapter: Wide Four-State Memory Loading (October 2026)
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `sv/wide-readmem` | Wide Four-State Memory Loading | ✅ | — | `sv/always-ff` | `$readmemh`, address ranges, and non-power-of-two four-state packed words |
+
 ### Chapter: Introduction
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|

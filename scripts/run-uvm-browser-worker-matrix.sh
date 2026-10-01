@@ -28,11 +28,13 @@ Options:
   --lessons <csv>      Comma-separated lesson list
   --retries <n>        Retry count per lesson (default: 3)
   --log-dir <path>     Directory for per-lesson logs
+  --known-failure <id> Allow only the named, hash-checked known failure
 EOF
 }
 
 retries="${UVM_MATRIX_RETRIES:-3}"
 log_dir="${UVM_MATRIX_LOG_DIR:-}"
+known_failure=""
 declare -a selected_lessons=()
 
 while (($# > 0)); do
@@ -82,6 +84,15 @@ while (($# > 0)); do
       log_dir="$2"
       shift 2
       ;;
+    --known-failure)
+      if (($# < 2)); then
+        echo "error: --known-failure requires an id" >&2
+        usage
+        exit 2
+      fi
+      known_failure="$2"
+      shift 2
+      ;;
     -h|--help)
       usage
       exit 0
@@ -101,6 +112,17 @@ fi
 
 if ((${#selected_lessons[@]} == 0)); then
   selected_lessons=("${DEFAULT_LESSONS[@]}")
+fi
+
+if [[ -n "$known_failure" && "$known_failure" != "pinned-wasm-uvm-abort" ]]; then
+  echo "error: unknown --known-failure id: $known_failure" >&2
+  exit 2
+fi
+
+if [[ "$known_failure" == "pinned-wasm-uvm-abort" &&
+      ("${#selected_lessons[@]}" -ne 1 || "${selected_lessons[0]}" != "reporting") ]]; then
+  echo "error: pinned-wasm-uvm-abort is only valid for the reporting smoke" >&2
+  exit 2
 fi
 
 if [[ -z "$log_dir" ]]; then
@@ -130,6 +152,13 @@ for lesson in "${selected_lessons[@]}"; do
       echo "TRANSIENT $lesson (attempt $attempt): retrying"
       sleep "$attempt"
       continue
+    fi
+
+    if [[ "$known_failure" == "pinned-wasm-uvm-abort" ]] &&
+       node scripts/uvm-known-failure.mjs "$log_file" static/mox/mox-verilog.wasm; then
+      echo "KNOWN FAILURE $lesson: pinned mox-verilog WASM abort at uvm_config_db_implementation.svh:375"
+      passed=1
+      break
     fi
 
     echo "FAIL $lesson (non-transient)"

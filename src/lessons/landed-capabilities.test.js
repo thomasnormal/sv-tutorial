@@ -307,7 +307,8 @@ describe('landed Mox capability lessons and status pages', () => {
         'utf8'
       ));
       expect(receiptSourceMatches(receipt.source, sourcePath)).toBe(true);
-      expect(receipt.sha256).toMatch(/^[0-9a-f]{64}$/);
+      expect(receipt.sha256).toBe(sourceHash);
+      expect(receipt.refdiff_cache_key).toMatch(/^[0-9a-f]{64}$/);
       expect(readFileSync(
         path.resolve(process.cwd(), `artifacts/tutorial/coverage-option-text/${variant}-source.sha256`),
         'utf8'

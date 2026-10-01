@@ -49,10 +49,12 @@ logs are the six `*-{import,interpret,compile}.log` files in this directory.
 - `starter-refdiff.json`: `both_fail`; both engines reject the deliberate
   wrong expectation of a nonempty default.
 - `solution-refdiff.json`: `both_pass`; normalized outputs are equivalent.
-- The current `refdiff` JSON `sha256` field is the 64-hex receipt cache
-  identity. `starter-source.sha256` and `solution-source.sha256` bind each
-  receipt to the committed source. Standing ruling — `general: refdiff cache
-  identity is receipt provenance, not a runtime performance cache`.
+- The committed refdiff JSON `sha256` field is the exact committed source
+  hash; `refdiff_cache_key` is the separate 64-hex receipt cache identity.
+  The receipts were regenerated from the committed fixtures with the commands
+  above. `starter-source.sha256` and `solution-source.sha256` independently
+  repeat the source binding. Standing ruling — `general: refdiff cache identity
+  is receipt provenance, not a runtime performance cache`.
 
 ## Browser qualification
 

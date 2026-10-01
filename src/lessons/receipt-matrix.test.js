@@ -25,7 +25,8 @@ describe('tutorial receipt coverage', () => {
       'sv/clocking-sampler-retention',
       'sv/protected-envelope-boundary',
       'sv/struct-field-refs',
-      'sv/virtual-provider-closure'
+      'sv/virtual-provider-closure',
+      'sv/wide-readmem'
     ];
     const covered = new Set([
       ...genericReceiptSlugs(),

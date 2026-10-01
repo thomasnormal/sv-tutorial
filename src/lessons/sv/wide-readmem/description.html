@@ -1,0 +1,11 @@
+<p><code>$readmemh</code> loads hexadecimal words from a text file into an unpacked memory array. The file can contain four-state digits, so <code>x</code>, <code>z</code>, and underscores are meaningful data rather than comments.</p>
+
+<h2>Template</h2>
+<pre>logic [&lt;width-1&gt;:0] &lt;memory&gt; [&lt;low&gt;:&lt;high&gt;];
+$readmemh("&lt;file&gt;", &lt;memory&gt;, &lt;start&gt;, &lt;finish&gt;);</pre>
+
+<p>This exercise loads three words into addresses <code>0</code> through <code>2</code>. The first word is 65 bits wide, including a leading <code>1</code>; the third includes a leading <code>z</code>. Change the starter's packed width so the memory can preserve every bit from the file.</p>
+
+<blockquote><p>IEEE 1800-2023 §21.4 defines <code>$readmemb</code> and <code>$readmemh</code>, including optional start and finish addresses. Section §21.4.1 says an unpacked array of packed data is loaded one packed element at a time. The file format permits hexadecimal digits, <code>x</code>, <code>z</code>, and underscores.</p></blockquote>
+
+<p>The runnable solution is qualified against Mox landing commit <code>e7da9630dcd</code>, which adds native interpreter and compile-mode support for wide, non-power-of-two four-state readmem values. The pinned browser WASM is older than this landing and is not treated as AOT evidence.</p>

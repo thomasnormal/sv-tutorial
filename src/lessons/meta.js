@@ -33,6 +33,7 @@ export default {
   'sv/clocking-sampler-retention': { title: 'Clocking Sampler Retention',               focus: '/src/clocking_sampler.sv', top: 'tb' },
   'sv/protected-envelope-boundary': { title: 'Protected Envelope Boundary',             focus: '/src/protected_envelope.sv', top: 'tb' },
   'sv/virtual-provider-closure': { title: 'Virtual Method Provider Closure',            focus: '/src/virtual_provider.sv', top: 'tb' },
+  'sv/wide-readmem':            { title: 'Wide Four-State Memory Loading',               focus: '/src/wide_readmem.sv', top: 'tb' },
 
   // ── SystemVerilog Assertions ───────────────────────────────────────────────
   'sva/concurrent-sim':      { title: 'Concurrent Assertions in Simulation',          focus: '/src/monitor.sv',         runner: null },

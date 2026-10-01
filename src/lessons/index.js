@@ -92,6 +92,7 @@ export const parts = [
       { title: 'Clocking Sampler Retention', lessons: [L('sv/clocking-sampler-retention')] },
       { title: 'Protected Envelope Boundary', lessons: [L('sv/protected-envelope-boundary')] },
       { title: 'Virtual Method Provider Closure', lessons: [L('sv/virtual-provider-closure')] },
+      { title: 'Wide Four-State Memory Loading', lessons: [L('sv/wide-readmem')] },
     ],
   },
   {

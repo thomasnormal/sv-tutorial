@@ -90,7 +90,7 @@ One commit per issue, each with the test that fails before it and passes after:
 
 ### Landed capability chapters
 
-Added six one-lesson chapters for user-facing SystemVerilog capabilities
+Added seven one-lesson chapters for user-facing SystemVerilog capabilities
 landed in Mox between September 22 and October 1, 2026. The UDP chapter
 tracks landing tip `36b040f6190c`, and the virtual-provider chapter tracks
 `3bc88e77921e`; the pinned browser WASM remains unchanged.
@@ -103,6 +103,7 @@ tracks landing tip `36b040f6190c`, and the virtual-provider chapter tracks
 | `sv/nested-child-input` | §§23.2.2, 9.4.2 | starter FAIL; solution PASS in interpreter and compile modes | solution PASS; output equal | `artifacts/tutorial/capability-receipts/*nested-child-input*` |
 | `sv/sequential-udp-init` | §§29.3.2, 29.6, 29.7 | starter FAIL; solution PASS in interpreter and compile modes | starter both_fail; solution PASS; output equal | `artifacts/tutorial/capability-receipts/*sequential-udp-init*` |
 | `sv/virtual-provider-closure` | §§8.20, 8.22 | starter FAIL; solution PASS in interpreter and compile modes | starter both_fail; solution both_pass; output equal | `artifacts/tutorial/virtual-provider-closure/*` |
+| `sv/wide-readmem` | §§21.4, 21.4.1 | starter FAIL; solution PASS in interpreter and compile modes | starter both_fail; solution both_pass; output equal | `artifacts/tutorial/wide-readmem/*` |
 
 The capability receipt summaries are in
 `artifacts/tutorial/capability-receipts/{summary,final-summary}.tsv`.
@@ -161,6 +162,16 @@ it attempts decryption of the unkeyed envelope, and the pinned browser WASM is
 an expected known failure until a WASM rebuild. The cross-include limitation
 from the protected-envelope audit is stated in the lesson rather than hidden.
 Receipts are under `artifacts/tutorial/protected-envelope-boundary/`.
+
+### Wide four-state memory-loading chapter
+
+`sv/wide-readmem` teaches `$readmemh` address ranges and four-state packed
+words whose width is not a power of two. The 64-bit starter fails its check;
+the 65-bit solution passes in native interpreter and compile modes. Xcelium
+and Mox agree: the starter is `both_fail` and the solution is `both_pass`.
+The focused browser run is 1/1 through the pinned interpreter-backed WASM
+fallback, not native AOT. Receipts and the Mox landing provenance are under
+`artifacts/tutorial/wide-readmem/`.
 
 ## WASM rebuild (done locally, NOT published; release `mox-wasm` is unchanged)
 Built with emsdk 4.0.21 from Mox main `9c5418532b9` (and landing `ea0fcd2`): mox-verilog, mox-sim, mox-bmc and

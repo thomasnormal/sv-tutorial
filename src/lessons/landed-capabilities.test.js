@@ -10,7 +10,8 @@ const capabilities = [
   ['sv/struct-field-refs', 'struct_field'],
   ['sv/indexed-part-select', 'indexed_part_select'],
   ['sv/nested-child-input', 'nested_child_input'],
-  ['sv/sequential-udp-init', 'sequential_udp']
+  ['sv/sequential-udp-init', 'sequential_udp'],
+  ['sv/wide-readmem', 'wide_readmem']
 ];
 
 function receiptSourceMatches(receiptSource, sourcePath) {
@@ -237,6 +238,38 @@ describe('landed Mox capability lessons and status pages', () => {
         .digest('hex');
       const receipt = JSON.parse(readFileSync(
         path.resolve(process.cwd(), `artifacts/tutorial/virtual-provider-closure/${variant}-refdiff.json`),
+        'utf8'
+      ));
+      expect(receiptSourceMatches(receipt.source, sourcePath)).toBe(true);
+      expect(receipt.sha256).toBe(sourceHash);
+      expect(receipt.refdiff_cache_key).toMatch(/^[0-9a-f]{64}$/);
+    }
+  });
+
+  it('registers the wide four-state readmem chapter and its landed behavior', () => {
+    const slug = 'sv/wide-readmem';
+    const dir = path.join(root, slug);
+    const starter = readFileSync(path.join(dir, 'wide_readmem.sv'), 'utf8');
+    const solution = readFileSync(path.join(dir, 'wide_readmem.sol.sv'), 'utf8');
+    const description = readFileSync(path.join(dir, 'description.html'), 'utf8');
+    expect(meta[slug]?.runner ?? 'sim').toBe('sim');
+    expect(meta[slug]?.focus).toBe('/src/wide_readmem.sv');
+    expect(starter).toContain('logic [63:0] memory [0:2]');
+    expect(solution).toContain('logic [64:0] memory [0:2]');
+    expect(description).toContain('§21.4.1');
+    expect(description).toContain('e7da9630dcd');
+    expect(solution).toContain('$display("PASS")');
+
+    for (const [variant, filename] of [
+      ['starter', 'wide_readmem.sv'],
+      ['solution', 'wide_readmem.sol.sv']
+    ]) {
+      const sourcePath = path.join(dir, filename);
+      const sourceHash = createHash('sha256')
+        .update(readFileSync(sourcePath))
+        .digest('hex');
+      const receipt = JSON.parse(readFileSync(
+        path.resolve(process.cwd(), `artifacts/tutorial/wide-readmem/${variant}-refdiff.json`),
         'utf8'
       ));
       expect(receiptSourceMatches(receipt.source, sourcePath)).toBe(true);

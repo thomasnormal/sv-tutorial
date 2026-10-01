@@ -53,14 +53,17 @@ logs are the six `*-{import,interpret,compile}.log` files in this directory.
   hash; `refdiff_cache_key` is the separate 64-hex receipt cache identity.
   The receipts were regenerated from the committed fixtures with the commands
   above. `starter-source.sha256` and `solution-source.sha256` independently
-  repeat the source binding. Standing ruling — `general: refdiff cache identity
-  is receipt provenance, not a runtime performance cache`.
+  repeat the source binding. Both corrected receipts record
+  `reference_cached: true`; the cache key preserves provenance but does not
+  claim a fresh independent Xcelium run. Standing ruling — `general: refdiff
+  cache identity is receipt provenance, not a runtime performance cache`.
 
 ## Browser qualification
 
 The browser result is recorded in `browser-qa.md`. It is an expected pinned-WASM
 failure caused by the unlinked coverage runtime host-allocation call
 `__mox_sim_register_host_allocation`; the explicit `test.fail` remains until a
-WASM rebuild. Native Mox passes, and the browser run does not qualify native
-AOT. Standing ruling — `general: pinned interpreter fallback is an explicitly
-scoped browser compatibility path`.
+WASM rebuild. Native Mox passes. Browser qualification is interpreter-only
+until that linkage is rebuilt, and does not qualify native AOT. Standing ruling
+— `general: pinned interpreter fallback is an explicitly scoped browser
+compatibility path`.

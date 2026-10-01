@@ -182,7 +182,9 @@ Table 19-1. The starter deliberately rejects the empty default; the solution
 passes native interpreter and compile modes. Xcelium and Mox agree on the
 starter `both_fail` and solution `both_pass` receipts. The focused browser run
 is an explicit expected failure for the pinned WASM's unlinked coverage runtime
-host-allocation call; native AOT is not claimed. Receipts and the b481 landing
+host-allocation call and is interpreter-only until a WASM rebuild; native AOT is
+not claimed. The corrected refdiff receipts retain separate source hashes and
+cache keys even when `reference_cached` is true. Receipts and the b481 landing
 provenance are under
 `artifacts/tutorial/coverage-option-text/`.
 

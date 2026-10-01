@@ -17,9 +17,15 @@ lesson keeps its source self-contained, while the native receipt below checks
 the same user-visible base-handle/derived-object dispatch shape.
 
 The native build used for this receipt is
-`/var/tmp/thomas-ahle/wt/landing/build-dev-fast`, Mox tip
-`e81e1f9272f85df16ed1a479d2b3eba670f022f1`. That tree contains the landed
-provider-closure change and was not modified by this lane.
+`/var/tmp/thomas-ahle/wt/landing/build-dev-fast`. Its reported identity is
+`e81e1f9272f85df16ed1a479d2b3eba670f022f1`, an intermediate landing binary
+built before the unqualified readmem change was reverted by
+`4d6185ae036d939c9b7266fe89a25f92ed9c294e`. The reverted source tree is
+tree-equivalent to current Mox `origin/main` for tutorial code; its only
+remaining diff is the Mako dependency pin in `utils/python-requirements.txt`.
+The binary identity is not evidence that this binary is published. No lesson
+source uses readmem, and this receipt makes no claim about that reverted path.
+The Mox worktree was not modified by this lane.
 
 ## Native runs
 

@@ -8,8 +8,13 @@ are intentionally not duplicated here.
 Base: `origin/main` at `24175be0f38db6f468e73883384b74dc01713a2f`.
 Native Mox receipts use `/var/tmp/thomas-ahle/wt/landing/build-dev-fast`,
 `taskset -c 0-79`, and a 30-second process guard. The native binary reports
-Mox `e81e1f9272f85df16ed1a479d2b3eba670f022f1`; this identifies the existing
-box build and does not imply that the browser WASM was rebuilt.
+Mox `e81e1f9272f85df16ed1a479d2b3eba670f022f1`; this is an intermediate landing binary
+from before the unqualified readmem change was reverted by
+`4d6185ae036d939c9b7266fe89a25f92ed9c294e`. The binary identity is not evidence that this binary is published.
+The reverted source tree differs from
+current Mox `origin/main` only in the Mako dependency pin, and no lesson source
+uses readmem. This identifies the existing box build and does not imply that
+the browser WASM was rebuilt.
 
 ## Results
 

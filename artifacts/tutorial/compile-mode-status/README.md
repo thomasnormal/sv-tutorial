@@ -6,9 +6,13 @@ seconds on CPUs `0-79`.
 
 ## Native example
 
-The solution passes both native modes with Mox build
-`/var/tmp/thomas-ahle/wt/landing/build-dev-fast` at Mox tip
-`e81e1f9272f85df16ed1a479d2b3eba670f022f1`:
+The solution passes both native modes with the intermediate landing binary at
+`/var/tmp/thomas-ahle/wt/landing/build-dev-fast`. It reports identity
+`e81e1f9272f85df16ed1a479d2b3eba670f022f1`, from before the unqualified
+readmem change was reverted by `4d6185ae036d939c9b7266fe89a25f92ed9c294e`.
+The binary identity is not evidence that this binary is published; the
+reverted source tree differs from current Mox `origin/main` only in the Mako
+dependency pin, and no lesson source uses readmem.
 
 ```text
 taskset -c 0-79 timeout --kill-after=3s 30s /var/tmp/thomas-ahle/wt/landing/build-dev-fast/bin/mox-run --single-unit --timescale=1ns/1ns --mode=interpret --max-wall-ms=25000 src/lessons/sv/compile-mode-status/compile_mode_status.sol.sv

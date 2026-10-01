@@ -2,7 +2,13 @@
 
 The corrected receipt bundle contains 54 files and includes the sequential-UDP
 chapter validated against Mox landing tip `36b040f6190ce488d406ce49a1c5e0aafb85d6ac`.
-The tutorial's browser WASM remains the pinned release; it was not rebuilt.
+The native receipt binary is an intermediate landing binary reporting
+`e81e1f9272f85df16ed1a479d2b3eba670f022f1`, from before the unqualified readmem
+change was reverted by `4d6185ae036d939c9b7266fe89a25f92ed9c294e`. That binary
+identity is not evidence that this binary is published. The reverted source
+tree differs from current Mox `origin/main` only in the Mako dependency pin,
+and no lesson source uses readmem. The tutorial's browser WASM remains the
+pinned release; it was not rebuilt.
 
 ## Immutable hashes
 

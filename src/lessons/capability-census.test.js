@@ -30,4 +30,18 @@ describe('landed capability census', () => {
     expect(census).toContain('No additional user-facing language capability');
     expect(census).toContain('omitted from this chapter set');
   });
+
+  it('labels the native receipt binary as an intermediate landing build', () => {
+    for (const filename of [
+      'artifacts/tutorial/virtual-provider-closure/README.md',
+      'artifacts/tutorial/compile-mode-status/README.md',
+      'artifacts/tutorial/receipts/20261001-missing/README.md',
+      'artifacts/tutorial/capability-receipts/PROVENANCE.md'
+    ]) {
+      const receipt = readFileSync(path.resolve(process.cwd(), filename), 'utf8');
+      expect(receipt).toContain('intermediate landing binary');
+      expect(receipt).toContain('readmem');
+      expect(receipt).toContain('not evidence that this binary is published');
+    }
+  });
 });

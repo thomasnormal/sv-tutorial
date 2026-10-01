@@ -8,9 +8,12 @@ build at `/var/tmp/thomas-ahle/wt/landing/build-dev-fast`; Xcelium is invoked
 through `/var/tmp/thomas-ahle/fleet/bin/refdiff`; examples are bounded to 30 s
 and CPU affinity `0-79`. The browser cannot prove current native behaviour
 because the checked-in WASM predates the landing tip. The receipts use the
-existing landing binary (`e81e1f9272f`) while the separate Mox repository is now
-Mox `origin/main` at `9fe4bd9d5ac`; the only commit after published behavior tip
-`a0c4488a587` is a dependency-only Mako bump.
+existing intermediate landing binary (`e81e1f9272f`) while the separate Mox
+repository is now Mox `origin/main` at `9fe4bd9d5ac`; the only commit after
+published behavior tip `a0c4488a587` is a dependency-only Mako bump. The
+intermediate binary is not evidence that this binary is published; its
+unqualified readmem change was reverted before the current source tip, and no
+lesson source uses readmem.
 
 ## New landed-capability chapters
 

@@ -17,10 +17,10 @@
 </svg>
 <ul>
    <li><strong>Part 1</strong> — SystemVerilog Basics: build the full parameterized SRAM in RTL</li>
-   <li><strong>Part 2</strong> — SystemVerilog Assertions: formally verify its correctness</li>
-   <li><strong>Part 3</strong> — UVM: stress-test it with a complete verification environment</li>
+   <li><strong>Part 2</strong> — SystemVerilog Assertions: check its behavior with properties</li>
+   <li><strong>Part 3</strong> — Verification environments: learn the structure of a complete testbench</li>
 </ul>
-<p>By the end you'll have a chip that's been hand-coded, formally proved, and exhaustively randomized — the same flow used in industry-grade ASIC design.</p>
+<p>The tutorial introduces RTL design, assertions, and verification environments step by step, using the SRAM as a running example.</p>
 <h2>Hello World</h2>
 <p>Before we build anything, let's make sure the simulator is working. Open <code>top.sv</code>. The <code><dfn data-card="An initial block is a procedural block that runs once at the start of simulation (time 0) and then stops — it doesn't repeat. Statements inside execute sequentially, top to bottom, like a program. Initial blocks cannot be synthesized to hardware; they exist only in testbenches. They're the standard way to write test sequences: drive signals, wait for clock edges, check results, then call $finish.">initial</dfn></code> block runs once at time 0. Use <code>
    <dfn data-card='
@@ -29,15 +29,10 @@ The format string supports C-style specifiers like %0d, %0h, %0b, %0t, %0f, and 
 '>
    $display</code>
    </dfn>
-to print a message to the log (the syntax is identical to C's <code>printf</code>.)
-
-One tight paragraph on printf/display notation:
-
-
-For example, you can write
+to print a message to the log. For example, you can write
 <pre>$display("HELLO, %s WORLD", "SRAM");</pre>
 </p>
-<blockquote><p>Every SystemVerilog simulation ends when <code>$finish</code> is called. Without it, the simulator would run forever waiting for events that never come.</p></blockquote>
+<blockquote><p>Calling <code>$finish</code> explicitly ends the simulation. A simulation can also reach its natural end when no process or scheduled event remains; a clock or other recurring process can keep it active, so testbenches commonly call <code>$finish</code> when their checks are complete.</p></blockquote>
 <blockquote><p><strong>Simulation vs. synthesis:</strong> <code>initial</code> blocks, <code>$display</code>, and <code>#n</code> delay controls exist only in simulation — they have no hardware equivalent and synthesis tools ignore them. Only structural constructs (<code>always_ff</code>, <code>always_comb</code>, module ports, <code>assign</code>) describe real hardware. You will use both worlds throughout this tutorial: RTL for the chip, simulation-only constructs for testing it.</p></blockquote>
 Hint: Install <a href="https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn" target="_blank">Claude Chrome Extension</a> to ask follow up questions on the lessons right in your browser. If any lesson can be improved, please send a <dfn data-card="
                        A pull request (PR) is a way to propose changes to a codebase. You create a PR by forking the repository, making your changes in a new branch, and then submitting the PR for review. The maintainers can discuss, request changes, and eventually merge your contributions into the main codebase.

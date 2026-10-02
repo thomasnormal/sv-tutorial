@@ -25,4 +25,23 @@ describe('browser-audit lesson alignment', () => {
     expect(read('sva/sequence-basics/grant_check.sol.sv')).not.toContain('llhd.process');
     expect(read('sva/sequence-basics/grant_check.sol.sv')).not.toContain('$display("PASS at');
   });
+
+  it('keeps the SystemVerilog Basics copy technically accurate', () => {
+    const welcome = read('sv/welcome/description.html');
+    const events = read('sv/events/description.html');
+    const parameters = read('sv/parameters/description.html');
+    const enums = read('sv/enums/description.html');
+
+    expect(welcome).not.toContain('One tight paragraph on printf/display notation');
+    expect(welcome).toContain('Calling <code>$finish</code> explicitly ends the simulation');
+    expect(events).not.toContain('events are not stateful (latching)');
+    expect(events).toContain('wait(event_name.triggered)');
+    expect(events).toContain('This event is generated automatically');
+    expect(parameters).not.toContain('$bits(16) = 4');
+    expect(parameters).toContain('IEEE 1800-2023 §20.6.2');
+    expect(parameters).toContain('replace the hardcoded dimensions');
+    expect(enums).not.toContain('remove <code>state_bits</code>');
+    expect(enums).toContain('do not add a separate <code>state_bits</code> port');
+    expect(enums).toContain('IEEE 1800-2023 §6.19');
+  });
 });

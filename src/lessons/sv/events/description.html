@@ -10,7 +10,7 @@ We can do this with two <code>initial</code> blocks, but we need to make sure th
 </p>
 <p>
 We can coordinate concurrent processes using <dfn data-card="Events are similar to constructions in many other programming languages. Such as threading.Event in Python, std::condition_variable in C++, sync.Cond in Go, and so on.
-The trigger itself is instantaneous, but the event's <code>triggered</code> state lasts for the current time step.
+The trigger itself is instantaneous, but the event's <code>triggered</code> state persists for the remainder of the current simulation time slot (IEEE 1800-2023 §15.5).
 A process waiting with <code>@</code> must start waiting before the trigger; use <code>wait(event_name.triggered)</code> when the wait and trigger may occur in either order.">events</dfn>.
 An event is a named synchronization point that processes can wait for or post.
 The basic operations on events are: </p>
@@ -20,7 +20,7 @@ The basic operations on events are: </p>
    <li><code>@(write_done)</code>: wait for the event — suspends until posted</li>
 </ul>
 <p>
-<blockquote><p>Note: You can write either <code>@write_done</code> or <code> @(write_done)</code>. The parenthesized form is common and makes the event control especially easy to spot.</p></blockquote>
+<blockquote><p>Note: You can write either <code>@write_done</code> or <code>@(write_done)</code>. The parenthesized form is common and makes the event control especially easy to spot.</p></blockquote>
 
 <p>The post is instantaneous: every process suspended at <code>@(write_done)</code> resumes in the same simulation time step. Events carry no data and cannot be synthesised — they live only in testbenches and simulation models.</p>
 

@@ -72,7 +72,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
 | `sv/enums` | typedef enum | ✅ | 24/27 ⚠️2,9 | `sv/always-ff`, `sv/always-comb` | `typedef enum`, named constants, enum-typed ports, enum in `case` |
-| `sv/mealy-fsm` | Mealy FSM | 📝 | — | `sv/fsm` | Mealy output depends on current input, single-always style |
+| `sv/mealy-fsm` | Mealy FSM | 📝 | — | `sv/enums` | Mealy output depends on current input, single-always style |
 
 > Moore-only leaves students unable to recognise the more common Mealy
 > pattern in real codebases.
@@ -87,9 +87,9 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 ### Chapter: Testbench Essentials
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
-| `sv/classes` | Classes and Objects | ✅ | 27/27 | `sv/tasks-functions` | `class`/`endclass`, fields, `function new()`, `this.`, handle semantics, `convert2string` |
+| `sv/classes` | Classes and Objects | ✅ | 27/27 | `sv/data-types` | `class`/`endclass`, fields, `function new()`, `this.`, handle semantics, `convert2string` |
 | `sv/queues-arrays` | Dynamic Arrays and Queues | ✅ | 27/27 | `sv/classes` | `type name[]`, `new[n]`, `.size()`, `type name[$]`, `push_back`, `pop_front` |
-| `sv/fork-join` | Concurrent Processes: fork...join | ✅ | 27/27 | `sv/tasks-functions` | `fork...join`, `fork...join_any`, `fork...join_none`, `automatic` tasks |
+| `sv/fork-join` | Concurrent Processes: fork...join | ✅ | 27/27 | `sv/events` | `fork...join`, `fork...join_any`, `fork...join_none`, `automatic` tasks |
 | `sv/randomization` | Constrained Randomization | ✅ | 27/27 | `sv/classes` | `rand`, `randomize()`, `constraint`, `inside`, inline `with {}`, `constraint_mode(0)` |
 
 ---
@@ -198,13 +198,10 @@ Listed by lesson, in priority order:
 | `sv/always-ff` | D latch vs. D register schematics — "level-sensitive vs. edge-triggered" side-by-side | L5 p2 |
 | `sv/always-ff` | Pipeline timing: one stage with Tcq, Tlogic, Tsu labeled; formula T > Tcq+Tlogic+Tsu | L5 p3-5 |
 | `sv/always-ff` | Synchronous vs. async reset waveform comparison | L5 |
-| `sv/fsm` | ✅ Moore block diagram SVG added (Comb. Logic ↔ State Reg, inputs/outputs) | L6 p6 |
-| `sv/fsm` | Level-to-pulse edge-detector as a 2-state worked example before the SRAM controller | L6 p7 |
 | `sv/welcome` | HDL design flow: Problem → Behavioral → HDL → Synthesis → Implementation | L1 p12 |
 | `sv/data-types` | Two's complement circular number line (overflow wraparound visualised) | L8-9 p3 |
 | `sv/modules-and-ports` | Common logic gates table: NAND/AND/NOR/OR with symbol + truth table + Boolean expression | L2 p9 |
 | `sv/always-comb` | Gate-level mux diagram (AND/OR/NOT tree) matching the case statement | L3 |
-| `sv/interfaces` | Two module boxes wired through a named interface bundle | — |
 
 ---
 

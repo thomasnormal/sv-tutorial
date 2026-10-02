@@ -10,29 +10,15 @@ const missingDir = path.join(receiptDir, '20261001-missing');
 function genericReceiptSlugs() {
   return readdirSync(receiptDir)
     .filter((name) => /^.+__(interpret|compile)\.json$/.test(name))
-    .map((name) => name.replace(/__(interpret|compile)\.json$/, '').replace('__', '/'));
+    .map((name) => name.replace(/__(interpret|compile)\.json$/, '').replace('__', '/'))
+    .filter((slug) => meta[slug]);
 }
 
 describe('tutorial receipt coverage', () => {
   it('accounts for every registered lesson with a durable receipt bundle', () => {
     const matrix = JSON.parse(readFileSync(path.join(missingDir, 'matrix.json'), 'utf8'));
-    const specialized = [
-      'sv/compile-mode-status',
-      'sv/indexed-part-select',
-      'sv/macro-formal-continuation',
-      'sv/nested-child-input',
-      'sv/sequential-udp-init',
-      'sv/clocking-sampler-retention',
-      'sv/protected-envelope-boundary',
-      'sv/struct-field-refs',
-      'sv/virtual-provider-closure',
-      'sv/wide-readmem',
-      'sv/coverage-option-text',
-      'sv/interface-method-receiver'
-    ];
     const covered = new Set([
       ...genericReceiptSlugs(),
-      ...specialized,
       ...matrix.entries.map((entry) => entry.slug)
     ]);
     expect([...covered].sort()).toEqual(Object.keys(meta).sort());

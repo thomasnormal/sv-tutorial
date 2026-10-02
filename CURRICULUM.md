@@ -18,66 +18,6 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 
 ## Part 1 — SystemVerilog Basics
 
-### Chapter: Macro Formal Continuations (September 2026)
-| Slug | Title | Status | Score | Prereqs | Teaches |
-|---|---|---|---|---|---|
-| `sv/macro-formal-continuation` | Macro Formal Continuations | ✅ | — | `sv/classes` | continued `` `define `` text, formal arguments, token pasting |
-
-### Chapter: Packed-Struct Field References (September 2026)
-| Slug | Title | Status | Score | Prereqs | Teaches |
-|---|---|---|---|---|---|
-| `sv/struct-field-refs` | Packed-Struct Field References | ✅ | — | `sv/packed-structs` | named access to a packed struct through module connections |
-
-### Chapter: Indexed Part-Select Bounds (September 2026)
-| Slug | Title | Status | Score | Prereqs | Teaches |
-|---|---|---|---|---|---|
-| `sv/indexed-part-select` | Indexed Part-Select Bounds | ✅ | — | `sv/data-types` | `+:` indexed selects and four-state out-of-range reads |
-
-### Chapter: Nested Child Input Propagation (September 2026)
-| Slug | Title | Status | Score | Prereqs | Teaches |
-|---|---|---|---|---|---|
-| `sv/nested-child-input` | Nested Child Input Propagation | ✅ | — | `sv/always-ff` | live child input connections across nested modules |
-
-### Chapter: Sequential UDP Initialization (September 2026)
-| Slug | Title | Status | Score | Prereqs | Teaches |
-|---|---|---|---|---|---|
-| `sv/sequential-udp-init` | Sequential UDP Initialization | ✅ | — | `sv/always-ff` | sequential UDP state, edge-sensitive tables, and output initialization |
-
-### Chapter: Compile-Mode Status (September 2026)
-| Slug | Title | Status | Score | Prereqs | Teaches |
-|---|---|---|---|---|---|
-| `sv/compile-mode-status` | Compile-Mode Status | ✅ | — | `sv/modules-and-ports` | native `--mode=compile`, refusal vocabulary, and the S4 UVM qualification runner |
-
-### Chapter: Clocking Sampler Retention (October 2026)
-| Slug | Title | Status | Score | Prereqs | Teaches |
-|---|---|---|---|---|---|
-| `sv/clocking-sampler-retention` | Clocking Sampler Retention | ✅ | — | `sv/interfaces` | explicit `#0` clocking-input sampling and same-slot sample retention |
-
-### Chapter: Protected Envelope Boundary (October 2026)
-| Slug | Title | Status | Score | Prereqs | Teaches |
-|---|---|---|---|---|---|
-| `sv/protected-envelope-boundary` | Protected Envelope Boundary | ✅ | — | `sv/modules-and-ports` | same-buffer protected-envelope delimiters and no-key opaque handling |
-
-### Chapter: Virtual Method Provider Closure (October 2026)
-| Slug | Title | Status | Score | Prereqs | Teaches |
-|---|---|---|---|---|---|
-| `sv/virtual-provider-closure` | Virtual Method Provider Closure | ✅ | — | `sv/classes` | virtual overrides, base-class handles, and native AOT provider retention |
-
-### Chapter: Wide Four-State Memory Loading (October 2026)
-| Slug | Title | Status | Score | Prereqs | Teaches |
-|---|---|---|---|---|---|
-| `sv/wide-readmem` | Wide Four-State Memory Loading | ✅ | — | `sv/always-ff` | `$readmemh`, address ranges, and non-power-of-two four-state packed words |
-
-### Chapter: Coverage Option Text (October 2026)
-| Slug | Title | Status | Score | Prereqs | Teaches |
-|---|---|---|---|---|---|
-| `sv/coverage-option-text` | Coverage Option Text | ✅ | — | `sv/covergroup-basics` | default and procedural assignment of a covergroup instance's `option.comment` |
-
-### Chapter: Interface Method Receivers (October 2026)
-| Slug | Title | Status | Score | Prereqs | Teaches |
-|---|---|---|---|---|---|
-| `sv/interface-method-receiver` | Interface Method Receivers | ✅ | — | `sv/interfaces`, `sv/classes` | receiver-specific `%m` paths and parenthesized calls through a virtual interface |
-
 ### Chapter: Introduction
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|

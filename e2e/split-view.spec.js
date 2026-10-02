@@ -80,8 +80,8 @@ test.describe('Split view header pills', () => {
 
 test.describe('Toolbar height consistency', () => {
   test('file-tree toolbar and split-view headers are the same height', async ({ page }) => {
-    // 1. File-tree mode: open a multi-file lesson (uvm/driver has 6+ files, never splits)
-    await page.goto('/lesson/uvm/driver', { waitUntil: 'networkidle' });
+    // 1. File-tree mode: open a public multi-file lesson (three files, never splits)
+    await page.goto('/lesson/sv/packed-structs', { waitUntil: 'networkidle' });
 
     const treeToolbar = page.getByTestId('file-tree-toolbar');
     await expect(treeToolbar).toBeVisible();
@@ -109,7 +109,7 @@ test.describe('Toolbar height consistency', () => {
 
   test('file-tree toolbar and split-view headers both have a bottom border', async ({ page }) => {
     // File-tree mode
-    await page.goto('/lesson/uvm/driver', { waitUntil: 'networkidle' });
+    await page.goto('/lesson/sv/packed-structs', { waitUntil: 'networkidle' });
     const treeToolbar = page.getByTestId('file-tree-toolbar');
     await expect(treeToolbar).toBeVisible();
     const treeBorderBottom = await treeToolbar.evaluate(

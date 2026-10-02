@@ -241,6 +241,7 @@
 
   function toggleSolve() {
     if (!hasSolution) return;
+    workspaceLoadGeneration += 1;
     if (completed) {
       workspace = cloneFiles(starterFiles);
       logs = ['Reset to starter files'];
@@ -419,7 +420,8 @@
     if (running || !mox) return;
     running = true;
     runMode = mode;
-    workspaceLoadGeneration += 1;
+    const runGeneration = ++workspaceLoadGeneration;
+    const runWorkspace = cloneFiles(workspace);
     runPhase = 'compiling';
     lastWaveform = null;
     logs = [];
@@ -431,6 +433,8 @@
     const useLec = mode === 'lec';
 
     try {
+      const runSourceHash = await workspaceFingerprint(runWorkspace);
+      if (runGeneration !== workspaceLoadGeneration) return;
       const onStatus = (status) => {
         if (status === 'compiling') { runPhase = 'compiling'; return; }
         if (status === 'running') { runPhase = 'running'; }
@@ -448,7 +452,7 @@
 
       if (lesson.runner === 'cocotb') {
         result = await mox.runCocotb({
-          files: workspace,
+          files: runWorkspace,
           top: topNameForLesson(lesson),
           onStatus, onLog
         });
@@ -456,7 +460,7 @@
         else mergeNonStreamResultLogs(result.logs);
       } else if (useLec) {
         result = await mox.runLec({
-          files: workspace,
+          files: runWorkspace,
           module1: lesson.module1 || 'Spec',
           module2: lesson.module2 || 'Impl',
           onStatus, onLog
@@ -465,7 +469,7 @@
         else mergeNonStreamResultLogs(result.logs);
       } else if (useBmc) {
         result = await mox.runBmc({
-          files: workspace,
+          files: runWorkspace,
           top: topNameForLesson(lesson),
           onStatus, onLog
         });
@@ -473,7 +477,7 @@
         else mergeNonStreamResultLogs(result.logs);
       } else {
         result = await mox.run({
-          files: workspace,
+          files: runWorkspace,
           top: topNameForLesson(lesson),
           simulate: lesson.simulate,
           onStatus, onLog
@@ -485,14 +489,14 @@
       const hasAssertionFailure = (result?.logs || []).some((entry) =>
         typeof entry === 'string' && /SVA assertion failed/i.test(entry)
       );
+      if (runGeneration !== workspaceLoadGeneration) return;
       lastRunPassed = result?.ok === true && !hasAssertionFailure;
       if (lastRunPassed) {
-        const sourceHash = await workspaceFingerprint(workspace);
-        completedSourceHashes.update(s => new Map([...s, [lesson.slug, sourceHash]]));
+        completedSourceHashes.update(s => new Map([...s, [lesson.slug, runSourceHash]]));
         if (browser) {
           try {
             const persisted = JSON.parse(localStorage.getItem('svt:done-sources') || '{}');
-            persisted[lesson.slug] = sourceHash;
+            persisted[lesson.slug] = runSourceHash;
             localStorage.setItem('svt:done-sources', JSON.stringify(persisted));
           } catch {}
         }

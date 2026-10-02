@@ -57,6 +57,25 @@ test.describe('Split view header pills', () => {
     await page.getByTestId('options-button').first().click();
     await expect(page.getByTestId('solve-button').first()).toHaveText('Show solution');
   });
+
+  test('editing during a run cannot restore completion for the old source', async ({ page }) => {
+    await page.goto('/lesson/sv/modules-and-ports', { waitUntil: 'networkidle' });
+
+    await page.getByTestId('options-button').first().click();
+    await page.getByTestId('solve-button').first().click();
+    const runButton = page.getByTestId('run-button').first();
+    await runButton.click();
+    await expect(runButton).toHaveAttribute('aria-label', 'Cancel (Ctrl+Enter)', { timeout: 120_000 });
+
+    const rightEditor = page.locator('[aria-label="Code editor: /src/tb.sv"]');
+    await rightEditor.click();
+    await page.keyboard.press('End');
+    await page.keyboard.type(' ');
+
+    await expect(runButton).not.toHaveAttribute('aria-label', 'Cancel (Ctrl+Enter)', { timeout: 120_000 });
+    await page.getByTestId('options-button').first().click();
+    await expect(page.getByTestId('solve-button').first()).toHaveText('Show solution');
+  });
 });
 
 test.describe('Toolbar height consistency', () => {

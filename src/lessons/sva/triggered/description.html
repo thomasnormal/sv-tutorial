@@ -6,6 +6,6 @@ endsequence
 // .triggered is true at the clock tick where s_req_done reaches its endpoint
 s_req_done.triggered |-> ...</pre>
 <p>This lets you build modular properties: define a sequence once, then reference its endpoint from multiple properties without duplicating the sequence body.</p>
-<p>The related <code>.matched</code> method is for a cross-clock context. When the source sequence and destination sequence use different clocks, it stores the source endpoint result until the first destination-clock tick (IEEE 1800-2023 §16.13.5).</p>
+<p>The related <code>.matched</code> method is useful when a sequence is composed across clocks. It reports the source sequence's endpoint result at the first sampling event of the destination clock; same-clock composition remains valid, while <code>.triggered</code> directly tests the endpoint at that point (IEEE 1800-2023 §16.13.5).</p>
 <p>Open <code>trigger_check.sv</code> and complete the property: when the request sequence ends, <code>ack</code> must arrive within 3 cycles.</p>
 <blockquote><p><code>.triggered</code> can also be used <em>inside another sequence</em>. IEEE 1800-2023 §16.9.11 shows an expression such as <code>reset ##1 inst ##1 e1.triggered ##1 branch_back</code>; the method tests the endpoint at that point without requiring the source sequence to start there.</p></blockquote>

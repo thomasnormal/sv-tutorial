@@ -9,6 +9,6 @@ module vacuous_demo (
       $rose(req) |-> ##[1:2] gnt;
   endproperty
 
-  // TODO: add an assert property and a cover property for req_gnt
+  // TODO: add an assert property and a cover sequence for the request/grant window
 
 endmodule

@@ -20,4 +20,11 @@ describe('SVA coverage explanations', () => {
     expect(text).not.toMatch(/pass action[^.]*confirm(?:s|ing) the antecedent/i);
     expect(text).not.toMatch(/cover property is essential[^.]*confirm/i);
   });
+
+  it('uses a sequence cover for the nonvacuous request/grant exercise', () => {
+    const text = descriptions[0];
+    expect(text).toContain('cover sequence');
+    expect(text).toContain('##[1:2]');
+    expect(text).not.toContain('add the <code>assert</code> and <code>cover property</code>');
+  });
 });

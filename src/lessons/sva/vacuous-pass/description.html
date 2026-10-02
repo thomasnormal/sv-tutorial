@@ -2,11 +2,11 @@
 <p>Pair the <code>assert</code> with coverage, but do not treat a <code>cover property</code> pass action as proof that the antecedent matched. IEEE 1800-2023 §16.14.3 defines coverage per evaluation attempt and reports vacuous successes separately; §16.14.8 defines the vacuous case. If you need to require a nonvacuous match, cover the triggering sequence itself:</p>
 <pre>rg_assert: assert property (req_gnt)
   else $display("FAIL at t=%0t", $time);
-rg_cover:  cover sequence (@(posedge clk) $rose(req) ##1 gnt)
+rg_cover:  cover sequence (@(posedge clk) $rose(req) ##[1:2] gnt)
            $display("request and grant observed at t=%0t", $time);</pre>
 <p>This lesson has two steps:</p>
 <ol>
-  <li>Open <code>vacuous.sv</code> and add the <code>assert</code> and <code>cover property</code> statements. Run — with no request, the assertion is vacuous and there is no nonvacuous request/grant match.</li>
-  <li>Open <code>tb.sv</code> and uncomment the TODO lines to pulse <code>req</code> and then drive <code>gnt</code> high. Run again — the request/grant sequence is now covered, so the property was exercised.</li>
+  <li>Open <code>vacuous.sv</code> and add the <code>assert property</code> and <code>cover sequence</code> statements for the request/grant window. Run — with no request, the assertion is vacuous and there is no nonvacuous request/grant match.</li>
+  <li>Open <code>tb.sv</code> and uncomment the TODO lines to pulse <code>req</code> and then drive <code>gnt</code> high. Run again — the sequence cover fires, proving that the request/grant scenario was exercised.</li>
 </ol>
 <blockquote><p>If the simulation ends with zero nonvacuous coverage and zero assertion failures, the property may still be vacuous. A clean run only means something when the trigger or its sequence is covered.</p></blockquote>

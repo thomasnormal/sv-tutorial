@@ -11,6 +11,7 @@ const plainText = description.replace(/<[^>]+>/g, ' ');
 describe('sampled value lesson', () => {
   it('describes sampling and four-state stability accurately', () => {
     expect(description).toContain('IEEE 1800-2023 §16.5.1');
+    expect(description).toContain('IEEE 1800-2023 §16.9.3');
     expect(description).toContain('===');
     expect(description).toContain('sampled values taken from the Preponed region');
     expect(description).not.toContain('evaluated in SVA\'s Observed region');

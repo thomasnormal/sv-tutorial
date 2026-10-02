@@ -35,4 +35,17 @@ describe('BMC lesson presentation', () => {
       .map(([slug]) => slug);
     expect(missing).toEqual([]);
   });
+
+  it('keeps the formal starter tasks aligned with the supplied skeletons', () => {
+    const cases = [
+      ['formal-intro', 'assertion skeleton are provided', 'Add a concurrent assertion'],
+      ['formal-assume', 'starter already provides', 'Add an <code>assume property</code>'],
+      ['disable-iff', 'clause are provided', 'add <code>disable iff'],
+    ];
+    for (const [name, required, forbidden] of cases) {
+      const text = readFileSync(path.join(root, name, 'description.html'), 'utf8');
+      expect(text).toContain(required);
+      expect(text).not.toContain(forbidden);
+    }
+  });
 });

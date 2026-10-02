@@ -2,5 +2,5 @@
               <pre>@(posedge clk) disable iff (reset_condition)
   antecedent |=> consequent;</pre>
               <p>While the reset condition is true, the property evaluates as vacuously true — no failure is reported.</p>
-              <p>Open <code>reset_check.sv</code> and add <code>disable iff (!rst_n)</code> between the clock specification and the implication.</p>
+              <p>Open <code>reset_check.sv</code>. The clock and <code>disable iff (!rst_n)</code> clause are provided; complete the implication that follows them.</p>
               <blockquote><p><code>disable iff</code> is asynchronous: the property is disabled the moment the condition becomes true, not at the next clock edge.</p></blockquote>

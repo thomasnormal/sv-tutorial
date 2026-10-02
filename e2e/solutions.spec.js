@@ -21,6 +21,7 @@
  */
 
 import { test, expect } from '@playwright/test';
+import lessonMeta from '../src/lessons/meta.js';
 
 // ── Navigation helper ─────────────────────────────────────────────────────────
 
@@ -67,8 +68,9 @@ async function goToLesson(page, chapterName, lessonName) {
 // runner: 'lec' → logical equivalence check (verify button; expects [z3] unsat)
 // runner: 'cocotb' → cocotb Python tests (run/test button)
 //
-// expectUnsat: true  → module has design logic; mox-bmc should prove unsat.
-// expectUnsat: false → property-only module; [z3] sat is expected and OK.
+const bmcExpectedByTitle = new Map(
+  Object.values(lessonMeta).map((meta) => [meta.title, meta.bmcExpected])
+);
 
 const LESSONS = [
   // ── SystemVerilog Basics ────────────────────────────────────────────────────
@@ -91,35 +93,33 @@ const LESSONS = [
   { chapter: 'Runtime Assertions',        title: 'Concurrent Assertions in Simulation',          runner: null, expectAssertionFail: true },
   { chapter: 'Runtime Assertions',        title: 'Vacuous Pass',                                 runner: null },
   { chapter: 'Runtime Assertions',        title: '$isunknown — Detecting X and Z',               runner: null },
-  { chapter: 'Your First Formal Assertion', title: 'Immediate Assertions',                       runner: 'bmc', expectUnsat: false },
-  { chapter: 'Your First Formal Assertion', title: 'Sequences and Properties',                   runner: 'bmc', expectUnsat: false },
-  { chapter: 'Implication & BMC',       title: 'Implication: |-> and |=>',                     runner: 'bmc', expectUnsat: false },
-  // formal-intro: up-counter design — reset guarantees cnt == 0 → proved unsat
-  { chapter: 'Implication & BMC',       title: 'Bounded Model Checking',                        runner: 'bmc', expectUnsat: true },
-  { chapter: 'Core Sequences',          title: 'Clock Delay ##m and ##[m:n]',                   runner: 'bmc', expectUnsat: false },
-  { chapter: 'Core Sequences',          title: '$rose and $fell',                               runner: 'bmc', expectUnsat: false },
-  { chapter: 'Core Sequences',          title: 'Request / Acknowledge',                         runner: 'bmc', expectUnsat: false },
-  { chapter: 'Repetition Operators',    title: 'Consecutive Repetition [*m]',                   runner: 'bmc', expectUnsat: false },
-  { chapter: 'Repetition Operators',    title: 'Goto Repetition [->m]',                         runner: 'bmc', expectUnsat: false },
-  { chapter: 'Repetition Operators',    title: 'Non-Consecutive Equal Repetition [=m]',         runner: 'bmc', expectUnsat: false },
-  { chapter: 'Sequence Operators',      title: 'throughout — Stability During a Sequence',      runner: 'bmc', expectUnsat: false },
-  { chapter: 'Sequence Operators',      title: 'Sequence Composition: intersect, within, and, or', runner: 'bmc', expectUnsat: false },
-  { chapter: 'Sampled Value Functions', title: '$stable and $past',                             runner: 'bmc', expectUnsat: false },
-  { chapter: 'Sampled Value Functions', title: '$changed and $sampled',                         runner: 'bmc', expectUnsat: false },
-  { chapter: 'Protocols & Coverage',    title: 'disable iff — Reset Handling',                  runner: 'bmc', expectUnsat: false },
-  { chapter: 'Protocols & Coverage',    title: 'Aborting Properties: reject_on and accept_on',  runner: 'bmc', expectUnsat: false },
-  { chapter: 'Protocols & Coverage',    title: 'cover property',                                runner: 'bmc', expectUnsat: false },
-  { chapter: 'Advanced Properties',     title: 'Local Variables in Sequences',                  runner: 'bmc', expectUnsat: false },
-  { chapter: 'Advanced Properties',     title: '$onehot, $onehot0, $countones',                 runner: 'bmc', expectUnsat: false },
-  { chapter: 'Advanced Properties',     title: '.triggered — Sequence Endpoint Detection',      runner: 'bmc', expectUnsat: false },
-  { chapter: 'Advanced Properties',     title: 'The checker Construct',                         runner: 'bmc', expectUnsat: false },
-  { chapter: 'Advanced Properties',     title: 'Recursive Properties',                          runner: 'bmc', expectUnsat: false },
-  // formal-assume: traffic-light FSM + assume → state space constrained → proved unsat
-  { chapter: 'Formal Verification',     title: 'assume property',                               runner: 'both', expectUnsat: true },
-  { chapter: 'Formal Verification',     title: 'always and s_eventually',                       runner: 'bmc', expectUnsat: false },
-  { chapter: 'Formal Verification',     title: 'until and s_until',                             runner: 'bmc', expectUnsat: false },
-  // lec: two circuit implementations compared — proved equivalent → unsat
-  { chapter: 'Formal Verification',     title: 'Logical Equivalence Checking',                  runner: 'lec', expectUnsat: true },
+  { chapter: 'Your First Formal Assertion', title: 'Immediate Assertions',                       runner: 'bmc' },
+  { chapter: 'Your First Formal Assertion', title: 'Sequences and Properties',                   runner: 'bmc' },
+  { chapter: 'Implication & BMC',       title: 'Implication: |-> and |=>',                     runner: 'bmc' },
+  { chapter: 'Implication & BMC',       title: 'Bounded Model Checking',                        runner: 'bmc' },
+  { chapter: 'Core Sequences',          title: 'Clock Delay ##m and ##[m:n]',                   runner: 'bmc' },
+  { chapter: 'Core Sequences',          title: '$rose and $fell',                               runner: 'bmc' },
+  { chapter: 'Core Sequences',          title: 'Request / Acknowledge',                         runner: 'bmc' },
+  { chapter: 'Repetition Operators',    title: 'Consecutive Repetition [*m]',                   runner: 'bmc' },
+  { chapter: 'Repetition Operators',    title: 'Goto Repetition [->m]',                         runner: 'bmc' },
+  { chapter: 'Repetition Operators',    title: 'Non-Consecutive Equal Repetition [=m]',         runner: 'bmc' },
+  { chapter: 'Sequence Operators',      title: 'throughout — Stability During a Sequence',      runner: 'bmc' },
+  { chapter: 'Sequence Operators',      title: 'Sequence Composition: intersect, within, and, or', runner: 'bmc' },
+  { chapter: 'Sequence Operators',      title: 'Sequence Formal Arguments',                     runner: 'bmc' },
+  { chapter: 'Sampled Value Functions', title: '$stable and $past',                             runner: 'bmc' },
+  { chapter: 'Sampled Value Functions', title: '$changed and $sampled',                         runner: 'bmc' },
+  { chapter: 'Protocols & Coverage',    title: 'disable iff — Reset Handling',                  runner: 'bmc' },
+  { chapter: 'Protocols & Coverage',    title: 'Aborting Properties: reject_on and accept_on',  runner: 'bmc' },
+  { chapter: 'Protocols & Coverage',    title: 'cover property',                                runner: 'bmc' },
+  { chapter: 'Advanced Properties',     title: 'Local Variables in Sequences',                  runner: 'bmc' },
+  { chapter: 'Advanced Properties',     title: '$onehot, $onehot0, $countones',                 runner: 'bmc' },
+  { chapter: 'Advanced Properties',     title: '.triggered — Sequence Endpoint Detection',      runner: 'bmc' },
+  { chapter: 'Advanced Properties',     title: 'The checker Construct',                         runner: 'bmc' },
+  { chapter: 'Advanced Properties',     title: 'Recursive Properties',                          runner: 'bmc' },
+  { chapter: 'Formal Verification',     title: 'assume property',                               runner: 'both' },
+  { chapter: 'Formal Verification',     title: 'always and s_eventually',                       runner: 'bmc' },
+  { chapter: 'Formal Verification',     title: 'until and s_until',                             runner: 'bmc' },
+  { chapter: 'Formal Verification',     title: 'Logical Equivalence Checking',                  runner: 'lec' },
 
   // ── UVM ────────────────────────────────────────────────────────────────────
   { chapter: 'UVM Foundations',    title: 'The First UVM Test',            runner: null },
@@ -165,15 +165,23 @@ for (const lesson of LESSONS) {
       await expect(logs).toContainText('unsat', { timeout: Z3_TIMEOUT });
 
     } else if (lesson.runner === 'bmc' || lesson.runner === 'both') {
+      const expectedVerdict = bmcExpectedByTitle.get(lesson.title);
+      expect(expectedVerdict, `${lesson.title} must declare bmcExpected in src/lessons/meta.js`).toMatch(
+        /^(counterexample|proved)$/
+      );
       await page.getByTestId('verify-button').click();
       await assertNoCompileError(logs);
       await expect(logs).not.toContainText('# mox-bmc exit code: 1', { timeout: COMPILE_TIMEOUT });
       await expect(logs).toContainText('[z3]', { timeout: Z3_TIMEOUT });
-      if (lesson.expectUnsat) {
+      const expectation = page.getByTestId('bmc-expectation');
+      await expect(expectation).toBeVisible();
+      if (expectedVerdict === 'proved') {
+        await expect(expectation).toContainText('PROVED within the BMC bound');
         await expect(logs).toContainText('[z3] unsat', { timeout: Z3_TIMEOUT });
         await expect(logs).not.toContainText('[z3] sat');
         await expect(logs).toContainText('# verdict: PROVED within the BMC bound', { timeout: Z3_TIMEOUT });
       } else {
+        await expect(expectation).toContainText('COUNTEREXAMPLE FOUND');
         await expect(logs).toContainText('[z3] sat', { timeout: Z3_TIMEOUT });
         await expect(logs).toContainText('# verdict: COUNTEREXAMPLE FOUND', { timeout: Z3_TIMEOUT });
         await expect(logs).toContainText('# counterexample:', { timeout: Z3_TIMEOUT });

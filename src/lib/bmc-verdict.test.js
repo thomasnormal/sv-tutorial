@@ -10,6 +10,11 @@ describe('BMC lesson verdicts', () => {
     expect(bmcRunPasses({ bmcExpected: 'proved' }, { verdict: 'counterexample', ok: false })).toBe(false);
   });
 
+  it('fails closed when the bounded verdict is missing', () => {
+    expect(bmcRunPasses({ bmcExpected: 'proved' }, { ok: true })).toBe(false);
+    expect(bmcRunPasses({ bmcExpected: 'counterexample' }, { verdict: null, ok: false })).toBe(false);
+  });
+
   it('keeps non-BMC completion tied to the runner result', () => {
     expect(bmcRunPasses({}, { verdict: 'counterexample', ok: false })).toBe(false);
     expect(bmcRunPasses({}, { verdict: 'proved', ok: true })).toBe(true);

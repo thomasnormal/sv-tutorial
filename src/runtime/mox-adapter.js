@@ -154,7 +154,7 @@ function coverageArgs(files) {
 // mox-sim inlines child-instance ports as dotted names (e.g. "dut.sum") into
 // the parent scope alongside the parent wire ("result"). Strip those duplicates
 // so the waveform viewer only shows the canonical wire name.
-function removeInlinedPortsFromVcd(vcd) {
+export function normalizeVcd(vcd) {
   if (typeof vcd !== 'string') return vcd;
   const lines = vcd.split('\n');
   const topLevelIds = new Set();   // ids used by non-dotted (top-level) signals
@@ -186,67 +186,6 @@ function removeInlinedPortsFromVcd(vcd) {
     const sm = t.match(/^[01xzXZ](\S+)$/);
     if (sm && skipIds.has(sm[1])) return false;
     return true;
-  }).join('\n');
-}
-
-// MOX/LLHD encodes every 4-state `logic` bit as a 2-bit pair in VCD:
-//   high bit = value (0 or 1)
-//   low bit  = 4-state flag (0 = known, 1 = x or z)
-// This doubles the declared width of every logic signal, so Surfer displays the
-// raw 2-bit integer (e.g. logic-1 = b10 = decimal 2 instead of 1).
-// Decode these back to standard single-bit-per-logic-bit VCD.
-//
-// 2-state types (integer, real, realtime, time) are not doubled by LLHD and
-// are left untouched.
-function fixLlhdVcdEncoding(vcd) {
-  if (typeof vcd !== 'string') return vcd;
-
-  const SKIP_TYPES = new Set(['integer', 'real', 'realtime', 'time']);
-
-  // First pass: find variables with even width and a 4-state VCD type.
-  const llhdIds = new Map(); // identifier → svWidth (= vcdWidth / 2)
-  const lines = vcd.split('\n');
-  for (const line of lines) {
-    const m = line.match(/\$var\s+(\S+)\s+(\d+)\s+(\S+)/);
-    if (!m) continue;
-    const type = m[1], vcdWidth = parseInt(m[2], 10), id = m[3];
-    if (!SKIP_TYPES.has(type) && vcdWidth >= 2 && vcdWidth % 2 === 0) {
-      llhdIds.set(id, vcdWidth / 2);
-    }
-  }
-  if (llhdIds.size === 0) return vcd;
-
-  // Second pass: halve $var widths and decode value-change lines.
-  return lines.map(line => {
-    const t = line.trim();
-
-    if (t.startsWith('$var')) {
-      return line.replace(/(\$var\s+\S+\s+)(\d+)(\s+(\S+))/, (_, pre, w, post, id) => {
-        const svW = llhdIds.get(id);
-        return svW !== undefined ? pre + svW + post : _;
-      });
-    }
-
-    // Vector value changes: `b<bits> <id>`
-    const bm = t.match(/^[bB]([01xzXZ]+)\s+(\S+)$/);
-    if (bm) {
-      const id = bm[2];
-      const svWidth = llhdIds.get(id);
-      if (svWidth !== undefined) {
-        const raw = bm[1].padStart(svWidth * 2, '0');
-        const valBits = raw.slice(0, svWidth);
-        const flagBits = raw.slice(svWidth);
-        let decoded = '';
-        for (let i = 0; i < svWidth; i++) {
-          decoded += flagBits[i] === '1' ? 'x' : valBits[i];
-        }
-        // 1-bit results use the compact scalar form (no space before id).
-        if (svWidth === 1) return decoded + id;
-        return 'b' + decoded + ' ' + id;
-      }
-    }
-
-    return line;
   }).join('\n');
 }
 
@@ -1506,7 +1445,7 @@ export class MoxWasmAdapter {
             if (res.stderr) emitLog(`[stderr] ${res.stderr}`);
           }
           appendNonZeroExit(logs, 'mox-run', res.exitCode, emitLog);
-          const vcdText = fixLlhdVcdEncoding(removeInlinedPortsFromVcd(res.files?.[wavePath] || null));
+      const vcdText = normalizeVcd(res.files?.[wavePath] || null);
           if (typeof onStatus === 'function') onStatus('done');
           return {
             ok: res.exitCode === 0,
@@ -1707,7 +1646,7 @@ export class MoxWasmAdapter {
       appendNonZeroExit(logs, 'mox-sim', sim.exitCode, emitLog);
 
       const rawVcdText = simResult.withVcd ? sim.files?.[wavePath] || null : null;
-      const vcdText = fixLlhdVcdEncoding(removeInlinedPortsFromVcd(rawVcdText));
+      const vcdText = normalizeVcd(rawVcdText);
 
       if (typeof onStatus === 'function') onStatus('done');
       return {

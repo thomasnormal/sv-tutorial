@@ -113,6 +113,10 @@ test('LEC: successful verification completes the lesson and editing clears compl
   await page.getByTestId('options-button').click();
   const solveButton = page.getByTestId('solve-button');
   await expect(solveButton).toHaveText('Reset to starter');
+  const lessonButton = page.locator('button[data-active="true"]');
+  await expect(lessonButton).toContainText('✓');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('svt:done') ?? '[]')))
+    .toContain('sva/lec');
   await page.keyboard.press('Escape');
 
   const editor = page.locator('[aria-label="Code editor: /src/top.sv"]');
@@ -122,4 +126,7 @@ test('LEC: successful verification completes the lesson and editing clears compl
 
   await page.getByTestId('options-button').click();
   await expect(solveButton).toHaveText('Show solution');
+  await expect(lessonButton).not.toContainText('✓');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('svt:done') ?? '[]')))
+    .not.toContain('sva/lec');
 });

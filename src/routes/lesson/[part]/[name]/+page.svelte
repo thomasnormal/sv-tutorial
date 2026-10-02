@@ -184,6 +184,11 @@
   function onEdit(newValue) {
     workspace = { ...workspace, [selectedFile]: newValue };
     lastRunPassed = false;
+    completedSlugs.update(s => {
+      const next = new Set(s);
+      next.delete(lesson.slug);
+      return next;
+    });
   }
 
   function toggleSolve() {
@@ -192,6 +197,11 @@
       workspace = cloneFiles(starterFiles);
       logs = ['Reset to starter files'];
       lastRunPassed = false;
+      completedSlugs.update(s => {
+        const next = new Set(s);
+        next.delete(lesson.slug);
+        return next;
+      });
     } else {
       workspace = cloneFiles(solutionFiles);
       logs = [...logs, 'Applied solution files'];

@@ -228,10 +228,15 @@
     }
   });
 
-  function onEdit(newValue) {
-    workspace = { ...workspace, [selectedFile]: newValue };
+  function onEditFile(filePath, newValue) {
+    workspaceLoadGeneration += 1;
+    workspace = { ...workspace, [filePath]: newValue };
     lastRunPassed = false;
     clearCompletion(lesson.slug);
+  }
+
+  function onEdit(newValue) {
+    onEditFile(selectedFile, newValue);
   }
 
   function toggleSolve() {
@@ -747,7 +752,7 @@
               <span class="font-mono text-[0.8rem] rounded-[10px] border border-teal text-teal bg-tab-selected-bg px-[0.55rem] py-[0.25rem] whitespace-nowrap">{fileA}</span>
             </div>
             <div class="flex-1 min-h-0">
-              <CodeEditor filePath={fileA} vimMode={$vimMode} darkMode={$darkMode} value={workspace[fileA] || ''} onchange={(v) => { workspace = { ...workspace, [fileA]: v }; }} diagnostics={diagnosticsByFile[fileA] ?? []} />
+              <CodeEditor filePath={fileA} vimMode={$vimMode} darkMode={$darkMode} value={workspace[fileA] || ''} onchange={(v) => onEditFile(fileA, v)} diagnostics={diagnosticsByFile[fileA] ?? []} />
             </div>
             {@render runButtons()}
           </div>
@@ -778,7 +783,7 @@
                 {@render optionsButton()}
               </div>
             </div>
-            <CodeEditor filePath={fileB} vimMode={$vimMode} darkMode={$darkMode} value={workspace[fileB] || ''} onchange={(v) => { workspace = { ...workspace, [fileB]: v }; }} diagnostics={diagnosticsByFile[fileB] ?? []} />
+            <CodeEditor filePath={fileB} vimMode={$vimMode} darkMode={$darkMode} value={workspace[fileB] || ''} onchange={(v) => onEditFile(fileB, v)} diagnostics={diagnosticsByFile[fileB] ?? []} />
           </div>
         </div>
 

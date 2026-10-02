@@ -36,6 +36,27 @@ test.describe('Split view header pills', () => {
     expect(wA).toBeLessThan(300);
     expect(wB).toBeLessThan(300);
   });
+
+  test('editing either split pane clears a completed solution', async ({ page }) => {
+    await page.goto('/lesson/sv/modules-and-ports', { waitUntil: 'networkidle' });
+
+    await page.getByTestId('options-button').first().click();
+    await page.getByTestId('solve-button').first().click();
+    await page.getByTestId('run-button').first().click();
+    await expect(page.getByTestId('runtime-logs')).toContainText('PASS', { timeout: 120_000 });
+
+    await page.getByTestId('options-button').first().click();
+    await expect(page.getByTestId('solve-button').first()).toHaveText('Reset to starter');
+    await page.keyboard.press('Escape');
+
+    const rightEditor = page.locator('[aria-label="Code editor: /src/tb.sv"]');
+    await rightEditor.click();
+    await page.keyboard.press('End');
+    await page.keyboard.type(' ');
+
+    await page.getByTestId('options-button').first().click();
+    await expect(page.getByTestId('solve-button').first()).toHaveText('Show solution');
+  });
 });
 
 test.describe('Toolbar height consistency', () => {

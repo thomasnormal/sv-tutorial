@@ -136,3 +136,37 @@ test('LEC: successful verification completes the lesson and editing clears compl
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('svt:done') ?? '[]')))
     .not.toContain('sva/lec');
 });
+
+test('LEC: an edit during completion restore does not resurrect stale completion', async ({ page }) => {
+  await page.addInitScript(() => {
+    const digest = crypto.subtle.digest.bind(crypto.subtle);
+    Object.defineProperty(crypto.subtle, 'digest', {
+      configurable: true,
+      value: async (...args) => {
+        if (localStorage.getItem('svt:hold-fingerprint') === '1') {
+          window.__svtFingerprintStarted = true;
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          localStorage.removeItem('svt:hold-fingerprint');
+        }
+        return digest(...args);
+      }
+    });
+  });
+  await goToLesson(page, 'Formal Verification', 'Logical Equivalence Checking');
+
+  await clickSolve(page);
+  await page.getByTestId('verify-button').click();
+  await expect(page.getByTestId('runtime-logs')).toContainText('unsat', { timeout: 120_000 });
+  await page.evaluate(() => localStorage.setItem('svt:hold-fingerprint', '1'));
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 2, name: 'Logical Equivalence Checking' })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => window.__svtFingerprintStarted === true)).toBe(true);
+
+  const editor = page.locator('[aria-label="Code editor: /src/top.sv"]');
+  await editor.click();
+  await page.keyboard.press('End');
+  await page.keyboard.type(' ');
+
+  await page.getByTestId('options-button').click();
+  await expect(page.getByTestId('solve-button')).toHaveText('Show solution');
+});

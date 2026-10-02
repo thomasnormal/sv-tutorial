@@ -2,6 +2,7 @@ import { MOX_FORK_REPO, getMoxRuntimeConfig, getRuntimeBasePath, Z3_SCRIPT_URL }
 import COCOTB_SHIM from './cocotb-shim.py?raw';
 import { COCOTB_WORKER_SOURCE } from './cocotb-worker-source.js';
 import { WORKER_RUNTIME_HELPERS_SOURCE } from './worker-runtime-helpers-source.js';
+import { addModelQuery, classifySmtOutput, parseModelAssignments } from './smt-verdict.js';
 
 function filename(path) {
   const idx = path.lastIndexOf('/');
@@ -1883,13 +1884,32 @@ export class MoxWasmAdapter {
       const z3lines = (z3out || '').trim().split('\n').filter(Boolean);
       for (const line of z3lines) emitLog(`[z3] ${line}`);
 
-      // unsat for every bound → all properties hold up to the bound.
-      // Any sat → a counterexample was found.
-      const hasSat = z3lines.some((l) => l.trim() === 'sat');
-      const allUnsat = z3lines.length > 0 && z3lines.every((l) => l.trim() === 'unsat');
+      const verdict = classifySmtOutput(z3out);
+      if (verdict.status === 'proved') {
+        emitLog('# verdict: PROVED within the BMC bound (unsat; no counterexample found)');
+      } else if (verdict.status === 'counterexample') {
+        emitLog('# verdict: COUNTEREXAMPLE FOUND (sat; the property is violated within the BMC bound)');
+        try {
+          const freshEm = await getFreshZ3Module();
+          const modelOut = await evalSmtlib(addModelQuery(smtlibText), {
+            produceModels: true,
+            em: freshEm
+          });
+          const assignments = parseModelAssignments(modelOut);
+          if (assignments.length > 0) {
+            emitLog(`# counterexample: ${assignments.map(({ name, value }) => `${name}=${value}`).join(' ')}`);
+          } else {
+            emitLog(`# model: ${modelOut?.trim()}`);
+          }
+        } catch (error) {
+          emitLog(`# model extraction failed: ${error.message}`);
+        }
+      } else {
+        emitLog('# verdict: UNKNOWN (the solver did not return sat or unsat)');
+      }
 
       if (typeof onStatus === 'function') onStatus('done');
-      return { ok: allUnsat, logs };
+      return { ok: verdict.ok, logs };
 
     } catch (error) {
       if (typeof onStatus === 'function') onStatus('done');

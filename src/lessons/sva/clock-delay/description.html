@@ -6,4 +6,4 @@
 </ul>
 <p>Open <code>delay_check.sv</code>. The spec is: <em>after a memory request (<code>mem_req</code>), the response (<code>mem_ack</code>) must arrive within 2 to 5 clock cycles.</em></p>
 <p>Complete the property body using <code>|-> ##[2:5]</code>, then press <strong>verify</strong>.</p>
-<p>If the delay range is wrong, the model checker will produce a counterexample trace in the log showing exactly which cycle <code>mem_req</code> fired and how many cycles later <code>mem_ack</code> arrived — useful for spotting off-by-one errors.</p>
+<p>If the delay range is wrong, the Verify log reports <strong>COUNTEREXAMPLE FOUND</strong> and lists the model's signal assignments. BMC does not generate a Waves tab; use those assignments to spot off-by-one errors.</p>

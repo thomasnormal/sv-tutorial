@@ -19,10 +19,15 @@ async function clickSolve(page) {
   await page.getByTestId('solve-button').click();
 }
 
-// Plain SV lessons run through mox-run, which only has the interpreter (no
-// --mode flag); make sure nothing asks for a precompiled module.
+// Plain SV lessons run through the browser's explicit frontend/simulator
+// pipeline; make sure nothing asks for a precompiled module.
 async function expectInterpretMode(logs) {
   await expect(logs).not.toContainText('--compiled');
+}
+
+async function expectSimulationPipeline(logs) {
+  await expect(logs).toContainText('$ mox-verilog', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-sim', { timeout: 120_000 });
 }
 
 // ── Navigation ────────────────────────────────────────────────────────────────
@@ -69,7 +74,7 @@ test('Welcome: run outputs Hello World', async ({ page }) => {
   await page.getByTestId('run-button').click();
 
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ mox-run', { timeout: 120_000 });
+  await expectSimulationPipeline(logs);
   await expectInterpretMode(logs);
   await expect(logs).not.toContainText('exit code: 1');
 });
@@ -81,7 +86,7 @@ test('Up-Counter: solution simulates and produces a waveform', async ({ page }) 
   await page.getByTestId('run-button').click();
 
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ mox-run', { timeout: 120_000 });
+  await expectSimulationPipeline(logs);
   await expectInterpretMode(logs);
   await expect(page.getByTestId('runtime-tab-waves')).toBeVisible({ timeout: 120_000 });
   await expect(logs).not.toContainText('exit code: 1');
@@ -107,7 +112,7 @@ test('Modules and Ports: waveform renders after solve and run', async ({ page })
   await page.getByTestId('run-button').click();
 
   const logs = page.getByTestId('runtime-logs');
-  await expect(logs).toContainText('$ mox-run', { timeout: 120_000 });
+  await expectSimulationPipeline(logs);
   await expect(logs).not.toContainText('exit code: 1');
 
   // Waves tab must appear and clicking it must show rendered waveform data.

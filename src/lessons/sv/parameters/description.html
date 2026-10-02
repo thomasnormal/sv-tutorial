@@ -1,8 +1,7 @@
 <p>
 So far we've been writing arrays and vectors with fixed widths, like <code>[7:0]</code>.
-Later we will discuss include dynamic arrays, <code>arr[]</code>, associative arrays, <code>arr[string]</code>, and queues, <code>int q[$]</code>,
-which add more flexibility.
-However, these are not synthesizable.
+Later we will discuss dynamic arrays, <code>arr[]</code>, associative arrays, <code>arr[string]</code>, and queues, <code>int q[$]</code>,
+which add more flexibility. These testbench-oriented containers are not the focus of this synthesizable RTL lesson.
 Instead we will use compile-time <strong>parameters</strong> to create flexible, reusable modules:
 <pre>module sram #(parameter int DEPTH = 16, ...) (
   // ... ports ...
@@ -14,12 +13,11 @@ sram #(.DEPTH(256), .WIDTH(16)) u_large(...);</pre>
 </p>
 <p>
 We can apply some system functions, like
-<code><dfn data-card="$clog2(n) computes the ceiling base-2 logarithm: the smallest integer k such that 2^k ≥ n. $clog2(16) = 4, $clog2(256) = 8, $clog2(10) = 4. It is evaluated at compile time, so it is safe inside port declarations and parameter expressions. It is the standard way to derive address width from a depth parameter — if depth changes from 16 to 1024, the address port automatically grows from 4 to 10 bits with no manual update.">$clog2</dfn></code>
-and <code><dfn data-card="$bits(n) computes the number of bits needed to represent n distinct values: the smallest integer k such that 2^k > n. $bits(16) = 4, $bits(256) = 8, $bits(10) = 4. It is evaluated at compile time, so it is safe inside port declarations and parameter expressions. It is the standard way to derive address width from a depth parameter — if depth changes from 16 to 1024, the address port automatically grows from 4 to 10 bits with no manual update.">$bits</dfn></code>
-at compile time.
-We can use this to compute the minimum number of address bits needed for a given depth.</p>
+<code><dfn data-card="$clog2(n) returns the ceiling of log base 2 of n. The argument is treated as unsigned, and $clog2(0) returns 0. It is evaluated in constant expressions, so it is the standard way to derive a minimum address width from a depth parameter (IEEE 1800-2023 §20.8.1).">$clog2</dfn></code>
+and <code><dfn data-card="$bits(expr) returns the number of bits required to hold an expression or fixed-size data type (IEEE 1800-2023 §20.6.2). It does not calculate the minimum width for a numeric value: an unsized decimal literal such as 16 is at least 32 bits wide (IEEE 1800-2023 §5.7.1).">$bits</dfn></code>
+at compile time. For this lesson, use <code>$clog2(DEPTH)</code> for the minimum number of address bits.</p>
 <p>Task: Add parametrization to <code>sram.sv</code>.
-Add the parameter block to the module header, then replace the three hardcoded widths with their parameter-derived equivalents: use <code>$clog2(DEPTH)</code> for the address port and <code>WIDTH</code> for the data ports and memory array.</p>
+Add the parameter block to the module header, then replace the hardcoded dimensions with parameter-derived equivalents: use <code>$clog2(DEPTH)</code> for the address port, <code>WIDTH</code> for both data ports and each memory element, and <code>DEPTH</code> for the memory range.</p>
 <blockquote><p>Always use <code>$clog2</code> for address widths derived from depth parameters — it automatically adjusts when the depth changes, so the address bus is always exactly the right size.</p></blockquote>
 <h2>Testbench</h2>
 <p>The solution testbench instantiates the same module <em>twice</em> with different parameters to demonstrate the power of parameterization: an 8-deep × 4-bit SRAM and a 256-deep × 16-bit SRAM, from a single RTL source.</p>

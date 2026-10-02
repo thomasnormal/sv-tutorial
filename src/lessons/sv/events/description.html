@@ -10,8 +10,8 @@ We can do this with two <code>initial</code> blocks, but we need to make sure th
 </p>
 <p>
 We can coordinate concurrent processes using <dfn data-card="Events are similar to constructions in many other programming languages. Such as threading.Event in Python, std::condition_variable in C++, sync.Cond in Go, and so on.
-The main gotcha is that System Verilog events are not stateful (latching).
-If you wait for an event that has already been posted, you will wait forever.">events</dfn>.
+The trigger itself is instantaneous, but the event's <code>triggered</code> state persists for the remainder of the current simulation time slot (IEEE 1800-2023 §15.5).
+A process waiting with <code>@</code> must start waiting before the trigger; use <code>wait(event_name.triggered)</code> when the wait and trigger may occur in either order.">events</dfn>.
 An event is a named synchronization point that processes can wait for or post.
 The basic operations on events are: </p>
 <ul>
@@ -20,7 +20,7 @@ The basic operations on events are: </p>
    <li><code>@(write_done)</code>: wait for the event — suspends until posted</li>
 </ul>
 <p>
-<blockquote><p>Note: You could also just write <code>@ write_done</code>, but using brackets around the event is a universal convention</p></blockquote>
+<blockquote><p>Note: You can write either <code>@write_done</code> or <code>@(write_done)</code>. The parenthesized form is common and makes the event control especially easy to spot.</p></blockquote>
 
 <p>The post is instantaneous: every process suspended at <code>@(write_done)</code> resumes in the same simulation time step. Events carry no data and cannot be synthesised — they live only in testbenches and simulation models.</p>
 
@@ -63,7 +63,7 @@ The basic operations on events are: </p>
 
 <p>Add the four TODO lines — one <code>-&gt;</code> and one <code>@</code> per handshake. Without them, the reader and checker start at t=0, read uninitialised <code>x</code> values, and <code>PASS</code> never prints.</p>
 
-<blockquote><p>Warning: If you add <code>@(write_done)</code> but forget <code>-> write_done</code>, the reader waits forever and the simulation never finishes. Each handshake requires both sides: a sender and at least one receiver.</p></blockquote>
+<blockquote><p>Warning: If you add <code>@(write_done)</code> but forget <code>-> write_done</code>, the reader remains blocked. If no other process ends the test or schedules more work, the simulation can then stop with the reader still waiting. Each handshake requires both sides: a sender and at least one receiver.</p></blockquote>
 <p>
 Hint: You can follow the events status in the simulator waveform viewer, just like any other signal.
 </p>
@@ -71,6 +71,6 @@ Hint: You can follow the events status in the simulator waveform viewer, just li
 <h2>Built-in vs named events</h2>
 <p>
 A very important built-in event is <code>posedge clk</code>.
-This even is generated automatically by the simulator whenever the signal <code>clk</code> transitions from 0 to 1.
+This event is generated automatically by the simulator whenever the signal <code>clk</code> transitions from 0 to 1.
 You don't post it yourself, but you can wait for it with <code>@(posedge clk)</code>.
 <p>In the next lesson, <code>always_ff @(posedge clk)</code> uses exactly this: the block suspends at the rising-edge event and latches new values into the flip-flop array. Every register in our SRAM waits for that one recurring event.</p>

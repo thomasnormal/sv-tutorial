@@ -6,6 +6,7 @@ import meta from './meta.js';
 const root = path.resolve(process.cwd());
 const receiptDir = path.join(root, 'artifacts/tutorial/receipts');
 const missingDir = path.join(receiptDir, '20261001-missing');
+const capabilityReceiptSlugs = ['sv/clocking-sampler-retention'];
 
 function genericReceiptSlugs() {
   return readdirSync(receiptDir)
@@ -19,6 +20,9 @@ describe('tutorial receipt coverage', () => {
     const matrix = JSON.parse(readFileSync(path.join(missingDir, 'matrix.json'), 'utf8'));
     const covered = new Set([
       ...genericReceiptSlugs(),
+      ...capabilityReceiptSlugs.filter((slug) =>
+        existsSync(path.join(root, 'artifacts/tutorial/clocking-sampler-retention/solution-refdiff.json'))
+      ),
       ...matrix.entries.map((entry) => entry.slug)
     ]);
     expect([...covered].sort()).toEqual(Object.keys(meta).sort());

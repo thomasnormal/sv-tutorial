@@ -6,8 +6,8 @@ Xcelium `refdiff`; the starter's default input skew fails in both engines.
 
 ## Native example
 
-The commands use CPUs `0-79`, a 30-second wall guard, and the shared landing
-build:
+The commands use CPUs `0-79`, a 30-second wall guard, and the current native
+Mox build:
 
 ```text
 taskset -c 0-79 timeout --kill-after=3s 30s /var/tmp/thomas-ahle/wt/landing/build-dev-fast/bin/mox-run --single-unit --timescale=1ns/1ns --mode=interpret --max-wall-ms=25000 --top tb src/lessons/sv/clocking-sampler-retention/clocking_sampler.sv
@@ -17,17 +17,14 @@ taskset -c 0-79 timeout --kill-after=3s 30s /var/tmp/thomas-ahle/wt/landing/buil
 ```
 
 The starter prints `FAIL: first sample=aa` in both modes. The solution prints
-`PASS: clocking sample retained=bb` in both modes. The available binary reports
-Mox `bcbd69b0d63800f2e057a58acf0fc0377db9411f`, which predates the landed
-MQ93 test lock but reproduces its behavior. The exact current-main landing
-receipt for the upstream MQ93 control is recorded at
-`/var/tmp/thomas-ahle/fleet/artifacts/landing2/sched-r5-9529d51aacb/`.
+`PASS: clocking sample retained=bb` in both modes. The current native Mox
+build used for this receipt is `643f9b3d30259a3fbaae4743cb26903e65fdf110`.
 
 The committed source hashes are:
 
 ```text
-clocking_sampler.sv     75d8287e2293d920c34c1aee73473a7aef293b0b0ddc660bd994e3d8ee06b006
-clocking_sampler.sol.sv e4a21ce79f011dcbd439935ecad93d7cfbcd6bf54dc7acbe7432e923670ec117
+clocking_sampler.sv     25ca50f72941b026d8c96f65890b439a3cf35df69cde8359eed17cc9b9970a4a
+clocking_sampler.sol.sv 7231082a4cd4f46b798b65be466590f27927b22a783f50faf67529e068376d96
 ```
 
 ## Differential receipts

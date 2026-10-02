@@ -44,6 +44,11 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 | `sv/counter` | Up-Counter | ✅ | 23/27 ⚠️1,8,9 | `sv/always-ff` | enable/reset counter, cycle-counted stimulus, `@(posedge clk)` in `initial` |
 | `sv/shift-reg` | Shift Register | 📝 | — | `sv/always-ff` | bit shift, concatenation `{}`, serial-in/serial-out |
 
+### Chapter: Clocking Blocks
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `sv/clocking-sampler-retention` | Clocking Sampler Retention | ✅ | — | `sv/modules-and-ports` | clocking blocks, input skew, sampled values, explicit `#0` timing |
+
 > Introduces `[*]` bus shift and multi-bit `always_ff`; prerequisite
 > for pipeline assertions in Part 2.
 

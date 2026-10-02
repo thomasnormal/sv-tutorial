@@ -10,6 +10,7 @@ export default {
   'sv/events':               { title: 'Events',                                        focus: '/src/event_sync.sv',  top: 'event_sync' },
   'sv/always-ff':            { title: 'Flip-Flops with always_ff',                    focus: '/src/sram_core.sv' },
   'sv/counter':              { title: 'Up-Counter',                                   focus: '/src/counter.sv' },
+  'sv/clocking-sampler-retention': { title: 'Clocking Sampler Retention',             focus: '/src/clocking_sampler.sv', top: 'tb' },
   'sv/parameters':           { title: 'Parameters',                    focus: '/src/sram.sv' },
   'sv/packed-structs':       { title: 'Packed Structs',                              focus: '/src/mem_cmd.sv' },
   'sv/interfaces':           { title: 'Interfaces',                                   focus: '/src/mem_if.sv' },

@@ -1,0 +1,14 @@
+<p>A clocking block gives a testbench a named clock event and a sampled view of its input signals. The input skew controls when each signal is sampled relative to that event.</p>
+
+<h2>Exercise</h2>
+<p>Add an explicit <code>#0</code> input skew to <code>cb.sig</code>. The testbench writes <code>BB</code> in an Active-region process, then writes <code>CC</code> after the clocking event has published its sample. The correct solution observes <code>BB</code> at the first event, keeps that sampled value through the same time slot and the following negedge, and samples <code>BB</code> again at the next positive edge.</p>
+
+<pre>clocking cb @(posedge clk);
+  input #0 sig;
+endclocking</pre>
+
+<p>Without an explicit input skew, the default is <code>1step</code>, so the input is sampled immediately before the corresponding clock edge. With an explicit <code>#0</code>, the input is sampled in the Observed region. The clocking-block event is triggered after the sampled values are updated, and a clocking input keeps the value from its most recent clocking event.</p>
+
+<blockquote><p>IEEE 1800-2023 §14.3 defines the default <code>1step</code> input skew. §14.4 defines sampling relative to the clock event and specifies that an explicit <code>#0</code> input skew samples in the Observed region. §14.13 specifies that the updated sampled values are available before the clocking-block event triggers and that a <code>#0</code> input is not resampled during same-slot Active re-entry unless a new clocking event occurs.</p></blockquote>
+
+<p>Open <code>clocking_sampler.sv</code> and add the skew. The passing solution prints <code>PASS: clocking sample retained=bb</code>.</p>

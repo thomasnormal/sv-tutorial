@@ -1,9 +1,14 @@
 import { test, expect } from '@playwright/test';
 
-// Plain SV lessons run through mox-run, which only has the interpreter (no
-// --mode flag); make sure nothing asks for a precompiled module.
+// Plain SV lessons run through the browser's explicit frontend/simulator
+// pipeline; make sure nothing asks for a precompiled module.
 async function expectInterpretMode(logs) {
   await expect(logs).not.toContainText('--compiled');
+}
+
+async function expectSimulationPipeline(logs) {
+  await expect(logs).toContainText('$ mox-verilog', { timeout: 120_000 });
+  await expect(logs).toContainText('$ mox-sim', { timeout: 120_000 });
 }
 
 test('welcome lesson executes simulation output', async ({ page }) => {
@@ -14,7 +19,7 @@ test('welcome lesson executes simulation output', async ({ page }) => {
 
   await page.getByTestId('run-button').click();
 
-  await expect(logs).toContainText('$ mox-run', { timeout: 120_000 });
+  await expectSimulationPipeline(logs);
   await expectInterpretMode(logs);
   await expect(logs).not.toContainText('exit code: 0');
 });
@@ -35,7 +40,7 @@ async function runModulesAndPorts(page) {
   await page.getByTestId('solve-button').click();
   await page.getByTestId('run-button').click();
 
-  await expect(logs).toContainText('$ mox-run', { timeout: 120_000 });
+  await expectSimulationPipeline(logs);
   await expectInterpretMode(logs);
   await expect(logs).not.toContainText('exit code: 0');
   await expect(page.getByTestId('runtime-tab-waves')).toBeVisible({ timeout: 120_000 });

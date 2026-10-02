@@ -1,4 +1,4 @@
-<p>Every named sequence has a built-in property <code><dfn data-card=".triggered is a boolean property of a named sequence that is true at the exact clock tick where the sequence reaches its endpoint. It lets you use a sequence's completion as a trigger in another property without duplicating the sequence body. The related .matched property holds true until the next clock edge, making it useful for cross-clock domain handshake assertions.">.triggered</dfn></code> that is true at the clock tick where the sequence reaches its endpoint:</p>
+<p>Every named sequence has a built-in method <code><dfn data-card=".triggered is a sequence method whose Boolean result is true when the named sequence reaches its endpoint at that point in time. It lets you test a sequence's completion without requiring a new match to start at that point. IEEE 1800-2023 §§16.9.11 and 16.13.6 define the method.">.triggered</dfn></code> that is true at the clock tick where the sequence reaches its endpoint (IEEE 1800-2023 §§16.9.11 and 16.13.6):</p>
 <pre>sequence s_req_done;
   @(posedge clk) req ##1 !busy;
 endsequence
@@ -6,6 +6,6 @@ endsequence
 // .triggered is true at the clock tick where s_req_done reaches its endpoint
 s_req_done.triggered |-> ...</pre>
 <p>This lets you build modular properties: define a sequence once, then reference its endpoint from multiple properties without duplicating the sequence body.</p>
-<p>The related <code>.matched</code> property extends the endpoint signal so it stays true until the <em>next</em> clock edge of a different clock domain — useful for cross-clock handshake assertions.</p>
+<p>The related <code>.matched</code> method is useful when a sequence is composed across clocks. It reports the source sequence's endpoint result at the first sampling event of the destination clock; same-clock composition remains valid, while <code>.triggered</code> directly tests the endpoint at that point (IEEE 1800-2023 §16.13.5).</p>
 <p>Open <code>trigger_check.sv</code> and complete the property: when the request sequence ends, <code>ack</code> must arrive within 3 cycles.</p>
-<blockquote><p><code>.triggered</code> can only be used in the antecedent of an implication or as a standalone assertion — it is not a sequence itself. If you need to use a sequence endpoint <em>inside</em> another sequence, embed the sequence directly with <code>seq1 ##0 seq2</code> (zero-delay concatenation).</p></blockquote>
+<blockquote><p><code>.triggered</code> can also be used <em>inside another sequence</em>. IEEE 1800-2023 §16.9.11 shows an expression such as <code>reset ##1 inst ##1 e1.triggered ##1 branch_back</code>; the method tests the endpoint at that point without requiring the source sequence to start there.</p></blockquote>

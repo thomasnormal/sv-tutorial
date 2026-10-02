@@ -1,0 +1,23 @@
+{
+  "source": "/var/tmp/thomas-ahle/sv-tutorial/src/lessons/sva/triggered/trigger_check.sol.sv",
+  "sha256": "7766530f0b1a59923a25d2f0a3ab441801dd5abd4d7eec84e64e5cb8a4861314",
+  "reference_cached": false,
+  "reference": {
+    "verdict": "PASS",
+    "exit": 0,
+    "final_status": "completed"
+  },
+  "mox": {
+    "verdict": "PASS",
+    "exit": 0,
+    "phase": "simulate",
+    "final_status": "completed"
+  },
+  "category": "both_pass",
+  "output_equal": true,
+  "equivalent": true,
+  "metadata": {
+    "_has_pass": false
+  },
+  "build_dir": "/var/tmp/thomas-ahle/wt/landing/build-dev-fast"
+}

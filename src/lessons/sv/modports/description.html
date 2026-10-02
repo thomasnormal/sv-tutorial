@@ -12,7 +12,7 @@ including signals it shouldn't touch.
 A testbench could accidentally drive <code>rdata</code>; the SRAM could accidentally drive <code>addr</code>.
 <strong><dfn data-card="A modport (module port) declaration inside an interface defines a restricted view of the interface's signals from one side of the connection. It lists which signals that side can drive (output) and which it can only read (input), from the module's perspective. This catches wiring mistakes at compile time rather than as silent runtime bugs.">Modports</dfn></strong> fix this by giving each side a restricted view:</p>
 <pre>modport initiator(output we, addr, wdata, input clk, rdata);
-modport target   (input  we, addr, wdata, output rdata);</pre>
+modport target   (input  we, addr, wdata, clk, output rdata);</pre>
 <p>The port qualifier <code>.target</code> then enforces that the SRAM can only drive <code>rdata</code>:</p>
 <pre>module sram (mem_if.target bus);   // compile error if sram writes bus.addr
   ...

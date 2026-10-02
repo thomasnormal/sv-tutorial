@@ -7,6 +7,7 @@ module monitor(input logic clk, req, gnt);
 
   req_gnt_check: assert property (req_then_gnt)
     else $error("req was not followed by gnt within 3 cycles!");
-  cover property (req_then_gnt);
+  cover property (req_then_gnt)
+    $display("PASS: assertion exercised at %0t", $time);
 
 endmodule

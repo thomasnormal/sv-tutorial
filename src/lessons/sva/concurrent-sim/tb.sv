@@ -33,7 +33,6 @@ module tb;
     @(posedge clk); gnt = 0;
     @(posedge clk);
 
-    $display("PASS");
     $finish;
   end
 endmodule

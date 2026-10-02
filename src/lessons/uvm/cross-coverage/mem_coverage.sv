@@ -35,6 +35,6 @@ class mem_coverage extends uvm_subscriber #(mem_item);
     if (pct == 100.0)
       `uvm_info("COV", "PASS: all required addr × op bins hit", UVM_LOW)
     else
-      $fatal(0, $sformatf("Coverage %.1f%% — add addr_x_we cross and ignore_bins, then implement this check", pct))
+      $fatal(0, $sformatf("Coverage %.1f%% — add addr_x_we cross and ignore_bins, then implement this check", pct));
   endfunction
 endclass

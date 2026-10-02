@@ -6,5 +6,11 @@ module top(
     if (rst) cnt <= 4'b0;
     else     cnt <= cnt + 1;
 
-  // TODO: assert that when rst fires, cnt is 0 on the next cycle
+  property reset_clears;
+    @(posedge clk)
+      // TODO: when rst fires, cnt must be 0 on the next cycle
+      ;
+  endproperty
+
+  reset_clears_a: assert property (reset_clears);
 endmodule

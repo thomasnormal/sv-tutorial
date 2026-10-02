@@ -13,5 +13,11 @@ module top(
   end
 
   // TODO: assume property — rst is high at the first clock edge (constrains BMC's initial states)
-  // TODO: assert property — state 3 is never reached (disable during rst)
+  initial assume property (@(posedge clk) rst);
+
+  no_invalid: assert property (
+    @(posedge clk) disable iff (rst)
+      // TODO: state 3 is never reached
+      ;
+  );
 endmodule

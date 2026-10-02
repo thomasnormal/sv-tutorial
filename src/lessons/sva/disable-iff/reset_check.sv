@@ -3,9 +3,9 @@ module reset_check(
   input logic req, ack
 );
   property req_ack_p;
-    @(posedge clk)
-      // TODO: add disable iff (!rst_n) before the implication
-      req |=> ack;
+    @(posedge clk) disable iff (!rst_n)
+      // TODO: when req fires outside reset, ack must be high on the next cycle
+      ;
   endproperty
 
   req_ack_a: assert property (req_ack_p);

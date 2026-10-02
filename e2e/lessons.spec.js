@@ -50,7 +50,13 @@ test('solve/reset toggles between solution and starter', async ({ page }) => {
   // Apply solution
   await solveBtn.click();
 
-  // Reopen menu and verify reset state
+  // Applying a solution is not completion until it passes a run.
+  await page.getByTestId('options-button').click();
+  await expect(solveBtn).toHaveText('Show solution');
+  await page.keyboard.press('Escape');
+  await runAndWait(page, 'run-button');
+
+  // Reopen menu and verify reset state after the passing run.
   await page.getByTestId('options-button').click();
   await expect(solveBtn).toHaveText('Reset to starter');
 

@@ -6,7 +6,7 @@
   import { getMoxWasmAdapter } from '$lib/mox.js';
   import { darkMode, vimMode } from '$lib/stores/settings.js';
   import { completedSlugs } from '$lib/stores/completed.js';
-  import { cloneFiles, mergeFiles, filesEqual, topNameFromFocus } from '$lib/lesson-utils.js';
+  import { cloneFiles, mergeFiles, topNameForLesson } from '$lib/lesson-utils.js';
   import { termCard } from '$lib/actions/term-card.js';
   import { highlightCode } from '$lib/actions/highlight-code.js';
   import CodeEditor from '$lib/components/CodeEditor.svelte';
@@ -32,6 +32,7 @@
   let runtimeOk = $state(null);
   let lastWaveform = $state(null);
   let hasRunOnce = $state(false);
+  let lastRunPassed = $state(false);
   let splitView = $state(false);
   let showOptions = $state(false);
   let copyEnabled = $state(false);
@@ -90,10 +91,7 @@
   let starterFiles = $derived(cloneFiles(lesson.files.a));
   let solutionFiles = $derived(mergeFiles(cloneFiles(lesson.files.a), cloneFiles(lesson.files.b)));
   let hasSolution = $derived(Object.keys(lesson.files.b).length > 0);
-  let completed = $derived.by(() => {
-    if (!hasSolution) return false;
-    return filesEqual(workspace, solutionFiles);
-  });
+  let completed = $derived(hasSolution && lastRunPassed);
   let hasWaveform = $derived(typeof lastWaveform?.text === 'string' && lastWaveform.text.length > 0);
   let canSplit = $derived(Object.keys(workspace).length === 2);
 
@@ -128,6 +126,12 @@
     runtimeOk = null;
     lastWaveform = null;
     hasRunOnce = false;
+    lastRunPassed = false;
+    completedSlugs.update(s => {
+      const next = new Set(s);
+      next.delete(l.slug);
+      return next;
+    });
   }
 
   onMount(() => {
@@ -179,6 +183,7 @@
 
   function onEdit(newValue) {
     workspace = { ...workspace, [selectedFile]: newValue };
+    lastRunPassed = false;
   }
 
   function toggleSolve() {
@@ -186,9 +191,11 @@
     if (completed) {
       workspace = cloneFiles(starterFiles);
       logs = ['Reset to starter files'];
+      lastRunPassed = false;
     } else {
       workspace = cloneFiles(solutionFiles);
       logs = [...logs, 'Applied solution files'];
+      lastRunPassed = false;
     }
   }
 
@@ -361,6 +368,7 @@
     lastWaveform = null;
     logs = [];
     didAnnounceTrimThisRun = false;
+    lastRunPassed = false;
 
     const useBmc = mode === 'bmc';
     const useLec = mode === 'lec';
@@ -371,6 +379,7 @@
         if (status === 'running') { runPhase = 'running'; }
       };
       let streamedEntries = 0;
+      let result = null;
       const onLog = (entry) => { streamedEntries += 1; appendLogEntry(entry); };
       const mergeNonStreamResultLogs = (resultLogs) => {
         const seen = new Set(logs);
@@ -381,9 +390,9 @@
       };
 
       if (lesson.runner === 'cocotb') {
-        const result = await mox.runCocotb({
+        result = await mox.runCocotb({
           files: workspace,
-          top: topNameFromFocus(lesson.focus),
+          top: topNameForLesson(lesson),
           onStatus, onLog
         });
         if (streamedEntries === 0) for (const entry of result.logs || []) appendLogEntry(entry);
@@ -398,17 +407,17 @@
         if (streamedEntries === 0) for (const entry of result.logs || []) appendLogEntry(entry);
         else mergeNonStreamResultLogs(result.logs);
       } else if (useBmc) {
-        const result = await mox.runBmc({
+        result = await mox.runBmc({
           files: workspace,
-          top: topNameFromFocus(lesson.focus),
+          top: topNameForLesson(lesson),
           onStatus, onLog
         });
         if (streamedEntries === 0) for (const entry of result.logs || []) appendLogEntry(entry);
         else mergeNonStreamResultLogs(result.logs);
       } else {
-        const result = await mox.run({
+        result = await mox.run({
           files: workspace,
-          top: topNameFromFocus(lesson.focus),
+          top: topNameForLesson(lesson),
           simulate: lesson.simulate,
           onStatus, onLog
         });
@@ -416,6 +425,7 @@
         else mergeNonStreamResultLogs(result.logs);
         lastWaveform = result.waveform;
       }
+      lastRunPassed = result?.ok === true;
     } finally {
       hasRunOnce = true;
       running = false;

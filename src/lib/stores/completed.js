@@ -8,3 +8,5 @@ export const completedSlugs = writable(new Set(_initial));
 if (browser) completedSlugs.subscribe(s => {
   try { localStorage.setItem('svt:done', JSON.stringify([...s])); } catch {}
 });
+
+export const completedSourceHashes = writable(new Map());

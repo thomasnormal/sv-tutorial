@@ -12,6 +12,7 @@ module cov_bins;
     cp_addr: coverpoint addr {
       bins lo_half = {[0:7]};
       bins hi_half = {[8:15]};
+      ignore_bins reserved = {14, 15};
     }
     cp_we: coverpoint we {
       bins reads  = {0};

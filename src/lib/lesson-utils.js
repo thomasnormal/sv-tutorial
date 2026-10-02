@@ -27,3 +27,7 @@ export function topNameFromFocus(path) {
   const filename = path.split('/').pop() || 'top.sv';
   return filename.replace(/\.[^.]+$/, '');
 }
+
+export function topNameForLesson(lesson) {
+  return lesson?.top || topNameFromFocus(lesson?.focus || 'top.sv');
+}

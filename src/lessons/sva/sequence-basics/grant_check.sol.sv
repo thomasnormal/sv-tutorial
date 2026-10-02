@@ -8,9 +8,6 @@ module grant_check(input logic clk, cStart, req, gnt);
     @(posedge clk) cStart |-> sr1;
   endproperty
 
-  reqGnt: assert property (pr1)
-    $display("PASS at %0t", $time);
-  else
-    $display("FAIL at %0t", $time);
+  reqGnt: assert property (pr1);
 
 endmodule

@@ -9,7 +9,7 @@ module vacuous_demo (
 
   rg_assert: assert property (req_gnt)
     else $display("req_gnt FAIL at t=%0t", $time);
-  rg_cover:  cover  property (req_gnt)
-             $display("req_gnt antecedent fired at t=%0t", $time);
+  rg_cover:  cover sequence (@(posedge clk) $rose(req) ##[1:2] gnt)
+             $display("req_gnt sequence observed at t=%0t", $time);
 
 endmodule

@@ -8,8 +8,8 @@ cover property (my_prop);</pre>
 <p>Add two statements after the property declaration:</p>
 <ul>
   <li><code>req_gnt_check: assert property (req_then_gnt)</code> with an <code>else $error(...)</code> — fires when gnt is late</li>
-  <li><code>cover property (req_then_gnt);</code> — counts how many times the property was exercised</li>
+  <li><code>cover property (req_then_gnt);</code> — records successful evaluation attempts; vacuous successes are tracked separately, so use <code>cover sequence</code> when the request itself must be observed</li>
 </ul>
 <p>Click <strong>Run</strong>. The testbench drives three scenarios: a valid grant, a missing grant, and back-to-back requests. With the assertion in place the missing-grant scenario prints an error in the log.</p>
 <p>Then open the <strong>Waves</strong> tab. The simulator automatically records every <code>assert</code> and <code>cover</code> statement as an <code>__sva__</code> signal alongside the design signals. A high (1) value means the assertion is currently passing; it drops to 0 at the clock edge where the property is violated:</p>
-<blockquote><p>Simulation covers only the paths your testbench drives. The next chapter replaces the testbench with a <strong>formal model checker</strong> that proves assertions hold for <em>every possible input sequence</em> — no testbench required.</p></blockquote>
+<blockquote><p>Simulation covers only the paths your testbench drives. IEEE 1800-2023 §§16.14.3 and 16.14.8 distinguish successful and vacuous coverage attempts. The next chapter replaces the testbench with a <strong>formal model checker</strong> that checks every possible input sequence — no testbench required.</p></blockquote>

@@ -53,5 +53,8 @@ describe('curriculum integrity', () => {
     const internalReference = /\/var\/tmp|thomas-ahle|fleet\/|\bcensus\b|\b(?:AGREE|NEW-REFUSAL|ORACLE-DRIFT|DIVERGE)\b|\b(?=[0-9a-f]{12,40}\b)(?=[0-9a-f]*\d)[0-9a-f]+\b/i;
     const offenders = publicFiles.filter((file) => internalReference.test(readFileSync(file, 'utf8')));
     expect(offenders).toEqual([]);
+
+    const viteConfig = readFileSync(path.resolve(process.cwd(), 'vite.config.js'), 'utf8');
+    expect(viteConfig).not.toMatch(/sourcemap:\s*true/);
   });
 });

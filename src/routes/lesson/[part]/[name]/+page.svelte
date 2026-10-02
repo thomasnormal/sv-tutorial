@@ -3,9 +3,10 @@
   import { browser } from '$app/environment';
   import { beforeNavigate, goto } from '$app/navigation';
   import { base } from '$app/paths';
+  import { get } from 'svelte/store';
   import { getMoxWasmAdapter } from '$lib/mox.js';
   import { darkMode, vimMode } from '$lib/stores/settings.js';
-  import { completedSlugs } from '$lib/stores/completed.js';
+  import { completedSlugs, completedSourceHashes } from '$lib/stores/completed.js';
   import { cloneFiles, mergeFiles, topNameForLesson } from '$lib/lesson-utils.js';
   import { termCard } from '$lib/actions/term-card.js';
   import { highlightCode } from '$lib/actions/highlight-code.js';
@@ -97,6 +98,7 @@
 
   // Track current slug to detect lesson navigation
   let _currentSlug = $state('');
+  let workspaceLoadGeneration = 0;
   let lessonArticleEl = $state(null);
   let _saveTimer = null;
 
@@ -109,7 +111,43 @@
     return out;
   }
 
-  function _loadWorkspace(l) {
+  async function workspaceFingerprint(files) {
+    const canonical = JSON.stringify(Object.entries(files).sort(([left], [right]) => left.localeCompare(right)));
+    const bytes = new TextEncoder().encode(canonical);
+    if (globalThis.crypto?.subtle) {
+      const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
+      return `sha256-${[...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('')}`;
+    }
+    let hash = 14695981039346656037n;
+    for (const byte of bytes) {
+      hash ^= BigInt(byte);
+      hash = BigInt.asUintN(64, hash * 1099511628211n);
+    }
+    return `fnv1a-${hash.toString(16).padStart(16, '0')}`;
+  }
+
+  function clearCompletion(slug) {
+    completedSlugs.update(s => {
+      const next = new Set(s);
+      next.delete(slug);
+      return next;
+    });
+    completedSourceHashes.update(s => {
+      const next = new Map(s);
+      next.delete(slug);
+      return next;
+    });
+    if (browser) {
+      try {
+        const persisted = JSON.parse(localStorage.getItem('svt:done-sources') || '{}');
+        delete persisted[slug];
+        localStorage.setItem('svt:done-sources', JSON.stringify(persisted));
+      } catch {}
+    }
+  }
+
+  async function _loadWorkspace(l) {
+    const loadGeneration = ++workspaceLoadGeneration;
     const starter = cloneFiles(l.files.a);
     try {
       const saved = browser ? localStorage.getItem(`svt:ws:${l.slug}`) : null;
@@ -127,18 +165,27 @@
     lastWaveform = null;
     hasRunOnce = false;
     lastRunPassed = false;
-    completedSlugs.update(s => {
-      const next = new Set(s);
-      next.delete(l.slug);
-      return next;
-    });
+    let persistedSources = {};
+    if (browser) {
+      try { persistedSources = JSON.parse(localStorage.getItem('svt:done-sources') || '{}'); } catch {}
+    }
+    const persistedSourceHash = persistedSources[l.slug];
+    const sourceHash = await workspaceFingerprint(workspace);
+    if (loadGeneration !== workspaceLoadGeneration || _currentSlug !== l.slug) return;
+    const savedSourceHash = get(completedSourceHashes).get(l.slug) || persistedSourceHash;
+    if (savedSourceHash === sourceHash) {
+      lastRunPassed = true;
+      completedSlugs.update(s => new Set([...s, l.slug]));
+    } else {
+      clearCompletion(l.slug);
+    }
   }
 
   onMount(() => {
     mox = getMoxWasmAdapter();
     if (browser && sessionStorage.getItem('copyEnabled') === 'true') copyEnabled = true;
     _currentSlug = lesson.slug;
-    _loadWorkspace(lesson);
+    void _loadWorkspace(lesson);
   });
 
   // Detect lesson navigation (same route component, data changes)
@@ -146,7 +193,7 @@
     const slug = lesson.slug;
     if (slug !== _currentSlug && browser && _currentSlug !== '') {
       _currentSlug = slug;
-      _loadWorkspace(lesson);
+      void _loadWorkspace(lesson);
       if (lessonArticleEl) lessonArticleEl.scrollTop = 0;
     }
   });
@@ -184,11 +231,7 @@
   function onEdit(newValue) {
     workspace = { ...workspace, [selectedFile]: newValue };
     lastRunPassed = false;
-    completedSlugs.update(s => {
-      const next = new Set(s);
-      next.delete(lesson.slug);
-      return next;
-    });
+    clearCompletion(lesson.slug);
   }
 
   function toggleSolve() {
@@ -197,15 +240,12 @@
       workspace = cloneFiles(starterFiles);
       logs = ['Reset to starter files'];
       lastRunPassed = false;
-      completedSlugs.update(s => {
-        const next = new Set(s);
-        next.delete(lesson.slug);
-        return next;
-      });
+      clearCompletion(lesson.slug);
     } else {
       workspace = cloneFiles(solutionFiles);
       logs = [...logs, 'Applied solution files'];
       lastRunPassed = false;
+      clearCompletion(lesson.slug);
     }
   }
 
@@ -374,11 +414,13 @@
     if (running || !mox) return;
     running = true;
     runMode = mode;
+    workspaceLoadGeneration += 1;
     runPhase = 'compiling';
     lastWaveform = null;
     logs = [];
     didAnnounceTrimThisRun = false;
     lastRunPassed = false;
+    clearCompletion(lesson.slug);
 
     const useBmc = mode === 'bmc';
     const useLec = mode === 'lec';
@@ -435,7 +477,21 @@
         else mergeNonStreamResultLogs(result.logs);
         lastWaveform = result.waveform;
       }
-      lastRunPassed = result?.ok === true;
+      const hasAssertionFailure = (result?.logs || []).some((entry) =>
+        typeof entry === 'string' && /SVA assertion failed/i.test(entry)
+      );
+      lastRunPassed = result?.ok === true && !hasAssertionFailure;
+      if (lastRunPassed) {
+        const sourceHash = await workspaceFingerprint(workspace);
+        completedSourceHashes.update(s => new Map([...s, [lesson.slug, sourceHash]]));
+        if (browser) {
+          try {
+            const persisted = JSON.parse(localStorage.getItem('svt:done-sources') || '{}');
+            persisted[lesson.slug] = sourceHash;
+            localStorage.setItem('svt:done-sources', JSON.stringify(persisted));
+          } catch {}
+        }
+      }
     } finally {
       hasRunOnce = true;
       running = false;

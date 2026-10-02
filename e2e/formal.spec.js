@@ -119,6 +119,12 @@ test('LEC: successful verification completes the lesson and editing clears compl
     .toContain('sva/lec');
   await page.keyboard.press('Escape');
 
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 2, name: 'Logical Equivalence Checking' })).toBeVisible();
+  await page.getByTestId('options-button').click();
+  await expect(solveButton).toHaveText('Reset to starter');
+  await page.keyboard.press('Escape');
+
   const editor = page.locator('[aria-label="Code editor: /src/top.sv"]');
   await editor.click();
   await page.keyboard.press('End');

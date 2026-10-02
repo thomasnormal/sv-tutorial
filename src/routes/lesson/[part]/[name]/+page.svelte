@@ -3,10 +3,11 @@
   import { browser } from '$app/environment';
   import { beforeNavigate, goto } from '$app/navigation';
   import { base } from '$app/paths';
+  import { get } from 'svelte/store';
   import { getMoxWasmAdapter } from '$lib/mox.js';
   import { darkMode, vimMode } from '$lib/stores/settings.js';
-  import { completedSlugs } from '$lib/stores/completed.js';
-  import { cloneFiles, mergeFiles, filesEqual, topNameFromFocus } from '$lib/lesson-utils.js';
+  import { completedSlugs, completedSourceHashes } from '$lib/stores/completed.js';
+  import { cloneFiles, mergeFiles, topNameForLesson } from '$lib/lesson-utils.js';
   import { termCard } from '$lib/actions/term-card.js';
   import { highlightCode } from '$lib/actions/highlight-code.js';
   import CodeEditor from '$lib/components/CodeEditor.svelte';
@@ -32,6 +33,7 @@
   let runtimeOk = $state(null);
   let lastWaveform = $state(null);
   let hasRunOnce = $state(false);
+  let lastRunPassed = $state(false);
   let splitView = $state(false);
   let showOptions = $state(false);
   let copyEnabled = $state(false);
@@ -90,15 +92,13 @@
   let starterFiles = $derived(cloneFiles(lesson.files.a));
   let solutionFiles = $derived(mergeFiles(cloneFiles(lesson.files.a), cloneFiles(lesson.files.b)));
   let hasSolution = $derived(Object.keys(lesson.files.b).length > 0);
-  let completed = $derived.by(() => {
-    if (!hasSolution) return false;
-    return filesEqual(workspace, solutionFiles);
-  });
+  let completed = $derived(hasSolution && lastRunPassed);
   let hasWaveform = $derived(typeof lastWaveform?.text === 'string' && lastWaveform.text.length > 0);
   let canSplit = $derived(Object.keys(workspace).length === 2);
 
   // Track current slug to detect lesson navigation
   let _currentSlug = $state('');
+  let workspaceLoadGeneration = 0;
   let lessonArticleEl = $state(null);
   let _saveTimer = null;
 
@@ -111,7 +111,43 @@
     return out;
   }
 
-  function _loadWorkspace(l) {
+  async function workspaceFingerprint(files) {
+    const canonical = JSON.stringify(Object.entries(files).sort(([left], [right]) => left.localeCompare(right)));
+    const bytes = new TextEncoder().encode(canonical);
+    if (globalThis.crypto?.subtle) {
+      const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
+      return `sha256-${[...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('')}`;
+    }
+    let hash = 14695981039346656037n;
+    for (const byte of bytes) {
+      hash ^= BigInt(byte);
+      hash = BigInt.asUintN(64, hash * 1099511628211n);
+    }
+    return `fnv1a-${hash.toString(16).padStart(16, '0')}`;
+  }
+
+  function clearCompletion(slug) {
+    completedSlugs.update(s => {
+      const next = new Set(s);
+      next.delete(slug);
+      return next;
+    });
+    completedSourceHashes.update(s => {
+      const next = new Map(s);
+      next.delete(slug);
+      return next;
+    });
+    if (browser) {
+      try {
+        const persisted = JSON.parse(localStorage.getItem('svt:done-sources') || '{}');
+        delete persisted[slug];
+        localStorage.setItem('svt:done-sources', JSON.stringify(persisted));
+      } catch {}
+    }
+  }
+
+  async function _loadWorkspace(l) {
+    const loadGeneration = ++workspaceLoadGeneration;
     const starter = cloneFiles(l.files.a);
     try {
       const saved = browser ? localStorage.getItem(`svt:ws:${l.slug}`) : null;
@@ -128,13 +164,28 @@
     runtimeOk = null;
     lastWaveform = null;
     hasRunOnce = false;
+    lastRunPassed = false;
+    let persistedSources = {};
+    if (browser) {
+      try { persistedSources = JSON.parse(localStorage.getItem('svt:done-sources') || '{}'); } catch {}
+    }
+    const persistedSourceHash = persistedSources[l.slug];
+    const sourceHash = await workspaceFingerprint(workspace);
+    if (loadGeneration !== workspaceLoadGeneration || _currentSlug !== l.slug) return;
+    const savedSourceHash = get(completedSourceHashes).get(l.slug) || persistedSourceHash;
+    if (savedSourceHash === sourceHash) {
+      lastRunPassed = true;
+      completedSlugs.update(s => new Set([...s, l.slug]));
+    } else {
+      clearCompletion(l.slug);
+    }
   }
 
   onMount(() => {
     mox = getMoxWasmAdapter();
     if (browser && sessionStorage.getItem('copyEnabled') === 'true') copyEnabled = true;
     _currentSlug = lesson.slug;
-    _loadWorkspace(lesson);
+    void _loadWorkspace(lesson);
   });
 
   // Detect lesson navigation (same route component, data changes)
@@ -142,7 +193,7 @@
     const slug = lesson.slug;
     if (slug !== _currentSlug && browser && _currentSlug !== '') {
       _currentSlug = slug;
-      _loadWorkspace(lesson);
+      void _loadWorkspace(lesson);
       if (lessonArticleEl) lessonArticleEl.scrollTop = 0;
     }
   });
@@ -177,18 +228,30 @@
     }
   });
 
+  function onEditFile(filePath, newValue) {
+    workspaceLoadGeneration += 1;
+    workspace = { ...workspace, [filePath]: newValue };
+    lastRunPassed = false;
+    clearCompletion(lesson.slug);
+  }
+
   function onEdit(newValue) {
-    workspace = { ...workspace, [selectedFile]: newValue };
+    onEditFile(selectedFile, newValue);
   }
 
   function toggleSolve() {
     if (!hasSolution) return;
+    workspaceLoadGeneration += 1;
     if (completed) {
       workspace = cloneFiles(starterFiles);
       logs = ['Reset to starter files'];
+      lastRunPassed = false;
+      clearCompletion(lesson.slug);
     } else {
       workspace = cloneFiles(solutionFiles);
       logs = [...logs, 'Applied solution files'];
+      lastRunPassed = false;
+      clearCompletion(lesson.slug);
     }
   }
 
@@ -357,20 +420,27 @@
     if (running || !mox) return;
     running = true;
     runMode = mode;
+    const runGeneration = ++workspaceLoadGeneration;
+    const runWorkspace = cloneFiles(workspace);
     runPhase = 'compiling';
     lastWaveform = null;
     logs = [];
     didAnnounceTrimThisRun = false;
+    lastRunPassed = false;
+    clearCompletion(lesson.slug);
 
     const useBmc = mode === 'bmc';
     const useLec = mode === 'lec';
 
     try {
+      const runSourceHash = await workspaceFingerprint(runWorkspace);
+      if (runGeneration !== workspaceLoadGeneration) return;
       const onStatus = (status) => {
         if (status === 'compiling') { runPhase = 'compiling'; return; }
         if (status === 'running') { runPhase = 'running'; }
       };
       let streamedEntries = 0;
+      let result = null;
       const onLog = (entry) => { streamedEntries += 1; appendLogEntry(entry); };
       const mergeNonStreamResultLogs = (resultLogs) => {
         const seen = new Set(logs);
@@ -381,16 +451,16 @@
       };
 
       if (lesson.runner === 'cocotb') {
-        const result = await mox.runCocotb({
-          files: workspace,
-          top: topNameFromFocus(lesson.focus),
+        result = await mox.runCocotb({
+          files: runWorkspace,
+          top: topNameForLesson(lesson),
           onStatus, onLog
         });
         if (streamedEntries === 0) for (const entry of result.logs || []) appendLogEntry(entry);
         else mergeNonStreamResultLogs(result.logs);
       } else if (useLec) {
-        const result = await mox.runLec({
-          files: workspace,
+        result = await mox.runLec({
+          files: runWorkspace,
           module1: lesson.module1 || 'Spec',
           module2: lesson.module2 || 'Impl',
           onStatus, onLog
@@ -398,23 +468,38 @@
         if (streamedEntries === 0) for (const entry of result.logs || []) appendLogEntry(entry);
         else mergeNonStreamResultLogs(result.logs);
       } else if (useBmc) {
-        const result = await mox.runBmc({
-          files: workspace,
-          top: topNameFromFocus(lesson.focus),
+        result = await mox.runBmc({
+          files: runWorkspace,
+          top: topNameForLesson(lesson),
           onStatus, onLog
         });
         if (streamedEntries === 0) for (const entry of result.logs || []) appendLogEntry(entry);
         else mergeNonStreamResultLogs(result.logs);
       } else {
-        const result = await mox.run({
-          files: workspace,
-          top: topNameFromFocus(lesson.focus),
+        result = await mox.run({
+          files: runWorkspace,
+          top: topNameForLesson(lesson),
           simulate: lesson.simulate,
           onStatus, onLog
         });
         if (streamedEntries === 0) for (const entry of result.logs || []) appendLogEntry(entry);
         else mergeNonStreamResultLogs(result.logs);
         lastWaveform = result.waveform;
+      }
+      const hasAssertionFailure = (result?.logs || []).some((entry) =>
+        typeof entry === 'string' && /SVA assertion failed/i.test(entry)
+      );
+      if (runGeneration !== workspaceLoadGeneration) return;
+      lastRunPassed = result?.ok === true && !hasAssertionFailure;
+      if (lastRunPassed) {
+        completedSourceHashes.update(s => new Map([...s, [lesson.slug, runSourceHash]]));
+        if (browser) {
+          try {
+            const persisted = JSON.parse(localStorage.getItem('svt:done-sources') || '{}');
+            persisted[lesson.slug] = runSourceHash;
+            localStorage.setItem('svt:done-sources', JSON.stringify(persisted));
+          } catch {}
+        }
       }
     } finally {
       hasRunOnce = true;
@@ -671,7 +756,7 @@
               <span class="font-mono text-[0.8rem] rounded-[10px] border border-teal text-teal bg-tab-selected-bg px-[0.55rem] py-[0.25rem] whitespace-nowrap">{fileA}</span>
             </div>
             <div class="flex-1 min-h-0">
-              <CodeEditor filePath={fileA} vimMode={$vimMode} darkMode={$darkMode} value={workspace[fileA] || ''} onchange={(v) => { workspace = { ...workspace, [fileA]: v }; }} diagnostics={diagnosticsByFile[fileA] ?? []} />
+              <CodeEditor filePath={fileA} vimMode={$vimMode} darkMode={$darkMode} value={workspace[fileA] || ''} onchange={(v) => onEditFile(fileA, v)} diagnostics={diagnosticsByFile[fileA] ?? []} />
             </div>
             {@render runButtons()}
           </div>
@@ -702,7 +787,7 @@
                 {@render optionsButton()}
               </div>
             </div>
-            <CodeEditor filePath={fileB} vimMode={$vimMode} darkMode={$darkMode} value={workspace[fileB] || ''} onchange={(v) => { workspace = { ...workspace, [fileB]: v }; }} diagnostics={diagnosticsByFile[fileB] ?? []} />
+            <CodeEditor filePath={fileB} vimMode={$vimMode} darkMode={$darkMode} value={workspace[fileB] || ''} onchange={(v) => onEditFile(fileB, v)} diagnostics={diagnosticsByFile[fileB] ?? []} />
           </div>
         </div>
 

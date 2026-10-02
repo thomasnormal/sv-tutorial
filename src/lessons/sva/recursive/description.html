@@ -39,4 +39,4 @@ endproperty</pre>
   <li><strong>TODO 2</strong> (<code>p_writes_blocked</code>): while <code>lock</code> is high, <code>we</code> must be low — the main safety invariant</li>
   <li><strong>TODO 3</strong> (<code>p_no_simultaneous</code>): <code>lock</code> and <code>unlock</code> must never both be high at the same time</li>
 </ul>
-<p>Click Verify — BMC proves all three hold for every possible input sequence up to its depth bound.</p>
+<p>Click Verify — BMC checks all three against every possible input sequence up to its depth bound. Read <strong>PROVED within the BMC bound</strong> or <strong>COUNTEREXAMPLE FOUND</strong> in the log; no bounded result is an unbounded proof.</p>

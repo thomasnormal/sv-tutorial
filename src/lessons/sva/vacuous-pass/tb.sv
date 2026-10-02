@@ -17,7 +17,7 @@ module tb;
     // @(posedge clk); gnt = 1; @(posedge clk); gnt = 0;
     repeat (10) @(posedge clk);
     $display("done: did rg_cover fire?");
-    $display("PASS");
+    $display("TODO: uncomment the request stimulus and confirm the cover fires.");
     $finish;
   end
 endmodule

@@ -8,7 +8,7 @@ module tb;
     repeat(2) @(posedge clk);
     rst = 0;
     repeat(12) @(posedge clk);
-    $display("PASS");
+    $display("Simulation complete; click Verify to check the assumption and assertion.");
     $finish;
   end
 endmodule

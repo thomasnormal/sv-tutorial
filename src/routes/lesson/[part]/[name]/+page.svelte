@@ -398,7 +398,7 @@
         if (streamedEntries === 0) for (const entry of result.logs || []) appendLogEntry(entry);
         else mergeNonStreamResultLogs(result.logs);
       } else if (useLec) {
-        const result = await mox.runLec({
+        result = await mox.runLec({
           files: workspace,
           module1: lesson.module1 || 'Spec',
           module2: lesson.module2 || 'Impl',

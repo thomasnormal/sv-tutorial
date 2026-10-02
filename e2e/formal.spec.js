@@ -17,7 +17,7 @@ async function goToLesson(page, chapterName, lessonName) {
 /** Open the gear menu then click the solve/reset button inside it. */
 async function clickSolve(page) {
   await page.getByTestId('options-button').click();
-  await clickSolve(page);
+  await page.getByTestId('solve-button').click();
 }
 
 // ── BMC: Bounded Model Checking ───────────────────────────────────────────────
@@ -99,4 +99,27 @@ test('LEC: fixed Impl is proved equivalent to Spec', async ({ page }) => {
   await expect(logs).toContainText('unsat', { timeout: 120_000 });
   await expect(logs).not.toContainText('# mox-verilog exit code: 1');
   await expect(logs).not.toContainText('# mox-lec exit code: 1');
+});
+
+test('LEC: successful verification completes the lesson and editing clears completion', async ({ page }) => {
+  await goToLesson(page, 'Formal Verification', 'Logical Equivalence Checking');
+
+  await clickSolve(page);
+  await page.getByTestId('verify-button').click();
+  const logs = page.getByTestId('runtime-logs');
+  await expect(logs).toContainText('unsat', { timeout: 120_000 });
+  await expect(page.getByTestId('verify-button')).not.toHaveAttribute('aria-label', 'Cancel');
+
+  await page.getByTestId('options-button').click();
+  const solveButton = page.getByTestId('solve-button');
+  await expect(solveButton).toHaveText('Reset to starter');
+  await page.keyboard.press('Escape');
+
+  const editor = page.locator('[aria-label="Code editor: /src/top.sv"]');
+  await editor.click();
+  await page.keyboard.press('End');
+  await page.keyboard.type(' ');
+
+  await page.getByTestId('options-button').click();
+  await expect(solveButton).toHaveText('Show solution');
 });

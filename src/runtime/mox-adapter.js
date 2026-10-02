@@ -1328,7 +1328,8 @@ export class MoxWasmAdapter {
     this.config = getMoxRuntimeConfig();
     this.ready = false;
     this._runController = null;
-    // Set once mox-run fails to load; plain SV then runs mox-verilog -> mox-sim.
+    // Set once an optional unified runner fails to load; plain SV then runs
+    // through the explicit frontend and simulator pipeline.
     this._runUnavailable = false;
   }
 
@@ -1445,12 +1446,10 @@ export class MoxWasmAdapter {
       let compileExitCode = 0;
       let loweredMlir = null;
 
-      // Plain SystemVerilog simulation: use mox-run — the unified single-command
-      // compile+simulate driver — so the tutorial teaches the real mox workflow
-      // ("mox-run design.sv --top top"). UVM (which needs the multi-strategy
-      // compile retries below) and MLIR-source lessons keep the explicit
-      // mox-verilog -> mox-sim pipeline.
-      if (simulate && svPaths.length > 0 && !useFullUvm && !this._runUnavailable) {
+      // Plain SystemVerilog simulation may use an explicitly configured
+      // unified runner. The default browser toolchain uses the explicit
+      // mox-verilog -> mox-sim pipeline, as do UVM and MLIR-source lessons.
+      if (simulate && svPaths.length > 0 && !useFullUvm && this.config.toolchain.run && !this._runUnavailable) {
         const compileRoots = compileRootSourcePaths(files).map((p) => normalizePath(p));
         // Rebuild a plain, structured-cloneable object (the incoming `files`
         // may be a reactive proxy that postMessage cannot clone).
@@ -1731,7 +1730,7 @@ export class MoxWasmAdapter {
           `# mox-verilog wasm: ${this.config.toolchain.verilog.wasm}`,
           `# mox-sim js: ${this.config.toolchain.sim.js}`,
           `# mox-sim wasm: ${this.config.toolchain.sim.wasm}`,
-          '# run scripts/setup-mox.sh and npm run sync:mox to refresh artifacts'
+          '# MOX runtime unavailable; refresh the page and try again'
         ],
         waveform: null
       };
@@ -1901,7 +1900,7 @@ export class MoxWasmAdapter {
           `# runtime unavailable: ${error.message}`,
           `# mox-bmc js: ${this.config.toolchain.bmc.js}`,
           `# mox-bmc wasm: ${this.config.toolchain.bmc.wasm}`,
-          '# run scripts/setup-mox.sh to refresh artifacts'
+          '# MOX BMC runtime unavailable; refresh the page and try again'
         ]
       };
     }
@@ -2221,7 +2220,7 @@ export class MoxWasmAdapter {
           `# runtime unavailable: ${error.message}`,
           `# mox-lec js: ${this.config.toolchain.lec?.js}`,
           `# mox-lec wasm: ${this.config.toolchain.lec?.wasm}`,
-          '# run scripts/setup-mox.sh to refresh artifacts'
+          '# MOX equivalence runtime unavailable; refresh the page and try again'
         ]
       };
     }

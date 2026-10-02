@@ -115,12 +115,20 @@ describe('MoxWasmAdapter.run coverage collection', () => {
     const calls = [];
     const adapter = createAdapterWithInvokeTool(async (toolName, request) => {
       calls.push({ toolName, request });
+      if (toolName === 'verilog') {
+        return {
+          exitCode: 0,
+          stdout: '',
+          stderr: '',
+          files: { '/workspace/out/design.llhd.mlir': 'hw.module @top() { hw.output }\n' }
+        };
+      }
       return { exitCode: 0, stdout: '', stderr: '', files: {} };
     });
     await adapter.run({ files: { '/src/top.sv': source }, top: 'top' });
-    expect(calls).toHaveLength(1);
-    expect(calls[0].toolName).toBe('run');
-    return calls[0].request.args;
+    const simCall = calls.find(({ toolName }) => toolName === 'sim');
+    expect(simCall).toBeDefined();
+    return simCall.request.args;
   }
 
   it('enables coverage when the design declares a covergroup', async () => {
@@ -140,17 +148,11 @@ endmodule
 });
 
 describe('MoxWasmAdapter.run without a mox-run artifact', () => {
-  // Mox does not build mox-run for wasm (tools/CMakeLists.txt gates it with
-  // `if(NOT EMSCRIPTEN)`), so a toolchain rebuilt from Mox has no mox-run.js.
-  // Plain SV lessons must still run through mox-verilog -> mox-sim.
-  it('falls back to mox-verilog + mox-sim when mox-run cannot load', async () => {
+  it('uses mox-verilog + mox-sim without requesting mox-run', async () => {
     const calls = [];
     const logs = [];
     const adapter = createAdapterWithInvokeTool(async (toolName, request) => {
       calls.push(toolName);
-      if (toolName === 'run') {
-        throw new Error('Failed to load tool script: http://localhost/mox/mox-run.js');
-      }
       if (toolName === 'verilog') {
         return {
           exitCode: 0, stdout: '', stderr: '',
@@ -164,11 +166,11 @@ describe('MoxWasmAdapter.run without a mox-run artifact', () => {
       top: 'top',
       onLog: (line) => logs.push(line)
     });
-    expect(calls).toEqual(['run', 'verilog', 'sim']);
+    expect(calls).toEqual(['verilog', 'sim']);
     expect(result.ok).toBe(true);
-    expect(logs.join('\n')).toContain('mox-run is not available');
+    expect(logs.join('\n')).not.toContain('mox-run');
 
-    // Later runs skip the failed mox-run load.
+    // Later runs use the same explicit pipeline.
     calls.length = 0;
     await adapter.run({
       files: { '/src/top.sv': 'module top; initial $display("PASS"); endmodule\n' },

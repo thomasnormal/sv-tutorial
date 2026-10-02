@@ -31,10 +31,6 @@ const DEFAULT_TOOLCHAIN = {
     js: `${BASE}mox/mox-sim.js`,
     wasm: `${BASE}mox/mox-sim.wasm`
   },
-  run: {
-    js: `${BASE}mox/mox-run.js`,
-    wasm: `${BASE}mox/mox-run.wasm`
-  },
   bmc: {
     js: `${BASE}mox/mox-bmc.js`,
     wasm: `${BASE}mox/mox-bmc.wasm`
@@ -61,12 +57,11 @@ const DEFAULT_LEC_ARGS = [
   '{input}'
 ];
 const DEFAULT_SIM_ARGS = ['--resource-guard=false'];
-// mox-run is the unified single-command compile+simulate driver. These are the
-// frontend/sim flags shared by every invocation; the adapter appends per-run
-// --top, --vcd and --trace-all. We deliberately omit flags whose defaults
-// already work in the wasm build: --mode interpret (no AOT is available, so
-// interpret is the default) and --resource-guard=false (the guard does not
-// interfere with these sims) — keeping the taught command minimal.
+// These are the frontend/sim flags shared by every invocation; the adapter
+// appends per-run --top, --vcd and --trace-all. We deliberately omit flags
+// whose defaults already work in the wasm build: --mode interpret (no AOT is
+// available, so interpret is the default) and --resource-guard=false (the
+// guard does not interfere with these sims).
 const DEFAULT_RUN_ARGS = ['--timescale', '1ns/1ns', '--single-unit'];
 const DEFAULT_BMC_ARGS = [
   '--resource-guard=false',
@@ -112,10 +107,12 @@ export function getMoxRuntimeConfig() {
         js: pickUrlFromEnv(import.meta.env.VITE_MOX_SIM_JS_URL, DEFAULT_TOOLCHAIN.sim.js),
         wasm: pickUrlFromEnv(import.meta.env.VITE_MOX_SIM_WASM_URL, DEFAULT_TOOLCHAIN.sim.wasm)
       },
-      run: {
-        js: pickUrlFromEnv(import.meta.env.VITE_MOX_RUN_JS_URL, DEFAULT_TOOLCHAIN.run.js),
-        wasm: pickUrlFromEnv(import.meta.env.VITE_MOX_RUN_WASM_URL, DEFAULT_TOOLCHAIN.run.wasm)
-      },
+      run: import.meta.env.VITE_MOX_RUN_JS_URL && import.meta.env.VITE_MOX_RUN_WASM_URL
+        ? {
+            js: import.meta.env.VITE_MOX_RUN_JS_URL,
+            wasm: import.meta.env.VITE_MOX_RUN_WASM_URL
+          }
+        : null,
       bmc: {
         js: pickUrlFromEnv(import.meta.env.VITE_MOX_BMC_JS_URL, DEFAULT_TOOLCHAIN.bmc.js),
         wasm: pickUrlFromEnv(import.meta.env.VITE_MOX_BMC_WASM_URL, DEFAULT_TOOLCHAIN.bmc.wasm)

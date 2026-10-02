@@ -1692,6 +1692,7 @@ export class MoxWasmAdapter {
         if (typeof onStatus === 'function') onStatus('done');
         return {
           ok: false,
+          verdict: null,
           logs: ['# no SystemVerilog source files found in workspace']
         };
       }
@@ -1765,7 +1766,7 @@ export class MoxWasmAdapter {
         if (useFullUvm && text.includes('Aborted(OOM)')) {
           emitLog('# mox-verilog: out of memory compiling UVM — rebuild wasm with larger heap');
           if (typeof onStatus === 'function') onStatus('done');
-          return { ok: false, logs };
+          return { ok: false, verdict: null, logs };
         }
         throw error;
       }
@@ -1779,7 +1780,7 @@ export class MoxWasmAdapter {
       if (compile.exitCode !== 0 || !mlirText) {
         if (!mlirText) emitLog('# MLIR output was not produced');
         if (typeof onStatus === 'function') onStatus('done');
-        return { ok: false, logs };
+        return { ok: false, verdict: null, logs };
       }
 
       // Substitute {top} and {input} placeholders in bmc args.
@@ -1814,7 +1815,7 @@ export class MoxWasmAdapter {
       if (!smtlibText) {
         emitLog('# no SMT-LIB output produced');
         if (typeof onStatus === 'function') onStatus('done');
-        return { ok: false, logs };
+        return { ok: false, verdict: null, logs };
       }
 
       // ── z3 phase ──────────────────────────────────────────────────────────
@@ -1848,7 +1849,7 @@ export class MoxWasmAdapter {
       }
 
       if (typeof onStatus === 'function') onStatus('done');
-      return { ok: verdict.ok, logs };
+      return { ok: verdict.ok, verdict: verdict.status, logs };
 
     } catch (error) {
       if (typeof onStatus === 'function') onStatus('done');

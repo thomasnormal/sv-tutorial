@@ -8,6 +8,7 @@
   import { darkMode, vimMode } from '$lib/stores/settings.js';
   import { completedSlugs, completedSourceHashes } from '$lib/stores/completed.js';
   import { cloneFiles, mergeFiles, topNameForLesson } from '$lib/lesson-utils.js';
+  import { bmcRunPasses } from '$lib/bmc-verdict.js';
   import { termCard } from '$lib/actions/term-card.js';
   import { highlightCode } from '$lib/actions/highlight-code.js';
   import CodeEditor from '$lib/components/CodeEditor.svelte';
@@ -490,7 +491,9 @@
         typeof entry === 'string' && /SVA assertion failed/i.test(entry)
       );
       if (runGeneration !== workspaceLoadGeneration) return;
-      lastRunPassed = result?.ok === true && !hasAssertionFailure;
+      lastRunPassed = useBmc
+        ? bmcRunPasses(lesson, result) && !hasAssertionFailure
+        : result?.ok === true && !hasAssertionFailure;
       if (lastRunPassed) {
         completedSourceHashes.update(s => new Map([...s, [lesson.slug, runSourceHash]]));
         if (browser) {
@@ -571,6 +574,19 @@
     <div class="lesson-body" use:termCard={{ onShow: showCard, onHide: hideCard }} use:highlightCode={lesson.html}>
       {@html lesson.html}
     </div>
+    {#if lesson.bmcExpected === 'counterexample'}
+      <aside data-testid="bmc-expectation" class="rounded-[10px] border border-border bg-surface-2 px-3 py-2 text-[0.8rem] leading-relaxed">
+        <strong>Verify outcome:</strong> the completed checker is expected to report
+        <strong>COUNTEREXAMPLE FOUND</strong> because its inputs are intentionally unconstrained.
+        That is a bounded witness for this syntax exercise, not a proof that the property holds.
+      </aside>
+    {:else if lesson.bmcExpected === 'proved'}
+      <aside data-testid="bmc-expectation" class="rounded-[10px] border border-border bg-surface-2 px-3 py-2 text-[0.8rem] leading-relaxed">
+        <strong>Verify outcome:</strong> the completed design is expected to report
+        <strong>PROVED within the BMC bound</strong>. This means no counterexample was found up to
+        the configured depth; it is not an unbounded proof.
+      </aside>
+    {/if}
     <div class="mt-auto flex flex-col gap-3">
       <a
         href="https://github.com/thomasnormal/sv-tutorial/tree/main/src/lessons/{lesson.slug}"

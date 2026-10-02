@@ -15,11 +15,9 @@
  *   equivalence check). These are the only cases where mox-bmc can prove
  *   unsat because the design itself rules out counterexamples.
  *
- * expectUnsat: false — only checks that [z3] ran and exit codes are 0.
- *   Property-only modules (checker modules with free input ports and
- *   assertions but no design logic) always produce [z3] sat because BMC
- *   can trivially assign free inputs to violate any non-trivial property.
- *   That is expected and correct behaviour for these lessons.
+ * expectUnsat: false — expects a bounded counterexample for the completed
+ *   syntax exercise. These checker modules intentionally leave their inputs
+ *   free, so a non-trivial assertion is violated by some legal input trace.
  */
 
 import { test, expect } from '@playwright/test';
@@ -174,6 +172,11 @@ for (const lesson of LESSONS) {
       if (lesson.expectUnsat) {
         await expect(logs).toContainText('[z3] unsat', { timeout: Z3_TIMEOUT });
         await expect(logs).not.toContainText('[z3] sat');
+        await expect(logs).toContainText('# verdict: PROVED within the BMC bound', { timeout: Z3_TIMEOUT });
+      } else {
+        await expect(logs).toContainText('[z3] sat', { timeout: Z3_TIMEOUT });
+        await expect(logs).toContainText('# verdict: COUNTEREXAMPLE FOUND', { timeout: Z3_TIMEOUT });
+        await expect(logs).toContainText('# counterexample:', { timeout: Z3_TIMEOUT });
       }
 
     } else if (lesson.runner === 'cocotb') {

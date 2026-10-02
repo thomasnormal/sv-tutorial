@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import metas from './meta.js';
+import { BMC_EXPECTED_VERDICTS } from '../lib/bmc-verdict.js';
 
 const root = path.resolve(process.cwd(), 'src/lessons/sva');
-const bmcLessons = readdirSync(root).filter((name) => name !== 'lec' && name !== 'concurrent-sim');
+const bmcLessons = Object.entries(metas)
+  .filter(([, meta]) => meta.runner === 'bmc' || meta.runner === 'both')
+  .map(([slug]) => slug.split('/').pop());
 
 describe('BMC lesson presentation', () => {
   it('does not promise a Waves tab for BMC runs', () => {
@@ -22,5 +26,13 @@ describe('BMC lesson presentation', () => {
       )
     );
     expect(offenders).toEqual([]);
+  });
+
+  it('declares the expected bounded verdict for every BMC lesson', () => {
+    const missing = Object.entries(metas)
+      .filter(([, meta]) => meta.runner === 'bmc' || meta.runner === 'both')
+      .filter(([, meta]) => !BMC_EXPECTED_VERDICTS.has(meta.bmcExpected))
+      .map(([slug]) => slug);
+    expect(missing).toEqual([]);
   });
 });

@@ -1,5 +1,22 @@
 # sv-tutorial: make lessons pass, fix wrong content, make the QA honest
 
+## 2026-10-02 BMC verdict follow-up
+
+Commit `e3e28d0` makes the bounded outcome of every active BMC lesson explicit.
+The 23 checker lessons with unconstrained inputs now explain that the completed
+syntax exercise should report `COUNTEREXAMPLE FOUND` with a model witness; the
+three design-constrained lessons (`sva/formal-intro`, `sva/seq-args`, and
+`sva/formal-assume`) expect `PROVED within the BMC bound`. The runtime returns
+the parsed verdict, completion accepts only the lesson's declared verdict, and
+the solution e2e asserts the wording and counterexample witness. Starters for
+formal-intro, formal-assume, and disable-iff no longer silently complete.
+
+Validation: `npm test` passes (78 passed, 4 skipped), `npm run build` passes,
+and the pinned-bundle BMC browser smoke passes 4/4. The full formal browser
+spec was not completed because the temporary checkout lacked `mox-lec` assets;
+the split-view smoke also still targets the quarantined UVM route and needs a
+separate fixture PR. This change does not rebuild or repin WASM.
+
 ## 2026-09-30 continuation
 
 The repository baseline is `24175be` (`origin/main`). The required install,

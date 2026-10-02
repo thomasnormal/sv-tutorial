@@ -79,8 +79,7 @@ export const parts = [
       { title: 'Introduction',          lessons: [L('sv/welcome'), L('sv/modules-and-ports'), L('sv/data-types'), L('sv/always-comb')] },
       { title: 'Sequential Logic',      lessons: [L('sv/events'), L('sv/always-ff'), L('sv/counter')] },
       { title: 'Data Types',            lessons: [L('sv/parameters'), L('sv/packed-structs')] },
-      { title: 'Interfaces & Procedures', lessons: [L('sv/interfaces'), L('sv/modports'), L('sv/tasks-functions')] },
-      { title: 'State Machines',        lessons: [L('sv/enums'), L('sv/fsm')] },
+      { title: 'State Machines',        lessons: [L('sv/enums')] },
       { title: 'Covergroups',            lessons: [L('sv/covergroup-basics'), L('sv/coverpoint-bins'), L('sv/cross-coverage')] },
       { title: 'Testbench Essentials',  lessons: [L('sv/classes'), L('sv/queues-arrays'), L('sv/fork-join'), L('sv/randomization')] },
     ],
@@ -101,29 +100,9 @@ export const parts = [
     ],
   },
   {
-    title: 'Universal Verification Methodology',
-    chapters: [
-      { title: 'UVM Foundations', lessons: [L('uvm/reporting'), L('uvm/seq-item')] },
-      { title: 'Stimulus',        lessons: [L('uvm/sequence'), L('uvm/driver'), L('uvm/constrained-random')] },
-      { title: 'Checking',        lessons: [L('uvm/monitor'), L('uvm/env')] },
-      {
-        title: 'Functional Coverage',
-        lessons: [L('uvm/covergroup'), L('uvm/cross-coverage'), L('uvm/coverage-driven')],
-      },
-      { title: 'Advanced UVM',    lessons: [L('uvm/factory-override'), L('uvm/ral')] },
-    ],
-  },
-  {
     title: 'RTL Design Patterns',
     chapters: [
       { title: 'Synthesis', lessons: [L('rtl/rtl-to-gates'), L('rtl/synthesis-gotchas')] },
-    ],
-  },
-  {
-    title: 'cocotb',
-    chapters: [
-      { title: 'cocotb Basics', lessons: [L('cocotb/first-test'), L('cocotb/clock-and-timing')] },
-      { title: 'Triggers & Clocks', lessons: [L('cocotb/edge-triggers'), L('cocotb/clockcycles-patterns')] },
     ],
   },
   {

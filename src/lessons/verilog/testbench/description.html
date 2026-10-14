@@ -1,0 +1,66 @@
+<p>A <dfn
+        data-card="A testbench is a Verilog module with no ports that instantiates your design-under-test (DUT) and drives stimulus to verify it works correctly. Testbenches are simulation-only — they cannot be synthesized to hardware.">testbench</dfn>
+    is where you verify your design works correctly. It wraps around your module, drives inputs, and checks outputs.</p>
+
+<h2>Testbench Anatomy</h2>
+<pre>module tb;              // no ports!
+  reg  clk, reset;      // drive inputs with reg
+  wire [3:0] count;     // capture outputs with wire
+
+  // Instantiate the DUT (Design Under Test)
+  counter dut (
+    .clk(clk), .reset(reset), .count(count)
+  );
+
+  // Clock generation
+  initial clk = 0;
+  always #5 clk = ~clk; // 10ns period
+
+  // Stimulus
+  initial begin
+    reset = 1;           // assert reset
+    #20;                 // wait 20ns
+    reset = 0;           // release reset
+    #100;                // let it run
+    $finish;
+  end
+endmodule</pre>
+
+<h2>Key Simulation Constructs</h2>
+<ul>
+    <li><code>$display("msg", args)</code> — Print once (like printf with newline)</li>
+    <li><code>$monitor("msg", args)</code> — Print every time a listed signal changes</li>
+    <li><code>$time</code> — Current simulation time</li>
+    <li><code>$dumpfile("name.vcd")</code> — Create waveform dump file</li>
+    <li><code>$dumpvars</code> — Record all signals for waveform viewing</li>
+    <li><code>#N</code> — Delay N time units</li>
+    <li><code>$finish</code> — End simulation</li>
+</ul>
+
+<h2>Named Port Connections</h2>
+<p>Always use named connections (<code>.port(signal)</code>) instead of positional connections. It's self-documenting
+    and avoids bugs when port order changes:</p>
+<pre>// Good: named connection
+counter dut (.clk(clk), .reset(rst), .count(cnt));
+
+// Bad: positional (fragile)
+counter dut (clk, rst, cnt);</pre>
+
+<h2>Self-Checking Testbenches</h2>
+<pre>initial begin
+  a = 4'd3; b = 4'd5;
+  #10;
+  if (sum !== 5'd8) begin
+    $display("FAIL: expected 8, got %0d", sum);
+    $finish;
+  end
+  $display("PASS");
+  $finish;
+end</pre>
+<p>Use <code>!==</code> instead of <code>!=</code> to catch unknown (<code>x</code>) values that would silently pass
+    with <code>!=</code>.</p>
+
+<blockquote>
+    <p><strong>Exercise:</strong> Complete the testbench in <code>tb.sv</code>. Instantiate the <code>adder</code>
+        module, drive test vectors, and check that the output matches expected values using <code>$display</code>.</p>
+</blockquote>

@@ -1,0 +1,45 @@
+<p>Verilog provides a rich set of operators for manipulating bits and values. These are the workhorses of RTL design.
+</p>
+
+<h2>Bitwise Operators</h2>
+<p>Operate on each bit independently:</p>
+<pre>~a      // NOT (invert every bit)
+a & b   // AND
+a | b   // OR
+a ^ b   // XOR
+a ~^ b  // XNOR</pre>
+
+<h2>Logical Operators</h2>
+<p>Evaluate the entire expression as true (1) or false (0):</p>
+<pre>!a      // logical NOT
+a && b  // logical AND
+a || b  // logical OR</pre>
+<p><strong>Key difference:</strong> <code>4'b1010 & 4'b1100</code> = <code>4'b1000</code> (bitwise), but
+    <code>4'b1010 && 4'b1100</code> = <code>1</code> (logical — both are nonzero).</p>
+
+<h2>Reduction Operators</h2>
+<p>Collapse a vector into a single bit:</p>
+<pre>&a   // AND all bits: a[3]&a[2]&a[1]&a[0]
+|a   // OR all bits
+^a   // XOR all bits (parity)</pre>
+
+<h2>Shift Operators</h2>
+<pre>a << 2   // shift left by 2 (fills with 0)
+a >> 1   // shift right by 1
+a <<< 2  // arithmetic shift left
+a >>> 1  // arithmetic shift right (preserves sign)</pre>
+
+<h2>Concatenation & Replication</h2>
+<pre>{a, b}       // concatenate: join bits
+{4{1'b1}}    // replicate: 4'b1111
+{a[3], b[2:0]}  // mix and match bits</pre>
+
+<h2>Ternary Operator</h2>
+<pre>assign y = sel ? a : b;  // if sel=1, y=a; else y=b</pre>
+<p>This is the most common way to write a mux in behavioral Verilog.</p>
+
+<blockquote>
+    <p><strong>Exercise:</strong> Complete <code>ops.sv</code> to compute: (1) the parity of input <code>a</code> using
+        the XOR reduction operator, (2) the concatenation of <code>a</code> and <code>b</code> into a wider output, and
+        (3) a mux using the ternary operator.</p>
+</blockquote>

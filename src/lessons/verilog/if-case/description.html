@@ -1,0 +1,65 @@
+<p>Verilog provides <code>if/else</code> and <code>case</code> statements for decision-making inside procedural blocks.
+    These map directly to hardware multiplexers and priority encoders.</p>
+
+<h2>if / else</h2>
+<pre>always @(*) begin
+  if (sel == 2'b00)
+    y = a;
+  else if (sel == 2'b01)
+    y = b;
+  else if (sel == 2'b10)
+    y = c;
+  else
+    y = d;
+end</pre>
+<p><code>if/else</code> creates <strong>priority logic</strong> — the first matching condition wins. This synthesizes to
+    a chain of muxes.</p>
+
+<h2>case</h2>
+<pre>always @(*) begin
+  case (sel)
+    2'b00: y = a;
+    2'b01: y = b;
+    2'b10: y = c;
+    2'b11: y = d;
+    default: y = 0;
+  endcase
+end</pre>
+<p><code>case</code> checks for an exact match. All values should be covered — use <code>default</code> to catch
+    remaining cases.</p>
+
+<h2>Variants</h2>
+<ul>
+    <li><code>casez</code> — Treats <code>?</code> and <code>z</code> as don't-care in the pattern (useful for priority
+        encoders)</li>
+    <li><code>casex</code> — Treats <code>x</code> and <code>z</code> as don't-care (dangerous in simulation, avoid in
+        RTL)</li>
+</ul>
+<pre>always @(*) begin
+  casez (req)
+    4'b1???: grant = 4'b1000;  // bit 3 highest priority
+    4'b01??: grant = 4'b0100;
+    4'b001?: grant = 4'b0010;
+    4'b0001: grant = 4'b0001;
+    default: grant = 4'b0000;
+  endcase
+end</pre>
+
+<h2>Synthesis Implications</h2>
+<svg width="400" height="100" viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg"
+    style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:11px;margin:10px auto">
+    <rect x="10" y="10" width="170" height="80" rx="8" fill="#e8f4f8" stroke="#0d6f72" stroke-width="2" />
+    <text x="95" y="35" text-anchor="middle" font-weight="bold" fill="#0d6f72" font-size="12">if/else</text>
+    <text x="95" y="55" text-anchor="middle" fill="#3d9fa3" font-size="11">Priority chain</text>
+    <text x="95" y="72" text-anchor="middle" fill="#3d9fa3" font-size="11">Slower, cascaded muxes</text>
+
+    <rect x="220" y="10" width="170" height="80" rx="8" fill="#f0e8f8" stroke="#6b2fa0" stroke-width="2" />
+    <text x="305" y="35" text-anchor="middle" font-weight="bold" fill="#6b2fa0" font-size="12">case</text>
+    <text x="305" y="55" text-anchor="middle" fill="#8b5fbf" font-size="11">Parallel selection</text>
+    <text x="305" y="72" text-anchor="middle" fill="#8b5fbf" font-size="11">Faster, one-hot mux</text>
+</svg>
+
+<blockquote>
+    <p><strong>Exercise:</strong> Complete the ALU in <code>alu.sv</code> using a <code>case</code> statement. Implement
+        ADD, SUB, AND, OR operations based on a 2-bit opcode.</p>
+</blockquote>

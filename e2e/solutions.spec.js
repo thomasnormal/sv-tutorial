@@ -90,6 +90,7 @@ const LESSONS = [
   { chapter: 'Interfaces & Procedures', title: 'Tasks and Functions',                           runner: null },
   { chapter: 'State Machines',          title: 'typedef enum',                                  runner: null },
   { chapter: 'State Machines',          title: 'Two-Always Moore FSM',                          runner: null },
+  { chapter: 'State Machines',          title: 'Mealy FSM',                                      runner: null },
   { chapter: 'Covergroups',             title: 'covergroup and coverpoint',                     runner: null },
   { chapter: 'Covergroups',             title: 'Bins and ignore_bins',                          runner: null },
   { chapter: 'Covergroups',             title: 'Cross coverage',                                runner: null },

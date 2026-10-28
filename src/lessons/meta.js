@@ -23,6 +23,7 @@ export default {
   'sv/tasks-functions':      { title: 'Tasks',                                        focus: '/src/tb.sv' },
   'sv/enums':                { title: 'typedef enum',                                 focus: '/src/status.sv' },
   'sv/fsm':                  { title: 'Two-Always Moore FSM',                         focus: '/src/mem_ctrl.sv' },
+  'sv/mealy-fsm':            { title: 'Mealy FSM',                                      focus: '/src/mealy_ctrl.sv', top: 'tb' },
   'sv/covergroup-basics':    { title: 'covergroup and coverpoint',                    focus: '/src/cov_intro.sv', top: 'cov_intro' },
   'sv/coverpoint-bins':      { title: 'Bins and ignore_bins',                         focus: '/src/cov_bins.sv',  top: 'cov_bins' },
   'sv/cross-coverage':       { title: 'Cross coverage',                               focus: '/src/cov_cross.sv', top: 'cov_cross' },

@@ -44,6 +44,7 @@ the browser WASM was rebuilt.
 | `sv/generate` | Playwright browser run | BLOCKED (missing local WASM artifact) | `generate-browser.log` |
 | `sv/typedef` | Playwright browser run | BLOCKED (missing local WASM artifact) | `typedef-browser.log` |
 | `sv/arrays-static` | Playwright browser run | BLOCKED (missing local WASM artifact) | `arrays-static-browser.log` |
+| `sv/mealy-fsm` | Playwright browser run | BLOCKED (missing local WASM artifact) | `mealy-fsm-browser.log` |
 
 The cocotb native smoke is marked `BLOCKED`, not `PASS`: the box has
 `cocotb` 2.0.1 but not `cocotb-test`, and the temporary compatibility install

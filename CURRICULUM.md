@@ -81,7 +81,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 |---|---|---|---|---|---|
 | `sv/covergroup-basics` | covergroup and coverpoint | ✅ | 27/27 | `sv/parameters` | `covergroup`, `coverpoint`, event sampling, functional coverage concept |
 | `sv/coverpoint-bins` | Bins and ignore_bins | ✅ | 27/27 | `sv/covergroup-basics` | explicit `bins`, range bins, `ignore_bins`, auto bins |
-| `sv/cross-coverage` | Cross coverage | ✅ | 25/27 ⚠️9 | `sv/coverpoint-bins` | `cross`, 2D coverage matrix, identifying uncovered `{addr, we}` pairs |
+| `sv/cross-coverage` | Cross coverage | ✅ | 27/27 | `sv/coverpoint-bins` | `cross`, 2D coverage matrix, identifying uncovered `{addr, we}` pairs |
 
 ### Chapter: Testbench Essentials
 | Slug | Title | Status | Score | Prereqs | Teaches |

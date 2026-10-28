@@ -88,7 +88,7 @@ const LESSONS = [
   { chapter: 'Data Types',              title: 'Static Packed and Unpacked Arrays',           runner: null },
   { chapter: 'Interfaces & Procedures', title: 'Interfaces',                                   runner: null },
   { chapter: 'Interfaces & Procedures', title: 'Modports',                                    runner: null },
-  { chapter: 'Interfaces & Procedures', title: 'Tasks and Functions',                           runner: null },
+  { chapter: 'Interfaces & Procedures', title: 'Tasks',                                        runner: null },
   { chapter: 'State Machines',          title: 'typedef enum',                                  runner: null },
   { chapter: 'State Machines',          title: 'Two-Always Moore FSM',                          runner: null },
   { chapter: 'State Machines',          title: 'Mealy FSM',                                      runner: null },

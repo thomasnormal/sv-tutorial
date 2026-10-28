@@ -72,6 +72,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 |---|---|---|---|---|---|
 | `sv/interfaces` | Interfaces | ✅ | 25/27 ⚠️2,9 | `sv/modules-and-ports`, `sv/parameters` | `interface`, signal bundling, interface functions (`sprint()`), dot-notation access |
 | `sv/modports` | Modports | ✅ | 25/27 ⚠️2,9 | `sv/interfaces` | `modport` (initiator/target), direction enforcement, `virtual interface` for UVM |
+| `sv/tasks-functions` | Tasks | ✅ | 24/27 ⚠️1,9 | `sv/interfaces`, `sv/parameters` | `task` (automatic, timing-aware), `function` (pure), driving DUT through an interface |
 
 ### Chapter: State Machines
 | Slug | Title | Status | Score | Prereqs | Teaches |

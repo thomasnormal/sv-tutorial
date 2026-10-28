@@ -36,7 +36,7 @@ export default {
   'sva/vacuous-pass':        { title: 'Vacuous Pass',                                 focus: '/src/vacuous.sv' },
   'sva/isunknown':           { title: '$isunknown — Detecting X and Z',               focus: '/src/xcheck.sv' },
   'sva/immediate-assert':    { title: 'Immediate Assertions',                         focus: '/src/fifo_checker.sv',    runner: 'both', bmcExpected: 'counterexample' },
-  'sva/sequence-basics':     { title: 'Sequences and Properties',                     focus: '/src/grant_check.sv',     runner: 'bmc',  bmcExpected: 'counterexample' },
+  'sva/sequence-basics':     { title: 'Sequences and Properties',                     focus: '/src/grant_check.sv',     runner: 'both', bmcExpected: 'counterexample' },
   'sva/implication':         { title: 'Implication: |-> and |=>',                     focus: '/src/implication.sv',     runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/formal-intro':        { title: 'Bounded Model Checking',                       focus: '/src/top.sv',             runner: 'bmc',  bmcExpected: 'proved' },
   'sva/clock-delay':         { title: 'Clock Delay ##m and ##[m:n]',                  focus: '/src/delay_check.sv',     runner: 'bmc',  bmcExpected: 'counterexample' },

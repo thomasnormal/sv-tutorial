@@ -1,4 +1,4 @@
-<p>The SRAM controller will constantly combine address, data, and control bits. A continuous <code>assign</code> keeps those relationships visible as wires: change an input and the output follows immediately, with no clock or storage. This lesson collects the small expressions that appear in almost every RTL block.</p>
+<p>The SRAM controller constantly combines address, data, and control bits. The one new idea here is a continuous <code>assign</code>: it keeps a relationship live as a wire, so an output follows its inputs immediately without a clock or storage. The bitwise, reduction, ternary, and arithmetic expressions below are different values you can place on that same always-connected path.</p>
 
 <h2>The pattern</h2>
 <p>Start with the general form. A continuous assignment drives one output from an expression whenever any value in that expression changes:</p>
@@ -8,7 +8,7 @@
 assign ready = |requests;           // reduction OR
 assign data  = select ? a : b;      // conditional choice</pre>
 
-<h2>Four expressions, four jobs</h2>
+<h2>Expressions on a live connection</h2>
 <svg width="430" height="205" viewBox="0 0 430 205" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
   <defs><marker id="op-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#586469"/></marker></defs>
   <rect x="14" y="18" width="118" height="38" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
@@ -45,7 +45,7 @@ assign data  = select ? a : b;      // conditional choice</pre>
 
 <p><strong>Bitwise</strong> <code>&amp;</code> and <code>|</code> preserve a vector's width. A <strong>reduction</strong> <code>|a</code> combines every bit of <code>a</code> into one result, useful for a “any request?” flag. The <strong>ternary</strong> <code>condition ? when_true : when_false</code> is a compact 2:1 multiplexer.</p>
 
-<h2>Width and signedness</h2>
+<h2>What the live expression preserves</h2>
 <p>Arithmetic does not magically grow to hold a carry. The 4-bit values <code>4'b1010</code> and <code>4'b0110</code> add to 16, but a 4-bit destination keeps only <code>4'b0000</code>. Widening both operands first with <code>{1'b0, a}</code> preserves the carry in a 5-bit result. That is <strong>overflow</strong>: the mathematical answer exists, but the chosen width cannot represent it.</p>
 <p>Signed vectors use two's-complement interpretation. The same four bits can mean a different number depending on the declaration: <code>logic [3:0]</code> is unsigned, while <code>logic signed [3:0]</code> lets <code>4'b1101</code> mean <code>-3</code>. Keep the signed declaration on both operands when adding signed values.</p>
 

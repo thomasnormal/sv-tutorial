@@ -4,4 +4,19 @@
   <li><code><dfn data-card="$past(sig) returns the sampled value of sig from the previous clock edge — one cycle ago. $past(sig, n) goes back exactly n cycles. Concurrent assertions use sampled values taken from the Preponed region (IEEE 1800-2023 §16.5.1), then evaluate the assertion in the Observed region. Use $past to express data-flow properties: 'the output must equal the input from 2 cycles ago.'">$past</dfn>(sig)</code> — the value of <code>sig</code> from exactly 1 cycle ago; <code>$past(sig, n)</code> goes back <code>n</code> cycles</li>
 </ul>
 <p>Open <code>stable_check.sv</code>. The spec is: <em>while <code>valid</code> is high and <code>ready</code> is low, <code>data</code> must not change on the next cycle.</em> Complete the property body with the sampled-value functions.</p>
+<svg width="470" height="166" viewBox="0 0 470 166" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <text x="235" y="16" text-anchor="middle" fill="#0d6f72" font-weight="bold">sample now, compare with the previous edge</text>
+  <text x="78" y="47" text-anchor="middle" fill="#586469">sample</text>
+  <text x="168" y="47" text-anchor="middle" fill="#586469">t0</text><text x="258" y="47" text-anchor="middle" fill="#586469">t1</text><text x="348" y="47" text-anchor="middle" fill="#586469">t2</text><text x="438" y="47" text-anchor="middle" fill="#586469">t3</text>
+  <text x="78" y="78" text-anchor="middle" fill="#586469">valid &amp;&amp; !ready</text>
+  <rect x="243" y="63" width="30" height="22" rx="3" fill="#c8eded" stroke="#0d6f72"/><text x="258" y="78" text-anchor="middle" fill="#0d6f72">1</text>
+  <rect x="333" y="63" width="30" height="22" rx="3" fill="#c8eded" stroke="#0d6f72"/><text x="348" y="78" text-anchor="middle" fill="#0d6f72">1</text>
+  <text x="78" y="111" text-anchor="middle" fill="#586469">data</text>
+  <rect x="243" y="96" width="30" height="22" rx="3" fill="#fff8ec" stroke="#c17d2a"/><text x="258" y="111" text-anchor="middle" fill="#9a5a18">3C</text>
+  <rect x="333" y="96" width="30" height="22" rx="3" fill="#fff8ec" stroke="#c17d2a"/><text x="348" y="111" text-anchor="middle" fill="#9a5a18">3C</text>
+  <rect x="423" y="96" width="30" height="22" rx="3" fill="#f3d2c2" stroke="#cc5f2d"/><text x="438" y="111" text-anchor="middle" fill="#a44020">A5</text>
+  <line x1="258" y1="122" x2="348" y2="122" stroke="#0d6f72" stroke-width="2" marker-end="url(#sp-arrow)"/><text x="303" y="145" text-anchor="middle" fill="#0d6f72">$stable(data) == data === $past(data)</text>
+  <defs><marker id="sp-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#0d6f72"/></marker></defs>
+</svg>
+<p>This follows the concurrent-assertion sampling model from the earlier simulation lesson: the antecedent is sampled at one edge, then <code>$stable(data)</code> compares that edge with <code>$past(data)</code> at the next. The starter includes <code>tb.sv</code> with a stalled transfer that holds <code>data</code>, then changes it only after <code>ready</code> rises. Run it before solving to see the history; after solving, the trace prints <code>PASS</code>. Verify searches for a data change during a stall.</p>
 <blockquote><p><code>$stable(data)</code> compares sampled four-state values. For an explicit equivalent, use <code>data === $past(data)</code>; case equality keeps an X-to-X or Z-to-Z comparison stable, unlike <code>==</code> (IEEE 1800-2023 §16.9.3).</p></blockquote>

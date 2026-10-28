@@ -126,6 +126,7 @@ const LESSONS = [
   { chapter: 'Formal Verification',     title: 'always and s_eventually',                       runner: 'bmc' },
   { chapter: 'Formal Verification',     title: 'until and s_until',                             runner: 'bmc' },
   { chapter: 'Formal Verification',     title: 'Logical Equivalence Checking',                  runner: 'lec' },
+  { chapter: 'Formal Verification',     title: 'Followed-By: #-# and #=#',                      runner: 'bmc' },
 
   // ── UVM ────────────────────────────────────────────────────────────────────
   { chapter: 'UVM Foundations',    title: 'The First UVM Test',            runner: null },

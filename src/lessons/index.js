@@ -97,7 +97,7 @@ export const parts = [
       { title: 'Sampled Value Functions',   lessons: [L('sva/stable-past'), L('sva/changed')] },
       { title: 'Protocols & Coverage',      lessons: [L('sva/disable-iff'), L('sva/abort'), L('sva/cover-property')] },
       { title: 'Advanced Properties',       lessons: [L('sva/local-vars'), L('sva/onehot'), L('sva/triggered'), L('sva/checker'), L('sva/recursive')] },
-      { title: 'Formal Verification',       lessons: [L('sva/formal-assume'), L('sva/always-eventually'), L('sva/until'), L('sva/lec')] },
+      { title: 'Formal Verification',       lessons: [L('sva/formal-assume'), L('sva/always-eventually'), L('sva/until'), L('sva/lec'), L('sva/followed-by')] },
     ],
   },
   {

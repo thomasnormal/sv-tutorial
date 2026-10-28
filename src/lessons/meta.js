@@ -62,6 +62,7 @@ export default {
   'sva/always-eventually':   { title: 'always and s_eventually',                      focus: '/src/liveness.sv',        runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/until':               { title: 'until and s_until',                            focus: '/src/hold_check.sv',      runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/lec':                 { title: 'Logical Equivalence Checking',                 focus: '/src/top.sv',             runner: 'lec', module1: 'Spec', module2: 'Impl' },
+  'sva/followed-by':         { title: 'Followed-By: #-# and #=#',                      focus: '/src/followed_by.sv',     top: 'top', runner: 'bmc', bmcExpected: 'counterexample' },
 
   // ── UVM ───────────────────────────────────────────────────────────────────
   'uvm/reporting':           { title: 'The First UVM Test',                           focus: '/src/my_test.sv' },

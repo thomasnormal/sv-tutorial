@@ -52,7 +52,7 @@ export default {
   'sva/changed':             { title: '$changed and $sampled',                        focus: '/src/toggle_check.sv',    runner: 'both', bmcExpected: 'counterexample' },
   'sva/disable-iff':         { title: 'disable iff — Reset Handling',                 focus: '/src/reset_check.sv',     runner: 'both', bmcExpected: 'counterexample' },
   'sva/abort':               { title: 'Aborting Properties: reject_on and accept_on', focus: '/src/abort_check.sv',    runner: 'both', bmcExpected: 'counterexample' },
-  'sva/cover-property':      { title: 'cover property',                               focus: '/src/bus_check.sv',       runner: 'bmc',  bmcExpected: 'counterexample' },
+  'sva/cover-property':      { title: 'cover property',                               focus: '/src/bus_check.sv',       runner: 'both', bmcExpected: 'counterexample' },
   'sva/local-vars':          { title: 'Local Variables in Sequences',                 focus: '/src/pipeline_check.sv',  runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/onehot':              { title: '$onehot, $onehot0, $countones',                focus: '/src/arbiter_check.sv',   runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/triggered':           { title: '.triggered — Sequence Endpoint Detection',     focus: '/src/trigger_check.sv',   runner: 'bmc',  bmcExpected: 'counterexample' },

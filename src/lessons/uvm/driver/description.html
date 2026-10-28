@@ -1,4 +1,14 @@
-              <p>The <strong>driver</strong> is where the UVM world meets RTL. It pulls transactions from the sequencer, converts them to pin-level stimulus, and signals completion. The basic loop is:</p>
+              <p>The previous lesson's sequence handed <code>mem_item</code> objects to a logging driver. Now the <strong>driver</strong> is where the UVM world meets RTL: it pulls each transaction from the sequencer, converts it to pin-level stimulus, and signals completion. A driver has this shape:</p>
+<pre>class &lt;name&gt; extends uvm_driver #(&lt;item_type&gt;);
+  virtual &lt;interface_type&gt; vif;
+  task run_phase(uvm_phase phase);
+    &lt;item_type&gt; req;
+    seq_item_port.get_next_item(req);
+    // drive req through vif
+    seq_item_port.item_done();
+  endtask
+endclass</pre>
+              <p>The basic loop is:</p>
               <ol>
                 <li>Call <code>seq_item_port.get_next_item(req)</code> — blocks until the sequencer has a transaction</li>
                 <li>Wait for the clock edge, then drive the interface signals from the item fields</li>

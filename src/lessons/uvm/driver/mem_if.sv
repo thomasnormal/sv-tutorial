@@ -1,3 +1,6 @@
+`ifndef SVT_UVM_DRIVER_MEM_IF_SV
+`define SVT_UVM_DRIVER_MEM_IF_SV
+
 interface mem_if (input logic clk);
   logic        we;
   logic [3:0]  addr;
@@ -6,3 +9,5 @@ interface mem_if (input logic clk);
   modport initiator(output we, addr, wdata, input clk, rdata);
   modport target   (input  we, addr, wdata, output rdata);
 endinterface
+
+`endif

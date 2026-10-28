@@ -202,7 +202,12 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 |---|---|---|---|---|---|
 | `uvm/reporting` | The First UVM Test | ✅ | 23/27 ⚠️1,4,9 | `sv/interfaces`, `sv/tasks-functions` | `uvm_component`, `uvm_test`, `` `uvm_info/warning/error ``, severity levels, `run_phase`, objections |
 | `uvm/seq-item` | Sequence Items | ✅ | 25/27 ⚠️1,9 | `uvm/reporting`, `sv/classes`, `sv/randomization` | `uvm_sequence_item`, `rand` fields, constraints, factory registration, field automation |
+
+### Chapter: Stimulus
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
 | `uvm/sequence` | Sequences | ✅ | 25/27 ⚠️1,9 | `uvm/seq-item`, `uvm/reporting` | `uvm_sequence`, `start_item`, `finish_item`, sequencer arbitration, sequence body |
+| `uvm/driver` | The Driver | ✅ | 25/27 ⚠️1,9 | `uvm/sequence`, `sv/interfaces`, `sv/modports` | `uvm_driver`, `seq_item_port`, `uvm_config_db`, `virtual interface`, transaction-to-pin driving |
 
 ---
 

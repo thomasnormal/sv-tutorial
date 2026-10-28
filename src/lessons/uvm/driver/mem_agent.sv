@@ -1,5 +1,6 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
+`include "mem_driver.sv"
 
 class mem_agent extends uvm_agent;
   `uvm_component_utils(mem_agent)

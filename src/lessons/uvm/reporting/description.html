@@ -15,10 +15,12 @@
   report_phase    ← print summary
 </pre>
               <p><code>run_phase</code> is the only time-consuming phase. Simulation does not advance past it until all components drop their <strong><dfn data-card="Objections are UVM's mechanism for keeping simulation alive during run_phase. Any component can raise an objection to prevent the phase from ending. When all raised objections have been dropped, UVM ends the run_phase and moves to the next phase. A component that forgets to drop its objection will cause the simulation to hang forever.">objections</dfn></strong>.</p>
+              <p>This first UVM test reuses the timing discipline from <code>sv/tasks-functions</code>: the class owns the procedure, while a later driver will reach the same SRAM bus through the <code>virtual interface</code> introduced in <code>sv/interfaces</code>. For now, concentrate on the phase lifetime and reporting calls.</p>
               <p>Open <code>my_test.sv</code> and complete the <code>run_phase</code> body:</p>
               <ol>
                 <li>Raise an objection to hold simulation open</li>
                 <li>Print an info message and an error message using the UVM macros</li>
                 <li>Drop the objection to let simulation end</li>
+                <li>Print the <code>PASS</code> completion marker after the drop</li>
               </ol>
               <blockquote><p>Forgetting to call <code>drop_objection</code> is the most common beginner UVM bug — simulation will run forever. Always pair raise with drop.</p></blockquote>

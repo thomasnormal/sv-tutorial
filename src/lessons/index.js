@@ -102,6 +102,12 @@ export const parts = [
     ],
   },
   {
+    title: 'Universal Verification Methodology',
+    chapters: [
+      { title: 'UVM Foundations', lessons: [L('uvm/reporting')] },
+    ],
+  },
+  {
     title: 'RTL Design Patterns',
     chapters: [
       { title: 'Synthesis', lessons: [L('rtl/rtl-to-gates'), L('rtl/synthesis-gotchas')] },

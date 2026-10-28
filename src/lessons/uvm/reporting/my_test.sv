@@ -13,5 +13,6 @@ class my_test extends uvm_test;
     // TODO 2: print an info message using `uvm_info with verbosity UVM_LOW
     // TODO 3: print an error message using `uvm_error (simulation should continue)
     // TODO 4: drop the objection to let simulation end
+    // TODO 5: print a PASS completion marker after the objection is dropped
   endtask
 endclass

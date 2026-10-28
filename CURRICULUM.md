@@ -195,6 +195,15 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 
 ---
 
+## Part 3 — Universal Verification Methodology
+
+### Chapter: UVM Foundations
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `uvm/reporting` | The First UVM Test | ✅ | 23/27 ⚠️1,4,9 | `sv/interfaces`, `sv/tasks-functions` | `uvm_component`, `uvm_test`, `` `uvm_info/warning/error ``, severity levels, `run_phase`, objections |
+
+---
+
 ## Diagram opportunities (from MIT 6.111 research)
 
 Reference PDFs in `reference/mit-6111/` (CC BY-NC-SA 4.0, Chandrakasan, Spring 2006).

@@ -85,6 +85,7 @@ const LESSONS = [
   { chapter: 'Parameterized Modules',   title: 'Parameters and localparam',                     runner: null },
   { chapter: 'Data Types',              title: 'Generate Loops and If',                        runner: null },
   { chapter: 'Data Types',              title: 'Typedef and Type Aliases',                     runner: null },
+  { chapter: 'Data Types',              title: 'Static Packed and Unpacked Arrays',           runner: null },
   { chapter: 'Interfaces & Procedures', title: 'Interfaces and modport',                        runner: null },
   { chapter: 'Interfaces & Procedures', title: 'Tasks and Functions',                           runner: null },
   { chapter: 'State Machines',          title: 'typedef enum',                                  runner: null },

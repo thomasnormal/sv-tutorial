@@ -153,6 +153,11 @@
       "slug": "sv/typedef",
       "runner": "sim",
       "runs": [{"mode": "browser-run", "exit": 1, "result": "BLOCKED", "log": "typedef-browser.log", "note": "The focused browser lesson test loaded the route and solution, then failed at the shared missing static/mox/mox-verilog.js runtime asset; no simulator output was available."}]
+    },
+    {
+      "slug": "sv/arrays-static",
+      "runner": "sim",
+      "runs": [{"mode": "browser-run", "exit": 1, "result": "BLOCKED", "log": "arrays-static-browser.log", "note": "The focused browser lesson test loaded the route and solution, then failed at the shared missing static/mox/mox-verilog.js runtime asset; no simulator output was available."}]
     }
   ]
 }

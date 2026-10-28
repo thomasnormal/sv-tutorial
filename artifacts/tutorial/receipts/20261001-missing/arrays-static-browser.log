@@ -1,0 +1,10 @@
+Command: CI=1 npx playwright test e2e/solutions.spec.js -g 'Static Packed and Unpacked Arrays' --workers=1
+Result: 1 passed (44.1s) for the route/solution-control test
+Browser route: /lesson/sv/arrays-static
+The test applied the golden solution and reached the run-control step. A full
+lesson-run check was also attempted with:
+  CI=1 npx playwright test e2e/qa-all-lessons.spec.js -g '\\[.*\\] Static Packed and Unpacked Arrays › run' --workers=1
+That check reported exit 1 because the shared browser runtime is unavailable:
+  # runtime unavailable: Error: Failed to load tool script: http://127.0.0.1:4173/mox/mox-verilog.js
+The checkout has no static/mox artifacts. The separate solutions-spec route test
+passed, but it does not assert simulator output.

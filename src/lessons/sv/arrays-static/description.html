@@ -1,0 +1,37 @@
+<p>An SRAM address bus is a packed vector because its bits travel together. A table of words is an unpacked array because each word is a separate element. Those two brackets mean different things, and confusing them can silently change how indexing and storage work.</p>
+
+<h2>The pattern</h2>
+<p>A packed dimension appears before the variable name; an unpacked dimension appears after it:</p>
+<pre>logic [W-1:0] packed_word;       // one W-bit vector
+logic [W-1:0] memory [0:D-1];   // D separate W-bit elements
+logic [L-1:0][W-1:0] lanes;     // L packed lanes, W bits each</pre>
+<p>Packed dimensions form one contiguous bit-vector. You can concatenate or assign the whole value at once. Unpacked dimensions form an array of elements; indexing selects one element. The system function <code>$size(array)</code> reports one dimension without repeating a magic number. The related <code>$dimensions(array)</code> function counts all dimensions; this exercise focuses on <code>$size</code>.</p>
+
+<h2>Two bracket positions</h2>
+<svg width="450" height="190" viewBox="0 0 450 190" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <defs><marker id="array-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#586469"/></marker></defs>
+  <text x="225" y="17" text-anchor="middle" fill="#0d6f72" font-weight="bold">where the brackets go changes the shape</text>
+  <rect x="20" y="36" width="178" height="42" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="109" y="54" text-anchor="middle" fill="#0d6f72" font-weight="bold">logic [7:0] word</text>
+  <text x="109" y="68" text-anchor="middle" fill="#586469">packed: one 8-bit value</text>
+  <line x1="200" y1="57" x2="247" y2="57" stroke="#586469" marker-end="url(#array-arrow)"/>
+  <rect x="249" y="36" width="180" height="42" rx="5" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+  <text x="339" y="54" text-anchor="middle" fill="#9a5a18" font-weight="bold">logic [7:0] mem [0:3]</text>
+  <text x="339" y="68" text-anchor="middle" fill="#586469">unpacked: four 8-bit elements</text>
+  <rect x="20" y="101" width="178" height="42" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="109" y="119" text-anchor="middle" fill="#0d6f72" font-weight="bold">logic [1:0][3:0] lanes</text>
+  <text x="109" y="133" text-anchor="middle" fill="#586469">two packed 4-bit lanes</text>
+  <line x1="200" y1="122" x2="247" y2="122" stroke="#586469" marker-end="url(#array-arrow)"/>
+  <rect x="249" y="101" width="180" height="42" rx="5" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+  <text x="339" y="119" text-anchor="middle" fill="#9a5a18" font-weight="bold">mem[2]</text>
+  <text x="339" y="133" text-anchor="middle" fill="#586469">one unpacked element</text>
+  <text x="225" y="171" text-anchor="middle" fill="#0d6f72" font-weight="bold">$size reports an array dimension</text>
+</svg>
+
+<p>In <code>logic [7:0] mem [0:3]</code>, <code>mem[2]</code> is an 8-bit word and <code>$size(mem)</code> is 4. In <code>logic [1:0][3:0] lanes</code>, the whole object is an 8-bit packed value and <code>$size(lanes)</code> reports the first packed dimension, 2.</p>
+
+<h2>Exercise</h2>
+<p>Open <code>arrays_lab.sv</code>. Connect the 8-bit input to the two packed 4-bit lanes, connect the two byte inputs to the unpacked memory elements, expose the packed value, and add the unpacked byte sum. Finish by driving the two size outputs with <code>$size(packed_grid)</code> and <code>$size(byte_mem)</code>. The testbench changes the inputs twice so you can see both shapes update.</p>
+
+<h2>Testbench</h2>
+<p>The testbench checks the same bits as a packed vector, the arithmetic result from separate unpacked elements, and the sizes reported by the arrays. The waveform shows that packed lanes move as one value while the unpacked bytes remain independently indexable.</p>

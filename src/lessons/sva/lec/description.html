@@ -44,6 +44,7 @@
 </table>
 
 <p>Logic synthesis routinely applies these transformations — and LEC proves the result is identical to the RTL spec.</p>
+<p>The starter includes <code>tb.sv</code>, which enumerates all eight input combinations and prints each pair of outputs. Its solved counterpart reports <code>PASS</code> only after the Boolean implementation agrees with the reference on every combination; Verify still performs the exhaustive formal comparison.</p>
 
 <h2>Exercise</h2>
 <p>Open <code>top.sv</code>. The <code>Spec</code> module defines three canonical boolean functions. The <code>Impl</code> module must produce identical outputs using only <code>~</code>, <code>&amp;</code>, and <code>|</code> — no <code>?</code> operator. Replace each <code>1'b0</code> placeholder:</p>

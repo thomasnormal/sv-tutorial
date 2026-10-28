@@ -1,6 +1,8 @@
-<p><code>always @(event) begin ... end</code> is a block that runs every time a specified event fires.
-If the event is a clock edge (e.g. <code>posedge clk</code>) we typically use <code>always_ff</code> instead, where "ff" stands for "flip-flop".
-</p>
+<p><strong>One idea drives this lesson:</strong> put state updates in an <code>always_ff</code> block so they happen only at a clock edge. That is the pattern behind the synchronous SRAM we will reuse throughout the project. The general shape is:</p>
+<pre>always_ff @(posedge &lt;clock&gt;) begin
+  &lt;state&gt; &lt;= &lt;next value&gt;;
+end</pre>
+<p><code>posedge</code> means the clock changed from 0 to 1; <code>ff</code> stands for flip-flop. The block samples its inputs at that edge, then holds the state until the next edge.</p>
 <svg width="300" height="68" viewBox="0 0 300 68" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:13px;margin:10px auto">
    <rect width="300" height="68" rx="4" fill="#fffdf7"/>
    <line x1="32" y1="0" x2="32" y2="60" stroke="#d5cbb2" stroke-width="1"/>
@@ -26,18 +28,7 @@ end             // step 2: both mem and out update simultaneously
 <blockquote><p>
    We use <strong><dfn data-card="Non-blocking assignment (<=) schedules the update to happen after all right-hand sides in the current time step are evaluated. This means two flip-flops can swap values correctly: a <= b; b <= a; works as expected. Blocking assignment (=) takes effect immediately, like a variable assignment in C — correct for combinational logic but causes races in sequential logic.">non-blocking assignment</dfn></strong> (<code>&lt;=</code>) inside <code>always_ff</code>. It works in two steps: first, all right-hand sides are sampled using current values; then all left-hand sides update simultaneously. So <code>out</code> always captures the value <code>mem</code> held <em>before</em> this edge — creating a true one-cycle delay, not a zero-delay pass-through. The same rule is why <code>a &lt;= b; b &lt;= a;</code> correctly swaps two flip-flops.</p></blockquote>
 
-<p>The names describe how each operator behaves in the flow of your procedural code — whether the assignment <strong>blocks</strong> (pauses) execution until it completes.</p>
-<p><strong>Blocking <code>=</code></strong> — execution stops and waits. The assignment completes immediately, in place, before the next line runs. Think of it like hand-delivering a letter: the recipient has it before you walk away.</p>
-<pre>
-a = b;  // a gets b's value RIGHT NOW
-c = a;  // c sees the new value of a
-</pre>
-<p><strong>Non-blocking <code>&lt;=</code></strong> — execution continues without waiting. The assignment schedules a write for later and immediately moves on. Think of it like dropping a letter in a mailbox: you keep walking and it gets delivered later, when the NBA update region runs.</p>
-<pre>
-a &lt;= b;  // schedules a write to a, but doesn't apply it yet
-c &lt;= a;  // c gets a's OLD value — the write above hasn't happened yet
-</pre>
-<p>All right-hand sides are evaluated first, then all writes happen together at the end of the time step. This is what makes <code>always_ff</code> correctly model real hardware, where all flip-flops in a clocked stage sample their inputs and update simultaneously.</p>
+<p>Inside this clocked block, use <strong>non-blocking assignment</strong> (<code>&lt;=</code>): all right-hand sides are sampled first, then all writes happen together. That is why <code>out &lt;= mem</code> sees the old <code>mem</code> value and creates a one-cycle delay.</p>
 
 <p>
 An SRAM is an array of flip-flops — one per bit — indexed by address.

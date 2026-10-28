@@ -40,7 +40,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
 | `sv/events` | Events | ✅ | 27/27 | `sv/modules-and-ports` | `event`, `->` (post), `@(event_name)` (wait), concurrent-process synchronization |
-| `sv/always-ff` | Flip-Flops with always_ff | ✅ | 26/27 ⚠️1 | `sv/modules-and-ports`, `sv/always-comb` | `always_ff`, `posedge`, non-blocking `<=`, unpacked array `mem[]`, 1-cycle read latency |
+| `sv/always-ff` | Flip-Flops with always_ff | ✅ | 27/27 | `sv/modules-and-ports`, `sv/always-comb` | edge-triggered state with `always_ff`, non-blocking `<=`, synchronous SRAM read/write |
 | `sv/counter` | Up-Counter | ✅ | 23/27 ⚠️1,8,9 | `sv/always-ff` | enable/reset counter, cycle-counted stimulus, `@(posedge clk)` in `initial` |
 | `sv/shift-reg` | Shift Register | ✅ | 25/27 ⚠️1 | `sv/always-ff` | bit shift, concatenation `{}`, serial-in/serial-out |
 

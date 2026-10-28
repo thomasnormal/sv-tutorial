@@ -5,7 +5,8 @@ module sram #(parameter int DEPTH = 16, parameter int WIDTH = 8) (
   input  logic [WIDTH-1:0]         wdata,  // write data: stored when we = 1
   output logic [WIDTH-1:0]         rdata   // read data: mem[addr] from the previous cycle
 );
-  logic [WIDTH-1:0] mem [0:DEPTH-1];  // storage array: DEPTH entries, each WIDTH bits wide
+  localparam int LAST_ADDR = DEPTH - 1;  // local implementation detail, not an override
+  logic [WIDTH-1:0] mem [0:LAST_ADDR]; // storage array: DEPTH entries, each WIDTH bits wide
 
   always_ff @(posedge clk) begin
     if (we) mem[addr] <= wdata;

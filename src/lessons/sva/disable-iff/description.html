@@ -3,4 +3,14 @@
   antecedent |=> consequent;</pre>
               <p>While the reset condition is true, the property evaluates as vacuously true — no failure is reported.</p>
               <p>Open <code>reset_check.sv</code>. The clock and <code>disable iff (!rst_n)</code> clause are provided; complete the implication that follows them.</p>
+              <svg width="470" height="166" viewBox="0 0 470 166" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+                <text x="235" y="16" text-anchor="middle" fill="#0d6f72" font-weight="bold">reset gates the property, even between clock edges</text>
+                <text x="75" y="46" text-anchor="middle" fill="#586469">sample</text><text x="165" y="46" text-anchor="middle" fill="#586469">t0</text><text x="255" y="46" text-anchor="middle" fill="#586469">t1</text><text x="345" y="46" text-anchor="middle" fill="#586469">t2</text><text x="435" y="46" text-anchor="middle" fill="#586469">t3</text>
+                <rect x="145" y="54" width="90" height="82" rx="4" fill="#f3d2c2" opacity="0.75"/><text x="190" y="70" text-anchor="middle" fill="#a44020">reset low</text><text x="190" y="88" text-anchor="middle" fill="#a44020">disabled</text>
+                <text x="75" y="111" text-anchor="middle" fill="#586469">rst_n</text><text x="165" y="111" text-anchor="middle" fill="#a44020">0</text><text x="255" y="111" text-anchor="middle" fill="#0d6f72">1</text><text x="345" y="111" text-anchor="middle" fill="#0d6f72">1</text><text x="435" y="111" text-anchor="middle" fill="#0d6f72">1</text>
+                <text x="75" y="133" text-anchor="middle" fill="#586469">req→ack</text><text x="255" y="133" text-anchor="middle" fill="#586469">req</text><text x="345" y="133" text-anchor="middle" fill="#0d6f72">ack</text>
+                <line x1="255" y1="141" x2="345" y2="141" stroke="#0d6f72" stroke-width="2" marker-end="url(#di-arrow)"/><text x="300" y="159" text-anchor="middle" fill="#0d6f72">property enabled</text>
+                <defs><marker id="di-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#0d6f72"/></marker></defs>
+              </svg>
+              <p>The earlier implication lesson supplied the <code>|=></code> timing; here add the one-sample <code>ack_next</code> sequence and keep the implication behind reset. The starter includes <code>tb.sv</code> with a request during reset (ignored) and a request after reset (checked). Run it before solving to see both phases; after solving, the trace prints <code>PASS</code>. Verify searches for an active request without a following acknowledgement.</p>
               <blockquote><p><code>disable iff</code> is asynchronous: the property is disabled the moment the condition becomes true, not at the next clock edge.</p></blockquote>

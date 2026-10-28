@@ -144,7 +144,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 ### Chapter: Protocols & Coverage
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
-| `sva/disable-iff` | disable iff — Reset Handling | ✅ | 22/27 ⚠️2,4,5,9 | `sva/implication` | `disable iff`, async reset gating of properties |
+| `sva/disable-iff` | disable iff — Reset Handling | ✅ | 27/27 | `sva/implication` | `disable iff`, async reset gating of properties |
 | `sva/abort` | Aborting Properties: reject_on and accept_on | ✅ | 23/27 ⚠️4,5,9 | `sva/disable-iff` | `reject_on`, `accept_on`, mid-sequence abort |
 | `sva/cover-property` | cover property | ✅ | 23/27 ⚠️4,5,9 | `sva/sequence-basics` | `cover property`, reachability vs correctness, cover vs assert intent |
 

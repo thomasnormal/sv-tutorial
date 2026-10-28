@@ -1,11 +1,28 @@
-            <p>Simulation checks one path through time. BMC checks all of them:</p>
+            <p>Simulation checks one path through time. BMC asks a sharper question: <em>can any input sequence break this property before the bound?</em></p>
             <pre>Simulation:  inputs → [testbench] → one execution trace → pass/fail
 
 BMC:         inputs → [all possible sequences up to depth N]
                               ↓
                     counterexample found? → FAIL
                     no counterexample?    → NO COUNTEREXAMPLE (within depth N)</pre>
+            <svg width="470" height="174" viewBox="0 0 470 174" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+              <text x="235" y="16" text-anchor="middle" fill="#0d6f72" font-weight="bold">one trace versus every trace in the bound</text>
+              <rect x="12" y="31" width="188" height="126" rx="6" fill="#f3fbfb" stroke="#0d6f72"/>
+              <text x="106" y="49" text-anchor="middle" fill="#0d6f72" font-weight="bold">Run: one path</text>
+              <text x="29" y="73" fill="#586469">rst</text><text x="80" y="73" fill="#0d6f72">1</text><text x="124" y="73" fill="#586469">0</text><text x="168" y="73" fill="#586469">0</text>
+              <text x="29" y="99" fill="#586469">cnt</text><text x="80" y="99" fill="#0d6f72">0</text><text x="124" y="99" fill="#0d6f72">1</text><text x="168" y="99" fill="#0d6f72">2</text>
+              <line x1="80" y1="79" x2="124" y2="79" stroke="#c17d2a" stroke-width="2" marker-end="url(#arrow)"/>
+              <text x="106" y="127" text-anchor="middle" fill="#9a5a18">the testbench chose this input</text>
+              <text x="106" y="145" text-anchor="middle" fill="#0d6f72" font-weight="bold">PASS</text>
+              <rect x="216" y="31" width="242" height="126" rx="6" fill="#fff8ec" stroke="#c17d2a"/>
+              <text x="337" y="49" text-anchor="middle" fill="#9a5a18" font-weight="bold">Verify: bound N</text>
+              <circle cx="337" cy="77" r="7" fill="#c17d2a"/><line x1="337" y1="84" x2="291" y2="108" stroke="#c17d2a"/><line x1="337" y1="84" x2="383" y2="108" stroke="#c17d2a"/>
+              <circle cx="291" cy="113" r="6" fill="#0d6f72"/><circle cx="383" cy="113" r="6" fill="#0d6f72"/>
+              <text x="337" y="140" text-anchor="middle" fill="#9a5a18">all branches explored to N</text>
+              <defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#c17d2a"/></marker></defs>
+            </svg>
             <p>There is no testbench needed for BMC. The tool treats all inputs as free variables and tries to find a <strong><dfn data-card="A counterexample is a specific sequence of inputs that causes an assertion to fail. The model checker produces it automatically when it finds a property violation — you get the exact cycle-by-cycle signal values, not just 'it failed somewhere.' This is far more useful than a simulation failure because the counterexample is the minimal witness: the shortest possible trace that triggers the bug.">counterexample</dfn></strong>. If it cannot find one within the bound, the result is <em>no counterexample within the explored depth</em> — a bounded result, not an unbounded proof.</p>
-            <p>Open <code>top.sv</code>. The 4-bit counter and the assertion skeleton are provided. Complete the concurrent property so it checks that when <code>rst</code> is high, <code>cnt</code> is zero on the next cycle — use implication for the "if rst fires, then ..." relationship.</p>
+            <p>The previous implication lesson introduced <code>|=&gt;</code>; now use it inside a bounded proof. Open <code>top.sv</code>. The 4-bit counter and an assertion skeleton are provided. Complete the one-cycle <code>reset_event</code> sequence, use it to check that when <code>rst</code> is high <code>cnt</code> is zero on the next cycle, and assert the named property.</p>
             <p>Press <strong>verify</strong> to have BMC check every possible input sequence up to the bound. The log labels an <code>unsat</code> result as <strong>PROVED within the BMC bound</strong> and a <code>sat</code> result as <strong>COUNTEREXAMPLE FOUND</strong>.</p>
+            <p>The starter also includes <code>tb.sv</code>. Run it before solving to watch reset clear the counter and the counter advance; after solving, the same trace checks the expected values and prints <code>PASS</code>. Run answers "what happened on this trace?" while Verify answers "could any trace fail before N?"</p>
             <blockquote><p>BMC is <em>bounded</em>: a proof at depth N does not guarantee correctness at depth N+1. Full unbounded proof requires induction or deeper techniques — but for reset properties and most pipeline assertions, a modest bound is sufficient.</p></blockquote>

@@ -112,7 +112,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
 | `sva/implication` | Implication: \|->, \|=> | ✅ | 27/27 | `sva/sequence-basics` | `\|->` (overlapping), `\|=>` (non-overlapping), antecedent/consequent |
-| `sva/formal-intro` | Bounded Model Checking | ✅ | 22/27 ⚠️2,4,5,9 | `sva/implication` | BMC, `mox-bmc`, exhaustive proof vs simulation, bounded depth |
+| `sva/formal-intro` | Bounded Model Checking | ✅ | 27/27 | `sva/implication` | BMC, `mox-bmc`, exhaustive proof vs simulation, bounded depth |
 
 ### Chapter: Core Sequences
 | Slug | Title | Status | Score | Prereqs | Teaches |

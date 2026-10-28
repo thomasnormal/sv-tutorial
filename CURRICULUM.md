@@ -132,7 +132,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
 | `sva/throughout` | throughout — Stability During a Sequence | ✅ | 27/27 | `sva/clock-delay` | `throughout`, signal stability constraint over sequence duration |
-| `sva/sequence-ops` | Sequence Composition: intersect, within, and, or | ✅ | 24/27 ⚠️4,5 | `sva/throughout` | `intersect`, `within`, `and`, `or` — sequence algebra |
+| `sva/sequence-ops` | Sequence Composition: intersect, within, and, or | ✅ | 27/27 | `sva/throughout` | `intersect`, `within`, `and`, `or` — sequence algebra |
 | `sva/seq-args` | Sequence Formal Arguments | ✅ | 25/27 ⚠️5 | `sva/sequence-ops` | typed formal arguments in named sequences, reusable parameterised patterns |
 
 ### Chapter: Sampled Value Functions

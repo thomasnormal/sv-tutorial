@@ -78,6 +78,7 @@ const LESSONS = [
   { chapter: 'Introduction',            title: 'Modules and Ports',                             runner: null },
   { chapter: 'Combinational Logic',     title: 'always_comb and case',                          runner: null },
   { chapter: 'Combinational Logic',     title: 'Priority Encoder',                              runner: null },
+  { chapter: 'Combinational Logic',     title: 'Operators & Arithmetic',                        runner: null },
   { chapter: 'Sequential Logic',        title: 'Flip-Flops with always_ff',                     runner: null },
   { chapter: 'Sequential Logic',        title: 'Up-Counter',                                    runner: null },
   { chapter: 'Parameterized Modules',   title: 'Parameters and localparam',                     runner: null },

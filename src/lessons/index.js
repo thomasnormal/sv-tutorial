@@ -77,7 +77,7 @@ export const parts = [
     title: 'SystemVerilog Basics',
     chapters: [
       { title: 'Introduction',          lessons: [L('sv/welcome'), L('sv/modules-and-ports'), L('sv/data-types')] },
-      { title: 'Combinational Logic',    lessons: [L('sv/always-comb'), L('sv/priority-enc')] },
+      { title: 'Combinational Logic',    lessons: [L('sv/always-comb'), L('sv/priority-enc'), L('sv/assign-operators')] },
       { title: 'Sequential Logic',      lessons: [L('sv/events'), L('sv/always-ff'), L('sv/counter')] },
       { title: 'Data Types',            lessons: [L('sv/parameters'), L('sv/packed-structs')] },
       { title: 'State Machines',        lessons: [L('sv/enums')] },

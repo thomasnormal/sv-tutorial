@@ -133,6 +133,11 @@
       "slug": "sv/priority-enc",
       "runner": "sim",
       "runs": [{"mode": "browser-run", "exit": 1, "result": "BLOCKED", "log": "priority-enc-browser.log", "note": "The focused browser lesson test loaded the route and solution, then failed at the shared missing static/mox/mox-verilog.js runtime asset; no simulator output was available."}]
+    },
+    {
+      "slug": "sv/assign-operators",
+      "runner": "sim",
+      "runs": [{"mode": "browser-run", "exit": 1, "result": "BLOCKED", "log": "assign-operators-browser.log", "note": "The focused browser lesson test loaded the route and solution, then failed at the shared missing static/mox/mox-verilog.js runtime asset; no simulator output was available."}]
     }
   ]
 }

@@ -2,4 +2,15 @@
               <p>The comma operator <code>(cond, v = expr)</code> simultaneously checks the trigger condition and captures a value into the local variable. On a later cycle, compare the captured value to another signal:</p>
               <pre>(trigger, v = signal) |=> ##N (other == v)</pre>
               <p>Open <code>pipeline_check.sv</code>. Capture <code>in_data</code> when <code>valid_in</code> is high, then verify that <code>out_data</code> equals it exactly 3 cycles later.</p>
+              <svg width="470" height="170" viewBox="0 0 470 170" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+                <text x="235" y="16" text-anchor="middle" fill="#0d6f72" font-weight="bold">capture a value now, compare it after three edges</text>
+                <text x="78" y="47" text-anchor="middle" fill="#586469">sample</text><text x="168" y="47" text-anchor="middle" fill="#586469">t0</text><text x="258" y="47" text-anchor="middle" fill="#586469">t1</text><text x="348" y="47" text-anchor="middle" fill="#586469">t2</text><text x="438" y="47" text-anchor="middle" fill="#586469">t3</text>
+                <text x="78" y="78" text-anchor="middle" fill="#586469">valid_in</text><rect x="153" y="63" width="30" height="22" rx="3" fill="#c8eded" stroke="#0d6f72"/><text x="168" y="78" text-anchor="middle" fill="#0d6f72">1</text>
+                <text x="78" y="111" text-anchor="middle" fill="#586469">in_data</text><rect x="153" y="96" width="30" height="22" rx="3" fill="#fff8ec" stroke="#c17d2a"/><text x="168" y="111" text-anchor="middle" fill="#9a5a18">A5</text>
+                <text x="78" y="144" text-anchor="middle" fill="#586469">out_data</text><rect x="423" y="129" width="30" height="22" rx="3" fill="#c8eded" stroke="#0d6f72"/><text x="438" y="144" text-anchor="middle" fill="#0d6f72">A5</text>
+                <line x1="183" y1="107" x2="423" y2="140" stroke="#c17d2a" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#lv-arrow)"/><text x="303" y="95" text-anchor="middle" fill="#9a5a18">local v = A5</text>
+                <text x="235" y="165" text-anchor="middle" fill="#586469">each overlapping trigger gets its own captured v</text>
+                <defs><marker id="lv-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#c17d2a"/></marker></defs>
+              </svg>
+              <p>The clock-delay lesson counted edges; this lesson carries the value across them. The starter includes <code>tb.sv</code> with one input transaction and its delayed output. Run it before solving to see the captured value travel; after solving, the trace prints <code>PASS</code>. Verify also checks overlapping transactions independently because each evaluation owns its local variable.</p>
               <blockquote><p>Local variables are thread-local: every concurrent evaluation of the sequence gets its own copy, so overlapping in-flight transactions are checked independently.</p></blockquote>

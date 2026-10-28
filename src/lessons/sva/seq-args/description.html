@@ -41,4 +41,5 @@ sequence write_at_15; we &amp;&amp; addr == 4'hF  &amp;&amp; wdata == 8'hFF ends
   <li>Fill in the <code>wr_rd_p</code> property body using <code>write_txn</code>, <code>|=></code>, and <code>read_txn</code>.</li>
   <li>Write two labelled <code>assert property</code> statements for <code>(4'd0, 8'hA5)</code> and <code>(4'hF, 8'hFF)</code>.</li>
 </ol>
+<p>The starter includes <code>tb.sv</code> with two concrete writes and reads that exercise both call sites. Run it before solving to see the SRAM values, then rerun the solved trace for <code>PASS</code>; Verify still checks the elaborated properties without a testbench.</p>
 <blockquote><p>Formals are inlined at elaboration time — the model checker sees two fully expanded, independent properties. To check <em>all</em> address/data pairs in one pass, you need a local variable to capture the write's values and carry them into the consequent (covered in <strong>Local Variables in Sequences</strong>).</p></blockquote>

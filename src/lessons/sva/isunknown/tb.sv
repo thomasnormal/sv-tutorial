@@ -19,6 +19,8 @@ module tb;
     @(posedge clk); #1; we = 0; addr = 4'd3;  rdata = 8'hA5;
     @(posedge clk); #1; we = 0; addr = 4'd7;  rdata = 8'hFF;
 
+    $display("Expected assertion failures next: we_a, addr_a, rdata_a");
+
     // Inject X on we — we_a fires
     @(posedge clk); #1; we = 'x;
 
@@ -29,7 +31,7 @@ module tb;
     @(posedge clk); #1; addr = 0; rdata = 'x;
 
     @(posedge clk); #1;
-    $display("PASS");
+    $display("PASS: completed known-value run plus three X/Z injections; inspect we_a, addr_a, rdata_a above");
     $finish;
   end
 endmodule

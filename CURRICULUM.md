@@ -100,7 +100,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 |---|---|---|---|---|---|
 | `sva/concurrent-sim` | Concurrent Assertions in Simulation | ✅ | 27/27 | `sv/always-ff`, `sv/parameters` | `assert property`, `@(posedge clk)`, concurrent assertion semantics in simulation |
 | `sva/vacuous-pass` | Vacuous Pass | ✅ | 27/27 | `sva/concurrent-sim` | vacuous satisfaction, antecedent never fires, silent pass hazard |
-| `sva/isunknown` | $isunknown — Detecting X and Z | ✅ | 25/27 ⚠️5,7 | `sva/concurrent-sim` | `$isunknown()`, X/Z detection, X-optimism hazard |
+| `sva/isunknown` | $isunknown — Detecting X and Z | ✅ | 27/27 | `sva/concurrent-sim` | `$isunknown()`, X/Z detection, X-optimism hazard |
 
 ### Chapter: Your First Formal Assertion
 | Slug | Title | Status | Score | Prereqs | Teaches |

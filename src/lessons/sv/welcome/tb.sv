@@ -6,6 +6,7 @@ module tb;
 
   initial begin
     #1;
+    $display("greeted=%b (expect 1)", greeted);
     if (greeted === 1'b1) $display("PASS");
     else $display("FAIL: top did not report its greeting");
     $finish;

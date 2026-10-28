@@ -59,7 +59,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 ### Chapter: Data Types
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
-| `sv/packed-structs` | Packed Structs | ✅ | 26/27 ⚠️4 | `sv/parameters`, `sv/always-ff` | `struct`, `packed`, `typedef`, `package`, bit-field layout, struct literal |
+| `sv/packed-structs` | Packed Structs | ✅ | 27/27 | `sv/parameters`, `sv/always-ff` | `struct`, `packed`, `typedef`, `package`, bit-field layout, struct literal |
 | `sv/typedef` | typedef and type aliases | ✅ | 24/27 ⚠️1 | `sv/packed-structs` | standalone `typedef`, type parameters, abstract type reuse |
 | `sv/arrays-static` | Static Arrays (packed & unpacked) | ✅ | 25/27 ⚠️1 | `sv/always-ff`, `sv/packed-structs` | packed vs unpacked, multi-dimensional arrays, `$size` (with `$dimensions` as related reading) |
 

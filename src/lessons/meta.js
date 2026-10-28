@@ -56,7 +56,7 @@ export default {
   'sva/local-vars':          { title: 'Local Variables in Sequences',                 focus: '/src/pipeline_check.sv',  runner: 'both', bmcExpected: 'counterexample' },
   'sva/onehot':              { title: '$onehot, $onehot0, $countones',                focus: '/src/arbiter_check.sv',   runner: 'both', bmcExpected: 'counterexample' },
   'sva/triggered':           { title: '.triggered — Sequence Endpoint Detection',     focus: '/src/trigger_check.sv',   runner: 'both', bmcExpected: 'counterexample' },
-  'sva/checker':             { title: 'The checker Construct',                        focus: '/src/top.sv',             runner: 'bmc',  bmcExpected: 'counterexample' },
+  'sva/checker':             { title: 'The checker Construct',                        focus: '/src/top.sv',             runner: 'both', bmcExpected: 'counterexample' },
   'sva/recursive':           { title: 'Recursive Properties',                         focus: '/src/lock_check.sv',      runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/bind':                { title: 'bind — Non-Invasive Assertion Attachment',      focus: '/src/counter_check.sv',    top: 'tb' },
   'sva/let':                 { title: 'let Declarations',                               focus: '/src/let_check.sv',       top: 'tb' },

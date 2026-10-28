@@ -37,9 +37,10 @@ endmodule</pre>
   <text x="263" y="86" text-anchor="middle" fill="#555" font-size="10">req2, ack2</text>
 </svg>
 
-<p>Unlike a module, a checker is automatically excluded from synthesis tools — no risk of accidentally instantiating it in RTL. It can also accept <code>sequence</code>, <code>property</code>, and <code>event</code> typed formal arguments, making it a fully parameterisable assertion bundle — the SVA equivalent of generic verification IP.</p>
+<p>Unlike a module, a checker is automatically excluded from synthesis tools — no risk of accidentally instantiating it in RTL. It can also accept <code>sequence</code>, <code>property</code>, and <code>event</code> typed formal arguments, making it a fully parameterisable assertion bundle — the SVA equivalent of generic verification IP. In a real bus fabric, one checker instance can protect every request/acknowledge channel while the RTL stays unchanged.</p>
 
 <blockquote><p>The WASM tool does not yet lower the <code>checker</code>/<code>endchecker</code> keywords. This exercise uses <code>module</code> instead — the properties and assertions are identical; only the encapsulation keyword differs.</p></blockquote>
+<p>The module wrapper in the editor is therefore a compatibility shell, not a different verification pattern. Keep the <code>checker ... endchecker</code> form in production code; use the supplied module form here so the same properties can be compiled and simulated.</p>
 
 <h2>Exercise</h2>
 <p>Open <code>top.sv</code>. Two reusable checker modules are provided. Fill in a property for each:</p>
@@ -48,3 +49,4 @@ endmodule</pre>
   <li><strong>TODO 2</strong> (<code>data_stable_check</code>): while <code>valid</code> is high, <code>data</code> must not change on the next cycle — use <code>valid |-&gt; $stable(data)</code></li>
 </ul>
 <p>Both checkers are instantiated twice in <code>top</code> — once per channel. Click Verify to see the bounded verdict for both properties and both instances; <code>sat</code> means that BMC found a counterexample, while <code>unsat</code> means no counterexample was found within the bound.</p>
+<p>The starter includes <code>tb.sv</code>: channel 1 acknowledges its request, channel 2 acknowledges later, and both data buses hold steady during <code>valid</code>. Run it before solving to see the two instances share one checker definition; the solved trace prints <code>PASS</code>.</p>

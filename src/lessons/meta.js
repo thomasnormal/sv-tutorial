@@ -3,7 +3,7 @@
 // stay co-located in each lesson directory and are loaded lazily on demand.
 export default {
   // ── SystemVerilog Basics ───────────────────────────────────────────────────
-  'sv/welcome':              { title: 'Welcome',                                      focus: '/src/top.sv',          top: 'top' },
+  'sv/welcome':              { title: 'Welcome',                                      focus: '/src/top.sv',          top: 'tb' },
   'sv/modules-and-ports':    { title: 'Modules and Ports',                            focus: '/src/adder.sv' },
   'sv/data-types':           { title: 'Data Types',                                   focus: '/src/data_types.sv',  top: 'top' },
   'sv/always-comb':          { title: 'always_comb and case',                         focus: '/src/mux.sv' },

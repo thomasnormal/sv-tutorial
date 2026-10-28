@@ -1,6 +1,6 @@
-module top;
+module top(output logic greeted);
   initial begin
     $display("Hello, SRAM world!");
-    $finish;
+    greeted = 1'b1;
   end
 endmodule

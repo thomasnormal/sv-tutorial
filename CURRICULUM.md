@@ -21,7 +21,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 ### Chapter: Introduction
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
-| `sv/welcome` | Welcome | ✅ | 23/27 ⚠️4,5 | — | `module`/`endmodule`, `$display`, simulation loop, tutorial roadmap |
+| `sv/welcome` | Welcome | ✅ | 24/27 ⚠️5 | — | `module`/`endmodule`, `$display`, simulation loop, tutorial roadmap |
 | `sv/modules-and-ports` | Modules and Ports | ✅ | 25/27 ⚠️1,4 | `sv/welcome` | port directions (`input`/`output`), `logic`, vectors, `assign`, module instantiation |
 | `sv/data-types` | Data Types | ✅ | 25/27 ⚠️5 | `sv/modules-and-ports` | 4-state `logic` vs 2-state `int`/`bit`, X state, `$isunknown()` |
 

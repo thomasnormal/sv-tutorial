@@ -67,6 +67,11 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 > Ref: `DataTypes/DataTypes.sv`, `Arrays/PackedArrays.sv`,
 > `Arrays/Packed_UnpackedArrays.sv`
 
+### Chapter: Interfaces & Procedures
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `sv/interfaces` | Interfaces | ✅ | 25/27 ⚠️2,9 | `sv/modules-and-ports`, `sv/parameters` | `interface`, signal bundling, interface functions (`sprint()`), dot-notation access |
+
 ### Chapter: State Machines
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|

@@ -42,7 +42,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 | `sv/events` | Events | ✅ | 27/27 | `sv/modules-and-ports` | `event`, `->` (post), `@(event_name)` (wait), concurrent-process synchronization |
 | `sv/always-ff` | Flip-Flops with always_ff | ✅ | 27/27 | `sv/modules-and-ports`, `sv/always-comb` | edge-triggered state with `always_ff`, non-blocking `<=`, synchronous SRAM read/write |
 | `sv/counter` | Up-Counter | ✅ | 26/27 | `sv/always-ff` | reset-priority counter, enable gating, cycle-counted stimulus, `@(posedge clk)` in `initial` |
-| `sv/shift-reg` | Shift Register | ✅ | 25/27 ⚠️1 | `sv/always-ff` | bit shift, concatenation `{}`, serial-in/serial-out |
+| `sv/shift-reg` | Shift Register | ✅ | 26/27 | `sv/always-ff` | vector concatenation `{}` as a shift, serial-in/serial-out |
 
 > Introduces `[*]` bus shift and multi-bit `always_ff`; prerequisite
 > for pipeline assertions in Part 2.

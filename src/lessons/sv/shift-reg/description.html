@@ -1,7 +1,7 @@
-<p>A burst interface can move one bit at a time across a narrow pin or test link. A shift register stores the bits already seen, moves them one position per clock, and exposes the bit that is leaving. The same pattern appears in serial links, scan chains, and small delay lines.</p>
+<p><strong>How can one bit enter a four-bit register while another leaves on every clock?</strong> The new operation here is vector concatenation: join a slice of the old register with <code>serial_in</code> to make the next value. A burst interface can use this shift pattern across a narrow pin or test link; the old most-significant bit becomes <code>serial_out</code>.</p>
 
 <h2>The pattern</h2>
-<p>For a serial register of width <code>N</code>, the usual clocked shape is:</p>
+<p>The <code>always_ff</code>, rising edge, non-blocking assignment, and synchronous reset below are familiar from the previous lessons. Focus on the concatenation that builds the next vector for a register of width <code>N</code>:</p>
 <pre>always_ff @(posedge &lt;clk&gt;) begin
   if (&lt;reset_is_active&gt;)
     &lt;state&gt; &lt;= '0;

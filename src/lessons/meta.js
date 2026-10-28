@@ -39,7 +39,7 @@ export default {
   'sva/sequence-basics':     { title: 'Sequences and Properties',                     focus: '/src/grant_check.sv',     runner: 'both', bmcExpected: 'counterexample' },
   'sva/implication':         { title: 'Implication: |-> and |=>',                     focus: '/src/implication.sv',     runner: 'both', bmcExpected: 'counterexample' },
   'sva/formal-intro':        { title: 'Bounded Model Checking',                       focus: '/src/top.sv',             runner: 'both', bmcExpected: 'proved' },
-  'sva/clock-delay':         { title: 'Clock Delay ##m and ##[m:n]',                  focus: '/src/delay_check.sv',     runner: 'bmc',  bmcExpected: 'counterexample' },
+  'sva/clock-delay':         { title: 'Clock Delay ##m and ##[m:n]',                  focus: '/src/delay_check.sv',     runner: 'both', bmcExpected: 'counterexample' },
   'sva/rose-fell':           { title: '$rose and $fell',                              focus: '/src/edge_check.sv',      runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/req-ack':             { title: 'Request / Acknowledge',                        focus: '/src/req_ack.sv',         runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/consecutive-rep':     { title: 'Consecutive Repetition [*m]',                  focus: '/src/hold_check.sv',      runner: 'bmc',  bmcExpected: 'counterexample' },

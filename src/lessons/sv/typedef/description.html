@@ -1,7 +1,7 @@
-<p>As the SRAM grows, the same width appears in ports, temporary signals, and testbench variables. Repeating <code>logic [7:0]</code> everywhere makes a width change a search-and-replace job. A typedef gives that shape one meaningful name that every module can reuse.</p>
+<p><strong>How can one width change update every declaration that uses it?</strong> This lesson focuses on typedef aliases: give a familiar packed vector a meaningful name, then reuse that name in ports, intermediate signals, and the testbench. The package namespace is the same sharing mechanism introduced with packed structs; the new step is carrying the alias through the design.</p>
 
 <h2>The pattern</h2>
-<p>Declare an alias in a package, then import the package before using the alias in a module port:</p>
+<p>The package and aliases are already supplied. The general shape you are reusing is:</p>
 <pre>package &lt;package_name&gt;;
   typedef logic [N-1:0] &lt;type_name&gt;;
 endpackage
@@ -39,7 +39,7 @@ endmodule</pre>
 <p>The alias can be used in a port declaration, a local variable, or a testbench signal. If the package changes the width later, every use keeps the same named contract.</p>
 
 <h2>Exercise</h2>
-<p>Open <code>typedef_lab.sv</code>. In <code>typedef_pkg</code>, define <code>data_t</code> as an 8-bit logic vector and <code>lane_t</code> as a 2-bit logic vector. Then use those aliases for the intermediate signals and connect the sum, XOR result, and copied lane with continuous assignments. The testbench uses the aliases too, so the design and its checks share the same type names.</p>
+<p>Open <code>typedef_lab.sv</code>. The package already defines <code>data_t</code> and <code>lane_t</code>. Use those aliases for the intermediate signals and connect the sum, XOR result, and copied lane with continuous assignments. The testbench uses the aliases too, so the design and its checks share the same type names.</p>
 
 <h2>Testbench</h2>
 <p>The testbench drives two input pairs and two lane values, then checks the derived result and the copied alias-typed lane. The printed values make the bit widths visible while the shared type names keep declarations compact.</p>

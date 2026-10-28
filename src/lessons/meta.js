@@ -9,7 +9,7 @@ export default {
   'sv/always-comb':          { title: 'always_comb and case',                         focus: '/src/mux.sv' },
   'sv/priority-enc':         { title: 'Priority Encoder',                             focus: '/src/priority_enc.sv', top: 'tb' },
   'sv/assign-operators':     { title: 'Operators & Arithmetic',                      focus: '/src/operator_lab.sv', top: 'tb' },
-  'sv/events':               { title: 'Events',                                        focus: '/src/event_sync.sv',  top: 'event_sync' },
+  'sv/events':               { title: 'Events',                                        focus: '/src/event_sync.sv',  top: 'tb' },
   'sv/always-ff':            { title: 'Flip-Flops with always_ff',                    focus: '/src/sram_core.sv' },
   'sv/counter':              { title: 'Up-Counter',                                   focus: '/src/counter.sv' },
   'sv/shift-reg':            { title: 'Shift Register',                               focus: '/src/shift_reg.sv', top: 'tb' },

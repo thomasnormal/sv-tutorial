@@ -1,6 +1,6 @@
 // A three-process testbench pipeline for the SRAM.
 // Writer, reader, and checker must run in order — events enforce that.
-module event_sync;
+module event_sync(output logic passed);
 
   event write_done;   // writer → reader:  "memory is ready"
   event read_done;    // reader → checker: "verification complete"
@@ -8,6 +8,8 @@ module event_sync;
   logic [7:0] mem [0:3];
   int         errors = 0;
   bit         reader_ran = 0;  // set by the reader; checker must observe
+
+  initial passed = 1'b0;
 
   // ── Writer ────────────────────────────────────────────────────────────────
   // Fills the array after 10 time units, then signals it is done.
@@ -33,8 +35,7 @@ module event_sync;
   // Must wait for the reader before declaring the result.
   initial begin
     // TODO: wait for read_done before reporting
-    if (reader_ran && errors == 0) $display("PASS");
-    $finish;
+    if (reader_ran && errors == 0) passed = 1'b1;
   end
 
 endmodule

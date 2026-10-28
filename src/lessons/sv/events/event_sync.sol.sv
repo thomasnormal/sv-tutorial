@@ -1,4 +1,4 @@
-module event_sync;
+module event_sync(output logic passed);
 
   event write_done;
   event read_done;
@@ -6,6 +6,8 @@ module event_sync;
   logic [7:0] mem [0:3];
   int         errors = 0;
   bit         reader_ran = 0;
+
+  initial passed = 1'b0;
 
   initial begin
     #10;
@@ -25,8 +27,7 @@ module event_sync;
 
   initial begin
     @(read_done);
-    if (reader_ran && errors == 0) $display("PASS");
-    $finish;
+    if (reader_ran && errors == 0) passed = 1'b1;
   end
 
 endmodule

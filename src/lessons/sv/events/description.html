@@ -1,4 +1,7 @@
 <p>
+The four-byte <code>mem</code> array below is the same unpacked-memory shape from the Data Types lesson, but now three testbench processes use it together. In a real SRAM verification environment, a writer, reader, monitor, or scoreboard must hand off work without guessing how long another process will take. Named events provide that explicit handoff.
+</p>
+<p>
 Recall that <code>initial</code> blocks start at t=0.
 This happens even if there are multiple <code>initial</code> blocks in the same module, and even if they are in different modules. They all start at the same time, and run concurrently.
 This is a powerful feature: it lets you write separate processes that run in parallel, without needing to manually interleave their code.
@@ -22,7 +25,7 @@ The basic operations on events are: </p>
 <p>
 <blockquote><p>Note: You can write either <code>@write_done</code> or <code>@(write_done)</code>. The parenthesized form is common and makes the event control especially easy to spot.</p></blockquote>
 
-<p>The post is instantaneous: every process suspended at <code>@(write_done)</code> resumes in the same simulation time step. Events carry no data and cannot be synthesised — they live only in testbenches and simulation models.</p>
+<p>The post is instantaneous: every process suspended at <code>@(write_done)</code> resumes in the same simulation time step. Events carry no data and cannot be synthesised — they live only in testbenches and simulation models. That makes them especially useful for verification handoffs: a driver can announce that stimulus is ready, a monitor can announce that a response was observed, and a scoreboard can wait for both before checking it.</p>
 
 <h2>A two-event pipeline</h2>
 <p><code>event_sync.sv</code> chains writer, reader, and checker using two events:</p>
@@ -61,7 +64,7 @@ The basic operations on events are: </p>
   <text x="400" y="98" text-anchor="middle" fill="#0a5558" font-size="10">report</text>
 </svg>
 
-<p>Add the four TODO lines — one <code>-&gt;</code> and one <code>@</code> per handshake. Without them, the reader and checker start at t=0, read uninitialised <code>x</code> values, and <code>PASS</code> never prints.</p>
+<p>Add the four TODO lines — one <code>-&gt;</code> and one <code>@</code> per handshake. Without them, the reader and checker start at t=0, read uninitialised <code>x</code> values, and the starter testbench reports <code>FAIL</code>. After both handshakes are in place, the testbench reports <code>PASS</code>, and the waveform shows the writer, reader, and checker taking their turns.</p>
 
 <blockquote><p>Warning: If you add <code>@(write_done)</code> but forget <code>-> write_done</code>, the reader remains blocked. If no other process ends the test or schedules more work, the simulation can then stop with the reader still waiting. Each handshake requires both sides: a sender and at least one receiver.</p></blockquote>
 <p>

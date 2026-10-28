@@ -1,4 +1,5 @@
               <p>The core SRAM correctness property uses implication: after a write to address A with data D, the next read at address A must return D. Implication is how you express "if this happened, then that must follow".</p>
+<p>The previous sequence lesson named the multi-cycle pattern. Here the new question is where the consequent begins: immediately with the trigger, or on the next sampled edge?</p>
 <p>The implication operator splits a property into two parts:</p>
 <ul>
   <li>The <strong><dfn data-card="The antecedent is the left-hand side of an implication property — the trigger or precondition. The property only 'activates' when the antecedent matches. If the antecedent never matches during simulation, the property passes vacuously — so always pair assert with cover to confirm the trigger fired.">antecedent</dfn></strong> (left side) — the trigger condition</li>
@@ -9,5 +10,20 @@
   <li><code>ant |-> con</code> — <strong>overlapping</strong>: consequent starts at the same cycle as the antecedent match</li>
   <li><code>ant |=> con</code> — <strong>non-overlapping</strong>: consequent starts 1 cycle later (equivalent to <code>|-> ##1</code>)</li>
 </ul>
+<svg width="470" height="178" viewBox="0 0 470 178" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <text x="235" y="16" text-anchor="middle" fill="#0d6f72" font-weight="bold">same trigger, two consequent start times</text>
+  <text x="94" y="49" text-anchor="middle" fill="#586469">cycle</text>
+  <text x="170" y="49" text-anchor="middle" fill="#586469">t0</text><text x="250" y="49" text-anchor="middle" fill="#586469">t1</text><text x="330" y="49" text-anchor="middle" fill="#586469">t2</text><text x="410" y="49" text-anchor="middle" fill="#586469">t3</text>
+  <text x="94" y="78" text-anchor="middle" fill="#586469">req</text>
+  <rect x="239" y="63" width="22" height="22" rx="3" fill="#c8eded" stroke="#0d6f72"/><text x="250" y="78" text-anchor="middle" fill="#0d6f72" font-size="10">1</text>
+  <text x="94" y="112" text-anchor="middle" fill="#586469">ack</text>
+  <rect x="239" y="97" width="22" height="22" rx="3" fill="#fff8ec" stroke="#c17d2a"/><text x="250" y="112" text-anchor="middle" fill="#9a5a18" font-size="10">1</text>
+  <rect x="319" y="97" width="22" height="22" rx="3" fill="#fff8ec" stroke="#c17d2a"/><text x="330" y="112" text-anchor="middle" fill="#9a5a18" font-size="10">1</text>
+  <line x1="261" y1="74" x2="261" y2="94" stroke="#0d6f72" stroke-width="2"/><text x="272" y="88" fill="#0d6f72">|--&gt; same edge</text>
+  <line x1="261" y1="82" x2="319" y2="104" stroke="#c17d2a" stroke-width="2" stroke-dasharray="5 4"/><text x="287" y="75" fill="#9a5a18">|=&gt; next edge</text>
+  <text x="235" y="151" text-anchor="middle" fill="#586469">the trace holds ack for both checks; change one edge to see the distinction</text>
+  <text x="235" y="169" text-anchor="middle" fill="#586469">no req → both implications can pass vacuously</text>
+</svg>
 <p>Open <code>implication.sv</code> and complete both property bodies.</p>
+<p>The starter includes <code>tb.sv</code> with one request and an acknowledgement held for two sampled edges. Run before solving to see the timing trace; after solving, the two assertions inspect the same trace while Verify searches for counterexamples over unconstrained inputs.</p>
 <blockquote><p>If the antecedent never matches, the property passes <em>vacuously</em>. Use <code>cover property</code> to confirm the antecedent was actually exercised.</p></blockquote>

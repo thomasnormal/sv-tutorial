@@ -2,7 +2,8 @@ module tb;
   logic clk = 0;
   logic valid = 0;
   logic ready = 0;
-  logic [7:0] data = 0;
+  // Seed the payload before valid rises so the first held sample is stable.
+  logic [7:0] data = 8'h31;
   int fail = 0;
 
   let_check dut(.*);
@@ -12,7 +13,6 @@ module tb;
     @(posedge clk); #1;
     valid = 1;
     ready = 0;
-    data = 8'h31;
     @(posedge clk); #1;
     $display("held bus: data=%h (expect 31)", data);
     if (data !== 8'h31) fail++;
@@ -31,8 +31,8 @@ module tb;
     $display("invalid bus: data=%h (expect 5C)", data);
     if (data !== 8'h5C) fail++;
 
-    if (fail == 0) $display("PASS");
-    else $display("FAIL: %0d let-expression checks were wrong", fail);
+    if (fail == 0) $display("TODO: define hold_bus and use it in data_stable_p, then rerun this held-bus trace.");
+    else $display("FAIL: %0d bus-trace checks were wrong", fail);
     $finish;
   end
 endmodule

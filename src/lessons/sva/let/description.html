@@ -1,5 +1,18 @@
 <p>A bus-hold rule often appears in several assertions: while a transfer is valid but not accepted, the payload must stay unchanged. Copying that Boolean expression into every property makes maintenance risky. A <code>let</code> declaration gives the expression one name and lets each property pass the signals it wants to inspect.</p>
 
+<table style="border-collapse:collapse;width:100%;font-size:0.9em;margin:12px 0">
+  <thead><tr style="background:#f0f0ea">
+    <th style="padding:7px;text-align:left;border-bottom:2px solid #c17d2a">copy/paste version</th>
+    <th style="padding:7px;text-align:left;border-bottom:2px solid #0d6f72">named-rule version</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td style="padding:8px;vertical-align:top"><code>!(valid &amp;&amp; !ready)<br>|| $stable(data)</code><br><span style="color:#9a5a18">repeat this expression in every property</span></td>
+      <td style="padding:8px;vertical-align:top"><code>let hold_bus(...);</code><br><code>hold_bus(data, valid, ready)</code><br><span style="color:#0d6f72">name it once; pass new signals at each call</span></td>
+    </tr>
+  </tbody>
+</table>
+
 <h2>The pattern</h2>
 <pre>let &lt;rule&gt;(&lt;value&gt;, &lt;active&gt;, &lt;accepted&gt;) =
   !(&lt;active&gt; &amp;&amp; !&lt;accepted&gt;) || $stable(&lt;value&gt;);
@@ -31,4 +44,4 @@ endproperty</pre>
 <p>Open <code>let_check.sv</code>. Define <code>hold_bus(value, active, accepted)</code> with a <code>let</code> declaration, then call it from <code>data_stable_p</code>. The rule should require <code>$stable(value)</code> only while a valid transfer is waiting for acceptance. The testbench changes <code>data</code> during an accepted transfer and while invalid to show when the rule is active.</p>
 
 <h2>Testbench</h2>
-<p>The testbench prints the payload in each phase and ends with <code>PASS</code> only when the observed bus behavior matches the named rule. The interesting result is the property source: one reusable expression explains all of the phases.</p>
+<p>The starter testbench prints each phase and leaves a TODO marker until the property is complete. The solution checks the held, accepted, and invalid payloads explicitly, then prints <code>PASS</code> when the trace is correct. The interesting result is the property source: one reusable expression explains all of the phases.</p>

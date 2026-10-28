@@ -42,7 +42,7 @@ export default {
   'sva/clock-delay':         { title: 'Clock Delay ##m and ##[m:n]',                  focus: '/src/delay_check.sv',     runner: 'both', bmcExpected: 'counterexample' },
   'sva/rose-fell':           { title: '$rose and $fell',                              focus: '/src/edge_check.sv',      runner: 'both', bmcExpected: 'counterexample' },
   'sva/req-ack':             { title: 'Request / Acknowledge',                        focus: '/src/req_ack.sv',         runner: 'both', bmcExpected: 'counterexample' },
-  'sva/consecutive-rep':     { title: 'Consecutive Repetition [*m]',                  focus: '/src/hold_check.sv',      runner: 'bmc',  bmcExpected: 'counterexample' },
+  'sva/consecutive-rep':     { title: 'Consecutive Repetition [*m]',                  focus: '/src/hold_check.sv',      runner: 'both', bmcExpected: 'counterexample' },
   'sva/nonconsec-rep':       { title: 'Goto Repetition [->m]',                        focus: '/src/multi_ack.sv',       runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/nonconsec-eq':        { title: 'Non-Consecutive Equal Repetition [=m]',        focus: '/src/multi_ack2.sv',      runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/throughout':          { title: 'throughout — Stability During a Sequence',     focus: '/src/spi_check.sv',       runner: 'bmc',  bmcExpected: 'counterexample' },

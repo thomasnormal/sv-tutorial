@@ -31,4 +31,4 @@
   <text x="278" y="120" text-anchor="middle" fill="#586469" font-size="12">3 consecutive cycles</text>
 </svg>
 <p>Open <code>hold_check.sv</code>. The spec is: <em>after a <code>start</code> pulse, <code>busy</code> must stay high for exactly 3 consecutive cycles.</em></p>
-<p>Complete the property using <code>|=></code> and the repetition operator.</p>
+<p>Complete the one-run <code>busy_run</code> sequence with <code>busy[*3]</code>, use it after <code>|=></code>, and add the property assertion. The starter includes <code>tb.sv</code> with one start pulse and a three-cycle busy run; Run it before solving to see the repeated samples, then rerun the solved trace for <code>PASS</code>. Verify searches for a busy signal that breaks the consecutive run.</p>

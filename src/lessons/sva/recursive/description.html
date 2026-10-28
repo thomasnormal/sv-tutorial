@@ -1,4 +1,4 @@
-<p>Some guarantees must hold <em>for all time</em> — not just for a fixed number of cycles. A <strong>recursive property</strong> expresses this by referring to itself in its consequent:</p>
+<p>An SRAM shared by several masters needs a write lock that cannot silently drop while a transaction is in flight. Some guarantees must hold <em>for all time</em> — not just for a fixed number of cycles. A <strong>recursive property</strong> expresses this by referring to itself in its consequent:</p>
 <pre>property p_lock_hold;
   @(posedge clk) lock &amp;&amp; !unlock |=&gt; p_lock_hold;
 endproperty</pre>
@@ -31,6 +31,7 @@ endproperty</pre>
 </svg>
 
 <blockquote><p>The WASM tool does not yet support recursive property calls. This exercise uses the equivalent one-step inductive form: <code>lock &amp;&amp; !unlock |=&gt; lock</code>. BMC checks this for every depth up to its bound — which is equivalent to the recursive form within any finite trace.</p></blockquote>
+<p>The one-step body is a compatibility shell for this browser tool. In a production formal environment, keep the named recursive property so the proof engine can apply induction; the safety checks around it remain ordinary concurrent assertions.</p>
 
 <h2>Exercise</h2>
 <p>Open <code>lock_check.sv</code>. The module monitors the SRAM write-lock protocol with three orthogonal properties. Fill in each property body:</p>
@@ -40,3 +41,4 @@ endproperty</pre>
   <li><strong>TODO 3</strong> (<code>p_no_simultaneous</code>): <code>lock</code> and <code>unlock</code> must never both be high at the same time</li>
 </ul>
 <p>Click Verify — BMC checks all three against every possible input sequence up to its depth bound. Read <strong>PROVED within the BMC bound</strong> or <strong>COUNTEREXAMPLE FOUND</strong> in the log; no bounded result is an unbounded proof.</p>
+<p>The starter includes <code>tb.sv</code> with reset, an unlocked cycle, then a lock that stays high while <code>we</code> remains low. Run it before solving to watch the invariant hold; the solved trace prints <code>PASS</code>. The trace deliberately keeps the lock held because the compatibility property models release as a separate design concern.</p>

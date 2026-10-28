@@ -172,7 +172,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 ### Chapter: Formal Verification
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
-| `sva/formal-assume` | assume property | ✅ | 25/27 ⚠️4,9 | `sva/formal-intro` | `assume property`, constraining formal input space |
+| `sva/formal-assume` | assume property | ✅ | 27/27 | `sva/formal-intro` | `assume property`, constraining formal input space |
 | `sva/always-eventually` | always and s_eventually | ✅ | 22/27 ⚠️4,5,7,9 | `sva/formal-assume` | `always`/`s_eventually`, liveness vs safety properties |
 | `sva/until` | until and s_until | ✅ | 23/27 ⚠️4,5,9 | `sva/always-eventually` | `until`, `s_until`, weak/strong until |
 | `sva/lec` | Logical Equivalence Checking | ✅ | 24/27 ⚠️5,6 | `sva/formal-intro` | LEC, two-module equivalence, miter circuit concept |

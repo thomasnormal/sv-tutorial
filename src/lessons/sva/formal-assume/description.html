@@ -1,6 +1,27 @@
 <p>When BMC treats all inputs as free variables it will consider inputs that a real environment would never produce — causing spurious failures. The <code>assume property</code> statement constrains which input sequences the tool is allowed to explore.</p>
+<svg width="470" height="170" viewBox="0 0 470 170" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <text x="235" y="16" text-anchor="middle" fill="#0d6f72" font-weight="bold">an environment promise narrows the proof's starting line</text>
+  <rect x="18" y="38" width="146" height="90" rx="6" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+  <text x="91" y="59" text-anchor="middle" fill="#9a5a18" font-weight="bold">BMC starts free</text>
+  <text x="91" y="81" text-anchor="middle" fill="#586469">rst = 0 or 1</text>
+  <text x="91" y="99" text-anchor="middle" fill="#586469">state = 0, 1, 2, or 3</text>
+  <text x="91" y="117" text-anchor="middle" fill="#9a5a18">many initial worlds</text>
+  <path d="M165 83 H210" stroke="#586469" stroke-width="2" marker-end="url(#assume-arrow)"/>
+  <text x="188" y="69" text-anchor="middle" fill="#586469" font-size="10">assume</text>
+  <path d="M212 46 L266 46 L306 83 L266 120 L212 120 L252 83 Z" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="249" y="78" text-anchor="middle" fill="#0d6f72" font-weight="bold">rst = 1</text>
+  <text x="249" y="96" text-anchor="middle" fill="#0d6f72">at first edge</text>
+  <path d="M308 83 H353" stroke="#586469" stroke-width="2" marker-end="url(#assume-arrow)"/>
+  <rect x="355" y="38" width="97" height="90" rx="6" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="403" y="59" text-anchor="middle" fill="#0d6f72" font-weight="bold">assert</text>
+  <text x="403" y="81" text-anchor="middle" fill="#586469">state != 3</text>
+  <text x="403" y="99" text-anchor="middle" fill="#586469">after reset</text>
+  <text x="403" y="117" text-anchor="middle" fill="#0d6f72">legal trace</text>
+  <defs><marker id="assume-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#586469"/></marker></defs>
+</svg>
 <pre>assume property (@(posedge clk) constraint_expr);</pre>
 <p>Think of <code><dfn data-card="assume property tells the formal tool 'treat this as a given — constrain the input space to only sequences where this holds.' It is the dual of assert: assert constrains what the design must produce, while assume constrains what inputs the tool is allowed to try. Over-constraining with assume can hide real bugs by ruling out valid input sequences, so assumptions should be conservative and checked carefully.">assume</dfn></code> as the dual of <code>assert</code>: <code>assert</code> says "the design must guarantee this", while <code>assume</code> says "the environment promises this".</p>
+<blockquote><p>This extends <code>sva/formal-intro</code>: that lesson searched every initial state, while this one adds the environment contract that reset is high on the first edge. You still use the same sampled clock and bounded assertion, but now separate an input promise from a design guarantee.</p></blockquote>
 <p>Open <code>top.sv</code>. A traffic-light FSM cycles RED → GREEN → YELLOW → RED. The <code>state</code> output should never reach the illegal value <code>3</code>.</p>
 <ol>
   <li>The starter already provides the one-time <code>assume property</code> that constrains BMC to start in reset. Read it as the environment assumption for this exercise.</li>

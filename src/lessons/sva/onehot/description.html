@@ -1,4 +1,19 @@
-<p>SystemVerilog provides built-in functions for checking bit-count invariants — exactly what bus arbiters need:</p>
+<p>A shared bus needs one owner at a time. If two requesters receive a grant, both can drive the bus and the failure may only appear as corrupted data much later. The arbiter's four-bit <code>grant</code> vector is an ownership token, so we can check its shape at every clock edge.</p>
+<svg width="470" height="184" viewBox="0 0 470 184" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <text x="235" y="16" text-anchor="middle" fill="#0d6f72" font-weight="bold">one arbiter, one owner</text>
+  <text x="24" y="49" fill="#586469">requesters</text>
+  <text x="24" y="91" fill="#586469">valid grant</text>
+  <text x="24" y="133" fill="#586469">invalid grant</text>
+  <g fill="#fff8ec" stroke="#c17d2a">
+    <rect x="116" y="33" width="48" height="24" rx="3"/><rect x="170" y="33" width="48" height="24" rx="3"/>
+    <rect x="224" y="33" width="48" height="24" rx="3"/><rect x="278" y="33" width="48" height="24" rx="3"/>
+  </g>
+  <text x="140" y="50" text-anchor="middle" fill="#9a5a18">CPU0</text><text x="194" y="50" text-anchor="middle" fill="#9a5a18">CPU1</text><text x="248" y="50" text-anchor="middle" fill="#9a5a18">DMA</text><text x="302" y="50" text-anchor="middle" fill="#9a5a18">DBG</text>
+  <rect x="116" y="70" width="210" height="29" rx="4" fill="#c8eded" stroke="#0d6f72"/><text x="221" y="90" text-anchor="middle" fill="#0d6f72">grant = 4'b0100  ✓ $onehot</text>
+  <rect x="116" y="112" width="210" height="29" rx="4" fill="#f5d5d5" stroke="#a33a3a"/><text x="221" y="132" text-anchor="middle" fill="#8d2828">grant = 4'b0110  ✗ two owners</text>
+  <text x="235" y="166" text-anchor="middle" fill="#586469">idle is a separate legal case: grant = 4'b0000</text>
+</svg>
+<p>SystemVerilog provides built-in functions for checking these bit-count invariants:</p>
 <ul>
   <li><code><dfn data-card="$onehot(v) is a SystemVerilog system function that returns true when exactly one bit of v is 1 and all others are 0. It's used in assertions to verify that bus arbiters grant access to exactly one requester, that FSM one-hot encodings have exactly one active state, and that priority encoder outputs are correctly one-hot. $onehot0 allows zero or one bits — useful for optional or idle states.">$onehot</dfn>(v)</code> — true when <em>exactly one</em> bit of <code>v</code> is 1</li>
   <li><code>$onehot0(v)</code> — true when <em>zero or one</em> bits are 1</li>
@@ -9,4 +24,5 @@
   <li><strong>grant_onehot_p</strong>: whenever <code>any_grant</code> is high, <code>grant</code> must be one-hot — use <code>$onehot(grant)</code></li>
   <li><strong>grant_idle_p</strong>: whenever <code>any_grant</code> is low, <code>grant</code> must be all zeros</li>
 </ol>
+<p>This reuses the request/grant timing pattern from <code>sva/concurrent-sim</code>, but adds a structural invariant to the grant bus. The starter includes <code>tb.sv</code> with two legal grants and an idle cycle. Run it first to see the trace; after solving, the same trace prints <code>PASS</code> and the signal timeline makes the single-owner rule visible.</p>
 <blockquote><p><code>|req</code> is a reduction OR: it is 1 if any bit of <code>req</code> is 1. It is often used as a shorthand antecedent: <code>|req |-> $onehot0(gnt)</code> means "when any request is active, at most one grant is given."</p></blockquote>

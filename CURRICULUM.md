@@ -152,7 +152,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
 | `sva/local-vars` | Local Variables in Sequences | ✅ | 27/27 | `sva/clock-delay` | `local var`, data capture across sequence steps |
-| `sva/onehot` | $onehot, $onehot0, $countones | ✅ | 24/27 ⚠️5,9 | `sva/concurrent-sim` | `$onehot()`, `$onehot0()`, `$countones()` — bit-count system functions |
+| `sva/onehot` | $onehot, $onehot0, $countones | ✅ | 27/27 | `sva/concurrent-sim` | `$onehot()`, `$onehot0()`, `$countones()` — bit-count system functions |
 | `sva/triggered` | .triggered — Sequence Endpoint Detection | ✅ | 23/27 ⚠️5,7,9 | `sva/sequence-basics` | `.triggered`, detecting sequence completion at a named endpoint |
 | `sva/checker` | The checker Construct | ✅ | 23/27 ⚠️5,6,7 | `sva/implication`, `sva/disable-iff` | `checker` construct, encapsulating assertions into reusable modules |
 | `sva/recursive` | Recursive Properties | ✅ | 23/27 ⚠️5,6,7 | `sva/implication` | recursive `property`, inductive-style reasoning |

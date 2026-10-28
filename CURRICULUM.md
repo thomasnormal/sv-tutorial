@@ -156,7 +156,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 | `sva/triggered` | .triggered — Sequence Endpoint Detection | ✅ | 27/27 | `sva/sequence-basics` | `.triggered`, detecting sequence completion at a named endpoint |
 | `sva/checker` | The checker Construct | ✅ | 27/27 | `sva/implication`, `sva/disable-iff` | `checker` construct, encapsulating assertions into reusable modules |
 | `sva/recursive` | Recursive Properties | ✅ | 27/27 | `sva/implication` | recursive `property`, inductive-style reasoning |
-| `sva/bind` | bind — Non-Invasive Assertion Attachment | ✅ | 25/27 ⚠️5 | `sva/checker` | `bind` statement, attaching checkers without modifying RTL source |
+| `sva/bind` | bind — Non-Invasive Assertion Attachment | ✅ | 27/27 | `sva/checker` | `bind` statement, attaching checkers without modifying RTL source |
 | `sva/let` | let Declarations | ✅ | 24/27 ⚠️5,9 | `sva/sequence-basics` | `let` declaration, scoped parameterisable macro alternative to `` `define `` |
 
 **`sva/bind`** (Mehta §6.12-6.14, p. 79-82)

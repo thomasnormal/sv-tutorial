@@ -30,7 +30,7 @@ module tb;
     $display("reset: count=%0d (expect 0)", count);
     if (count !== 8'd0) fail++;
 
-    if (fail == 0) $display("PASS");
+    if (fail == 0) $display("TODO: complete count_step and the bind statement, then rerun this counter trace.");
     else $display("FAIL: %0d bound-counter checks were wrong", fail);
     $finish;
   end

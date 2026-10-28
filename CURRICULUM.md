@@ -22,7 +22,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
 | `sv/welcome` | Welcome | ✅ | 26/27 | — | `module`/`endmodule`, `$display`, simulation loop, tutorial roadmap |
-| `sv/modules-and-ports` | Modules and Ports | ✅ | 26/27 ⚠️4 | `sv/welcome` | module declarations, port directions (`input`/`output`), typed widths, named instantiation |
+| `sv/modules-and-ports` | Modules and Ports | ✅ | 27/27 | `sv/welcome` | module declarations, port directions (`input`/`output`), typed widths, named instantiation |
 | `sv/data-types` | Data Types | ✅ | 26/27 | `sv/modules-and-ports` | 4-state `logic` vs 2-state `int`/`bit`, X state, `$isunknown()` |
 
 ### Chapter: Combinational Logic

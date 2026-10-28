@@ -1,4 +1,4 @@
-<p>When the SRAM becomes a reusable block, its interface must be unambiguous before anyone connects a testbench or another module. This lesson focuses on declaring that interface: a module name, port directions, and widths. The small arithmetic body is supplied so you can concentrate on the boundary.</p>
+<p>In the Welcome lesson you used a <code>top</code> / <code>tb</code> boundary: the testbench instantiated the design, waited, and checked a result. Keep that same boundary here, but make the connection reusable. When the SRAM becomes a block that other modules can connect to, its interface must be unambiguous. This lesson focuses on declaring that interface: a module name, port directions, and widths. The small arithmetic body is supplied so you can concentrate on the boundary.</p>
 <pre>module &lt;name&gt;(
   input  logic [N-1:0] &lt;in_signal&gt;,
   output logic [N-1:0] &lt;out_signal&gt;

@@ -35,7 +35,7 @@ export default {
   'sva/concurrent-sim':      { title: 'Concurrent Assertions in Simulation',          focus: '/src/monitor.sv',         runner: null },
   'sva/vacuous-pass':        { title: 'Vacuous Pass',                                 focus: '/src/vacuous.sv' },
   'sva/isunknown':           { title: '$isunknown — Detecting X and Z',               focus: '/src/xcheck.sv' },
-  'sva/immediate-assert':    { title: 'Immediate Assertions',                         focus: '/src/fifo_checker.sv',    runner: 'bmc',  bmcExpected: 'counterexample' },
+  'sva/immediate-assert':    { title: 'Immediate Assertions',                         focus: '/src/fifo_checker.sv',    runner: 'both', bmcExpected: 'counterexample' },
   'sva/sequence-basics':     { title: 'Sequences and Properties',                     focus: '/src/grant_check.sv',     runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/implication':         { title: 'Implication: |-> and |=>',                     focus: '/src/implication.sv',     runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/formal-intro':        { title: 'Bounded Model Checking',                       focus: '/src/top.sv',             runner: 'bmc',  bmcExpected: 'proved' },

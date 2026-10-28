@@ -26,6 +26,8 @@ else
 <h2>Formal verification with BMC</h2>
 <p>Immediate assertions inside <code>always</code> blocks are also recognized by MOX's <dfn data-card="BMC (Bounded Model Checking) unrolls the circuit's behavior for N time steps and encodes it as a SAT/SMT formula. The solver then searches for an assignment of inputs that makes an assertion fail. If no such assignment exists within N steps, the property is proved for that bound.">bounded model checker</dfn>. Instead of running a testbench, BMC exhaustively searches all possible input combinations. If an assertion can be violated, BMC produces a counterexample — without you having to write a single test vector.</p>
 
+<p>The starter also includes <code>tb.sv</code> so you can see the same checks in a short simulation. Click <strong>Run</strong> before solving to drive one legal cycle and four labelled illegal FIFO situations; after adding the assertions, each situation reports through its <code>else $error</code> action and the testbench prints <code>PASS</code>. Click <strong>Verify</strong> to ask BMC for an unconstrained counterexample as well — the two views answer different questions.</p>
+
 <h2>Exercise</h2>
 <p>Open <code>fifo_checker.sv</code>. The module receives four FIFO status signals and must prevent four illegal conditions. Inside the <code>always @(posedge clk)</code> block, add four immediate assertions:</p>
 <ul>

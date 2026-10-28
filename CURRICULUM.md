@@ -105,7 +105,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 ### Chapter: Your First Formal Assertion
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
-| `sva/immediate-assert` | Immediate Assertions | ✅ | 25/27 ⚠️5 | `sv/always-comb`, `sv/always-ff` | `assert` (immediate), deferred (`#0`/final), procedural assertion context |
+| `sva/immediate-assert` | Immediate Assertions | ✅ | 27/27 | `sv/always-comb`, `sv/always-ff` | `assert` (immediate), deferred (`#0`/final), procedural assertion context |
 | `sva/sequence-basics` | Sequences and Properties | ✅ | 24/27 ⚠️5,9 | `sva/concurrent-sim` | `sequence` keyword, `property` keyword, named reuse |
 
 ### Chapter: Implication & BMC

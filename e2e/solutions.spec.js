@@ -81,6 +81,7 @@ const LESSONS = [
   { chapter: 'Combinational Logic',     title: 'Operators & Arithmetic',                        runner: null },
   { chapter: 'Sequential Logic',        title: 'Flip-Flops with always_ff',                     runner: null },
   { chapter: 'Sequential Logic',        title: 'Up-Counter',                                    runner: null },
+  { chapter: 'Sequential Logic',        title: 'Shift Register',                                runner: null },
   { chapter: 'Parameterized Modules',   title: 'Parameters and localparam',                     runner: null },
   { chapter: 'Interfaces & Procedures', title: 'Interfaces and modport',                        runner: null },
   { chapter: 'Interfaces & Procedures', title: 'Tasks and Functions',                           runner: null },

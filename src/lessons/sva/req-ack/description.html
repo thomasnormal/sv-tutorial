@@ -28,3 +28,5 @@
 </svg>
 <p>Open <code>req_ack.sv</code>. Complete the property using <code>$rose</code>, <code>|=></code>, and a range delay. The spec is: after <code>req</code> rises, <code>ack</code> must go high within 1 to 3 clock cycles.</p>
 <blockquote><p>Hint: <code>##[0:2]</code> after <code>|=></code> means the same cycle as <code>|=></code>'s "next" plus 0–2 more, giving a total window of 1–3 cycles after the rise.</p></blockquote>
+<p><strong>The off-by-one trap:</strong> <code>|=></code> already moves to the next sampled edge. A <code>##0</code> there is one cycle after the request, not the request edge itself. Complete the one-sample <code>ack_window</code> sequence, assert the property, and keep that accounting visible in your code.</p>
+<p>The starter includes <code>tb.sv</code> with the acknowledgement at the third and final legal response edge. Run it before solving to see a request wait through the window; after solving, the trace checks that edge and prints <code>PASS</code>. Verify searches for a request with an acknowledgement too early or too late.</p>

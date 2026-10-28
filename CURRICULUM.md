@@ -119,7 +119,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 |---|---|---|---|---|---|
 | `sva/clock-delay` | Clock Delay ##m and ##[m:n] | ✅ | 27/27 | `sva/sequence-basics` | `##m`, `##[m:n]`, clock-cycle delay in sequences |
 | `sva/rose-fell` | $rose and $fell | ✅ | 27/27 | `sva/clock-delay` | `$rose()`, `$fell()`, edge detection within sequences |
-| `sva/req-ack` | Request / Acknowledge | ✅ | 23/27 ⚠️2,5,8 | `sva/implication`, `sva/clock-delay` | handshake protocol assertion, delay-bounded acknowledgement |
+| `sva/req-ack` | Request / Acknowledge | ✅ | 27/27 | `sva/implication`, `sva/clock-delay` | handshake protocol assertion, delay-bounded acknowledgement |
 
 ### Chapter: Repetition Operators
 | Slug | Title | Status | Score | Prereqs | Teaches |

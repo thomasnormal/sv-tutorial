@@ -139,7 +139,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
 | `sva/stable-past` | $stable and $past | ✅ | 27/27 | `sva/concurrent-sim` | `$stable()`, `$past(n)`, sampled-value semantics |
-| `sva/changed` | $changed and $sampled | ✅ | 22/27 ⚠️3,4,5,9 | `sva/stable-past` | `$changed()`, `$sampled()` |
+| `sva/changed` | $changed and $sampled | ✅ | 27/27 | `sva/stable-past` | `$changed()`, `$sampled()` |
 
 ### Chapter: Protocols & Coverage
 | Slug | Title | Status | Score | Prereqs | Teaches |

@@ -49,7 +49,7 @@ export default {
   'sva/sequence-ops':        { title: 'Sequence Composition: intersect, within, and, or', focus: '/src/bus_check.sv', runner: 'both', bmcExpected: 'counterexample' },
   'sva/seq-args':            { title: 'Sequence Formal Arguments',                         focus: '/src/sram_check.sv',  runner: 'both', bmcExpected: 'proved' },
   'sva/stable-past':         { title: '$stable and $past',                            focus: '/src/stable_check.sv',    runner: 'both', bmcExpected: 'counterexample' },
-  'sva/changed':             { title: '$changed and $sampled',                        focus: '/src/toggle_check.sv',    runner: 'bmc',  bmcExpected: 'counterexample' },
+  'sva/changed':             { title: '$changed and $sampled',                        focus: '/src/toggle_check.sv',    runner: 'both', bmcExpected: 'counterexample' },
   'sva/disable-iff':         { title: 'disable iff — Reset Handling',                 focus: '/src/reset_check.sv',     runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/abort':               { title: 'Aborting Properties: reject_on and accept_on', focus: '/src/abort_check.sv',    runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/cover-property':      { title: 'cover property',                               focus: '/src/bus_check.sv',       runner: 'bmc',  bmcExpected: 'counterexample' },

@@ -51,7 +51,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
 | `sv/parameters` | Parameters and localparam | ✅ | 24/27 ⚠️2,9 | `sv/always-ff` | `parameter`, `localparam`, `$clog2()`, parameterized port widths, generic instantiation |
-| `sv/generate` | generate for / if | 📝 | — | `sv/parameters` | `generate for`/`if`, replicated instances, conditional elaboration |
+| `sv/generate` | generate for / if | ✅ | 25/27 ⚠️1 | `sv/parameters` | `generate for`/`if`, replicated instances, conditional elaboration |
 
 > `for generate` to replicate instances; used in every real chip.
 > A parameterised N-bit adder array is a natural exercise.

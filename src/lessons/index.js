@@ -79,7 +79,7 @@ export const parts = [
       { title: 'Introduction',          lessons: [L('sv/welcome'), L('sv/modules-and-ports'), L('sv/data-types')] },
       { title: 'Combinational Logic',    lessons: [L('sv/always-comb'), L('sv/priority-enc'), L('sv/assign-operators')] },
       { title: 'Sequential Logic',      lessons: [L('sv/events'), L('sv/always-ff'), L('sv/counter'), L('sv/shift-reg')] },
-      { title: 'Data Types',            lessons: [L('sv/parameters'), L('sv/packed-structs')] },
+      { title: 'Data Types',            lessons: [L('sv/parameters'), L('sv/generate'), L('sv/packed-structs')] },
       { title: 'State Machines',        lessons: [L('sv/enums')] },
       { title: 'Covergroups',            lessons: [L('sv/covergroup-basics'), L('sv/coverpoint-bins'), L('sv/cross-coverage')] },
       { title: 'Testbench Essentials',  lessons: [L('sv/classes'), L('sv/queues-arrays'), L('sv/fork-join'), L('sv/randomization')] },

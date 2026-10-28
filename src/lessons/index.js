@@ -104,7 +104,7 @@ export const parts = [
   {
     title: 'Universal Verification Methodology',
     chapters: [
-      { title: 'UVM Foundations', lessons: [L('uvm/reporting')] },
+      { title: 'UVM Foundations', lessons: [L('uvm/reporting'), L('uvm/seq-item')] },
     ],
   },
   {

@@ -1,15 +1,15 @@
-              <p>A <strong><dfn data-card="A sequence item (uvm_sequence_item) is the transaction object that represents one operation — a single read or write in the case of an SRAM. It holds all the fields needed to describe and execute the operation. Items flow from sequences through the sequencer to the driver, which translates them into pin-level signal assignments. Items marked rand can be randomized; constraints narrow the legal value space.">sequence item</dfn></strong> is the transaction data object that flows through a UVM testbench. It extends <code>uvm_sequence_item</code> and holds the stimulus fields.</p>
-              <p>Fields marked <code>rand</code> are randomizable. <strong><dfn data-card="Constraints in SystemVerilog are declarative rules that restrict which random values the solver may generate. The solver finds a solution satisfying all active constraints simultaneously using a constraint solver (typically based on SAT or BDD). Constraints can be conditional (implication), ranged, or use distribution weights. They're more powerful than hand-written loops because the solver explores the full legal space automatically.">Constraints</dfn></strong> narrow the random space to legal values. The <strong>factory registration macro</strong> enables type overrides and auto-generates <code>print()</code>, <code>copy()</code>, and <code>compare()</code>:</p>
-              <pre>class adder_item extends uvm_sequence_item;
-  rand logic [7:0] a, b;
-
-  `uvm_object_utils_begin(adder_item)
-    `uvm_field_int(a, UVM_ALL_ON)
-    `uvm_field_int(b, UVM_ALL_ON)
+              <p>A <strong><dfn data-card="A sequence item (uvm_sequence_item) is the transaction object that represents one operation — a single read or write in the case of an SRAM. It holds all the fields needed to describe and execute the operation. Items flow from sequences through the sequencer to the driver, which translates them into pin-level signal assignments. Items marked rand can be randomized; constraints narrow the legal value space.">sequence item</dfn></strong> is the transaction object that carries one SRAM operation through a UVM testbench. In <code>uvm/reporting</code>, the test's <code>run_phase</code> controlled when work happened; now we give that phase a typed object to create and report.</p>
+              <p>The general shape is:</p>
+              <pre>class &lt;name&gt; extends uvm_sequence_item;
+  rand &lt;type&gt; &lt;stimulus_field&gt;;
+  &lt;type&gt; &lt;result_field&gt;;
+  `uvm_object_utils_begin(&lt;name&gt;)
+    `uvm_field_int(&lt;stimulus_field&gt;, UVM_ALL_ON)
   `uvm_object_utils_end
-
-  constraint small_c { a &lt; 100; b &lt; 100; }
-  ...
+  constraint &lt;name&gt; { &lt;legal_values&gt;; }
 endclass</pre>
-              <p>Open <code>mem_item.sv</code> and add the four field declarations (three <code>rand</code> fields for <code>we</code>, <code>addr</code>, <code>wdata</code> and one non-random <code>rdata</code>), the corresponding field macros inside <code>uvm_object_utils_begin</code>, and a constraint that makes operations read-only by default.</p>
+              <p>Fields marked <code>rand</code> are randomizable. <strong><dfn data-card="Constraints in SystemVerilog are declarative rules that restrict which random values the solver may generate. The solver finds a solution satisfying all active constraints simultaneously using a constraint solver (typically based on SAT or BDD). Constraints can be conditional (implication), ranged, or use distribution weights. They're more powerful than hand-written loops because the solver explores the full legal space automatically.">Constraints</dfn></strong> narrow the random space to legal values. The <strong>factory registration macro</strong> enables type overrides and auto-generates <code>print()</code>, <code>copy()</code>, and <code>compare()</code>. Open <code>mem_item.sv</code> and add three <code>rand</code> fields for <code>we</code>, <code>addr</code>, and <code>wdata</code>, one non-random <code>rdata</code>, their field macros, and a read-only-by-default constraint.</p>
+              <pre class="diagram">sequence  →  sequencer  →  driver  →  SRAM pins
+   creates       arbitrates      translates
+   mem_item      item flow       we/addr/data</pre>
               <blockquote><p>Always create items through the factory: <code>adder_item::type_id::create("item")</code> — not with <code>new</code> directly. Factory creation enables test-level type substitution without changing any sequence code.</p></blockquote>

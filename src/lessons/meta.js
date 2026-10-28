@@ -59,6 +59,7 @@ export default {
   'sva/checker':             { title: 'The checker Construct',                        focus: '/src/top.sv',             runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/recursive':           { title: 'Recursive Properties',                         focus: '/src/lock_check.sv',      runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/bind':                { title: 'bind — Non-Invasive Assertion Attachment',      focus: '/src/counter_check.sv',    top: 'tb' },
+  'sva/let':                 { title: 'let Declarations',                               focus: '/src/let_check.sv',       top: 'tb' },
   'sva/formal-assume':       { title: 'assume property',                              focus: '/src/top.sv',             runner: 'both', bmcExpected: 'proved' },
   'sva/always-eventually':   { title: 'always and s_eventually',                      focus: '/src/liveness.sv',        runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/until':               { title: 'until and s_until',                            focus: '/src/hold_check.sv',      runner: 'bmc',  bmcExpected: 'counterexample' },

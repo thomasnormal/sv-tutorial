@@ -158,7 +158,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 | `sva/checker` | The checker Construct | ✅ | 23/27 ⚠️5,6,7 | `sva/implication`, `sva/disable-iff` | `checker` construct, encapsulating assertions into reusable modules |
 | `sva/recursive` | Recursive Properties | ✅ | 23/27 ⚠️5,6,7 | `sva/implication` | recursive `property`, inductive-style reasoning |
 | `sva/bind` | bind — Non-Invasive Assertion Attachment | ✅ | 25/27 ⚠️5 | `sva/checker` | `bind` statement, attaching checkers without modifying RTL source |
-| `sva/let` | let Declarations | 💡 | — | `sva/sequence-basics` | `let` declaration, scoped parameterisable macro alternative to `` `define `` |
+| `sva/let` | let Declarations | ✅ | 24/27 ⚠️5,9 | `sva/sequence-basics` | `let` declaration, scoped parameterisable macro alternative to `` `define `` |
 
 **`sva/bind`** (Mehta §6.12-6.14, p. 79-82)
 > `bind target_module checker_or_module inst_name (port_connections);`
@@ -207,21 +207,8 @@ Listed by lesson, in priority order:
 
 ## Remaining gaps / priority order
 
-### SV Basics
-1. `sv/mealy-fsm` — completes the FSM chapter
-2. `sv/shift-reg` — completes Sequential Logic
-3. `sv/generate` — common RTL pattern
-4. `sv/typedef` + `sv/arrays-static` — complete the Data Types chapter
-5. `sv/assign-operators` — arithmetic foundation
-
-### SVA
-6. `sva/followed-by` (`#-#` / `#=#`) — no-vacuous-pass operators; pairs with `sva/formal-assume`
-7. `sva/bind` — non-invasive attachment; reuses Part 1 `counter` module
-8. `sva/let` — optional polish
-
-### UVM
-9. `uvm/virtual-seq` — orchestrates multiple agents
-10. `uvm/ral` — register model; needed for IP-level verification
+All lessons currently listed in the curriculum table are complete. New lessons
+should be added to the table before they are scheduled here.
 
 ### TB-focused SV (potential new Part 5)
 > OOP fundamentals, randomization techniques, dynamic arrays/queues,

@@ -50,7 +50,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 ### Chapter: Parameterized Modules
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
-| `sv/parameters` | Parameters and localparam | ✅ | 25/27 ⚠️9 | `sv/always-ff` | `parameter`, `localparam`, `$clog2()`, parameterized port widths, generic instantiation |
+| `sv/parameters` | Parameters and localparam | ✅ | 27/27 | `sv/always-ff` | `parameter`, `localparam`, `$clog2()`, parameterized port widths, generic instantiation |
 | `sv/generate` | generate for / if | ✅ | 26/27 | `sv/parameters` | `generate for` lane replication, named branches, conditional elaboration |
 
 > `for generate` to replicate instances; used in every real chip.

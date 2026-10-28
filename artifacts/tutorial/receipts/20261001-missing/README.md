@@ -38,6 +38,7 @@ the browser WASM was rebuilt.
 | `cocotb/clock-and-timing` | generated Mox Icarus driver | BLOCKED | `clock-and-timing-cb18.log` |
 | `cocotb/edge-triggers` | generated Mox Icarus driver | BLOCKED | `edge-triggers-cb18.log` |
 | `cocotb/clockcycles-patterns` | generated Mox Icarus driver | BLOCKED | `clockcycles-patterns-cb18.log` |
+| `sv/priority-enc` | Playwright browser run | BLOCKED (missing local WASM artifact) | `priority-enc-browser.log` |
 
 The cocotb native smoke is marked `BLOCKED`, not `PASS`: the box has
 `cocotb` 2.0.1 but not `cocotb-test`, and the temporary compatibility install

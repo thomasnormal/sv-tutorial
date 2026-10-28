@@ -1,0 +1,43 @@
+<p>When several requesters want one SRAM port at the same time, the controller needs a deterministic winner. A <strong>priority encoder</strong> turns a request vector into the index of the highest-priority request, so arbitration is visible in one small combinational block.</p>
+
+<h2>The pattern</h2>
+<p>Start with the general shape. Put the most important pattern first; the first matching item wins:</p>
+<pre>always_comb begin
+  casez (&lt;request_vector&gt;)
+    &lt;highest-bit&gt;?: &lt;highest-grant&gt;;
+    &lt;next-bit&gt;??:  &lt;next-grant&gt;;
+    ...
+    default:       &lt;no-request-result&gt;;
+  endcase
+end</pre>
+
+<p><code>casez</code> is a case statement that treats <code>?</code> and high-impedance <code>Z</code> bits as wildcards. In a pattern such as <code>4'b1???</code>, only the leftmost bit matters; each <code>?</code> can match either 0 or 1. Unlike <code>casex</code>, <code>casez</code> does not hide an unknown <code>X</code> in the request.</p>
+
+<svg width="420" height="190" viewBox="0 0 420 190" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <defs><marker id="prio-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#586469"/></marker></defs>
+  <text x="210" y="17" text-anchor="middle" fill="#0d6f72" font-weight="bold">first matching branch wins</text>
+  <rect x="24" y="32" width="112" height="30" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="80" y="52" text-anchor="middle" fill="#0d6f72">req[3] = 1</text>
+  <rect x="154" y="32" width="112" height="30" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="210" y="52" text-anchor="middle" fill="#0d6f72">grant = 3</text>
+  <rect x="284" y="32" width="112" height="30" rx="5" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+  <text x="340" y="52" text-anchor="middle" fill="#9a5a18">valid = 1</text>
+  <line x1="80" y1="65" x2="80" y2="94" stroke="#586469" stroke-width="1.5" marker-end="url(#prio-arrow)"/>
+  <line x1="210" y1="65" x2="210" y2="94" stroke="#586469" stroke-width="1.5" marker-end="url(#prio-arrow)"/>
+  <line x1="340" y1="65" x2="340" y2="94" stroke="#586469" stroke-width="1.5" marker-end="url(#prio-arrow)"/>
+  <text x="80" y="113" text-anchor="middle" fill="#586469">else</text>
+  <text x="210" y="113" text-anchor="middle" fill="#586469">req[2] = 1</text>
+  <text x="340" y="113" text-anchor="middle" fill="#586469">same valid</text>
+  <line x1="80" y1="120" x2="80" y2="148" stroke="#586469" stroke-width="1.5" marker-end="url(#prio-arrow)"/>
+  <line x1="210" y1="120" x2="210" y2="148" stroke="#586469" stroke-width="1.5" marker-end="url(#prio-arrow)"/>
+  <text x="80" y="169" text-anchor="middle" fill="#586469">try the next branch</text>
+  <text x="210" y="169" text-anchor="middle" fill="#0d6f72">grant = 2</text>
+</svg>
+
+<p>For <code>priority_enc.sv</code>, <code>req[3]</code> is highest priority and <code>req[0]</code> is lowest. The <code>grant</code> output carries the winning index, while <code>valid</code> says whether any request was present. The <code>default</code> branch handles <code>4'b0000</code> and gives both outputs a known idle value.</p>
+
+<h2>Exercise</h2>
+<p>Add the four missing <code>casez</code> branches in descending priority. Use <code>4'b1???</code>, then <code>4'b01??</code>, then <code>4'b001?</code>, and finally <code>4'b0001</code>. In each branch, assign the encoded <code>grant</code> and assert <code>valid</code> on separate lines. Leave the default branch as the no-request result.</p>
+
+<h2>Testbench</h2>
+<p>The starter testbench tries no request, each single-bit request, and overlapping requests such as <code>0111</code> and <code>1111</code>. The printed <code>grant</code> value makes the priority decision visible in the log, and the waveform shows the request, winner, and valid flag changing together. It prints <code>PASS</code> only when every expected result matches.</p>

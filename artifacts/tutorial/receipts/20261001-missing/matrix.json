@@ -128,6 +128,11 @@
       "slug": "cocotb/clockcycles-patterns",
       "runner": "cocotb",
       "runs": [{"mode": "icarus-cocotb-smoke", "exit": 1, "result": "BLOCKED", "log": "clockcycles-patterns-cb18.log", "note": "The generated Mox driver imports cocotb_test, which is unavailable with the installed cocotb ABI; browser receipt is tracked by the full Playwright run."}]
+    },
+    {
+      "slug": "sv/priority-enc",
+      "runner": "sim",
+      "runs": [{"mode": "browser-run", "exit": 1, "result": "BLOCKED", "log": "priority-enc-browser.log", "note": "The focused browser lesson test loaded the route and solution, then failed at the shared missing static/mox/mox-verilog.js runtime asset; no simulator output was available."}]
     }
   ]
 }

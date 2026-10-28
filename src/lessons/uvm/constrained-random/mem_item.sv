@@ -1,3 +1,6 @@
+`ifndef SVT_UVM_CONSTRAINED_RANDOM_MEM_ITEM_SV
+`define SVT_UVM_CONSTRAINED_RANDOM_MEM_ITEM_SV
+
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
@@ -25,3 +28,5 @@ class mem_item extends uvm_sequence_item;
               : $sformatf("RD [%0d]", addr);
   endfunction
 endclass
+
+`endif

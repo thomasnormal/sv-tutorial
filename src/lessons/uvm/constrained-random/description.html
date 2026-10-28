@@ -1,8 +1,15 @@
-              <p>UVM's constraint solver lets you vary stimulus in three ways without changing the class definition.</p>
-              <h2>1 — Inline override with <code>randomize() with { }</code></h2>
-              <p>Add an extra constraint for a single call. The inline block is <strong>AND</strong>-ed with any active class constraints:</p>
+              <p>The previous lessons built a UVM sequence item and sent it through a driver. Real tests need to steer that same item toward boundary cases, special operations, or a broader spread without editing the reusable class. UVM's constraint solver supports three ways to do that.</p>
+              <p>The general shapes are:</p>
+              <pre>void'(&lt;item&gt;.randomize() with { &lt;extra_rule&gt;; });
+constraint &lt;name&gt; { &lt;distribution_or_rule&gt;; }
+&lt;item&gt;.&lt;name&gt;.constraint_mode(0);</pre>
+              <pre class="diagram">class rules ────────┐
+inline with { ... } ──┼──► legal values for this call
+mode(0) ──────────────┘    (turns one named rule off)</pre>
+              <h2>1 — Add a rule for one call</h2>
+              <p>An inline <code>with { }</code> block is <strong>AND</strong>-ed with every active class constraint:</p>
               <pre>void'(item.randomize() with { field == value; });</pre>
-              <p>This overrides for that one call without touching the class or permanently disabling any constraint.</p>
+              <p>It narrows this call only. It does not replace a class constraint or change later calls.</p>
               <h2>2 — Weighted distribution with <code>dist</code></h2>
               <p><code>mem_item</code> already declares a <code>weighted_c</code> constraint that biases <code>addr</code> toward boundary values 0 and 15 using a <dfn data-card="The dist constraint in SystemVerilog assigns relative weights to values or ranges, biasing the random solver toward certain outcomes. := assigns a weight per item (each value in a range gets that weight individually). :/ assigns a weight to the range as a whole. dist is used for boundary-value testing: weight the edges of a range more heavily to find off-by-one bugs faster.">dist</dfn> distribution:</p>
               <pre>constraint weighted_c {
@@ -10,6 +17,6 @@
 }</pre>
               <p>The <code>:=</code> weight syntax assigns a <em>relative weight</em>. Here boundaries are three times as likely as any interior address.</p>
               <h2>3 — Turning a constraint on or off</h2>
-              <p>Call <code>constraint_mode(0)</code> to disable a named constraint for all subsequent calls, or <code>constraint_mode(1)</code> to re-enable it.</p>
+              <p>Call <code>constraint_mode(0)</code> to disable a named constraint for all subsequent calls, or <code>constraint_mode(1)</code> to re-enable it. Scenario 3 samples 160 items and checks that at least 130 land in the 14-value interior. That large sample makes the difference between the weighted and unconstrained distributions visible without relying on one lucky draw.</p>
               <p>Open <code>mem_test.sv</code>. Scenario 1 is already complete. Fill in Scenarios 2 and 3 using the techniques above.</p>
-              <blockquote><p>Use <code>randomize() with { }</code> for one-off overrides. Use <code>constraint_mode()</code> when you want to switch a constraint on or off across many calls.</p></blockquote>
+              <blockquote><p>Use <code>randomize() with { }</code> to add a one-off rule. Use <code>constraint_mode()</code> when a test needs to change a policy across many calls.</p></blockquote>

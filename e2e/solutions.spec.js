@@ -136,6 +136,7 @@ const LESSONS = [
   { chapter: 'UVM Foundations',    title: 'Sequence Items',                runner: null },
   { chapter: 'Stimulus',           title: 'Sequences',                     runner: null },
   { chapter: 'Stimulus',           title: 'The Driver',                    runner: null },
+  { chapter: 'Stimulus',           title: 'Constrained-Random Scenarios',   runner: null },
   { chapter: 'Checking',           title: 'Monitor and Scoreboard',        runner: null },
   { chapter: 'Checking',           title: 'Environment and Test',          runner: null },
   { chapter: 'Functional Coverage', title: 'Functional Coverage',          runner: null },

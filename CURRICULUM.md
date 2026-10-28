@@ -208,6 +208,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 |---|---|---|---|---|---|
 | `uvm/sequence` | Sequences | ✅ | 25/27 ⚠️1,9 | `uvm/seq-item`, `uvm/reporting` | `uvm_sequence`, `start_item`, `finish_item`, sequencer arbitration, sequence body |
 | `uvm/driver` | The Driver | ✅ | 25/27 ⚠️1,9 | `uvm/sequence`, `sv/interfaces`, `sv/modports` | `uvm_driver`, `seq_item_port`, `uvm_config_db`, `virtual interface`, transaction-to-pin driving |
+| `uvm/constrained-random` | Constrained-Random Scenarios | ✅ | 24/27 ⚠️1,2,9 | `uvm/driver`, `sv/randomization` | inline `randomize() with`, `dist` weighting, named `constraint_mode()` control |
 
 ---
 

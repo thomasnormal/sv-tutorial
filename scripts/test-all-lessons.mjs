@@ -566,10 +566,8 @@ const G = '\x1b[32m', R = '\x1b[31m', Y = '\x1b[33m', D = '\x1b[2m', X = '\x1b[0
 // UVM lessons below are ones where the starter still passes despite incompleteness:
 // - uvm/covergroup: empty covergroup returns 100% coverage in MOX (no bins → trivially covered)
 // - uvm/cross-coverage: basic bins reach 100% without cross; cannot distinguish starter/solution
-// - uvm/constrained-random: inline constraints still not applied by MOX (#69)
 const SKIP_START_CHECK = new Set([
   'sva/concurrent-sim', 'sva/vacuous-pass',
-  'uvm/constrained-random',  // inline constraints now work; starter (no inline) also passes via class constraints
   'uvm/covergroup',          // empty covergroup returns 100% in MOX; cannot distinguish starter
   'uvm/cross-coverage',      // basic bins reach 100% without cross; starter appears to pass
   'uvm/coverage-driven',     // uvm_subscriber::report_phase virtual dispatch fails in MOX; $fatal never propagates
@@ -597,11 +595,8 @@ const SKIP_SOL_PASS = new Set([
 // Fixed in local WASM build via drop_objection no-op for unseen hoppers +
 // combinational SRAM read in UVM lesson SRAMs (eliminates monitor/scoreboard
 // misalignment caused by registered-read 1-cycle latency with 2-cycle driver).
-// 10 of 11 UVM lessons now XPASS; only constrained-random remains.
+// 10 of 11 UVM lessons now XPASS; only factory-override remains.
 const MOX_XFAIL = new Map([
-  // randomize() with {...} inline constraints not respected: weighted_c stays
-  // active and boundary writes land at wrong addresses (#69).
-  ['uvm/constrained-random', 'inline randomize() with{} constraints not applied (#69)'],
   // Factory type override (set_type_override) not applied at runtime (#74).
   ['uvm/factory-override', 'type_id::set_type_override not applied by MOX UVM factory (#74)'],
   // sv/queues-arrays (#75 pop_front) was XPASS'd by upstream MOX — no longer XFAIL.

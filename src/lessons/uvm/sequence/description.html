@@ -1,4 +1,12 @@
-<p>A <strong><dfn data-card="A UVM sequence generates a stream of transaction items. Its body() task runs when started on a sequencer. The sequence uses a three-step handshake: start_item (request the driver), randomize/configure the item, finish_item (hand it to the driver and wait for completion). Sequences are objects, not components — they have no phases and must be started explicitly from a test's run_phase.">sequence</dfn></strong> generates a stream of transactions by handing items to a <dfn data-card="The sequencer (uvm_sequencer) is the arbitration point between sequences and the driver. Multiple sequences can be started on the same sequencer; the sequencer decides which one gets access to the driver at any given time. The driver pulls the next item from the sequencer using get_next_item() and signals completion with item_done().">sequencer</dfn> one at a time. The three-step handshake is:</p>
+<p>The previous lesson built a <code>mem_item</code> that describes one SRAM operation. A <strong><dfn data-card="A UVM sequence generates a stream of transaction items. Its body() task runs when started on a sequencer. The sequence uses a three-step handshake: start_item (request the driver), randomize/configure the item, finish_item (hand it to the driver and wait for completion). Sequences are objects, not components — they have no phases and must be started explicitly from a test's run_phase.">sequence</dfn></strong> turns that one object into repeatable stimulus for a <dfn data-card="The sequencer (uvm_sequencer) is the arbitration point between sequences and the driver. Multiple sequences can be started on the same sequencer; the sequencer decides which one gets access to the driver at any given time. The driver pulls the next item from the sequencer using get_next_item() and signals completion with item_done().">sequencer</dfn>. The general shape is:</p>
+<pre>class &lt;name&gt; extends uvm_sequence #(&lt;item_type&gt;);
+  task body();
+    &lt;item_type&gt; item = &lt;item_type&gt;::type_id::create("item");
+    start_item(item);  // configure while the grant is held
+    finish_item(item); // hand it to the driver
+  endtask
+endclass</pre>
+<p>The three-step handshake is:</p>
 <pre>
   sequence                     sequencer / driver
   ────────                     ──────────────────

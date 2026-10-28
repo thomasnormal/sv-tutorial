@@ -78,7 +78,8 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
 | `sv/enums` | typedef enum | ✅ | 27/27 | `sv/always-ff`, `sv/always-comb` | `typedef enum`, named constants, enum-typed ports, enum in `case` |
-| `sv/mealy-fsm` | Mealy FSM | ✅ | 27/27 | `sv/enums` | Mealy output depends on current input, single-always style |
+| `sv/fsm` | Two-Always Moore FSM | ✅ | 27/27 | `sv/enums`, `sv/always-ff`, `sv/always-comb` | two-always Moore pattern (FF state + comb output), FSM-gated SRAM write/read |
+| `sv/mealy-fsm` | Mealy FSM | ✅ | 27/27 | `sv/fsm` | Mealy output depends on current input, single-always style |
 
 > Moore-only leaves students unable to recognise the more common Mealy
 > pattern in real codebases.

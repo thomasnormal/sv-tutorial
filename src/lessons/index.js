@@ -81,7 +81,7 @@ export const parts = [
       { title: 'Sequential Logic',      lessons: [L('sv/events'), L('sv/always-ff'), L('sv/counter'), L('sv/shift-reg')] },
       { title: 'Data Types',            lessons: [L('sv/parameters'), L('sv/generate'), L('sv/packed-structs'), L('sv/typedef'), L('sv/arrays-static')] },
       { title: 'Interfaces & Procedures', lessons: [L('sv/interfaces'), L('sv/modports'), L('sv/tasks-functions')] },
-      { title: 'State Machines',        lessons: [L('sv/enums'), L('sv/mealy-fsm')] },
+      { title: 'State Machines',        lessons: [L('sv/enums'), L('sv/fsm'), L('sv/mealy-fsm')] },
       { title: 'Covergroups',            lessons: [L('sv/covergroup-basics'), L('sv/coverpoint-bins'), L('sv/cross-coverage')] },
       { title: 'Testbench Essentials',  lessons: [L('sv/classes'), L('sv/queues-arrays'), L('sv/fork-join'), L('sv/randomization')] },
     ],

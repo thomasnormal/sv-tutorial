@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { lessons } from './index.js';
 
 const browserBlocked = [
-  'sv/fsm',
   'uvm/reporting',
   'uvm/seq-item',
   'uvm/sequence',

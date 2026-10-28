@@ -1,4 +1,4 @@
-<p>A memory controller often needs to answer a request as soon as it sees one. A <strong>Mealy FSM</strong> makes an output depend on both the current state and an input, so a request can assert <code>grant</code> before the next clock edge. That saves a cycle, but the output can also change whenever the input changes.</p>
+<p>A memory controller often needs to answer a request as soon as it sees one. The one new idea here is the <strong>Mealy output path</strong>: an output depends on both the current state and an input, so a request can assert <code>grant</code> before the next clock edge. That saves a cycle, but the output can also change whenever the input changes. The enum state and clocked state update are the familiar scaffolding around that path.</p>
 
 <h2>The pattern</h2>
 <pre>typedef enum logic { &lt;STATE_A&gt;, &lt;STATE_B&gt; } state_t;
@@ -10,7 +10,7 @@ always_ff @(posedge clk) begin
 end
 
 assign &lt;mealy_output&gt; = (state == &lt;STATE_A&gt;) &amp;&amp; &lt;input&gt;;</pre>
-<p>The state is stored on the clock edge. The output expression is separate and combinational: it can see the current input immediately. This compact style keeps one procedural block for state and uses direct assignments for the outputs.</p>
+<p>The state is stored on the clock edge — the same sequential pattern used in the earlier FSM lessons. The output expression is separate and combinational: it can see the current input immediately. This compact style keeps one procedural block for state and uses direct assignments for the Mealy outputs.</p>
 
 <svg width="450" height="190" viewBox="0 0 450 190" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
   <defs><marker id="mealy-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#586469"/></marker></defs>
@@ -32,7 +32,7 @@ assign &lt;mealy_output&gt; = (state == &lt;STATE_A&gt;) &amp;&amp; &lt;input&gt
 </svg>
 
 <h2>Exercise</h2>
-<p>Open <code>mealy_ctrl.sv</code>. Store <code>IDLE</code> on active-low reset, move to <code>BUSY</code> when <code>req</code> is high, and return to <code>IDLE</code> when <code>ack</code> is high. Then assign <code>grant</code>, <code>done</code>, and <code>busy</code> from the current state and inputs. Keep the state update in the one <code>always_ff</code> block.</p>
+<p>Open <code>mealy_ctrl.sv</code>. Reuse the clocked state pattern to store <code>IDLE</code> on reset, move to <code>BUSY</code> for a request, and return to <code>IDLE</code> on <code>ack</code>. Then focus on the new part: assign <code>grant</code>, <code>done</code>, and <code>busy</code> from the current state and inputs. Keep the state update in the one <code>always_ff</code> block.</p>
 
 <h2>Testbench</h2>
 <p>The testbench checks both clocked transitions and the key Mealy behavior: changing <code>req</code> or <code>ack</code> changes its output before another clock edge. A final <code>PASS</code> confirms every check.</p>

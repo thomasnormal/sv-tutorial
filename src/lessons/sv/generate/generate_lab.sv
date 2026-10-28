@@ -7,7 +7,14 @@ module generate_lab #(
   output logic [WIDTH-1:0] y
 );
   generate
-    // TODO: add a generate-if with named xor and or branches.
-    //       In each branch, use a generate-for to drive every y[i].
+    // The parameter chooses the operation; your task is to replicate each
+    // one-bit lane across the vector in both branches.
+    if (USE_XOR) begin : gen_xor
+      // TODO: add a named generate-for from 0 through WIDTH-1 and assign
+      //       each y[i] to the XOR of a[i] and b[i].
+    end else begin : gen_or
+      // TODO: add the matching generate-for and assign each y[i] to the OR
+      //       of a[i] and b[i].
+    end
   endgenerate
 endmodule

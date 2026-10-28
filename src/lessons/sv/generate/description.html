@@ -1,4 +1,4 @@
-<p>An SRAM data path may be 8, 32, or 64 bits wide, but the same one-bit operation repeats across every lane. Writing each copy by hand makes width changes risky. Generate constructs let elaboration choose optional hardware and replicate a regular piece before simulation starts.</p>
+<p><strong>How do you write one bit of logic once and get a lane for every data bit?</strong> An SRAM data path may be 8, 32, or 64 bits wide, but the same one-bit operation repeats across every lane. This lesson focuses on the generate-for loop: elaboration copies one lane for every index before simulation starts. The surrounding generate-if is supplied as context so the same loop can serve either an XOR or an OR implementation.</p>
 
 <h2>The pattern</h2>
 <p>A generate loop has a compile-time index and creates one instance or assignment per index:</p>
@@ -7,7 +7,7 @@
     &lt;one_lane_logic&gt;
   end
 endgenerate</pre>
-<p>A generate conditional selects one structure from a parameter. The condition is decided during elaboration, so the unused branch does not exist in the circuit:</p>
+<p>A generate conditional can select one structure from a parameter. Here the condition is already in the starter; the exercise is to fill the repeated lane logic inside both named branches:</p>
 <pre>if (&lt;parameter_condition&gt;) begin : &lt;fast_path&gt;
   ...
 end else begin : &lt;fallback_path&gt;
@@ -40,7 +40,7 @@ end</pre>
 </svg>
 
 <h2>Exercise</h2>
-<p>Open <code>generate_lab.sv</code>. Add a named generate-if with an XOR branch and an OR branch. In each branch, add a generate-for loop from <code>0</code> through <code>WIDTH-1</code> and drive the corresponding bit of <code>y</code>. The parameter <code>USE_XOR</code> selects which hardware exists, while <code>WIDTH</code> controls how many lanes are emitted.</p>
+<p>Open <code>generate_lab.sv</code>. The named XOR and OR branches are provided. In each branch, add a generate-for loop from <code>0</code> through <code>WIDTH-1</code> and drive the corresponding bit of <code>y</code>. The parameter <code>USE_XOR</code> selects which hardware exists, while <code>WIDTH</code> controls how many lanes your loop emits.</p>
 
 <h2>Testbench</h2>
 <p>The testbench instantiates the same module three ways: four-bit XOR, four-bit OR, and eight-bit XOR. It applies one vector to all instances and checks each generated result. Changing a parameter changes the elaborated structure without changing the module body.</p>

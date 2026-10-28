@@ -1,5 +1,7 @@
 <p>A burst-read property can fail silently when its trigger never happens. Ordinary implication (<code>|-&gt;</code> and <code>|=&gt;</code>) passes in that case, so a passing report may only mean that the test never reached the interesting behavior. The followed-by operators make a missing antecedent a failure, which exposes an unexercised protocol.</p>
 
+<blockquote style="margin:12px 0;padding:12px 16px;border-left:5px solid #c17d2a;background:#fff8ec;color:#5c451f"><strong>Vacuity alarm</strong><br><span style="display:inline-block;margin-top:6px;padding:3px 8px;border-radius:4px;background:#e8f2ff;color:#245887">no burst_start</span> <span style="margin:0 6px;color:#586469">→</span> <span style="display:inline-block;padding:3px 8px;border-radius:4px;background:#e8f2ff;color:#245887">|=&gt; passes</span> <span style="margin:0 6px;color:#586469">but nothing was checked</span><br><span style="display:inline-block;margin-top:6px;padding:3px 8px;border-radius:4px;background:#fde8e8;color:#9a2d2d">#-# / #=# fail</span> <span style="margin-left:6px;color:#586469">because the burst must actually match</span></blockquote>
+
 <h2>The pattern</h2>
 <pre>sequence &lt;event&gt;;
   &lt;start&gt; ##1 &lt;step&gt; ##1 &lt;step&gt;;
@@ -42,4 +44,4 @@ endproperty</pre>
 <p>Open <code>followed_by.sv</code>. Define a three-event <code>burst_read</code> sequence, then complete the overlapped <code>#-#</code>, non-overlapped <code>#=#</code>, and ordinary <code>|=&gt;</code> properties. Click <strong>Verify</strong>: bounded model checking explores all input traces and shows a counterexample for the completed syntax exercise. Compare which operator starts <code>data_ok</code> on the sequence endpoint and which one starts a cycle later.</p>
 
 <h2>Testbench</h2>
-<p>The companion <code>tb.sv</code> is a small timing sketch for the cycle vocabulary. BMC deliberately ignores testbench stimulus and supplies free inputs, so the verification result comes from the formal counterexample rather than a single simulation trace.</p>
+<p>The companion <code>tb.sv</code> drives one burst and labels the sequence endpoint and the following sample. The starter ends with a TODO marker; the supplied solution bench prints <code>PASS</code> after checking both timing points. BMC deliberately ignores testbench stimulus and supplies free inputs, so the formal result still comes from a counterexample rather than this single simulation trace.</p>

@@ -2,6 +2,11 @@
 
 Svelte-based interactive tutorial shell for SystemVerilog, SVA, and UVM.
 
+The [curriculum tracker](CURRICULUM.md) is the source of truth for lesson order,
+prerequisites, and quality scores. Completed lessons include starter and solution
+source plus a runnable testbench with labelled PASS/FAIL output where the lesson
+can be checked in simulation.
+
 ## Reproducible Requirements
 
 Pinned versions are centralized in `scripts/toolchain.lock.sh`:

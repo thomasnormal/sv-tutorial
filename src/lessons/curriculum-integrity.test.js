@@ -10,7 +10,6 @@ const removedStatusLessons = [
   'sv/nested-child-input',
   'sv/sequential-udp-init',
   'sv/compile-mode-status',
-  'sv/clocking-sampler-retention',
   'sv/protected-envelope-boundary',
   'sv/virtual-provider-closure',
   'sv/wide-readmem',

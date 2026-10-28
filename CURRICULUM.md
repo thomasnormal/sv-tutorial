@@ -70,7 +70,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 ### Chapter: State Machines
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
-| `sv/enums` | typedef enum | ✅ | 24/27 ⚠️2,9 | `sv/always-ff`, `sv/always-comb` | `typedef enum`, named constants, enum-typed ports, enum in `case` |
+| `sv/enums` | typedef enum | ✅ | 27/27 | `sv/always-ff`, `sv/always-comb` | `typedef enum`, named constants, enum-typed ports, enum in `case` |
 | `sv/mealy-fsm` | Mealy FSM | ✅ | 25/27 ⚠️1 | `sv/enums` | Mealy output depends on current input, single-always style |
 
 > Moore-only leaves students unable to recognise the more common Mealy

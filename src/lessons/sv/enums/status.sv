@@ -10,7 +10,7 @@ module ctrl_display (
     reading = 1'b0;
     writing = 1'b0;
     case (state)
-      // TODO: add branches that set reading=1 or writing=1 using enum names
+      // TODO: add named IDLE, CMD, READ, and WRITE branches
       default: ;
     endcase
   end

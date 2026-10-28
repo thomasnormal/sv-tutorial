@@ -1,10 +1,25 @@
               <p>An <strong><dfn data-card="An enum declares a set of named integral constants and can define a strongly typed enum type. Unassigned names receive consecutive values; you can also assign explicit values. An explicit base type sets the underlying integral type and width, while any synthesis encoding is a tool choice rather than SystemVerilog language semantics (IEEE 1800-2023 §6.19).">enum</dfn></strong> gives meaningful names to a set of integer constants. For a memory controller, the states are naturally expressed as an enum rather than raw bit-vectors:</p>
               <pre>typedef enum logic [1:0] { IDLE, CMD, READ, WRITE } ctrl_state_t;</pre>
               <p>The compiler assigns <code>IDLE=0</code>, <code>CMD=1</code>, <code>READ=2</code>, <code>WRITE=3</code> automatically. Once defined, you use the type just like any other port type and use the constant names directly in <code>case</code> branches — no raw numbers needed.</p>
+              <svg width="430" height="105" viewBox="0 0 430 105" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:10px auto">
+                <rect x="14" y="25" width="84" height="42" rx="5" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+                <text x="56" y="43" text-anchor="middle" fill="#9a5a18" font-weight="bold">2'b</text>
+                <text x="56" y="58" text-anchor="middle" fill="#586469">raw bits</text>
+                <line x1="104" y1="46" x2="143" y2="46" stroke="#586469"/>
+                <rect x="147" y="12" width="118" height="68" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+                <text x="206" y="33" text-anchor="middle" fill="#0d6f72" font-weight="bold">ctrl_state_t</text>
+                <text x="206" y="51" text-anchor="middle" fill="#586469">00 IDLE · 01 CMD</text>
+                <text x="206" y="67" text-anchor="middle" fill="#586469">10 READ · 11 WRITE</text>
+                <line x1="271" y1="46" x2="310" y2="46" stroke="#586469"/>
+                <rect x="314" y="25" width="102" height="42" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+                <text x="365" y="43" text-anchor="middle" fill="#0d6f72" font-weight="bold">case</text>
+                <text x="365" y="58" text-anchor="middle" fill="#586469">named outputs</text>
+                <text x="215" y="98" text-anchor="middle" fill="#0d6f72" font-weight="bold">names carry intent; bits carry encoding</text>
+              </svg>
               <p>Open <code>status.sv</code>. There are three things to do:</p>
               <ol>
                 <li>Add the <code><dfn data-card="typedef creates a type alias — a new name for an existing type. typedef enum {...} name_t lets you use the type name directly in port declarations and variables instead of repeating the full enum syntax. The _t suffix is a convention for type names. typedef is purely a compile-time construct with no hardware cost.">typedef</dfn> enum</code> declaration above the module</li>
                 <li>Change the existing <code>state</code> port from <code>logic [1:0]</code> to <code>ctrl_state_t</code> — do not add a separate <code>state_bits</code> port</li>
-                <li>Update the <code>case</code> branches to match on <code>READ</code> and <code>WRITE</code> by name</li>
+                <li>Give all four enum names their own <code>case</code> branches: <code>IDLE</code> and <code>CMD</code> leave both outputs low, while <code>READ</code> and <code>WRITE</code> assert their matching output</li>
               </ol>
               <blockquote><p>In the next lesson we'll build the full memory access controller FSM that transitions between these states. The enum you define here becomes the state register type.</p></blockquote>

@@ -9,6 +9,8 @@ module ctrl_display (
     reading = 1'b0;
     writing = 1'b0;
     case (state)
+      IDLE:   ;
+      CMD:    ;
       READ:  reading = 1'b1;
       WRITE: writing = 1'b1;
       default: ;

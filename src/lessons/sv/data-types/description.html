@@ -50,4 +50,4 @@ logic [7:0] x [4]  // unpacked array: x[0] is 8 bits (element-select)</pre>
   <li><code>data</code> is <code>bit [7:0]</code> — 2-state, silently drops <code>X</code> to <code>0</code>. Change to <code>logic [7:0]</code>.</li>
   <li><code>mem</code> is <code>logic [7:0] mem</code> — a scalar; <code>mem[0]</code> is just bit 0. Add <code>[4]</code> after <code>mem</code> to make it an unpacked array of four bytes.</li>
 </ul>
-<p>Run before and after — three FAIL lines should become three OK lines, then <code>PASS</code>.</p>
+<p>Run before and after — three FAIL lines should become three OK lines, then the starter-visible <code>tb.sv</code> reports <code>PASS</code> only when all checks succeed.</p>

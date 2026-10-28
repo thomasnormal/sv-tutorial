@@ -5,7 +5,7 @@ export default {
   // ── SystemVerilog Basics ───────────────────────────────────────────────────
   'sv/welcome':              { title: 'Welcome',                                      focus: '/src/top.sv',          top: 'tb' },
   'sv/modules-and-ports':    { title: 'Modules and Ports',                            focus: '/src/adder.sv' },
-  'sv/data-types':           { title: 'Data Types',                                   focus: '/src/data_types.sv',  top: 'top' },
+  'sv/data-types':           { title: 'Data Types',                                   focus: '/src/data_types.sv',  top: 'tb' },
   'sv/always-comb':          { title: 'always_comb and case',                         focus: '/src/mux.sv' },
   'sv/priority-enc':         { title: 'Priority Encoder',                             focus: '/src/priority_enc.sv', top: 'tb' },
   'sv/assign-operators':     { title: 'Operators & Arithmetic',                      focus: '/src/operator_lab.sv', top: 'tb' },

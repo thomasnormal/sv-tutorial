@@ -1,4 +1,4 @@
-module top;
+module top(output logic passed);
   int         count;      // 2-state signed 32-bit — for testbench counters and integers
   logic [7:0] data;       // 4-state 8-bit — RTL signals that must propagate X
   logic [7:0] mem [4];    // unpacked array of 4 bytes — element [i] is 8 bits wide
@@ -6,6 +6,7 @@ module top;
   int fail = 0;
 
   initial begin
+    passed = 1'b0;
     // A testbench counter must hold negative values
     count = -100;
     if (count < 0) $display("count = %0d  OK", count);
@@ -31,7 +32,7 @@ module top;
       fail++;
     end
 
-    if (fail == 0) $display("PASS");
-    $finish;
+    if (fail == 0) $display("type checks complete");
+    passed = (fail == 0);
   end
 endmodule

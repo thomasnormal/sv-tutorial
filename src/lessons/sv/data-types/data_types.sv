@@ -1,4 +1,4 @@
-module top;
+module top(output logic passed);
   // TODO: change to int (2-state signed 32-bit — used for loop counters in testbenches)
   bit [31:0] count;
 
@@ -12,6 +12,7 @@ module top;
   int fail = 0;
 
   initial begin
+    passed = 1'b0;
     // A testbench counter must hold negative values
     count = -100;
     if (count < 0) $display("count = %0d  OK", count);
@@ -37,7 +38,7 @@ module top;
       fail++;
     end
 
-    if (fail == 0) $display("PASS");
-    $finish;
+    if (fail == 0) $display("type checks complete");
+    passed = (fail == 0);
   end
 endmodule

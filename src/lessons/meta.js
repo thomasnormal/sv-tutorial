@@ -44,7 +44,7 @@ export default {
   'sva/req-ack':             { title: 'Request / Acknowledge',                        focus: '/src/req_ack.sv',         runner: 'both', bmcExpected: 'counterexample' },
   'sva/consecutive-rep':     { title: 'Consecutive Repetition [*m]',                  focus: '/src/hold_check.sv',      runner: 'both', bmcExpected: 'counterexample' },
   'sva/nonconsec-rep':       { title: 'Goto Repetition [->m]',                        focus: '/src/multi_ack.sv',       runner: 'both', bmcExpected: 'counterexample' },
-  'sva/nonconsec-eq':        { title: 'Non-Consecutive Equal Repetition [=m]',        focus: '/src/multi_ack2.sv',      runner: 'bmc',  bmcExpected: 'counterexample' },
+  'sva/nonconsec-eq':        { title: 'Non-Consecutive Equal Repetition [=m]',        focus: '/src/multi_ack2.sv',      runner: 'both', bmcExpected: 'counterexample' },
   'sva/throughout':          { title: 'throughout — Stability During a Sequence',     focus: '/src/spi_check.sv',       runner: 'bmc',  bmcExpected: 'counterexample' },
   'sva/sequence-ops':        { title: 'Sequence Composition: intersect, within, and, or', focus: '/src/bus_check.sv', runner: 'bmc', bmcExpected: 'counterexample' },
   'sva/seq-args':            { title: 'Sequence Formal Arguments',                         focus: '/src/sram_check.sv',  runner: 'bmc', bmcExpected: 'proved' },

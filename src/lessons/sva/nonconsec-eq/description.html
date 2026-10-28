@@ -32,5 +32,6 @@
   <text x="332" y="180" text-anchor="middle" fill="#cc5f2d" font-size="11">gap allowed</text>
 </svg>
 <p>Open <code>multi_ack2.sv</code>. The spec is: after <code>start</code>, <code>ack</code> must pulse exactly 3 times, and then <code>done</code> must go high at some point afterwards — but not necessarily on the very next cycle.</p>
-<p>Complete the property using <code>[=3]</code> and an unbounded delay to <code>done</code>.</p>
+<p>Complete the named <code>ack_burst</code> sequence with <code>ack[=3]</code>, chain an unbounded delay to <code>done</code>, and add the assertion. The starter includes <code>tb.sv</code> with three separated pulses and a deliberately late completion; Run it before solving to see why the endpoint stays open, then rerun the solved trace for <code>PASS</code>. Verify searches for a missing pulse or a completion that never arrives.</p>
+<p>This matters in real event-driven protocols such as DMA descriptors and interrupt aggregation: a fixed number of events may be required while downstream work takes a variable amount of time. The surprise is that <code>[=3]</code> keeps the sequence alive after the third match, while <code>[->3]</code> ends at that match.</p>
 <blockquote><p>Use <code>[=m]</code> when the protocol says "m pulses must occur before completion" but the completion signal has variable latency. Use <code>[->m]</code> when completion is defined as arriving one cycle after the final pulse.</p></blockquote>

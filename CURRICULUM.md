@@ -126,7 +126,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 |---|---|---|---|---|---|
 | `sva/consecutive-rep` | Consecutive Repetition [*m] | ✅ | 27/27 | `sva/clock-delay` | `[*m]`, `[*m:n]`, consecutive cycle repetition |
 | `sva/nonconsec-rep` | Goto Repetition [->m] | ✅ | 27/27 | `sva/consecutive-rep` | `[->m]`, goto (non-consecutive) repetition |
-| `sva/nonconsec-eq` | Non-Consecutive Equal Repetition [=m] | ✅ | 22/27 ⚠️2,5,7,8 | `sva/nonconsec-rep` | `[=m]`, equality across non-consecutive occurrences |
+| `sva/nonconsec-eq` | Non-Consecutive Equal Repetition [=m] | ✅ | 27/27 | `sva/nonconsec-rep` | `[=m]`, equality across non-consecutive occurrences |
 
 ### Chapter: Sequence Operators
 | Slug | Title | Status | Score | Prereqs | Teaches |

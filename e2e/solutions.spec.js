@@ -122,6 +122,7 @@ const LESSONS = [
   { chapter: 'Advanced Properties',     title: '.triggered — Sequence Endpoint Detection',      runner: 'bmc' },
   { chapter: 'Advanced Properties',     title: 'The checker Construct',                         runner: 'bmc' },
   { chapter: 'Advanced Properties',     title: 'Recursive Properties',                          runner: 'bmc' },
+  { chapter: 'Advanced Properties',     title: 'bind — Non-Invasive Assertion Attachment',      runner: null },
   { chapter: 'Formal Verification',     title: 'assume property',                               runner: 'both' },
   { chapter: 'Formal Verification',     title: 'always and s_eventually',                       runner: 'bmc' },
   { chapter: 'Formal Verification',     title: 'until and s_until',                             runner: 'bmc' },

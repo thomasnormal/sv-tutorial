@@ -1,0 +1,37 @@
+<p>Assertions are most useful when they stay beside the design they check without becoming part of the design's source. A <code>bind</code> statement attaches a checker to an existing module from outside that module, so the same counter RTL can be reused in simulation, synthesis, and verification.</p>
+
+<h2>The pattern</h2>
+<pre>module &lt;checker&gt;(
+  input logic clk,
+  input logic &lt;signals&gt;
+);
+  // properties and assertions
+endmodule
+
+bind &lt;target_module&gt; &lt;checker&gt; &lt;instance&gt; (
+  .clk(clk), .&lt;signal&gt;(&lt;signal&gt;)
+);</pre>
+<p>The checker declares ports for the signals it observes. The bind names the target module, creates one checker instance, and connects those ports to signals in every target instance. The target module stays unchanged.</p>
+
+<svg width="450" height="175" viewBox="0 0 450 175" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <defs><marker id="bind-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#586469"/></marker></defs>
+  <text x="225" y="17" text-anchor="middle" fill="#0d6f72" font-weight="bold">bind adds a verification view beside RTL</text>
+  <rect x="22" y="42" width="156" height="78" rx="6" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="100" y="68" text-anchor="middle" fill="#0d6f72" font-weight="bold">counter</text>
+  <text x="100" y="88" text-anchor="middle" fill="#586469">clk, rst_n, en</text>
+  <text x="100" y="105" text-anchor="middle" fill="#586469">count</text>
+  <rect x="272" y="42" width="156" height="78" rx="6" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+  <text x="350" y="68" text-anchor="middle" fill="#9a5a18" font-weight="bold">counter_checker</text>
+  <text x="350" y="88" text-anchor="middle" fill="#586469">assert count_step</text>
+  <text x="350" y="105" text-anchor="middle" fill="#586469">bound instance</text>
+  <line x1="180" y1="66" x2="269" y2="66" stroke="#586469" stroke-width="1.5" marker-end="url(#bind-arrow)"/>
+  <line x1="180" y1="96" x2="269" y2="96" stroke="#586469" stroke-width="1.5" marker-end="url(#bind-arrow)"/>
+  <text x="225" y="57" text-anchor="middle" fill="#586469">bind</text>
+  <text x="225" y="158" text-anchor="middle" fill="#0d6f72" font-weight="bold">the counter source never mentions its checker</text>
+</svg>
+
+<h2>Exercise</h2>
+<p>Open <code>counter_check.sv</code>. Complete the property so an enabled counter increments on the following clock, then bind <code>counter_checker</code> to <code>counter</code> with named port connections. The supplied <code>counter.sv</code> is the same interface used earlier; leave it untouched. Run the testbench to see the counter count, hold, and reset while the bound assertion observes it from outside.</p>
+
+<h2>Testbench</h2>
+<p>The testbench drives the target counter through three phases and prints the observed values. The final <code>PASS</code> is printed only when the counter behavior is correct; the bound assertion is an additional check attached without changing the target module.</p>

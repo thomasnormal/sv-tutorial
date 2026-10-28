@@ -168,6 +168,11 @@
       "slug": "sva/followed-by",
       "runner": "bmc",
       "runs": [{"mode": "browser-verify", "exit": 1, "result": "BLOCKED", "log": "followed-by-browser.log", "note": "The focused browser lesson test loaded the route and solution, then failed at the shared missing static/mox/mox-verilog.js runtime asset; no bounded verification output was available."}]
+    },
+    {
+      "slug": "sva/bind",
+      "runner": "sim",
+      "runs": [{"mode": "browser-run", "exit": 1, "result": "BLOCKED", "log": "bind-browser.log", "note": "The focused browser lesson test loaded the route and solution, then failed at the shared missing static/mox/mox-verilog.js runtime asset; no simulator output was available."}]
     }
   ]
 }

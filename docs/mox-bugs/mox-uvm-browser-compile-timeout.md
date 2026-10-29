@@ -180,3 +180,10 @@ The third poll after reopening again found the exact packet live with
 wrapper/build processes still active. The permitted UVM campaign has therefore
 made no artifact or runtime progress across three verified waits; the lane
 remains blocked until it completes or an upstream Mox fix is supplied.
+
+After the goal was reopened once more, the same permitted packet was polled
+again. It still had no `terminal.json` or files newer than the initial
+configure/build records, while its wrapper and `slot-run.sh` build processes
+remained live after roughly 1 hour 47 minutes. The coordinator's dispatcher
+diagnosis remains external to this lane; no duplicate browser/compiler run was
+started and no new Mox artifact was available.

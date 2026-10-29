@@ -258,6 +258,12 @@ unchanged build records, and the same wrapper/build processes active. Mox
 waits in this cycle have now completed without a compiler artifact or runtime
 result.
 
+On the third audit turn after the terminal packet, no replacement UVM packet,
+ticket file, build output, or new WASM artifact appeared. The dispatcher line
+49 remains unchanged with FIFO ticket creation commented out, and the
+preserved packet remains the only UVM campaign. The same dispatcher starvation
+condition therefore persists independently of the earlier Mox compile stall.
+
 On the second audit turn after that terminal failure, no replacement UVM
 packet or artifact appeared. The coordinator dispatcher still has ticket
 creation commented on line 49, `/var/tmp/thomas-ahle/fleet2/tmp/slot-tickets`

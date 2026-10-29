@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
+    "prebuild": "svelte-kit sync",
     "build": "vite build && node -e \"require('fs').copyFileSync('build/404.html','build/index.html')\"",
     "preview": "vite preview --outDir build",
     "check:req": "./scripts/check-requirements.sh",

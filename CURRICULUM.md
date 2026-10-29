@@ -64,7 +64,7 @@ curriculum review before implementation.
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
 | `sv/packed-structs` | Packed Structs | ✅ | 27/27 | `sv/parameters`, `sv/always-ff` | `struct`, `packed`, `typedef`, `package`, bit-field layout, struct literal |
-| `sv/typedef` | typedef and type aliases | ✅ | 26/27 | `sv/packed-structs` | standalone `typedef`, package aliases, abstract type reuse |
+| `sv/typedef` | typedef and type aliases | ✅ | 27/27 | `sv/packed-structs` | standalone `typedef`, package aliases, abstract type reuse |
 | `sv/arrays-static` | Static Arrays (packed & unpacked) | ✅ | 27/27 | `sv/always-ff`, `sv/packed-structs` | packed vs unpacked, multi-dimensional arrays, `$size` (with `$dimensions` as related reading) |
 
 > Packed arrays underpin multi-bit signals.

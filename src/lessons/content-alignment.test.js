@@ -99,6 +99,18 @@ describe('browser-audit lesson alignment', () => {
     expect(starter).toContain('matching generate-for');
   });
 
+  it('keeps the typedef exercise aligned with its shared aliases', () => {
+    const description = read('sv/typedef/description.html');
+    const starter = read('sv/typedef/typedef_lab.sv');
+    expect(description).toContain('typedef aliases');
+    expect(description).toContain('one alias keeps width and intent together');
+    expect(description).toContain('shared type names');
+    expect(starter).toContain('aliases are ready to use');
+    expect(starter).toContain('sum, result, selected lane, and lane_copy');
+    expect(starter).toContain('typedef logic [7:0] data_t;');
+    expect(starter).toContain('typedef logic [1:0] lane_t;');
+  });
+
   it('keeps UVM coverage starters syntactically valid', () => {
     expect(read('uvm/covergroup/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);
     expect(read('uvm/cross-coverage/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);

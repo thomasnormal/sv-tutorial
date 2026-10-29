@@ -224,6 +224,7 @@ curriculum review before implementation.
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
 | `uvm/covergroup` | Functional Coverage | ✅ | 24/27 | `uvm/env` | `uvm_subscriber`, covergroup and coverpoint bins, analysis-port sampling, `get_coverage()` |
+| `uvm/cross-coverage` | Cross Coverage | ✅ | 24/27 | `uvm/covergroup` | `cross`, 2D address-operation bins, `binsof`, `intersect`, `ignore_bins` for reserved combinations |
 
 ---
 

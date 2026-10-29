@@ -78,6 +78,16 @@ describe('browser-audit lesson alignment', () => {
     expect(starter).toContain('always_ff @(posedge clk)');
   });
 
+  it('keeps the shift-register exercise aligned with its concatenation behavior', () => {
+    const description = read('sv/shift-reg/description.html');
+    const starter = read('sv/shift-reg/shift_reg.sv');
+    expect(description).toContain('vector concatenation');
+    expect(description).toContain('{&lt;state&gt;[N-2:0], &lt;serial_in&gt;}');
+    expect(description).toContain('old <code>q[3]</code> to <code>serial_out</code>');
+    expect(starter).toContain('synchronously clear q and serial_out');
+    expect(starter).toContain('expose the old MSB, then shift serial_in into q[0]');
+  });
+
   it('keeps UVM coverage starters syntactically valid', () => {
     expect(read('uvm/covergroup/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);
     expect(read('uvm/cross-coverage/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);

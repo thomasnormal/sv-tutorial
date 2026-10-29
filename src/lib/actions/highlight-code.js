@@ -51,8 +51,19 @@ function applyTo(el) {
   el.innerHTML = html;
 }
 
+function preparePre(pre) {
+  // Horizontal scrolling must be reachable without a pointer. A group name
+  // gives screen-reader users context for both code examples and diagrams.
+  if (!pre.hasAttribute('tabindex')) pre.setAttribute('tabindex', '0');
+  if (!pre.hasAttribute('role')) pre.setAttribute('role', 'group');
+  if (!pre.hasAttribute('aria-label')) {
+    pre.setAttribute('aria-label', pre.classList.contains('diagram') ? 'Lesson diagram' : 'Code example');
+  }
+}
+
 export function highlightCode(node, _trigger) {
   function apply() {
+    node.querySelectorAll('pre').forEach(preparePre);
     node.querySelectorAll('pre code').forEach(applyTo);
   }
   apply();

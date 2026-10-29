@@ -101,6 +101,11 @@ In `.env` (copy `.env.example`):
   - `npm run setup:pyodide`
 - Keep runtime URLs same-origin (default `/mox/*`, `/z3/*`, `/surfer/*`, `/pyodide/*`) for robust offline behavior.
 
+## Keyboard Controls
+
+- Focus a panel separator and press **Arrow** keys to resize it; hold **Shift** for a larger step.
+- Press **Ctrl+Enter** (or **Cmd+Enter**) to run the current lesson, and **Escape** to close open menus or dialogs.
+
 ## Runtime Notes
 
 - Runtime uses a real 2-stage wasm toolchain by default:

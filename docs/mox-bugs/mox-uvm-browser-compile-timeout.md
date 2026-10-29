@@ -368,3 +368,8 @@ live: its `slot-run.sh` process and FIFO ticket were still present after about
 sealed rows had appeared. This is an active capacity wait under the repaired
 FIFO, distinct from the earlier missing-ticket failure; no UVM browser artifact
 is available to test yet.
+
+At 2026-10-29T16:43Z, the replacement qualification had acquired a build
+slot and advanced to `104/804` compilation steps. Its wrapper, build process,
+and exact source receipt remain live; no terminal qualification result or
+browser/WASM artifact exists yet.

@@ -54,6 +54,20 @@ describe('browser-audit lesson alignment', () => {
     expect(starter).toContain('four branches in descending priority');
   });
 
+  it('keeps the operator exercise aligned with its seven expression outputs', () => {
+    const description = read('sv/assign-operators/description.html');
+    const starter = read('sv/assign-operators/operator_lab.sv');
+    expect(description).toContain('continuous <code>assign</code>');
+    expect(description).toContain('seven outputs');
+    expect(description).toContain('widened operands for <code>full_sum</code>');
+    expect(description).toContain('signed addition for <code>signed_sum</code>');
+    expect(starter).toContain('bitwise, reduction, ternary,');
+    expect(starter).toContain('unsigned-sum, and signed-sum outputs');
+    for (const output of ['bitwise_and', 'bitwise_or', 'any_set', 'chosen', 'wrapped_sum', 'full_sum', 'signed_sum']) {
+      expect(starter).toContain(output);
+    }
+  });
+
   it('keeps UVM coverage starters syntactically valid', () => {
     expect(read('uvm/covergroup/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);
     expect(read('uvm/cross-coverage/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);

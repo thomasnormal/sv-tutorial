@@ -137,6 +137,20 @@ describe('browser-audit lesson alignment', () => {
     expect(top).toContain('run_test("my_test")');
   });
 
+  it('keeps constrained-random work aligned with its three constraint scopes', () => {
+    const description = read('uvm/constrained-random/description.html');
+    const item = read('uvm/constrained-random/mem_item.sv');
+    const test = read('uvm/constrained-random/mem_test.sv');
+    const top = read('uvm/constrained-random/tb_top.sv');
+    expect(description).toContain('three ways to do that');
+    expect(description).toContain('randomize() with { }');
+    expect(description).toContain('constraint_mode(0)');
+    expect(item).toContain('TODO: add a dist weighting');
+    expect(test).toContain('TODO: use randomize() with');
+    expect(test).toContain('TODO: disable the named weighting constraint');
+    expect(top).toContain('get_severity_count(UVM_ERROR) == 0');
+  });
+
   it('keeps UVM coverage starters syntactically valid', () => {
     expect(read('uvm/covergroup/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);
     expect(read('uvm/cross-coverage/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);

@@ -361,3 +361,10 @@ under the repaired dispatcher for exact lane SHA
 is live and building the five requested targets. It has no terminal receipt or
 WASM/browser artifact yet; this lane will consume its result rather than start a
 duplicate campaign.
+
+At 2026-10-29T16:38Z, the replacement qualification remained authoritative and
+live: its `slot-run.sh` process and FIFO ticket were still present after about
+12 minutes, while no build lock had been acquired and no `terminal.json` or
+sealed rows had appeared. This is an active capacity wait under the repaired
+FIFO, distinct from the earlier missing-ticket failure; no UVM browser artifact
+is available to test yet.

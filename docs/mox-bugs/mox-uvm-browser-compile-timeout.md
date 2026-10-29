@@ -342,3 +342,5 @@ unchanged build records, and the same wrapper/build processes active. Mox
 `b90b3a51a68` and the generated WASM artifacts were unchanged. Three verified
 waits in this cycle have now completed without a compiler artifact or runtime
 result.
+
+At 2026-10-29T16:16Z, after the coordinator repaired dispatcher line 51, a fresh poll still found no replacement UVM packet, live UVM build, UVM-specific ticket, build output, or new WASM artifact. The only UVM campaign remains `uvm-demo-20261029T1238Z`, terminal `rc=75` after the former 10,800-second admission wait. The separate UVM lane process is active, so this lane does not start a duplicate campaign; browser UVM execution remains pending its authoritative replacement packet.

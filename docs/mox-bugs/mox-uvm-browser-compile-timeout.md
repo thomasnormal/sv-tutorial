@@ -74,3 +74,22 @@ Error: compile timed out after 180000ms
 This minimal case therefore confirms that the browser-worker timeout is a
 general UVM compilation stall at the current Mox artifacts, rather than a
 failure specific to the published coverage lessons or their source topology.
+
+On the first resumed audit after the goal was reopened, the same command was
+run again against the unchanged artifacts:
+
+```text
+timeout 240 node scripts/repro-uvm-browser-worker-assert.mjs --expect-fail --no-simulate
+```
+
+The worker again entered `createMoxWasmAdapter` compilation and emitted no
+completion payload. The script's browser cleanup remained stuck past its
+180-second compile bound; an outer 240-second watchdog terminated it with:
+
+```text
+page.evaluate: Target page, context or browser has been closed
+```
+
+This is a fresh reproduction of the non-terminating minimal UVM browser
+compile at Mox `b90b3a51a68`; no artifact or source revision changed during
+the audit.

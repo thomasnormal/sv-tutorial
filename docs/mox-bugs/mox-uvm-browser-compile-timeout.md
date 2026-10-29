@@ -147,3 +147,15 @@ REPRO_PORT=43177 timeout 240 node scripts/repro-uvm-browser-worker-assert.mjs --
 It again emitted no completion payload or simulation command and ended with
 the script's bounded `Error: compile timed out after 180000ms` diagnostic. The
 Mox ref, generated artifacts, and source tree remained unchanged.
+
+The third audit of this reopened cycle used port 43178:
+
+```text
+REPRO_PORT=43178 timeout 240 node scripts/repro-uvm-browser-worker-assert.mjs --expect-fail --no-simulate
+```
+
+The worker again produced no completion payload or simulation command. The
+outer watchdog ended the run with `page.evaluate: Target page, context or
+browser has been closed`. This is the third consecutive reproduction in this
+cycle with no Mox or artifact movement, so the UVM browser requirement remains
+blocked on an upstream compiler fix.

@@ -8,6 +8,10 @@
   import { tags } from '@lezer/highlight';
   import { untrack } from 'svelte';
 
+  // Svelte removes client-only $effect bodies from the SSR bundle. Keep these
+  // client runtime imports visible to Rollup's server pass as well.
+  void [basicSetup, EditorState, syntaxHighlighting, linter, lintGutter, setDiagnostics];
+
   // diagnostics: array of { line: number, severity: 'error'|'warning', message: string }
   let { value, onchange, filePath = '', vimMode = false, darkMode = false, diagnostics = [] } = $props();
   let container;

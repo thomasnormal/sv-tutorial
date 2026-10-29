@@ -206,3 +206,9 @@ On the second poll of this reopened cycle, the packet still had no
 `slot-run.sh` build processes remained live after more than 1 hour 48 minutes,
 and the tutorial's locked Mox/WASM state was unchanged. This remains a
 verified wait on the permitted external campaign, not a new browser result.
+
+On the second poll of this reopened cycle, the exact packet still had no
+`terminal.json` or files newer than its initial records. Its wrapper and
+`slot-run.sh` build process remained live beyond two hours, while the packet
+logs and tutorial Mox/WASM state were unchanged. This is another verified wait
+on the permitted external campaign; no duplicate run was started.

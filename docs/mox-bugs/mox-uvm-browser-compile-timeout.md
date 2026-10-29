@@ -44,3 +44,11 @@ failed to legalize operation 'moore.assign'
 It points at the SRAM instance's `rdata` connection in `tb_top.sv`. A
 temporary `always_comb` readback rewrite did not remove the rejection, so the
 lesson-side workaround is not qualified.
+
+The rejection is emitted by Mox
+`lib/Conversion/MooreToCore/MooreToCoreContinuousAssign.cpp` in
+`materializeContinuousAssignEvaluation` (the `source->emitError` at the
+`findUnownedContinuousEvaluationEffect` result). The attached note identifies
+the nested `LLVM::LoadOp`; the ownership walk treats it as an unowned effect
+and refuses to rematerialize the evaluator. This source location is the
+upstream handoff target; the tutorial checkout does not vendor or patch Mox.

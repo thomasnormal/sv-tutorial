@@ -76,7 +76,7 @@ curriculum review before implementation.
 |---|---|---|---|---|---|
 | `sv/interfaces` | Interfaces | ✅ | 27/27 | `sv/modules-and-ports`, `sv/parameters` | `interface`, signal bundling, interface functions (`sprint()`), dot-notation access |
 | `sv/modports` | Modports | ✅ | 27/27 | `sv/interfaces` | `modport` (initiator/target), direction enforcement, `virtual interface` for UVM |
-| `sv/tasks-functions` | Tasks | ✅ | 26/27 | `sv/interfaces`, `sv/parameters` | `task` (automatic, timing-aware), `function` (pure), driving DUT through an interface |
+| `sv/tasks-functions` | Tasks | ✅ | 27/27 | `sv/interfaces`, `sv/parameters` | `task` (automatic, timing-aware), `function` (pure), driving DUT through an interface |
 
 ### Chapter: State Machines
 | Slug | Title | Status | Score | Prereqs | Teaches |

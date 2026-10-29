@@ -93,3 +93,14 @@ page.evaluate: Target page, context or browser has been closed
 This is a fresh reproduction of the non-terminating minimal UVM browser
 compile at Mox `b90b3a51a68`; no artifact or source revision changed during
 the audit.
+
+The second resumed audit repeated the same check on a fresh Vite port:
+
+```text
+REPRO_PORT=43174 timeout 240 node scripts/repro-uvm-browser-worker-assert.mjs --expect-fail --no-simulate
+```
+
+It again reached the browser-worker compile with no completion payload and was
+terminated by the outer watchdog after the script's cleanup failed to return,
+with the identical `page.evaluate: Target page, context or browser has been
+closed` error. The Mox pin, WASM artifacts, and source tree were unchanged.

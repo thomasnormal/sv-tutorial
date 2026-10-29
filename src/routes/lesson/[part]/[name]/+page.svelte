@@ -424,6 +424,16 @@
     window.addEventListener('pointerup', onUp);
   }
 
+  function adjustResize(e, orientation, value, setValue, min, max) {
+    const delta = orientation === 'vertical'
+      ? ({ ArrowLeft: -1, ArrowRight: 1 }[e.key] ?? 0)
+      : ({ ArrowUp: -1, ArrowDown: 1 }[e.key] ?? 0);
+    if (!delta) return;
+    e.preventDefault();
+    const step = e.shiftKey ? 5 : 1;
+    setValue(Math.min(Math.max(value + delta * step, min), max));
+  }
+
   async function runSim(mode = 'sim') {
     if (running || !mox) return;
     running = true;
@@ -638,17 +648,23 @@
   </article>
 
   <!-- Horizontal drag handle — wide only -->
-  <div role="separator" aria-label="Resize panels" aria-orientation="vertical"
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
+  <div role="separator" aria-label="Resize lesson and editor panels" aria-orientation="vertical"
+       aria-valuemin="15" aria-valuemax="75" aria-valuenow={Math.round(hSplit)} tabindex="0"
        class="max-narrow:hidden flex-none w-[0.7rem] flex items-center justify-center cursor-col-resize select-none group"
        style="touch-action:none"
-       onpointerdown={startHResize}>
+       onpointerdown={startHResize}
+       onkeydown={(e) => adjustResize(e, 'vertical', hSplit, value => hSplit = value, 15, 75)}>
     <div class="w-[2px] h-8 rounded-full bg-border group-hover:bg-teal transition-colors"></div>
   </div>
   <!-- Vertical drag handle — narrow only -->
-  <div role="separator" aria-label="Resize panels" aria-orientation="horizontal"
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
+  <div role="separator" aria-label="Resize lesson and editor panels" aria-orientation="horizontal"
+       aria-valuemin="15" aria-valuemax="75" aria-valuenow={Math.round(hSplit)} tabindex="0"
        class="hidden max-narrow:flex flex-none h-[0.7rem] items-center justify-center cursor-row-resize select-none group"
        style="touch-action:none"
-       onpointerdown={startNarrowResize}>
+       onpointerdown={startNarrowResize}
+       onkeydown={(e) => adjustResize(e, 'horizontal', hSplit, value => hSplit = value, 15, 75)}>
     <div class="h-[2px] w-8 rounded-full bg-border group-hover:bg-teal transition-colors"></div>
   </div>
 
@@ -788,10 +804,13 @@
             {@render runButtons()}
           </div>
           <!-- Drag handle -->
-          <div role="separator" aria-orientation="vertical"
+          <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
+          <div role="separator" aria-label="Resize editor files" aria-orientation="vertical"
+               aria-valuemin="20" aria-valuemax="80" aria-valuenow={Math.round(hSplitEditor)} tabindex="0"
                class="flex-none w-3 relative cursor-col-resize select-none group"
                style="touch-action:none; background-color:{$darkMode ? '#1e2422' : '#faf7ef'}"
-               onpointerdown={startEditorHResize}>
+               onpointerdown={startEditorHResize}
+               onkeydown={(e) => adjustResize(e, 'vertical', hSplitEditor, value => hSplitEditor = value, 20, 80)}>
             <div class="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border group-hover:bg-teal transition-colors"></div>
           </div>
           <!-- Right pane -->
@@ -885,10 +904,13 @@
     </div>
 
     <!-- Vertical drag handle -->
-    <div role="separator" aria-label="Resize panels" aria-orientation="horizontal"
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
+    <div role="separator" aria-label="Resize editor and output panels" aria-orientation="horizontal"
+         aria-valuemin="20" aria-valuemax="80" aria-valuenow={Math.round(vSplit)} tabindex="0"
          class="flex-none h-[0.7rem] flex items-center justify-center cursor-row-resize select-none group"
          style="touch-action:none"
-         onpointerdown={startVResize}>
+         onpointerdown={startVResize}
+         onkeydown={(e) => adjustResize(e, 'horizontal', vSplit, value => vSplit = value, 20, 80)}>
       <div class="h-[2px] w-8 rounded-full bg-border group-hover:bg-teal transition-colors"></div>
     </div>
 

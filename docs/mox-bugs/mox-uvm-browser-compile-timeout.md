@@ -271,6 +271,12 @@ out; the preserved UVM packet remains terminal `rc=75`, and no UVM build,
 artifact, or browser result appeared. The tutorial Mox/WASM state remains
 `b90b3a51a68`.
 
+On the third resumed audit turn, coordinator-owned dispatcher line 51 now has
+active FIFO ticket creation (`: > "$_ticket"`), resolving the earlier
+commented-out admission defect. No replacement UVM packet or live UVM build
+has launched yet, and no new WASM artifact exists, so the browser requirement
+remains unverified pending a new campaign under the repaired dispatcher.
+
 After the goal was reopened again, no UVM packet or live UVM build appeared;
 the preserved packet remains terminal `rc=75`, the slot-ticket directory has
 no relevant UVM ticket, and no new WASM artifact was produced. Dispatcher line

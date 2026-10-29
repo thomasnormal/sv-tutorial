@@ -174,3 +174,9 @@ The wrapper and `slot-run.sh` build PIDs remained live, and neither
 `build.log` nor `unit.log` had advanced. The permitted campaign therefore
 remains an in-progress wait; it has not supplied a Mox artifact or browser
 result that could change this blocker.
+
+The third poll after reopening again found the exact packet live with
+`CONFIGURE_RC=0`, no `terminal.json`, no new packet files, and the same
+wrapper/build processes still active. The permitted UVM campaign has therefore
+made no artifact or runtime progress across three verified waits; the lane
+remains blocked until it completes or an upstream Mox fix is supplied.

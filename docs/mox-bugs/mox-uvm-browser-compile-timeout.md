@@ -218,3 +218,10 @@ than two hours, with no `terminal.json`, no new packet files, unchanged build
 records, and the same wrapper/build processes active. Mox `b90b3a51a68` and the
 generated WASM artifacts were unchanged. Three verified waits in this cycle
 have now completed without a compiler artifact or runtime result.
+
+After the goal was reopened again, the permitted packet remained live after
+more than 2 hours 17 minutes. It still had no `terminal.json` or files newer
+than the initial configure/build records; its wrapper and `slot-run.sh` build
+processes remained active, and the tutorial Mox/WASM state was unchanged at
+`b90b3a51a68`. This audit records a verified wait and does not duplicate the
+coordinator's campaign.

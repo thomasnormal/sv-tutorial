@@ -220,6 +220,11 @@ curriculum review before implementation.
 | `uvm/monitor` | Monitor and Scoreboard | ✅ | 27/27 | `uvm/constrained-random`, `sv/classes` | passive `uvm_monitor`, `uvm_analysis_port`, `uvm_analysis_imp`, shadow-memory scoreboard |
 | `uvm/env` | Environment and Test | ✅ | 27/27 | `uvm/monitor`, `uvm/driver` | `uvm_env`, top-down `build_phase`, bottom-up `connect_phase`, reusable agent assembly |
 
+### Chapter: Coverage
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `uvm/covergroup` | Functional Coverage | ✅ | 24/27 | `uvm/env` | `uvm_subscriber`, covergroup and coverpoint bins, analysis-port sampling, `get_coverage()` |
+
 ---
 
 ## Diagram opportunities (from MIT 6.111 research)
@@ -241,7 +246,7 @@ Listed by lesson, in priority order:
 
 ## Remaining gaps / priority order
 
-All lessons currently listed in the curriculum table are complete. New lessons
+The prioritized curriculum is complete through the published UVM coverage lesson. New lessons
 should be added to the table before they are scheduled here.
 
 ### TB-focused SV (potential new Part 5)

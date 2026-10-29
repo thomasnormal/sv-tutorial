@@ -107,6 +107,7 @@ export const parts = [
       { title: 'UVM Foundations', lessons: [L('uvm/reporting'), L('uvm/seq-item')] },
       { title: 'Stimulus',       lessons: [L('uvm/sequence'), L('uvm/driver'), L('uvm/constrained-random')] },
       { title: 'Checking',       lessons: [L('uvm/monitor'), L('uvm/env')] },
+      { title: 'Coverage',       lessons: [L('uvm/covergroup')] },
     ],
   },
   {

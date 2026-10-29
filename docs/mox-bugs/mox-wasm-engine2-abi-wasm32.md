@@ -21,3 +21,5 @@ ninja: build stopped: subcommand failed.
 ```
 
 Because this source compile failure prevents generating browser artifacts, the tutorial keeps the previous lock (`MOX_REF_LOCKED=18483f66c8202c5bc4561abddd0f07bbfb54fbd8`, LLVM `aa3d6b37c7945bfb4c261dd994689de2a2de25bf`) and does not sync `static/mox`. Full output is retained at `/var/tmp/thomas-ahle/fleet2/logs/sv-tutorial-build.log`.
+
+On 2026-10-29, a fresh fetch confirmed that Mox `origin/main` is `4db3fa211d27fcbdb50139e8c104b7076f72e2bc`. It contains `92228f2b7b0` but not the follow-up `6b4cf50d1b5` GraphWireKinds fix; the current file still declares `const auto *found = std::find(...)`. The lock therefore remains unchanged until that portability fix lands on main.

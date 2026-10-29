@@ -104,3 +104,16 @@ It again reached the browser-worker compile with no completion payload and was
 terminated by the outer watchdog after the script's cleanup failed to return,
 with the identical `page.evaluate: Target page, context or browser has been
 closed` error. The Mox pin, WASM artifacts, and source tree were unchanged.
+
+The third resumed audit used another fresh port and the same bounded command:
+
+```text
+REPRO_PORT=43175 timeout 240 node scripts/repro-uvm-browser-worker-assert.mjs --expect-fail --no-simulate
+```
+
+It again emitted only the browser-worker startup lines, never returned a
+compile result, and ended under the outer watchdog with
+`page.evaluate: Target page, context or browser has been closed`. This is the
+third consecutive reproduction after the goal was resumed, with no Mox ref,
+artifact, or source change; the lane remains blocked on an upstream Mox UVM
+compile fix.

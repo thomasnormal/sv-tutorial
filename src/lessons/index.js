@@ -105,7 +105,8 @@ export const parts = [
     title: 'Universal Verification Methodology',
     chapters: [
       { title: 'UVM Foundations', lessons: [L('uvm/reporting'), L('uvm/seq-item')] },
-      { title: 'Stimulus',       lessons: [L('uvm/sequence'), L('uvm/driver'), L('uvm/constrained-random'), L('uvm/monitor')] },
+      { title: 'Stimulus',       lessons: [L('uvm/sequence'), L('uvm/driver'), L('uvm/constrained-random')] },
+      { title: 'Checking',       lessons: [L('uvm/monitor'), L('uvm/env')] },
     ],
   },
   {

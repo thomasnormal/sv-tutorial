@@ -1,5 +1,9 @@
+`ifndef SVT_UVM_ENV_MEM_TEST_SV
+`define SVT_UVM_ENV_MEM_TEST_SV
+
 import uvm_pkg::*;
 `include "uvm_macros.svh"
+`include "mem_env.sv"
 
 class mem_test extends uvm_test;
   `uvm_component_utils(mem_test)
@@ -13,13 +17,15 @@ class mem_test extends uvm_test;
     mem_seq seq;
     phase.raise_objection(this);
     if (env.agent == null || env.scbd == null)
-      $fatal(0, "env not built — implement build_phase in mem_env.sv");
+      $fatal(0, "env not built - implement build_phase in mem_env.sv");
     repeat (3) begin
       seq = mem_seq::type_id::create("seq");
       seq.start(env.agent.seqr);
     end
     if (env.scbd.pass_count + env.scbd.fail_count == 0)
-      $fatal(0, "No transactions processed — implement connect_phase in mem_env.sv");
+      $fatal(0, "No transactions processed - implement connect_phase in mem_env.sv");
     phase.drop_objection(this);
   endtask
 endclass
+
+`endif

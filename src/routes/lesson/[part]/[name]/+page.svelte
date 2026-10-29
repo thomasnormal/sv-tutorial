@@ -40,6 +40,7 @@
   let copyEnabled = $state(false);
   let showCopyModal = $state(false);
   let copyEnableChecked = $state(false);
+  let copyModalEl = $state(null);
   let didAnnounceTrimThisRun = $state(false);
   let mox = $state(null);
   let glossaryCard = $state(null); // { body, top, left }
@@ -215,6 +216,12 @@
     if (completed && hasSolution) {
       completedSlugs.update(s => new Set([...s, lesson.slug]));
     }
+  });
+
+  // Move focus into the copy warning when it opens so keyboard users do not
+  // continue typing in the editor behind the modal.
+  $effect(() => {
+    if (showCopyModal && copyModalEl) copyModalEl.focus();
   });
 
   // Auto-switch away from waves tab if no waveform
@@ -662,8 +669,12 @@
           </svg>
         </button>
         {#if showOptions}
-          <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-          <div class="fixed inset-0 z-40" onclick={() => (showOptions = false)}></div>
+          <button
+            type="button"
+            class="fixed inset-0 z-40 cursor-default border-0 bg-transparent p-0"
+            aria-label="Close editor options"
+            onclick={() => (showOptions = false)}
+          ></button>
           <div class="absolute right-0 top-[calc(100%+0.4rem)] z-50 bg-surface border border-border rounded-[12px] shadow-app p-2 flex flex-col min-w-[160px]">
             {#if hasSolution}
               <button
@@ -973,10 +984,15 @@
 {/if}
 
 {#if showCopyModal}
-  <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-       onclick={(e) => e.target === e.currentTarget && onCopyModalOk()}>
-    <div role="dialog" aria-modal="true" aria-labelledby="copy-modal-title"
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <button
+      type="button"
+      class="absolute inset-0 cursor-default border-0 bg-transparent p-0"
+      aria-label="Close copy warning"
+      onclick={onCopyModalOk}
+    ></button>
+    <div bind:this={copyModalEl} role="dialog" aria-modal="true" aria-labelledby="copy-modal-title"
+         tabindex="-1"
          onkeydown={onCopyModalKeydown}
          class="bg-surface rounded-[14px] shadow-xl p-8 max-w-[440px] mx-4 flex flex-col gap-4 border border-border">
       <h2 id="copy-modal-title" class="m-0 text-[1.2rem] font-semibold leading-snug">Copy is currently disabled!</h2>
@@ -989,7 +1005,6 @@
         enable copy for the duration of this session
       </label>
       <button
-        autofocus
         onclick={onCopyModalOk}
         class="self-start px-6 py-[0.45rem] bg-teal text-white rounded-[8px] font-medium text-[0.9rem] hover:opacity-90 transition-opacity"
       >OK</button>

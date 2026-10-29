@@ -195,6 +195,13 @@ were alive. The tutorial Mox ref and generated WASM artifacts remained at
 `b90b3a51a68`. This audit therefore records a verified wait and does not
 duplicate the coordinator's campaign.
 
+After the goal was reopened again, the permitted UVM packet remained live
+after about 2 hours 32 minutes. It still had no `terminal.json`, no files
+newer than the initial configure/build records, and no log progress; its
+wrapper and build processes remained active. The local Mox ref and generated
+WASM artifacts were unchanged at `b90b3a51a68`. This audit records a verified
+wait and does not duplicate the coordinator's campaign.
+
 The third poll of this reopened cycle again found the packet live with no
 `terminal.json` or files newer than its initial records. The wrapper and
 `slot-run.sh` build processes remained live at nearly 1 hour 50 minutes, and

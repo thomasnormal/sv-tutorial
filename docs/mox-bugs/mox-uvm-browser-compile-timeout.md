@@ -378,3 +378,7 @@ At 2026-10-29T16:45Z, the same replacement qualification advanced to
 `143/804` compilation steps. The build remains live on the exact candidate; no
 terminal receipt, sealed result, tutorial WASM artifact, or browser execution
 has been produced.
+
+At 2026-10-29T16:47Z, the replacement qualification reached `216/804`
+compilation steps. The exact-candidate build remains active and has not emitted a
+terminal receipt or browser/WASM artifact.

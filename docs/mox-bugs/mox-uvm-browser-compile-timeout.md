@@ -258,6 +258,12 @@ unchanged build records, and the same wrapper/build processes active. Mox
 waits in this cycle have now completed without a compiler artifact or runtime
 result.
 
+After the goal was reopened again, the preserved packet remained terminal with
+`rc=75`; no replacement UVM packet, live UVM build process, FIFO ticket, or
+new artifact appeared. Dispatcher line 49 still comments out ticket creation,
+and the tutorial remains on Mox `b90b3a51a68` with the prior WASM files. This
+is the first verified turn of another dispatcher-blocker audit.
+
 On the third audit turn after the terminal packet, no replacement UVM packet,
 ticket file, build output, or new WASM artifact appeared. The dispatcher line
 49 remains unchanged with FIFO ticket creation commented out, and the

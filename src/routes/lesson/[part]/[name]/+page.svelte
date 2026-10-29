@@ -434,6 +434,20 @@
     setValue(Math.min(Math.max(value + delta * step, min), max));
   }
 
+  function onRuntimeTabKeydown(e) {
+    const tabs = ['logs', 'waves'];
+    const current = tabs.indexOf(activeRuntimeTab);
+    let next = current;
+    if (e.key === 'ArrowRight') next = (current + 1) % tabs.length;
+    else if (e.key === 'ArrowLeft') next = (current - 1 + tabs.length) % tabs.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = tabs.length - 1;
+    else return;
+    e.preventDefault();
+    activeRuntimeTab = tabs[next];
+    document.getElementById(`runtime-tab-${tabs[next]}`)?.focus();
+  }
+
   async function runSim(mode = 'sim') {
     if (running || !mox) return;
     running = true;
@@ -923,12 +937,16 @@
         <div class="flex items-center gap-[0.4rem] px-[0.5rem] py-[0.35rem]">
           <div role="tablist" aria-label="Runtime output" class="flex gap-[0.35rem]">
             <button id="runtime-tab-logs" role="tab" aria-controls="runtime-panel-logs" aria-selected={activeRuntimeTab === 'logs'}
+              tabindex={activeRuntimeTab === 'logs' ? 0 : -1}
               onclick={() => (activeRuntimeTab = 'logs')}
+              onkeydown={onRuntimeTabKeydown}
               data-testid="runtime-tab-logs"
               class="inline-flex items-center text-[0.8rem] rounded-[10px] border px-2 py-1 whitespace-nowrap transition-colors {activeRuntimeTab === 'logs' ? 'border-teal text-teal bg-tab-selected-bg' : 'border-border bg-surface-2'}"
             >Logs</button>
             <button id="runtime-tab-waves" role="tab" aria-controls="runtime-panel-waves" aria-selected={activeRuntimeTab === 'waves'}
+              tabindex={activeRuntimeTab === 'waves' ? 0 : -1}
               onclick={() => (activeRuntimeTab = 'waves')}
+              onkeydown={onRuntimeTabKeydown}
               data-testid="runtime-tab-waves"
               class="inline-flex items-center text-[0.8rem] rounded-[10px] border px-2 py-1 whitespace-nowrap transition-colors {activeRuntimeTab === 'waves' ? 'border-teal text-teal bg-tab-selected-bg' : 'border-border bg-surface-2'}"
             >Waves</button>

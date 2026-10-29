@@ -23,6 +23,10 @@ describe('lesson panel accessibility contract', () => {
     expect(lessonPage).toContain('role="tablist" aria-label="Runtime output"');
     expect(lessonPage).toContain('id="runtime-tab-logs" role="tab" aria-controls="runtime-panel-logs"');
     expect(lessonPage).toContain('id="runtime-tab-waves" role="tab" aria-controls="runtime-panel-waves"');
+    expect((lessonPage.match(/onkeydown=\{onRuntimeTabKeydown\}/g) ?? []).length).toBe(2);
+    expect((lessonPage.match(/tabindex=\{activeRuntimeTab === '(?:logs|waves)' \? 0 : -1\}/g) ?? []).length).toBe(2);
+    expect(lessonPage).toContain("if (e.key === 'ArrowRight')");
+    expect(lessonPage).toContain("else if (e.key === 'Home') next = 0;");
     expect(lessonPage).toContain('id="runtime-panel-logs"\n        role="tabpanel"\n        aria-labelledby="runtime-tab-logs"');
     expect(lessonPage).toContain('id="runtime-panel-waves"\n          role="tabpanel"\n          aria-labelledby="runtime-tab-waves"');
   });

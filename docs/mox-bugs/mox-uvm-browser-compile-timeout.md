@@ -352,3 +352,12 @@ the captured failure was `page.evaluate: Target page, context or browser has
 been closed`. This is another harness timeout without a completion payload, not
 browser success, and the required UVM browser verification remains pending a
 rebuilt artifact.
+
+At 2026-10-29T16:26Z, the UVM lane launched its first replacement qualification
+under the repaired dispatcher for exact lane SHA
+`3707278175592bff8144674b5440096f31326692` (origin tip
+`5c02176201e8e4e99f92874090b75b6f61302d08`). Packet
+`/scratch/thomas-ahle/tmp/uvmb/qualify-current-37072781755-20261029T1622Z/`
+is live and building the five requested targets. It has no terminal receipt or
+WASM/browser artifact yet; this lane will consume its result rather than start a
+duplicate campaign.

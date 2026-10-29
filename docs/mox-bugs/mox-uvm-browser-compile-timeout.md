@@ -187,3 +187,9 @@ configure/build records, while its wrapper and `slot-run.sh` build processes
 remained live after roughly 1 hour 47 minutes. The coordinator's dispatcher
 diagnosis remains external to this lane; no duplicate browser/compiler run was
 started and no new Mox artifact was available.
+
+On the second poll of this reopened cycle, the packet still had no
+`terminal.json` or files newer than the initial records. Its wrapper and
+`slot-run.sh` build processes remained live after more than 1 hour 48 minutes,
+and the tutorial's locked Mox/WASM state was unchanged. This remains a
+verified wait on the permitted external campaign, not a new browser result.

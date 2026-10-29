@@ -1,4 +1,9 @@
-              <p>The <strong>environment</strong> (<code>uvm_env</code>) assembles every component you've built into one connected testbench. Its reusable shape is:</p>
+              <pre class="diagram">abstract UVM environment
+build_phase (top → down)       connect_phase (bottom → up)
+&lt;env&gt; creates &lt;agent&gt;, &lt;checker&gt;   &lt;producer&gt;.ap ──connect──► &lt;subscriber&gt;.analysis_export
+&lt;agent&gt; creates &lt;driver&gt;, &lt;monitor&gt;   ports meet after every component exists</pre>
+              <p>The <strong>environment</strong> (<code>uvm_env</code>) is the composition root for a testbench. This lesson's one idea is the two-step assembly: first create the hierarchy, then connect the ports. Keeping those steps separate lets the same agent plug into different checkers.</p>
+              <p>Its reusable shape is:</p>
 <pre>class &lt;name&gt; extends uvm_env;
   &lt;agent_type&gt; agent;
   function void build_phase(uvm_phase phase);
@@ -25,7 +30,7 @@ endclass</pre>
   ├─ mem_scoreboard
   └─ mem_coverage
 </pre>
-              <p>The monitor's <code>ap</code> feeds <em>both</em> the scoreboard and the coverage collector — a single <code>connect()</code> call per subscriber, with no changes to the monitor. Open <code>mem_env.sv</code> and complete both phases:</p>
+              <p>In this SRAM environment, the monitor's <code>ap</code> feeds <em>both</em> the scoreboard and the coverage collector. Each subscriber gets one <code>connect()</code> call, with no changes to the monitor. Open <code>mem_env.sv</code> and complete both phases:</p>
               <ul>
                 <li>In <code>build_phase</code>: create <code>agent</code>, <code>scbd</code>, and <code>cov</code> using <code>type_id::create</code></li>
                 <li>In <code>connect_phase</code>: connect the monitor's analysis port to both the scoreboard and coverage exports</li>

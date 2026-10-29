@@ -214,7 +214,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
 | `uvm/monitor` | Monitor and Scoreboard | ✅ | 27/27 | `uvm/constrained-random`, `sv/classes` | passive `uvm_monitor`, `uvm_analysis_port`, `uvm_analysis_imp`, shadow-memory scoreboard |
-| `uvm/env` | Environment and Test | ✅ | 25/27 ⚠️1,9 | `uvm/monitor`, `uvm/driver` | `uvm_env`, top-down `build_phase`, bottom-up `connect_phase`, reusable agent assembly |
+| `uvm/env` | Environment and Test | ✅ | 27/27 | `uvm/monitor`, `uvm/driver` | `uvm_env`, top-down `build_phase`, bottom-up `connect_phase`, reusable agent assembly |
 
 ---
 

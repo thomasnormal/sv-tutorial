@@ -31,3 +31,16 @@ UVM package diagnostics. Removing the optional RAL include from a temporary
 copy of `uvm_pkg.sv` did not change the behavior. The timeout therefore
 predates the three coverage lessons and is not caused by their coverage code,
 root bundling, or the optional register-model sources.
+
+The direct compile's complete diagnostic (once the bounded run was allowed to
+finish) identifies the underlying Mox rejection:
+
+```text
+continuous-evaluator-effect-ownership-not-admitted construct=continuous-assignment clause=10.3
+continuous evaluator cannot rematerialize operation llvm.load
+failed to legalize operation 'moore.assign'
+```
+
+It points at the SRAM instance's `rdata` connection in `tb_top.sv`. A
+temporary `always_comb` readback rewrite did not remove the rejection, so the
+lesson-side workaround is not qualified.

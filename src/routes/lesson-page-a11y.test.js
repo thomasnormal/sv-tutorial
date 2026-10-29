@@ -18,4 +18,12 @@ describe('lesson panel accessibility contract', () => {
     expect(lessonPage).toContain("{ ArrowLeft: -1, ArrowRight: 1 }");
     expect(lessonPage).toContain("{ ArrowUp: -1, ArrowDown: 1 }");
   });
+
+  it('connects runtime tabs to labelled panels', () => {
+    expect(lessonPage).toContain('role="tablist" aria-label="Runtime output"');
+    expect(lessonPage).toContain('id="runtime-tab-logs" role="tab" aria-controls="runtime-panel-logs"');
+    expect(lessonPage).toContain('id="runtime-tab-waves" role="tab" aria-controls="runtime-panel-waves"');
+    expect(lessonPage).toContain('id="runtime-panel-logs"\n        role="tabpanel"\n        aria-labelledby="runtime-tab-logs"');
+    expect(lessonPage).toContain('id="runtime-panel-waves"\n          role="tabpanel"\n          aria-labelledby="runtime-tab-waves"');
+  });
 });

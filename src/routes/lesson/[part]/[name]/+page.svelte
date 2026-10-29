@@ -921,13 +921,13 @@
       <!-- Header: Logs/Waves tab switcher + waveform toolbar -->
       {#if hasWaveform}
         <div class="flex items-center gap-[0.4rem] px-[0.5rem] py-[0.35rem]">
-          <div role="tablist" class="flex gap-[0.35rem]">
-            <button role="tab" aria-selected={activeRuntimeTab === 'logs'}
+          <div role="tablist" aria-label="Runtime output" class="flex gap-[0.35rem]">
+            <button id="runtime-tab-logs" role="tab" aria-controls="runtime-panel-logs" aria-selected={activeRuntimeTab === 'logs'}
               onclick={() => (activeRuntimeTab = 'logs')}
               data-testid="runtime-tab-logs"
               class="inline-flex items-center text-[0.8rem] rounded-[10px] border px-2 py-1 whitespace-nowrap transition-colors {activeRuntimeTab === 'logs' ? 'border-teal text-teal bg-tab-selected-bg' : 'border-border bg-surface-2'}"
             >Logs</button>
-            <button role="tab" aria-selected={activeRuntimeTab === 'waves'}
+            <button id="runtime-tab-waves" role="tab" aria-controls="runtime-panel-waves" aria-selected={activeRuntimeTab === 'waves'}
               onclick={() => (activeRuntimeTab = 'waves')}
               data-testid="runtime-tab-waves"
               class="inline-flex items-center text-[0.8rem] rounded-[10px] border px-2 py-1 whitespace-nowrap transition-colors {activeRuntimeTab === 'waves' ? 'border-teal text-teal bg-tab-selected-bg' : 'border-border bg-surface-2'}"
@@ -952,6 +952,9 @@
 
       <!-- Logs tab content -->
       <div
+        id="runtime-panel-logs"
+        role="tabpanel"
+        aria-labelledby="runtime-tab-logs"
         data-testid="runtime-logs"
         class="m-0 bg-logs-bg text-logs-text p-[0.6rem] overflow-auto font-mono text-[0.78rem]
                {activeRuntimeTab === 'waves' ? 'hidden' : 'flex-1 min-h-0'}"
@@ -981,7 +984,12 @@
 
       <!-- Waves tab content — always mounted so Surfer doesn't reload on tab switch -->
       {#if hasWaveform}
-        <div class="{activeRuntimeTab === 'waves' ? 'flex-1 min-h-0' : 'hidden'}">
+        <div
+          id="runtime-panel-waves"
+          role="tabpanel"
+          aria-labelledby="runtime-tab-waves"
+          class="{activeRuntimeTab === 'waves' ? 'flex-1 min-h-0' : 'hidden'}"
+        >
           <WaveformViewer
             bind:this={waveformRef}
             bind:signalsReady={waveSignalsReady}

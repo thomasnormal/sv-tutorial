@@ -22,3 +22,12 @@ The generated artifacts themselves are healthy: `npm test` passes 27 files and
 91 tests, including the real Mox WASM smoke tests, and `npm run build` passes.
 This is a full-UVM browser compiler-performance/blocker record; it does not
 change the lesson publication or quarantine rules.
+
+On the resumed audit, the same behavior was reproduced with the existing
+`uvm/reporting` lesson, which has only one bundled source root. A direct WASM
+run using native source roots instead of the adapter's bundled single-unit
+root also stalled for the same bounded five-minute run and emitted the same
+UVM package diagnostics. Removing the optional RAL include from a temporary
+copy of `uvm_pkg.sv` did not change the behavior. The timeout therefore
+predates the three coverage lessons and is not caused by their coverage code,
+root bundling, or the optional register-model sources.

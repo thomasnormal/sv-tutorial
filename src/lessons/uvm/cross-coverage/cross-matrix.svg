@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" role="img" aria-labelledby="title desc">
+  <title id="title">Cross coverage address-operation matrix</title>
+  <desc id="desc">A two-column matrix shows read and write coverage for addresses zero through fifteen. Writes at reserved addresses fourteen and fifteen are crossed out and ignored.</desc>
+  <rect width="760" height="300" rx="18" fill="#f8fbff" stroke="#c9dce8" stroke-width="2"/>
+  <g font-family="sans-serif" text-anchor="middle">
+    <text x="120" y="32" font-size="17" font-weight="bold" fill="#24455f">address × operation</text>
+    <rect x="220" y="48" width="180" height="38" rx="8" fill="#dce8ff" stroke="#315b9b" stroke-width="2"/>
+    <rect x="410" y="48" width="180" height="38" rx="8" fill="#d9f2e3" stroke="#26734d" stroke-width="2"/>
+    <text x="310" y="73" font-size="16" font-weight="bold" fill="#244675">read bin</text>
+    <text x="500" y="73" font-size="16" font-weight="bold" fill="#1d573a">write bin</text>
+    <g font-size="13">
+      <rect x="28" y="96" width="162" height="170" rx="10" fill="#fff" stroke="#c9dce8"/>
+      <text x="109" y="118" font-weight="bold" fill="#24455f">addresses</text>
+      <text x="109" y="144" fill="#24455f">0 – 13</text>
+      <text x="109" y="168" fill="#24455f">every read</text>
+      <text x="109" y="190" fill="#24455f">and write</text>
+      <text x="109" y="228" fill="#24455f">14 – 15</text>
+      <text x="109" y="250" fill="#24455f">reserved writes</text>
+      <rect x="220" y="96" width="180" height="110" rx="10" fill="#d9f2e3" stroke="#26734d" stroke-width="2"/>
+      <rect x="410" y="96" width="180" height="110" rx="10" fill="#d9f2e3" stroke="#26734d" stroke-width="2"/>
+      <text x="310" y="143" font-size="18" font-weight="bold" fill="#1d573a">28 required</text>
+      <text x="310" y="168" fill="#1d573a">bins 0–13 × 2 ops</text>
+      <text x="500" y="143" font-size="18" font-weight="bold" fill="#1d573a">required</text>
+      <text x="500" y="168" fill="#1d573a">writes 0–13</text>
+      <rect x="220" y="216" width="180" height="50" rx="10" fill="#dce8ff" stroke="#315b9b" stroke-width="2"/>
+      <rect x="410" y="216" width="180" height="50" rx="10" fill="#ffe4e4" stroke="#a33a3a" stroke-width="2"/>
+      <text x="310" y="247" font-size="17" font-weight="bold" fill="#244675">2 required reads</text>
+      <text x="500" y="247" font-size="17" font-weight="bold" fill="#8f2f2f">ignored writes</text>
+    </g>
+    <path d="M444 226 L556 256 M556 226 L444 256" stroke="#a33a3a" stroke-width="4"/>
+    <text x="650" y="154" font-size="14" fill="#24455f">32 generated</text>
+    <text x="650" y="176" font-size="14" fill="#24455f">− 2 ignored</text>
+    <text x="650" y="198" font-size="14" font-weight="bold" fill="#24455f">= 30 checked</text>
+  </g>
+</svg>

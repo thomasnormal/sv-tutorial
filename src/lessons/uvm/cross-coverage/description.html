@@ -5,6 +5,7 @@
   &lt;pair_bins&gt;: cross &lt;name_a&gt;, &lt;name_b&gt;;
 endgroup</pre>
 <p>Individual coverpoints track signals in isolation. <strong>Cross coverage</strong> tracks <em>combinations</em> — it creates a bin for every pair, proving that every address was both read and written:</p>
+<p><img src="cross-matrix.svg" alt="Cross coverage matrix with read and write bins for addresses zero through fifteen; reserved write cells at addresses fourteen and fifteen are ignored"></p>
 <pre>
   addr \ op  │ read │ write
   ───────────┼──────┼───────

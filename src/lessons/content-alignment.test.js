@@ -20,7 +20,10 @@ describe('browser-audit lesson alignment', () => {
   });
 
   it('keeps the coverage-driven loop visual paired with its explanation', () => {
-    expect(read('uvm/coverage-driven/description.html')).toContain('coverage-loop.svg');
+    const description = read('uvm/coverage-driven/description.html');
+    expect(description).toContain('coverage-loop.svg');
+    expect(description).toContain('raise_objection()');
+    expect(description).toContain('finite number of attempts');
   });
 
   it('keeps the cross-coverage matrix visual paired with its explanation', () => {

@@ -19,6 +19,7 @@ endtask</pre>
 </pre>
 <p>Query progress using <code>get_coverage()</code> on the covergroup object:</p>
 <pre>env.cov.mem_cg.get_coverage()  // returns 0.0 to 100.0</pre>
+<p>The loop condition has two jobs: stop when every required bin is hit, and stop after a finite number of attempts if a bin is unreachable. <code>raise_objection()</code> keeps the UVM test alive while sequences run; <code>drop_objection()</code> releases the phase when the target or guard ends the loop.</p>
 <p>Open <code>mem_test.sv</code>. Replace the single <code>seq.start()</code> call with a <code>while</code> loop that keeps creating and running sequences until <code>mem_cg</code> coverage reaches 100%. Log the current coverage after each sequence run.</p>
 <blockquote><p>Always add a maximum-iteration guard in case a coverage bin is unreachable with the current constraints. If the limit fires, find which bin has zero hits and adjust the constraints or stimulus so that range can be generated.</p></blockquote>
 <hr style="margin: 1em 0;">

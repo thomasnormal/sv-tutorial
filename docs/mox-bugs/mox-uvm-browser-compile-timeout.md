@@ -399,3 +399,5 @@ appeared.
 At 2026-10-29T16:56Z, the replacement qualification reached `454/804`
 compilation steps and remained active. No terminal receipt, sealed result,
 tutorial WASM artifact, or browser result has appeared.
+
+At 2026-10-29T17:03Z, the replacement qualification reached `605/804` compilation steps for exact SHA `3707278175592bff8144674b5440096f31326692`. Its wrapper and build processes remain live; no terminal receipt, sealed rows, rebuilt tutorial WASM artifact, or browser result exists yet.

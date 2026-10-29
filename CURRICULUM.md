@@ -70,7 +70,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 ### Chapter: Interfaces & Procedures
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
-| `sv/interfaces` | Interfaces | ✅ | 25/27 ⚠️2,9 | `sv/modules-and-ports`, `sv/parameters` | `interface`, signal bundling, interface functions (`sprint()`), dot-notation access |
+| `sv/interfaces` | Interfaces | ✅ | 27/27 | `sv/modules-and-ports`, `sv/parameters` | `interface`, signal bundling, interface functions (`sprint()`), dot-notation access |
 | `sv/modports` | Modports | ✅ | 25/27 ⚠️2,9 | `sv/interfaces` | `modport` (initiator/target), direction enforcement, `virtual interface` for UVM |
 | `sv/tasks-functions` | Tasks | ✅ | 26/27 | `sv/interfaces`, `sv/parameters` | `task` (automatic, timing-aware), `function` (pure), driving DUT through an interface |
 

@@ -252,6 +252,13 @@ unchanged build records, and the same wrapper/build processes active. Mox
 waits in this cycle have now completed without a compiler artifact or runtime
 result.
 
+After the goal was reopened again, the permitted packet remained live after
+nearly 2 hours 48 minutes. It still had no `terminal.json`, no files newer
+than the initial configure/build records, and no log progress; its wrapper and
+build processes remained active. The local Mox ref and generated WASM artifacts
+were unchanged at `b90b3a51a68`. This audit records a verified wait and does
+not duplicate the coordinator's campaign.
+
 The third poll of this latest reopened cycle again found the packet live after
 about 2 hours 36 minutes, with no `terminal.json`, no new packet files,
 unchanged build records, and the same wrapper/build processes active. Mox

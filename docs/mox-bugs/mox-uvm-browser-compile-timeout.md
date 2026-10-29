@@ -271,6 +271,13 @@ out; the preserved UVM packet remains terminal `rc=75`, and no UVM build,
 artifact, or browser result appeared. The tutorial Mox/WASM state remains
 `b90b3a51a68`.
 
+After the goal was reopened again, no UVM packet or live UVM build appeared;
+the preserved packet remains terminal `rc=75`, the slot-ticket directory has
+no relevant UVM ticket, and no new WASM artifact was produced. Dispatcher line
+49 remains unchanged with ticket creation commented out, while the tutorial
+stays on Mox `b90b3a51a68`. This is the first verified turn of another
+dispatcher-blocker audit.
+
 On the second audit turn after the terminal packet, the preserved UVM packet
 remained the only campaign and still reported `rc=75`; no replacement packet,
 live UVM build, FIFO ticket, build output, or new WASM artifact appeared. The

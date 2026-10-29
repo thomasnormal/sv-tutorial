@@ -26,7 +26,8 @@ class mem_test extends uvm_test;
     begin
       int boundary_writes = 0;
       repeat (4) begin
-        void'(item.randomize());  // replace with randomize() with { ... }
+        // TODO: add a one-call rule that requires a write at address 0 or 15
+        void'(item.randomize());
         `uvm_info("TEST", item.convert2string(), UVM_LOW)
         if (!(item.addr inside {0, 15}) || item.we !== 1'b1)
           `uvm_error("TEST", $sformatf("FAIL: expected boundary write, got addr=%0d we=%0b", item.addr, item.we))
@@ -40,15 +41,15 @@ class mem_test extends uvm_test;
     end
 
     // ── Scenario 3: constraint_mode off — uniform distribution ────────────────
-    // TODO: call constraint_mode(0) on weighted_c to disable it
+    // The named class rule must be disabled before this sampling loop.
     `uvm_info("TEST", "=== Scenario 3: weighted_c disabled ===", UVM_LOW)
+    // TODO: disable the named weighting constraint before this sampling loop
     begin
       int interior = 0;
       int boundary = 0;
       repeat (160) begin
         void'(item.randomize());
-        if (item.addr inside {[1:14]}) interior++;
-        else boundary++;
+        // TODO: classify each generated address as interior or boundary
       end
       if (interior >= 130)
         `uvm_info("TEST", $sformatf("PASS: %0d/160 items hit interior addresses (%0d boundary)", interior, boundary), UVM_LOW)

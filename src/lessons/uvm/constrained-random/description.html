@@ -3,9 +3,13 @@
               <pre>void'(&lt;item&gt;.randomize() with { &lt;extra_rule&gt;; });
 constraint &lt;name&gt; { &lt;distribution_or_rule&gt;; }
 &lt;item&gt;.&lt;name&gt;.constraint_mode(0);</pre>
-              <pre class="diagram">class rules ────────┐
-inline with { ... } ──┼──► legal values for this call
-mode(0) ──────────────┘    (turns one named rule off)</pre>
+              <pre class="diagram">same solver, three scopes
+
+class rule      ────────┐  every call
+inline with { … } ──────┼─ one call
+constraint_mode(0) ─────┘  until re-enabled
+                         ▼
+                    legal item values</pre>
               <h2>1 — Add a rule for one call</h2>
               <p>An inline <code>with { }</code> block is <strong>AND</strong>-ed with every active class constraint:</p>
               <pre>void'(item.randomize() with { field == value; });</pre>
@@ -18,5 +22,8 @@ mode(0) ──────────────┘    (turns one named rule o
               <p>The <code>:=</code> weight syntax assigns a <em>relative weight</em>. Here boundaries are three times as likely as any interior address.</p>
               <h2>3 — Turning a constraint on or off</h2>
               <p>Call <code>constraint_mode(0)</code> to disable a named constraint for all subsequent calls, or <code>constraint_mode(1)</code> to re-enable it. Scenario 3 samples 160 items and checks that at least 130 land in the 14-value interior. That large sample makes the difference between the weighted and unconstrained distributions visible without relying on one lucky draw.</p>
-              <p>Open <code>mem_test.sv</code>. Scenario 1 is already complete. Fill in Scenarios 2 and 3 using the techniques above.</p>
+              <pre class="diagram">Scenario 1          Scenario 2          Scenario 3
+weighted class      inline boundary    named rule off
+rule active         write for one call uniform spread</pre>
+              <p>Open <code>mem_item.sv</code> and <code>mem_test.sv</code>. Add the class weighting, then complete Scenarios 2 and 3 using the same scope rule at each level.</p>
               <blockquote><p>Use <code>randomize() with { }</code> to add a one-off rule. Use <code>constraint_mode()</code> when a test needs to change a policy across many calls.</p></blockquote>

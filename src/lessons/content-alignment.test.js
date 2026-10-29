@@ -30,6 +30,12 @@ describe('browser-audit lesson alignment', () => {
     expect(read('uvm/cross-coverage/description.html')).toContain('cross-matrix.svg');
   });
 
+  it('keeps the welcome lesson focused on its one generated idea', () => {
+    const description = read('sv/welcome/description.html');
+    expect(description).toContain("Today's one idea is simulation output");
+    expect(description).toContain('supplied scaffolding');
+  });
+
   it('keeps UVM coverage starters syntactically valid', () => {
     expect(read('uvm/covergroup/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);
     expect(read('uvm/cross-coverage/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);

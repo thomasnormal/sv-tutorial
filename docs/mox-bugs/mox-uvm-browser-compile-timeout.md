@@ -405,3 +405,5 @@ At 2026-10-29T17:03Z, the replacement qualification reached `605/804` compilatio
 At 2026-10-29T17:04Z, the same replacement qualification advanced to `746/804` compilation steps for exact SHA `3707278175592bff8144674b5440096f31326692`; its wrapper and build process remained live with no terminal receipt or artifact.
 
 At 2026-10-29T17:09Z, the replacement qualification completed compilation and row 001 (`Engine2RuntimeTests`) passed with `rc=0`. Row 002 (`MOXSimToolTests`) remained live with normal passing GoogleTest output and no row result or terminal receipt yet.
+
+At 2026-10-29T17:13Z, the repaired-dispatcher replacement qualification sealed `status=passed` (`rc=0`) for exact SHA `3707278175592bff8144674b5440096f31326692` and tree hash `61cefab98c51238052d643d52ebd74299c9528f9`. `Engine2RuntimeTests` and `MOXSimToolTests` both passed; the latter ran 2,632 tests with 2 expected skips. This packet emitted no tutorial WASM artifact, so browser verification remains pending the uvmb lane’s follow-up artifact/result.

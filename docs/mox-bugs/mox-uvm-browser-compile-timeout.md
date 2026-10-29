@@ -167,3 +167,10 @@ configure/build records. Its wrapper and build processes remained live while
 waiting for the shared build dispatcher. Since this is the permitted external
 UVM campaign, the lane did not duplicate it; no new compiler artifact or
 browser result was available in this audit.
+
+On the second poll after reopening, the same packet still had no
+`terminal.json` and no files newer than its initial configure/build records.
+The wrapper and `slot-run.sh` build PIDs remained live, and neither
+`build.log` nor `unit.log` had advanced. The permitted campaign therefore
+remains an in-progress wait; it has not supplied a Mox artifact or browser
+result that could change this blocker.

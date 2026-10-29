@@ -278,6 +278,11 @@ no relevant UVM ticket, and no new WASM artifact was produced. Dispatcher line
 stays on Mox `b90b3a51a68`. This is the first verified turn of another
 dispatcher-blocker audit.
 
+On the second turn of this resumed audit, no replacement UVM packet, live
+UVM build, FIFO ticket, build output, or new WASM artifact appeared. The
+preserved packet remains terminal `rc=75`, dispatcher line 49 still comments
+out ticket creation, and the tutorial remains on Mox `b90b3a51a68`.
+
 On the second audit turn after the terminal packet, the preserved UVM packet
 remained the only campaign and still reported `rc=75`; no replacement packet,
 live UVM build, FIFO ticket, build output, or new WASM artifact appeared. The

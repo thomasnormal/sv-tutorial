@@ -258,6 +258,14 @@ unchanged build records, and the same wrapper/build processes active. Mox
 waits in this cycle have now completed without a compiler artifact or runtime
 result.
 
+On the second audit turn after that terminal failure, no replacement UVM
+packet or artifact appeared. The coordinator dispatcher still has ticket
+creation commented on line 49, `/var/tmp/thomas-ahle/fleet2/tmp/slot-tickets`
+is empty, and the preserved packet remains terminal with `rc=75` and no build
+output. The tutorial Mox pin and generated WASM files are unchanged, so the
+same dispatcher starvation condition still prevents the required browser
+verification.
+
 The coordinator's permitted exact UVM demo packet finally terminated at
 2026-10-29T15:38:49Z, but it did not reach compilation. Its terminal record is
 `rc=75` with `CONFIGURE_RC=0` and `BUILD_RC=75`; the build log records:

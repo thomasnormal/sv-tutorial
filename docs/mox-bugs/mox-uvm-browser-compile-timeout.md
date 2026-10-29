@@ -60,3 +60,17 @@ an exit or MLIR within a bounded six-minute direct WASM compile. A scan of all
 local Mox refs found no post-`b90b3a51a68` change to this conversion or a
 UVM-related fix. The child-output rejection is therefore a concrete first
 diagnostic, but not the only full-UVM compilation blocker at this pin.
+
+As a minimal browser-worker cross-check, `scripts/repro-uvm-browser-worker-assert.mjs`
+was run with `--expect-fail --no-simulate` using only a small `uvm_test` class
+and a `tb_top` that calls `run_test("my_test")` (no lesson package, SRAM, or
+coverage sources). The worker started the same `createMoxWasmAdapter` compile
+but produced no completion payload before the script's 180-second bound:
+
+```text
+Error: compile timed out after 180000ms
+```
+
+This minimal case therefore confirms that the browser-worker timeout is a
+general UVM compilation stall at the current Mox artifacts, rather than a
+failure specific to the published coverage lessons or their source topology.

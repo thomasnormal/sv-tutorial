@@ -231,3 +231,10 @@ On the second poll of this reopened cycle, the packet still had no
 `slot-run.sh` build process remained live after more than 2 hours 19 minutes;
 the packet logs and tutorial Mox/WASM state were unchanged. This is another
 verified wait on the permitted external campaign, with no duplicate run.
+
+The third poll of this reopened cycle again found the packet live after more
+than 2 hours 21 minutes, with no `terminal.json`, no new packet files,
+unchanged build records, and the same wrapper/build processes active. Mox
+`b90b3a51a68` and the generated WASM artifacts were unchanged. Three verified
+waits in this cycle have now completed without a compiler artifact or runtime
+result.

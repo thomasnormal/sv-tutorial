@@ -188,6 +188,12 @@ remained live after roughly 1 hour 47 minutes. The coordinator's dispatcher
 diagnosis remains external to this lane; no duplicate browser/compiler run was
 started and no new Mox artifact was available.
 
+The third poll of this reopened cycle again found the packet live with no
+`terminal.json` or files newer than its initial records. The wrapper and
+`slot-run.sh` build processes remained live at nearly 1 hour 50 minutes, and
+the locked Mox ref plus generated WASM artifacts were unchanged. Three
+verified waits have now completed without an artifact or runtime result.
+
 On the second poll of this reopened cycle, the packet still had no
 `terminal.json` or files newer than the initial records. Its wrapper and
 `slot-run.sh` build processes remained live after more than 1 hour 48 minutes,

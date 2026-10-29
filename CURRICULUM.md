@@ -206,7 +206,7 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 ### Chapter: Stimulus
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
-| `uvm/sequence` | Sequences | ✅ | 25/27 ⚠️1,9 | `uvm/seq-item`, `uvm/reporting` | `uvm_sequence`, `start_item`, `finish_item`, sequencer arbitration, sequence body |
+| `uvm/sequence` | Sequences | ✅ | 27/27 | `uvm/seq-item`, `uvm/reporting` | `uvm_sequence`, `start_item`, `finish_item`, sequencer arbitration, sequence body |
 | `uvm/driver` | The Driver | ✅ | 25/27 ⚠️1,9 | `uvm/sequence`, `sv/interfaces`, `sv/modports` | `uvm_driver`, `seq_item_port`, `uvm_config_db`, `virtual interface`, transaction-to-pin driving |
 | `uvm/constrained-random` | Constrained-Random Scenarios | ✅ | 26/27 | `uvm/driver`, `sv/randomization` | inline `randomize() with`, `dist` weighting, named `constraint_mode()` control |
 

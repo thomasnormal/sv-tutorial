@@ -1,4 +1,10 @@
-<p>The previous lesson built a <code>mem_item</code> that describes one SRAM operation. A <strong><dfn data-card="A UVM sequence generates a stream of transaction items. Its body() task runs when started on a sequencer. The sequence uses a three-step handshake: start_item (request the driver), randomize/configure the item, finish_item (hand it to the driver and wait for completion). Sequences are objects, not components — they have no phases and must be started explicitly from a test's run_phase.">sequence</dfn></strong> turns that one object into repeatable stimulus for a <dfn data-card="The sequencer (uvm_sequencer) is the arbitration point between sequences and the driver. Multiple sequences can be started on the same sequencer; the sequencer decides which one gets access to the driver at any given time. The driver pulls the next item from the sequencer using get_next_item() and signals completion with item_done().">sequencer</dfn>. The general shape is:</p>
+<pre class="diagram">sequence body()          sequencer              driver
+  create item ───────────►  arbitration
+  start_item ── grant ────►
+  randomize / configure
+  finish_item ────────────►  get_next_item
+                              item_done ───────►</pre>
+<p>The previous lesson built a <code>mem_item</code> that describes one SRAM operation. A <strong><dfn data-card="A UVM sequence generates a stream of transaction items. Its body() task runs when started on a sequencer. The sequence uses a three-step handshake: start_item (request the driver), randomize/configure the item, finish_item (hand it to the driver and wait for completion). Sequences are objects, not components — they have no phases and must be started explicitly from a test's run_phase.">sequence</dfn></strong> turns that one object into repeatable stimulus. Its key job is to hand each item to the driver through the <dfn data-card="The sequencer (uvm_sequencer) is the arbitration point between sequences and the driver. Multiple sequences can be started on the same sequencer; the sequencer decides which one gets access to the driver at any given time. The driver pulls the next item from the sequencer using get_next_item() and signals completion with item_done().">sequencer</dfn> without two sequences changing the same item at once. The general shape is:</p>
 <pre>class &lt;name&gt; extends uvm_sequence #(&lt;item_type&gt;);
   task body();
     &lt;item_type&gt; item = &lt;item_type&gt;::type_id::create("item");
@@ -6,19 +12,11 @@
     finish_item(item); // hand it to the driver
   endtask
 endclass</pre>
-<p>The three-step handshake is:</p>
-<pre>
-  sequence                     sequencer / driver
-  ────────                     ──────────────────
-  start_item(item)  ────────►  (blocks until driver is free)
-  randomize(item)              (item being configured)
-  finish_item(item) ────────►  driver gets item, drives DUT
-                   ◄────────   item_done() unblocks finish_item
-</pre>
+<p>The sequence owns the item while it is being configured. The three-step handshake transfers ownership at clear points:</p>
 <ol>
   <li><code>start_item(item)</code> — request access; blocks until the sequencer grants it</li>
   <li>Randomize or configure the item while holding the grant</li>
   <li><code>finish_item(item)</code> — hand the item to the driver; blocks until the driver calls <code>item_done()</code></li>
 </ol>
-<p>Open <code>mem_seq.sv</code> and complete the <code>body()</code> task. A logging driver is already provided — each item you hand off will be printed, so you can see the handshake working immediately.</p>
+<p>In this exercise, <code>addr inside {0, 4, 8, 12}</code> is an inline constraint: it limits this item's address to the four aligned locations without changing the reusable <code>mem_item</code> class. Open <code>mem_seq.sv</code> and complete the <code>body()</code> task. A logging driver is already provided — each item you hand off will be printed, so you can see the handshake working immediately.</p>
 <blockquote><p>Sequences are objects (<code>uvm_object</code>), not components — they have no phases. Start them explicitly from a test's <code>run_phase</code> with <code>seq.start(sequencer_handle)</code>.</p></blockquote>

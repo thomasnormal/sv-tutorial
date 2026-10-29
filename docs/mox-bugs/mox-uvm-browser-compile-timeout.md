@@ -344,3 +344,11 @@ waits in this cycle have now completed without a compiler artifact or runtime
 result.
 
 At 2026-10-29T16:16Z, after the coordinator repaired dispatcher line 51, a fresh poll still found no replacement UVM packet, live UVM build, UVM-specific ticket, build output, or new WASM artifact. The only UVM campaign remains `uvm-demo-20261029T1238Z`, terminal `rc=75` after the former 10,800-second admission wait. The separate UVM lane process is active, so this lane does not start a duplicate campaign; browser UVM execution remains pending its authoritative replacement packet.
+
+At 2026-10-29T16:22Z, the minimal reproduction was rerun against the unchanged
+artifacts with `--expect-fail --no-simulate`. Vite and Chromium started, but the
+worker produced no result or diagnostic before the 240-second wrapper ended;
+the captured failure was `page.evaluate: Target page, context or browser has
+been closed`. This is another harness timeout without a completion payload, not
+browser success, and the required UVM browser verification remains pending a
+rebuilt artifact.

@@ -1,13 +1,18 @@
 module top(output logic passed);
-  // TODO: change to int (2-state signed 32-bit — used for loop counters in testbenches)
+  // TODO: choose a signed 32-bit 2-state type for a testbench counter
   bit [31:0] count;
 
-  // TODO: change to logic [7:0] (4-state — RTL signals must propagate X to catch bugs)
+  // TODO: choose a 4-state 8-bit type so an RTL signal propagates X
   bit [7:0]  data;
 
-  // TODO: add [4] after mem to make it an unpacked array of 4 bytes
-  //       (right now mem is a scalar — mem[0] is just bit 0, not a full byte)
+  // TODO: make mem an unpacked array of four byte-wide elements
   logic [7:0] mem;
+
+  // TODO: choose a signed 8-bit 2-state type for a testbench offset
+  bit [7:0] delta;
+
+  // TODO: choose a 4-state 4-bit type for an RTL status nibble
+  bit [3:0] status;
 
   int fail = 0;
 
@@ -21,11 +26,27 @@ module top(output logic passed);
       fail++;
     end
 
+    // A signed byte should retain a small negative offset
+    delta = -5;
+    if (delta < 0) $display("delta = %0d  OK", delta);
+    else begin
+      $display("FAIL delta: %0d is not negative — use a signed byte type", delta);
+      fail++;
+    end
+
     // An RTL signal must be able to hold the unknown value X
     data = 'x;
     if ($isunknown(data)) $display("data  = X     OK");
     else begin
       $display("FAIL data: 0x%02h is not X — use logic [7:0], not bit [7:0]", data);
+      fail++;
+    end
+
+    // A small RTL status field must retain unknown bits
+    status = 'x;
+    if ($isunknown(status)) $display("status = X    OK");
+    else begin
+      $display("FAIL status: 0x%0h is not X — use a 4-state logic type", status);
       fail++;
     end
 

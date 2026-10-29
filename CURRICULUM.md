@@ -27,7 +27,7 @@ curriculum review before implementation.
 |---|---|---|---|---|---|
 | `sv/welcome` | Welcome | ✅ | 27/27 | — | `module`/`endmodule`, `$display`, simulation loop, tutorial roadmap |
 | `sv/modules-and-ports` | Modules and Ports | ✅ | 27/27 | `sv/welcome` | module declarations, port directions (`input`/`output`), typed widths, named instantiation |
-| `sv/data-types` | Data Types | ✅ | 26/27 | `sv/modules-and-ports` | 4-state `logic` vs 2-state `int`/`bit`, X state, `$isunknown()` |
+| `sv/data-types` | Data Types | ✅ | 27/27 | `sv/modules-and-ports` | 4-state `logic` vs 2-state `int`/`bit`, X state, `$isunknown()` |
 
 ### Chapter: Combinational Logic
 | Slug | Title | Status | Score | Prereqs | Teaches |

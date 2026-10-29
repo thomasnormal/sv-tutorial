@@ -36,6 +36,15 @@ describe('browser-audit lesson alignment', () => {
     expect(description).toContain('supplied scaffolding');
   });
 
+  it('keeps the data-types exercise aligned with its five intent checks', () => {
+    const description = read('sv/data-types/description.html');
+    const starter = read('sv/data-types/data_types.sv');
+    expect(description).toContain('Five declarations use the wrong type or shape');
+    expect(description).toContain('five FAIL lines should become five OK lines');
+    expect(starter).toContain('signed 8-bit 2-state type for a testbench offset');
+    expect(starter).toContain('4-state 4-bit type for an RTL status nibble');
+  });
+
   it('keeps UVM coverage starters syntactically valid', () => {
     expect(read('uvm/covergroup/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);
     expect(read('uvm/cross-coverage/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);

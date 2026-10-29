@@ -137,6 +137,25 @@ describe('browser-audit lesson alignment', () => {
     expect(top).toContain('run_test("my_test")');
   });
 
+  it('keeps functional coverage aligned with its collector TODOs and completion guard', () => {
+    const description = read('uvm/covergroup/description.html');
+    const starter = read('uvm/covergroup/mem_coverage.sv');
+    const solution = read('uvm/covergroup/mem_coverage.sol.sv');
+    const top = read('uvm/covergroup/tb_top.sv');
+    expect(description).toContain('complete three things');
+    expect(description).toContain('<strong>cp_addr</strong> coverpoint');
+    expect(description).toContain('<strong>cp_we</strong> coverpoint');
+    expect(description).toContain('supplied check can reach 100%');
+    expect(starter).toContain('TODO: add cp_addr coverpoint');
+    expect(starter).toContain('TODO: add cp_we coverpoint');
+    expect(starter).toContain('item = t;');
+    expect(starter).toContain('mem_cg.sample();');
+    expect(solution).toContain('bins addr[] = {[0:15]};');
+    expect(solution).toContain('bins reads  = {0};');
+    expect(solution).toContain('bins writes = {1};');
+    expect(top).toContain('get_severity_count(UVM_ERROR) == 0');
+  });
+
   it('keeps constrained-random work aligned with its three constraint scopes', () => {
     const description = read('uvm/constrained-random/description.html');
     const item = read('uvm/constrained-random/mem_item.sv');

@@ -1,5 +1,9 @@
+`ifndef SVT_UVM_MONITOR_MEM_SCOREBOARD_SV
+`define SVT_UVM_MONITOR_MEM_SCOREBOARD_SV
+
 import uvm_pkg::*;
 `include "uvm_macros.svh"
+`include "mem_item.sv"
 
 class mem_scoreboard extends uvm_scoreboard;
   `uvm_component_utils(mem_scoreboard)
@@ -22,7 +26,9 @@ class mem_scoreboard extends uvm_scoreboard;
   endfunction
   function void report_phase(uvm_phase phase);
     if (pass_count + fail_count == 0)
-      $fatal(0, "No transactions processed — implement the write() method in mem_scoreboard.sv");
+      $fatal(0, "No transactions processed - implement the write() method in mem_scoreboard.sv");
     `uvm_info("SCBD", $sformatf("Results: PASS=%0d FAIL=%0d", pass_count, fail_count), UVM_LOW)
   endfunction
 endclass
+
+`endif

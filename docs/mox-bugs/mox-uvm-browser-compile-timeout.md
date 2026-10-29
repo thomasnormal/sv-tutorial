@@ -235,6 +235,12 @@ coordinator's campaign.
 
 On the second poll of this reopened cycle, the packet still had no
 `terminal.json` or files newer than its initial records. Its wrapper and
+`slot-run.sh` build process remained live after about 2 hours 35 minutes, with
+unchanged logs and tutorial Mox/WASM state. This is another verified wait on
+the permitted external campaign; no duplicate run was started.
+
+On the second poll of this reopened cycle, the packet still had no
+`terminal.json` or files newer than its initial records. Its wrapper and
 `slot-run.sh` build process remained live after more than 2 hours 19 minutes;
 the packet logs and tutorial Mox/WASM state were unchanged. This is another
 verified wait on the permitted external campaign, with no duplicate run.

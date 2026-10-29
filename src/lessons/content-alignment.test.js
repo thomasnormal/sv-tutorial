@@ -156,6 +156,25 @@ describe('browser-audit lesson alignment', () => {
     expect(top).toContain('get_severity_count(UVM_ERROR) == 0');
   });
 
+  it('keeps cross coverage aligned with reserved-address instructions', () => {
+    const description = read('uvm/cross-coverage/description.html');
+    const starter = read('uvm/cross-coverage/mem_coverage.sv');
+    const solution = read('uvm/cross-coverage/mem_coverage.sol.sv');
+    const top = read('uvm/cross-coverage/tb_top.sv');
+    expect(description).toContain('addr_x_we: cross cp_addr, cp_we;');
+    expect(description).toContain('That single line creates 32 bins');
+    expect(description).toContain('binsof</dfn></code> and <code>intersect');
+    expect(description).toContain('reserved write addresses (14 and 15)');
+    expect(starter).toContain('TODO 1: add addr_x_we cross');
+    expect(starter).toContain('TODO 2: exclude the write combinations');
+    expect(starter).toContain('while keeping the read combinations covered');
+    expect(solution).toContain('addr_x_we: cross cp_addr, cp_we');
+    expect(solution).toContain('ignore_bins no_write_reserved');
+    expect(solution).toContain('binsof(cp_addr.addr) intersect {14, 15}');
+    expect(solution).toContain('binsof(cp_we.writes)');
+    expect(top).toContain('get_severity_count(UVM_ERROR) == 0');
+  });
+
   it('keeps constrained-random work aligned with its three constraint scopes', () => {
     const description = read('uvm/constrained-random/description.html');
     const item = read('uvm/constrained-random/mem_item.sv');

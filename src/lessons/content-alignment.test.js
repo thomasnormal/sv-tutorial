@@ -13,7 +13,10 @@ describe('browser-audit lesson alignment', () => {
   });
 
   it('keeps the functional coverage visual paired with its explanation', () => {
-    expect(read('uvm/covergroup/description.html')).toContain('coverage-flow.svg');
+    const description = read('uvm/covergroup/description.html');
+    expect(description).toContain('coverage-flow.svg');
+    expect(description).toContain('get_coverage()');
+    expect(description).toContain('every address in both read and write modes');
   });
 
   it('keeps the coverage-driven loop visual paired with its explanation', () => {

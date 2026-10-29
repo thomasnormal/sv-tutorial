@@ -88,6 +88,17 @@ describe('browser-audit lesson alignment', () => {
     expect(starter).toContain('expose the old MSB, then shift serial_in into q[0]');
   });
 
+  it('keeps the generate exercise aligned with its parameterized lanes', () => {
+    const description = read('sv/generate/description.html');
+    const starter = read('sv/generate/generate_lab.sv');
+    expect(description).toContain('generate-for loop');
+    expect(description).toContain('genvar');
+    expect(description).toContain('<code>WIDTH</code> controls how many lanes');
+    expect(starter).toContain('one-bit lane across the vector in both branches');
+    expect(starter).toContain('named generate-for from 0 through WIDTH-1');
+    expect(starter).toContain('matching generate-for');
+  });
+
   it('keeps UVM coverage starters syntactically valid', () => {
     expect(read('uvm/covergroup/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);
     expect(read('uvm/cross-coverage/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);

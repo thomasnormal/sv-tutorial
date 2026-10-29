@@ -55,7 +55,7 @@ curriculum review before implementation.
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
 | `sv/parameters` | Parameters and localparam | ✅ | 27/27 | `sv/always-ff` | `parameter`, `localparam`, `$clog2()`, parameterized port widths, generic instantiation |
-| `sv/generate` | generate for / if | ✅ | 26/27 | `sv/parameters` | `generate for` lane replication, named branches, conditional elaboration |
+| `sv/generate` | generate for / if | ✅ | 27/27 | `sv/parameters` | `generate for` lane replication, named branches, conditional elaboration |
 
 > `for generate` to replicate instances; used in every real chip.
 > A parameterised N-bit adder array is a natural exercise.

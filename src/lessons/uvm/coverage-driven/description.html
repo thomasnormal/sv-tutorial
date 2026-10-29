@@ -7,6 +7,7 @@
   phase.drop_objection(this);
 endtask</pre>
 <p>Random stimulus without a stopping condition is unpredictable - you may run far more cycles than needed, or stop before all bins are hit. <strong><dfn data-card="Coverage-driven verification (CDV) is a methodology where the test keeps generating random stimulus until a coverage target is met. Instead of running a fixed number of transactions, the test loop queries coverage progress (get_coverage()) and stops when all bins are hit. This ensures both randomness (finding unexpected bugs) and completeness (every scenario was exercised).">Coverage-driven verification</dfn></strong> closes this loop:</p>
+<p><img src="coverage-loop.svg" alt="Coverage-driven loop from random stimulus through checking and sampling back to a coverage query"></p>
 <pre>
   ┌─────────────────────────────────────────────────┐
   │  while coverage &lt; 100%                          │

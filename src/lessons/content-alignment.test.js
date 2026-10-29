@@ -16,6 +16,10 @@ describe('browser-audit lesson alignment', () => {
     expect(read('uvm/covergroup/description.html')).toContain('coverage-flow.svg');
   });
 
+  it('keeps the coverage-driven loop visual paired with its explanation', () => {
+    expect(read('uvm/coverage-driven/description.html')).toContain('coverage-loop.svg');
+  });
+
   it('keeps UVM coverage starters syntactically valid', () => {
     expect(read('uvm/covergroup/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);
     expect(read('uvm/cross-coverage/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);

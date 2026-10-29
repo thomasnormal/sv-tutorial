@@ -264,6 +264,13 @@ new artifact appeared. Dispatcher line 49 still comments out ticket creation,
 and the tutorial remains on Mox `b90b3a51a68` with the prior WASM files. This
 is the first verified turn of another dispatcher-blocker audit.
 
+On the third audit turn, one FIFO ticket file appeared, but it belongs to an
+unrelated active build process rather than a replacement UVM campaign. The
+dispatcher source line 49 is still unchanged with ticket creation commented
+out; the preserved UVM packet remains terminal `rc=75`, and no UVM build,
+artifact, or browser result appeared. The tutorial Mox/WASM state remains
+`b90b3a51a68`.
+
 On the second audit turn after the terminal packet, the preserved UVM packet
 remained the only campaign and still reported `rc=75`; no replacement packet,
 live UVM build, FIFO ticket, build output, or new WASM artifact appeared. The

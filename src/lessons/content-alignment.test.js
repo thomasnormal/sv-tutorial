@@ -175,6 +175,27 @@ describe('browser-audit lesson alignment', () => {
     expect(top).toContain('get_severity_count(UVM_ERROR) == 0');
   });
 
+  it('keeps coverage-driven work aligned with its bounded loop', () => {
+    const description = read('uvm/coverage-driven/description.html');
+    const starter = read('uvm/coverage-driven/mem_test.sv');
+    const solution = read('uvm/coverage-driven/mem_test.sol.sv');
+    const top = read('uvm/coverage-driven/tb_top.sv');
+    expect(description).toContain('while (&lt;covergroup&gt;.get_coverage()');
+    expect(description).toContain('finite number of attempts');
+    expect(description).toContain('raise_objection()');
+    expect(description).toContain('drop_objection()');
+    expect(description).toContain('Log the current coverage after each sequence run.');
+    expect(starter).toContain('TODO: replace the single seq.start() call with a while loop');
+    expect(starter).toContain('keeps running sequences until mem_cg coverage reaches 100%');
+    expect(starter).toContain('logging current coverage after each run');
+    expect(starter).toContain('seq.start(env.agent.seqr);');
+    expect(solution).toContain('while (env.cov.mem_cg.get_coverage() < 100.0)');
+    expect(solution).toContain('`uvm_info("TEST", $sformatf("coverage = %.1f%%"');
+    expect(solution).toContain('if (++iterations >= 50)');
+    expect(solution).toContain('Reached iteration limit');
+    expect(top).toContain('get_severity_count(UVM_ERROR) == 0');
+  });
+
   it('keeps constrained-random work aligned with its three constraint scopes', () => {
     const description = read('uvm/constrained-random/description.html');
     const item = read('uvm/constrained-random/mem_item.sv');

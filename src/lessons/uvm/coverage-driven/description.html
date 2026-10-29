@@ -1,12 +1,20 @@
-<p>Random stimulus without a stopping condition is unpredictable — you may run far more cycles than needed, or stop before all bins are hit. <strong><dfn data-card="Coverage-driven verification (CDV) is a methodology where the test keeps generating random stimulus until a coverage target is met. Instead of running a fixed number of transactions, the test loop queries coverage progress (get_coverage()) and stops when all bins are hit. This ensures both randomness (finding unexpected bugs) and completeness (every scenario was exercised).">Coverage-driven verification</dfn></strong> closes this loop:</p>
+<p>A coverage-driven test loop has this reusable shape:</p>
+<pre>task run_phase(uvm_phase phase);
+  phase.raise_objection(this);
+  while (&lt;covergroup&gt;.get_coverage() &lt; 100.0 &amp;&amp; &lt;attempts&gt; &lt; &lt;limit&gt;) begin
+    &lt;sequence&gt;.start(&lt;sequencer&gt;);
+  end
+  phase.drop_objection(this);
+endtask</pre>
+<p>Random stimulus without a stopping condition is unpredictable - you may run far more cycles than needed, or stop before all bins are hit. <strong><dfn data-card="Coverage-driven verification (CDV) is a methodology where the test keeps generating random stimulus until a coverage target is met. Instead of running a fixed number of transactions, the test loop queries coverage progress (get_coverage()) and stops when all bins are hit. This ensures both randomness (finding unexpected bugs) and completeness (every scenario was exercised).">Coverage-driven verification</dfn></strong> closes this loop:</p>
 <pre>
   ┌─────────────────────────────────────────────────┐
   │  while coverage &lt; 100%                          │
   │    generate random sequence                      │
-  │    drive SRAM → check scoreboard → sample cov   │
+  │    drive SRAM -> check scoreboard -> sample cov   │
   │    log current coverage %                        │
   └─────────────────────────────────────────────────┘
-          coverage == 100% → done
+          coverage == 100% -> done
 </pre>
 <p>Query progress using <code>get_coverage()</code> on the covergroup object:</p>
 <pre>env.cov.mem_cg.get_coverage()  // returns 0.0 to 100.0</pre>

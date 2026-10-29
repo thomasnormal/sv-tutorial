@@ -225,6 +225,7 @@ curriculum review before implementation.
 |---|---|---|---|---|---|
 | `uvm/covergroup` | Functional Coverage | ✅ | 24/27 | `uvm/env` | `uvm_subscriber`, covergroup and coverpoint bins, analysis-port sampling, `get_coverage()` |
 | `uvm/cross-coverage` | Cross Coverage | ✅ | 24/27 | `uvm/covergroup` | `cross`, 2D address-operation bins, `binsof`, `intersect`, `ignore_bins` for reserved combinations |
+| `uvm/coverage-driven` | Coverage-Driven Verification | ✅ | 24/27 | `uvm/cross-coverage` | coverage feedback loop, `get_coverage()`, bounded random iterations, stopping criteria |
 
 ---
 

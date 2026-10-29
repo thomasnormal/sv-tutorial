@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { lessons } from './index.js';
 
 const browserBlocked = [
-  'uvm/coverage-driven',
   'uvm/factory-override',
   'uvm/ral',
   'cocotb/first-test',

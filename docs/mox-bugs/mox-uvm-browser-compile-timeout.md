@@ -159,3 +159,11 @@ outer watchdog ended the run with `page.evaluate: Target page, context or
 browser has been closed`. This is the third consecutive reproduction in this
 cycle with no Mox or artifact movement, so the UVM browser requirement remains
 blocked on an upstream compiler fix.
+
+After the goal was reopened again, the coordinator's exact UVM demo packet
+`/scratch/thomas-ahle/tmp/uvmb/uvm-demo-20261029T1238Z/` was still live, with
+`CONFIGURE_RC=0`, no `terminal.json`, and no files newer than its initial
+configure/build records. Its wrapper and build processes remained live while
+waiting for the shared build dispatcher. Since this is the permitted external
+UVM campaign, the lane did not duplicate it; no new compiler artifact or
+browser result was available in this audit.

@@ -68,6 +68,16 @@ describe('browser-audit lesson alignment', () => {
     }
   });
 
+  it('keeps the counter exercise aligned with its reset-priority behavior', () => {
+    const description = read('sv/counter/description.html');
+    const starter = read('sv/counter/counter.sv');
+    expect(description).toContain('ordered control conditions');
+    expect(description).toContain('repeat(5) @(posedge clk);');
+    expect(description).toContain('reset higher priority than enable');
+    expect(starter).toContain('synchronous reset, then increment when en');
+    expect(starter).toContain('always_ff @(posedge clk)');
+  });
+
   it('keeps UVM coverage starters syntactically valid', () => {
     expect(read('uvm/covergroup/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);
     expect(read('uvm/cross-coverage/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);

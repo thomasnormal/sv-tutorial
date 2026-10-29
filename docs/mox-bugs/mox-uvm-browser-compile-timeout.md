@@ -117,3 +117,22 @@ compile result, and ended under the outer watchdog with
 third consecutive reproduction after the goal was resumed, with no Mox ref,
 artifact, or source change; the lane remains blocked on an upstream Mox UVM
 compile fix.
+
+After the goal was reopened again, the first audit checked local Mox history
+for a post-pin change to this conversion path. `origin/main` and all local
+refs still resolve to `b90b3a51a68`; the only nearby continuous-assignment
+change (`236a0197f7d`) handles unrealized conversion-cast cycles and does not
+address UVM compilation. A fresh browser-worker run on port 43176:
+
+```text
+REPRO_PORT=43176 timeout 240 node scripts/repro-uvm-browser-worker-assert.mjs --expect-fail --no-simulate
+```
+
+again emitted only startup lines and then ended with the script's bounded
+diagnostic:
+
+```text
+Error: compile timed out after 180000ms
+```
+
+No completion payload or simulation command was produced.

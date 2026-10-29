@@ -14,6 +14,10 @@ Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibrat
 3=Description Quality, 4=Progression, 5=Dual Coding, 6=Solution Idiom,
 7=Concept Importance, 8=Lesson Novelty, 9=Visual Novelty.
 
+The prioritized curriculum is fully published as of 2026-10-29: all tracker rows
+are marked ✅ and no 📝 lesson remains. Future lessons should be added through a
+curriculum review before implementation.
+
 ---
 
 ## Part 1 — SystemVerilog Basics

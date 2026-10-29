@@ -7,6 +7,9 @@ prerequisites, and quality scores. Completed lessons include starter and solutio
 source plus a runnable testbench with labelled PASS/FAIL output where the lesson
 can be checked in simulation.
 
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for setup, lesson authoring, validation,
+and pull-request guidance.
+
 ## Reproducible Requirements
 
 Pinned versions are centralized in `scripts/toolchain.lock.sh`:

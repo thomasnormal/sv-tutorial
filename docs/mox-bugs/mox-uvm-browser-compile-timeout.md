@@ -251,3 +251,10 @@ unchanged build records, and the same wrapper/build processes active. Mox
 `b90b3a51a68` and the generated WASM artifacts were unchanged. Three verified
 waits in this cycle have now completed without a compiler artifact or runtime
 result.
+
+The third poll of this latest reopened cycle again found the packet live after
+about 2 hours 36 minutes, with no `terminal.json`, no new packet files,
+unchanged build records, and the same wrapper/build processes active. Mox
+`b90b3a51a68` and the generated WASM artifacts were unchanged. Three verified
+waits in this cycle have now completed without a compiler artifact or runtime
+result.

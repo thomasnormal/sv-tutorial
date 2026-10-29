@@ -1,4 +1,5 @@
 <p>Assertions answer <em>"did something illegal happen?"</em> — functional coverage answers <em>"did we exercise the scenarios we care about?"</em>. Without coverage, passing simulation only means no bugs were triggered by the stimulus you happened to run.</p>
+<p><img src="coverage-flow.svg" alt="Monitor to subscriber to covergroup coverage flow"></p>
 <p>A reusable coverage collector has this shape:</p>
 <pre>class &lt;collector&gt; extends uvm_subscriber #(&lt;item_type&gt;);
   covergroup &lt;group&gt;;

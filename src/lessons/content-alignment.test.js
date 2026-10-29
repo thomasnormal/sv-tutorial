@@ -12,6 +12,10 @@ describe('browser-audit lesson alignment', () => {
     expect(read('sva/formal-assume/tb.sv')).not.toContain('$display("PASS")');
   });
 
+  it('keeps the functional coverage visual paired with its explanation', () => {
+    expect(read('uvm/covergroup/description.html')).toContain('coverage-flow.svg');
+  });
+
   it('keeps UVM coverage starters syntactically valid', () => {
     expect(read('uvm/covergroup/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);
     expect(read('uvm/cross-coverage/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);

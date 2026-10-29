@@ -76,6 +76,20 @@ test.describe('Split view header pills', () => {
     await page.getByTestId('options-button').first().click();
     await expect(page.getByTestId('solve-button').first()).toHaveText('Show solution');
   });
+
+  test('panel separators resize from the keyboard', async ({ page }) => {
+    await page.goto('/lesson/sv/modules-and-ports', { waitUntil: 'networkidle' });
+
+    const separator = page.locator(
+      '[role="separator"][aria-label="Resize lesson and editor panels"][aria-orientation="vertical"]'
+    );
+    await expect(separator).toHaveAttribute('tabindex', '0');
+
+    const before = Number(await separator.getAttribute('aria-valuenow'));
+    await separator.focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(separator).toHaveAttribute('aria-valuenow', String(before + 1));
+  });
 });
 
 test.describe('Toolbar height consistency', () => {

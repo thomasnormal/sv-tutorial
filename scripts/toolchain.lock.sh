@@ -7,8 +7,8 @@ readonly NODE_MAJOR_VERSION_LOCKED="22"
 readonly EMSDK_VERSION_LOCKED="4.0.21"
 
 readonly MOX_REPO_LOCKED="https://github.com/normal-computing/mox.git"
-readonly MOX_REF_LOCKED="18483f66c8202c5bc4561abddd0f07bbfb54fbd8"
-readonly MOX_LLVM_SUBMODULE_REF_LOCKED="aa3d6b37c7945bfb4c261dd994689de2a2de25bf"
+readonly MOX_REF_LOCKED="b90b3a51a68b772a1510c837166afd6d429d8f20"
+readonly MOX_LLVM_SUBMODULE_REF_LOCKED="e3e4f161d0160f10dc7cbd746abd639dd740ecde"
 
 # Mirrored from gitlab.com/surfer-project/surfer pages_build (main pipeline
 # 2625476633, job 15008633862, commit 98287107b9, 2026-06-24). We host our own

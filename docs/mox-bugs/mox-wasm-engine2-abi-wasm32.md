@@ -47,3 +47,21 @@ ninja: build stopped: subcommand failed.
 ```
 
 The clean retry reached 5,027/5,058 tasks before the same assertion stopped the build. Because the wasm32 layout remains incompatible, the lock was restored to Mox `18483f66c8202c5bc4561abddd0f07bbfb54fbd8` / LLVM `aa3d6b37c7945bfb4c261dd994689de2a2de25bf`; no browser artifacts were synced.
+
+On 2026-10-29, item 11 advanced the lock to Mox `b90b3a51a68b772a1510c837166afd6d429d8f20` (including landed Engine 2 fix `e82736e8877`) with LLVM `e3e4f161d0160f10dc7cbd746abd639dd740ecde`. `npm run check:req:wasm` passed with emsdk 4.0.21, but the guarded WASM build did not produce artifacts. The first build reached 435/5,050 tasks and failed because the host loader could not find the mamba runtime's atomic library:
+
+```
+/scratch/thomas-ahle/emsdk/upstream/bin/wasm-opt: error while loading shared libraries: libatomic.so.1: cannot open shared object file: No such file or directory
+em++: error: error running binaryen executable (/scratch/thomas-ahle/emsdk/upstream/bin/wasm-opt). Please check your binaryen installation
+ninja: build stopped: subcommand failed.
+```
+
+The prescribed clean retry then stopped during configure before linking any Mox target:
+
+```
+CMake Error at cmake/modules/CheckCompilerVersion.cmake:88 (message):
+  libstdc++ version must be at least 7.4.
+-- Configuring incomplete, errors occurred!
+```
+
+No wasm32 Engine 2 source assertion was reached after `e82736e8877`; `static/mox` was not regenerated. The exact build log is retained at `/var/tmp/thomas-ahle/fleet2/logs/sv-tutorial-build.log`.

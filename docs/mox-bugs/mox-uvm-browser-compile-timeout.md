@@ -258,6 +258,19 @@ unchanged build records, and the same wrapper/build processes active. Mox
 waits in this cycle have now completed without a compiler artifact or runtime
 result.
 
+The coordinator's permitted exact UVM demo packet finally terminated at
+2026-10-29T15:38:49Z, but it did not reach compilation. Its terminal record is
+`rc=75` with `CONFIGURE_RC=0` and `BUILD_RC=75`; the build log records:
+
+```text
+slot-run: no lane build slot free within 10800s
+```
+
+There are no build outputs, rows, simulator results, or new WASM artifacts.
+The packet therefore confirms a coordinator dispatcher starvation failure,
+not a changed Mox UVM result. The tutorial remains on Mox `b90b3a51a68` with
+the prior browser-compile blocker unresolved.
+
 The third poll of this latest reopened cycle again found the packet live at
 nearly 2 hours 50 minutes, with no `terminal.json`, no new packet files,
 unchanged build records, and the same wrapper/build processes active. Mox

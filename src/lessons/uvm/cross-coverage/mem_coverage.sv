@@ -15,8 +15,8 @@ class mem_coverage extends uvm_subscriber #(mem_item);
       bins writes = {1};
     }
     // TODO 1: add addr_x_we cross of cp_addr and cp_we
-    // TODO 2: add ignore_bins to exclude writes to reserved addresses 14 and 15
-    //         hint: binsof(cp_addr.addr) intersect {14, 15} && binsof(cp_we.writes)
+    // TODO 2: exclude the write combinations for reserved addresses 14 and 15
+    //         from this cross while keeping the read combinations covered.
   endgroup
 
   function new(string name, uvm_component parent);

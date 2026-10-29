@@ -9,6 +9,12 @@ interface mem_if (input logic clk);
                      we, addr, wdata, rdata);
   endfunction
 
-  modport initiator(output we, addr, wdata, input clk, rdata);
-  modport target   (input  we, addr, wdata, clk, output rdata);
+  modport initiator (
+    output we, addr, wdata,
+    input clk, rdata
+  );
+  modport target (
+    input we, addr, wdata, clk,
+    output rdata
+  );
 endinterface

@@ -123,6 +123,20 @@ describe('browser-audit lesson alignment', () => {
     expect(starter).toContain('set vif.addr, wait one rising edge, capture vif.rdata into data');
   });
 
+  it('keeps the first UVM test aligned with its objection lifecycle', () => {
+    const description = read('uvm/reporting/description.html');
+    const starter = read('uvm/reporting/my_test.sv');
+    const top = read('uvm/reporting/tb_top.sv');
+    expect(description).toContain('raise_objection');
+    expect(description).toContain('drop_objection');
+    expect(description).toContain('`uvm_info(ID, msg, verbosity)');
+    expect(description).toContain('`uvm_error(ID, msg)');
+    expect(starter).toContain('TODO 1: raise the objection');
+    expect(starter).toContain('TODO 4: drop the objection');
+    expect(starter).toContain('TODO 5: print a PASS completion marker');
+    expect(top).toContain('run_test("my_test")');
+  });
+
   it('keeps UVM coverage starters syntactically valid', () => {
     expect(read('uvm/covergroup/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);
     expect(read('uvm/cross-coverage/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);

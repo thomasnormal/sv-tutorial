@@ -33,7 +33,7 @@ curriculum review before implementation.
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
 | `sv/always-comb` | always_comb and case | ✅ | 27/27 | `sv/modules-and-ports` | `always_comb`, `case`/`if` in procedural block, combinational output |
-| `sv/priority-enc` | Priority Encoder (casez) | ✅ | 26/27 | `sv/always-comb` | `casez`, `?` wildcard match, priority-ordered selection |
+| `sv/priority-enc` | Priority Encoder (casez) | ✅ | 27/27 | `sv/always-comb` | `casez`, `?` wildcard match, priority-ordered selection |
 | `sv/assign-operators` | Operators & Arithmetic | ✅ | 26/27 | `sv/modules-and-ports` | `assign`, bit/reduction/ternary operators, signed arithmetic, overflow |
 
 > Cover reduction operators (`|req`), ternary, signed arithmetic,

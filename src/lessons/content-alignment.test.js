@@ -45,6 +45,15 @@ describe('browser-audit lesson alignment', () => {
     expect(starter).toContain('4-state 4-bit type for an RTL status nibble');
   });
 
+  it('keeps the priority encoder exercise aligned with its casez patterns', () => {
+    const description = read('sv/priority-enc/description.html');
+    const starter = read('sv/priority-enc/priority_enc.sv');
+    expect(description).toContain('first matching branch wins');
+    expect(description).toContain('4\'b1???');
+    expect(starter).toContain('casez (req)');
+    expect(starter).toContain('four branches in descending priority');
+  });
+
   it('keeps UVM coverage starters syntactically valid', () => {
     expect(read('uvm/covergroup/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);
     expect(read('uvm/cross-coverage/mem_coverage.sv')).toMatch(/report_phase[\s\S]*?\$fatal\([^;]+\);/);

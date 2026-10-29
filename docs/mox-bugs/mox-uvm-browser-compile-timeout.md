@@ -52,3 +52,11 @@ The rejection is emitted by Mox
 the nested `LLVM::LoadOp`; the ownership walk treats it as an unowned effect
 and refuses to rematerialize the evaluator. This source location is the
 upstream handoff target; the tutorial checkout does not vendor or patch Mox.
+
+On the next resumed audit, a temporary testbench with the SRAM child removed
+entirely (the UVM environment and coverage code were unchanged; `rdata` was
+driven by a local top-level combinational expression) still failed to produce
+an exit or MLIR within a bounded six-minute direct WASM compile. A scan of all
+local Mox refs found no post-`b90b3a51a68` change to this conversion or a
+UVM-related fix. The child-output rejection is therefore a concrete first
+diagnostic, but not the only full-UVM compilation blocker at this pin.

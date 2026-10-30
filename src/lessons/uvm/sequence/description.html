@@ -20,3 +20,4 @@ endclass</pre>
 </ol>
 <p>In this exercise, <code>addr inside {0, 4, 8, 12}</code> is an inline constraint: it limits this item's address to the four aligned locations without changing the reusable <code>mem_item</code> class. Open <code>mem_seq.sv</code> and complete the <code>body()</code> task. A logging driver is already provided — each item you hand off will be printed, so you can see the handshake working immediately.</p>
 <blockquote><p>Sequences are objects (<code>uvm_object</code>), not components — they have no phases. Start them explicitly from a test's <code>run_phase</code> with <code>seq.start(sequencer_handle)</code>.</p></blockquote>
+<p class="runtime-note"><strong>Browser status:</strong> the current full-UVM browser worker times out during Mox compilation before simulation; this lesson remains available as source until that environment path is qualified.</p>

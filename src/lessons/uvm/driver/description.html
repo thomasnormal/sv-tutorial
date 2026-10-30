@@ -35,3 +35,4 @@ rdata ──────[data]────────────────  
                 <li>In <code>run_phase</code>: drive <code>we</code>, <code>addr</code>, and <code>wdata</code> onto the interface, then capture <code>rdata</code> after the boundary edge</li>
               </ul>
               <blockquote><p>The virtual interface is the only bridge from the dynamic class world into the static module world. It must be <code>set</code> in <code>tb_top</code> before <code>run_test()</code> is called, and <code>get</code> by every component that needs DUT access.</p></blockquote>
+<p class="runtime-note"><strong>Browser status:</strong> the current full-UVM browser worker times out during Mox compilation before simulation; this lesson remains available as source until that environment path is qualified.</p>

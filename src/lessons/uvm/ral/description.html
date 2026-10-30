@@ -103,3 +103,4 @@ endclass</pre>
                 <li>Open <code>mem_test_ral.sv</code> — follow the TODO comments: replace direct field assignment with <code>.set()</code>, and replace <code>to_data()</code>/<code>convert2string()</code> with <code>.get()</code>.</li>
               </ol>
               <blockquote><p>The <code>lsb_pos</code> argument to <code>configure()</code> replaces what <code>to_data()</code> was doing manually. <code>enable</code> sits at bit 0 (<code>lsb_pos=0</code>, size=1); <code>mode</code> sits at bits [2:1] (<code>lsb_pos=1</code>, size=2). UVM uses this to pack and unpack the register value automatically.</p></blockquote>
+<p class="runtime-note"><strong>Browser status:</strong> the current full-UVM browser worker times out during Mox compilation before simulation; this lesson remains available as source until that environment path is qualified.</p>

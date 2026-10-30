@@ -14,11 +14,12 @@ const base = process.env.VITE_BASE?.replace(/\/$/, '') ?? '';
 // "unexpectedly passed" so the entry gets removed.
 const WASM_REBUILD = 'pinned mox WASM (805b42d2) bug; native Mox passes — needs a WASM rebuild';
 const WASM_REFUSAL = 'published Mox WASM refusal; routed to coordinator with the exact construct';
+const ENVIRONMENT_BLOCKER = 'browser environment gap; documented in the lesson and coordinator census';
 const KNOWN_FAILURES = {
   'sv/events run': `${WASM_REFUSAL}: __moore_event_trigger is unresolved in mox-sim`,
-  'sv/interfaces run': `mox-run "memory access out of bounds": ${WASM_REBUILD}`,
-  'sv/modports run': `mox-run "memory access out of bounds": ${WASM_REBUILD}`,
-  'sv/tasks-functions run': `mox-run "memory access out of bounds": ${WASM_REBUILD}`,
+  'sv/interfaces run': `${WASM_REFUSAL}: __mox_sim_notify_native_memory_write unlinked`,
+  'sv/modports run': `${WASM_REFUSAL}: __mox_sim_notify_native_memory_write unlinked`,
+  'sv/tasks-functions run': `${WASM_REFUSAL}: continuous-evaluator-effect-ownership-not-admitted`,
   'sv/covergroup-basics run': `${WASM_REFUSAL}: __mox_sim_register_host_allocation`,
   'sv/coverpoint-bins run': `${WASM_REFUSAL}: __mox_sim_register_host_allocation`,
   'sv/cross-coverage run': `${WASM_REFUSAL}: assertMooreCrossBinsofFilterStructABI`,
@@ -28,10 +29,10 @@ const KNOWN_FAILURES = {
   'sv/interface-method-receiver run': `interface-method receiver support is newer than the pinned WASM; native Mox passes: ${WASM_REBUILD}`,
   'sva/sequence-basics verify': 'Mox BMC crashes on an assert with a pass action (llhd.process handoff)',
   'sva/formal-assume run': 'Mox evaluates an initial assume property at every clock edge, not once (§16.14.6)',
-  'cocotb/first-test run': `mox-sim-vpi aborts when the simulation starts: ${WASM_REBUILD}`,
-  'cocotb/clock-and-timing run': `mox-sim-vpi aborts when the simulation starts: ${WASM_REBUILD}`,
-  'cocotb/edge-triggers run': `mox-sim-vpi aborts when the simulation starts: ${WASM_REBUILD}`,
-  'cocotb/clockcycles-patterns run': `mox-sim-vpi aborts when the simulation starts: ${WASM_REBUILD}`
+  'cocotb/first-test run': `${ENVIRONMENT_BLOCKER}: mox-sim-vpi completed at 0 fs without a cocotb result`,
+  'cocotb/clock-and-timing run': `${ENVIRONMENT_BLOCKER}: mox-sim-vpi completed at 0 fs without a cocotb result`,
+  'cocotb/edge-triggers run': `${ENVIRONMENT_BLOCKER}: mox-sim-vpi completed at 0 fs without a cocotb result`,
+  'cocotb/clockcycles-patterns run': `${ENVIRONMENT_BLOCKER}: mox-sim-vpi completed at 0 fs without a cocotb result`
 };
 
 // The current browser artifact deliberately refuses temporal-property
@@ -66,7 +67,7 @@ for (const mode of ['run', 'verify']) {
 }
 for (const lesson of LESSONS) {
   if (lesson.slug.startsWith('uvm/')) {
-    KNOWN_FAILURES[`${lesson.slug} run`] = `mox-verilog Aborted() after UVM/DPI/REGEX: ${WASM_REBUILD}`;
+    KNOWN_FAILURES[`${lesson.slug} run`] = `${ENVIRONMENT_BLOCKER}: full-UVM browser compile timed out before simulation`;
   }
 }
 

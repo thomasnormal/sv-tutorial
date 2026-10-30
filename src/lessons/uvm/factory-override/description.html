@@ -11,3 +11,4 @@
                 <li>Open <code>mem_test_corner.sv</code> — add the factory override call in <code>build_phase</code> to redirect every <code>mem_item::type_id::create()</code> to produce a <code>corner_mem_item</code> instead</li>
               </ol>
               <blockquote><p>The base class <code>mem_item</code> declares <code>range_c { addr inside {[1:14]}; }</code>. When a subclass declares a constraint with the same name, it <em>replaces</em> the parent's version. No <code>constraint_mode()</code> call needed — the name collision is the override.</p></blockquote>
+<p class="runtime-note"><strong>Browser status:</strong> the current full-UVM browser worker times out during Mox compilation before simulation; this lesson remains available as source until that environment path is qualified.</p>

@@ -31,3 +31,4 @@ endclass</pre>
                 <li><strong>Read transaction</strong>: compare <code>item.rdata</code> to <code>shadow[item.addr]</code> — increment <code>pass_count</code> or <code>fail_count</code> and log accordingly</li>
               </ul>
               <blockquote><p>The analysis port is one-to-many: the monitor does not know how many subscribers are connected. You can attach a coverage collector alongside the scoreboard by connecting both to the same port — the monitor code does not change at all.</p></blockquote>
+<p class="runtime-note"><strong>Browser status:</strong> the current full-UVM browser worker times out during Mox compilation before simulation; this lesson remains available as source until that environment path is qualified.</p>

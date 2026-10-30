@@ -30,4 +30,11 @@ describe('lesson panel accessibility contract', () => {
     expect(lessonPage).toContain('id="runtime-panel-logs"\n        role="tabpanel"\n        aria-labelledby="runtime-tab-logs"');
     expect(lessonPage).toContain('id="runtime-panel-waves"\n          role="tabpanel"\n          aria-labelledby="runtime-tab-waves"');
   });
+
+  it('keeps the copy warning dialog focusable and dismissible', () => {
+    expect(lessonPage).toContain('aria-label="Close copy warning"');
+    expect(lessonPage).toContain('bind:this={copyModalEl} role="dialog" aria-modal="true"');
+    expect(lessonPage).toContain('aria-labelledby="copy-modal-title"\n         tabindex="-1"');
+    expect(lessonPage).toContain('if (showCopyModal && copyModalEl) copyModalEl.focus();');
+  });
 });

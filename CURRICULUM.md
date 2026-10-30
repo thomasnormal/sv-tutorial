@@ -246,6 +246,7 @@ curriculum review before implementation.
 |---|---|---|---|---|---|
 | `mlir/intro` | What is MLIR? | ✅ | 27/27 | `sv/modules-and-ports` | intermediate representations, SSA values, types, and MLIR dialect namespaces |
 | `mlir/comb` | The comb Dialect | ✅ | 27/27 | `mlir/intro`, `sv/priority-enc` | `comb` operations for add, mux, bitwise logic, and extracts in an SSA hardware graph |
+| `mlir/seq` | The seq Dialect: Registers | ✅ | 27/27 | `mlir/comb`, `sv/always-ff` | `seq.compreg`, clocked state, and lowering an SSA register into sequential hardware |
 
 ## Diagram opportunities (from MIT 6.111 research)
 

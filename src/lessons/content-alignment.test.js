@@ -170,15 +170,19 @@ describe('browser-audit lesson alignment', () => {
     const top = read('uvm/cross-coverage/tb_top.sv');
     expect(description).toContain('addr_x_we: cross cp_addr, cp_we;');
     expect(description).toContain('That single line creates 32 bins');
+    expect(description).toContain('cross_ready');
+    expect(description).toContain('remaining 30 bins are checked');
     expect(description).toContain('binsof</dfn></code> and <code>intersect');
     expect(description).toContain('reserved write addresses (14 and 15)');
     expect(starter).toContain('TODO 1: add addr_x_we cross');
     expect(starter).toContain('TODO 2: exclude the write combinations');
     expect(starter).toContain('while keeping the read combinations covered');
+    expect(starter).toContain('TODO: set cross_ready = 1');
     expect(solution).toContain('addr_x_we: cross cp_addr, cp_we');
     expect(solution).toContain('ignore_bins no_write_reserved');
     expect(solution).toContain('binsof(cp_addr.addr) intersect {14, 15}');
     expect(solution).toContain('binsof(cp_we.writes)');
+    expect(solution).toContain('bit cross_ready = 1;');
     expect(top).toContain('get_severity_count(UVM_ERROR) == 0');
   });
 

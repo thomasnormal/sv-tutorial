@@ -7,6 +7,11 @@ prerequisites, and quality scores. Completed lessons include starter and solutio
 source plus a runnable testbench with labelled PASS/FAIL output where the lesson
 can be checked in simulation.
 
+The build-generated [`Lesson status`](/status) page lists the current browser
+result for every lesson. Each lesson carries the same status badge; lessons
+with a Mox or environment limitation include the measured diagnostic, the
+relevant IEEE clause, a browser-friendly fallback, and a native-Mox command.
+
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for setup, lesson authoring, validation,
 and pull-request guidance.
 

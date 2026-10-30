@@ -512,6 +512,13 @@
         </div>
         <div class="flex items-center gap-1">
           <a
+            href={`${base}/status`}
+            class="rounded-[8px] px-2 py-1.5 text-[0.76rem] text-muted-foreground hover:bg-surface-2 hover:text-foreground transition-colors"
+            data-testid="status-link"
+          >
+            Status
+          </a>
+          <a
             href="https://github.com/thomasnormal/sv-tutorial"
             target="_blank"
             rel="noopener noreferrer"

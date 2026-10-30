@@ -20,6 +20,11 @@ lessons stay explicitly quarantined until their documented Mox/WASM blockers are
 resolved. Future lessons should be added through a curriculum review before
 implementation.
 
+The published site also includes a build-generated [lesson status page](/status)
+and matching badge on every lesson. It identifies browser PASS results, Mox
+refusals with their IEEE clause, and environment gaps without changing the
+source examples used to teach each construct.
+
 ---
 
 ## Part 1 — SystemVerilog Basics

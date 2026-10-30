@@ -9,6 +9,7 @@
   import { completedSlugs, completedSourceHashes } from '$lib/stores/completed.js';
   import { cloneFiles, mergeFiles, topNameForLesson } from '$lib/lesson-utils.js';
   import { bmcRunPasses } from '$lib/bmc-verdict.js';
+  import { statusForLesson } from '$lib/generated-lesson-status.js';
   import { termCard } from '$lib/actions/term-card.js';
   import { highlightCode } from '$lib/actions/highlight-code.js';
   import CodeEditor from '$lib/components/CodeEditor.svelte';
@@ -16,6 +17,8 @@
 
   let { data } = $props();
   let lesson = $derived(data.lesson);
+  let lessonStatus = $derived(statusForLesson(lesson.slug));
+  let limitation = $derived(lessonStatus.rows.find((row) => row.status !== 'PASS'));
 
   // Panel split state
   let hSplit = $state(33);      // lesson pane % of main section width
@@ -601,10 +604,43 @@
 <section class="flex-1 min-h-0 flex max-narrow:flex-col">
   <article bind:this={lessonArticleEl} style="flex: 0 0 {hSplit}%; min-width: 200px"
            class="bg-surface border border-border rounded-[14px] shadow-app min-h-0 flex flex-col p-[0.9rem] gap-3 overflow-y-auto [scrollbar-gutter:stable] max-narrow:rounded-none max-narrow:border-x-0 max-narrow:border-t-0">
-    <h2 data-testid="lesson-title" class="m-0 text-[1.15rem] font-bold leading-tight text-foreground">{lesson.title}</h2>
+    <div class="flex flex-wrap items-center gap-2">
+      <h2 data-testid="lesson-title" class="m-0 text-[1.15rem] font-bold leading-tight text-foreground">{lesson.title}</h2>
+      <a
+        href={`${base}/status#${lesson.slug.replace('/', '-')}`}
+        data-testid="lesson-status-badge"
+        class="rounded-full border px-2 py-0.5 text-[0.68rem] font-medium transition-colors hover:opacity-80 {lessonStatus.status === 'PASS' ? 'border-teal/40 bg-teal/10 text-teal' : lessonStatus.status === 'Mox refusal' ? 'border-amber-400/50 bg-amber-400/10 text-amber-700 dark:text-amber-300' : 'border-sky-400/50 bg-sky-400/10 text-sky-700 dark:text-sky-300'}"
+        aria-label="Lesson status: {lessonStatus.status}"
+      >
+        {lessonStatus.status === 'environment' ? 'Environment' : lessonStatus.status}
+      </a>
+    </div>
     <div class="lesson-body" use:termCard={{ onShow: showCard, onHide: hideCard }} use:highlightCode={lesson.html}>
       {@html lesson.html}
     </div>
+    {#if limitation}
+      <aside data-testid="known-limitation" class="rounded-[10px] border {limitation.status === 'Mox refusal' ? 'border-amber-400/50 bg-amber-400/10' : 'border-sky-400/50 bg-sky-400/10'} px-3 py-2 text-[0.8rem] leading-relaxed">
+        <p class="m-0"><strong>Known limitation ({lessonStatus.status === 'Mox refusal' ? 'WASM Mox' : 'browser environment'}):</strong>
+          The current published path cannot run <code>{limitation.construct}</code>.
+          {#if limitation.clause && limitation.clause !== '—'} IEEE 1800-2023 {limitation.clause}.{/if}
+          {#if limitation.diagnostic} The observed diagnostic is <code>{limitation.diagnostic}</code>.{/if}
+        </p>
+        <p class="mt-1.5 mb-0"><strong>Try instead:</strong>
+          {#if limitation.status === 'Mox refusal'}
+            in WASM Mox, replace the refused construct with an immediate <code>if</code> check and run the same self-checking stimulus; the surrounding signals and expected result still execute in the browser.
+          {:else}
+            in WASM Mox, open a neighboring plain SystemVerilog lesson to run the same self-checking stimulus while this {limitation.clause.toLowerCase()} worker path is repaired.
+          {/if}
+        </p>
+        {#if limitation.status === 'Mox refusal'}
+          <details open class="mt-1.5">
+            <summary class="cursor-pointer font-medium">Native-Mox variant of this example</summary>
+            <p class="mt-1 mb-1">From this lesson directory, compile the companion source and run it with native Mox:</p>
+            <pre class="overflow-x-auto rounded-[7px] bg-surface px-2 py-1.5 text-[0.72rem]"><code>mox-verilog --ir-llhd --top tb -o lesson.llhd.mlir src/*.sv &amp;&amp; mox-sim --top tb lesson.llhd.mlir</code></pre>
+          </details>
+        {/if}
+      </aside>
+    {/if}
     {#if lesson.bmcExpected === 'counterexample'}
       <aside data-testid="bmc-expectation" class="rounded-[10px] border border-border bg-surface-2 px-3 py-2 text-[0.8rem] leading-relaxed">
         <strong>Verify outcome:</strong> the completed checker is expected to report

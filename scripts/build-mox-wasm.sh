@@ -7,6 +7,10 @@ source "$ROOT_DIR/scripts/toolchain.lock.sh"
 MOX_DIR="${1:-vendor/mox}"
 BUILD_DIR="${BUILD_DIR:-$MOX_DIR/build-wasm}"
 JOBS="${MOX_WASM_JOBS:-6}"
+# Emscripten's Binaryen finalizer creates its own worker pool. Keep that pool
+# aligned with the bounded Ninja build; otherwise a large mox-sim link can
+# oversubscribe the host and leave the finalizer waiting indefinitely.
+export EMCC_CORES="${EMCC_CORES:-8}"
 CONFIGURE_TIMEOUT_MIN="${MOX_WASM_CONFIGURE_TIMEOUT_MIN:-30}"
 BUILD_TIMEOUT_MIN="${MOX_WASM_BUILD_TIMEOUT_MIN:-120}"
 MEMORY_LIMIT_KB="${MOX_WASM_MEMORY_LIMIT_KB:-0}"
@@ -47,10 +51,15 @@ run_configure() {
   # them, so NATIVE falls back to LLVM's C++17 and current Mox refuses to
   # configure ("CMAKE_CXX_STANDARD=17 conflicts with MOX's required C++20").
   # Re-pass the same list with C++20; the later -D wins.
-  local native_flags="-DCMAKE_CXX_STANDARD=20;-DMOX_SLANG_FRONTEND_ENABLED=ON;-DMOX_INCLUDE_TESTS=OFF;-DMOX_BINDINGS_TCL_ENABLED=OFF;-DMOX_INCLUDE_ARC_TOOLS=OFF;-DLLVM_ENABLE_ZLIB=OFF;-DLLVM_ENABLE_ZSTD=OFF;-DLLVM_INCLUDE_EXAMPLES=OFF"
+  # emcmake exports the Emscripten compiler into the environment. The nested
+  # NATIVE configure is invoked directly by CMake, so force it back to host
+  # compilers or its TableGen tools are emitted as non-executable JS wrappers.
+  local native_flags="-DCMAKE_C_COMPILER=/usr/bin/gcc;-DCMAKE_CXX_COMPILER=/usr/bin/g++;-DCMAKE_CXX_STANDARD=20;-DMOX_SLANG_FRONTEND_ENABLED=ON;-DMOX_INCLUDE_TESTS=OFF;-DMOX_BINDINGS_TCL_ENABLED=OFF;-DMOX_INCLUDE_ARC_TOOLS=OFF;-DLLVM_ENABLE_ZLIB=OFF;-DLLVM_ENABLE_ZSTD=OFF;-DLLVM_INCLUDE_EXAMPLES=OFF;-DZ3_DISABLE=ON;-DCMAKE_BUILD_WITH_INSTALL_RPATH=ON"
   extra_args+=(
     "-DCROSS_TOOLCHAIN_FLAGS_LLVM_NATIVE=$native_flags"
     "-DCROSS_TOOLCHAIN_FLAGS_mox_NATIVE=$native_flags"
+    -DZ3_DISABLE=ON
+    -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
   )
   if [[ "$USE_CCACHE" == "1" && -n "$CCACHE_BIN" ]]; then
     echo "  using ccache launcher: $CCACHE_BIN"

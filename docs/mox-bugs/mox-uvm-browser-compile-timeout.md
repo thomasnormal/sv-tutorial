@@ -35,6 +35,32 @@ root bundling, or the optional register-model sources.
 The direct compile's complete diagnostic (once the bounded run was allowed to
 finish) identifies the underlying Mox rejection:
 
+## 2026-10-30 rebuild verification
+
+The WASM artifact was rebuilt from the locked Mox ref
+`b90b3a51a68b772a1510c837166afd6d429d8f20` (LLVM
+`e3e4f161d0160f10dc7cbd746abd639dd740ecde`) with Emscripten 4.0.21 and
+Node 22.22.3. The build completed all 5,055 requested targets after forcing the
+nested NATIVE host configure to use `/usr/bin/gcc` and `/usr/bin/g++`; the
+Emscripten finalizer was capped at eight workers. `check:req:wasm`,
+`npm run local-publish:mox`, `npm test` (30 files, 112 tests), and `npm run
+build` passed.
+
+The rebuilt browser worker still does not finish UVM compilation. With a fresh
+Vite server on port 43173, `uvm/reporting` entered the worker compile and
+stopped at the harness's exact 180000 ms deadline:
+
+```text
+Error: compile timed out after 180000ms
+    at Timeout.<anonymous> (scripts/repro-uvm-browser-worker-assert.mjs:288:22)
+```
+
+No `mox-verilog` exit, MLIR output, or simulation command was produced. The
+same worker timeout is therefore present on the rebuilt artifact. A full matrix
+attempt was stopped after the first exact timeout; its subsequent attempts also
+hit the harness's fixed Vite port while the timed-out child was still draining.
+The browser UVM matrix remains blocked pending an upstream Mox compile-time fix.
+
 ```text
 continuous-evaluator-effect-ownership-not-admitted construct=continuous-assignment clause=10.3
 continuous evaluator cannot rematerialize operation llvm.load

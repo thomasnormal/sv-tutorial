@@ -229,6 +229,15 @@ curriculum review before implementation.
 
 ---
 
+## Part 4 — RTL Design Patterns
+
+### Chapter: Synthesis
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `rtl/rtl-to-gates` | RTL to Gates | ✅ | 27/27 | `sv/always-comb`, `sv/always-ff` | how `always_comb` infers a multiplexer and `always_ff` infers a D flip-flop in a pipeline stage |
+
+---
+
 ## Diagram opportunities (from MIT 6.111 research)
 
 Reference PDFs in `reference/mit-6111/` (CC BY-NC-SA 4.0, Chandrakasan, Spring 2006).

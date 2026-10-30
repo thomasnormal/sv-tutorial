@@ -360,6 +360,7 @@ test('copy from lesson body triggers copy-protection modal', async ({ page }) =>
   const modal = page.getByRole('dialog');
   if (await modal.isVisible({ timeout: 2_000 }).catch(() => false)) {
     await expect(modal).toContainText(/copy/i);
+    await expect(modal).toBeFocused();
     await page.getByRole('button', { name: /ok/i }).click();
     await expect(modal).not.toBeVisible();
   }

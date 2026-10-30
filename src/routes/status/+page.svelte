@@ -28,7 +28,7 @@
         </p>
       </div>
       <div class="flex flex-wrap gap-2 text-[0.78rem]" data-testid="status-summary">
-        {#each [['PASS', data.statusSummary.PASS], ['Mox refusal', data.statusSummary['Mox refusal']], ['Environment', data.statusSummary.environment]] as [label, count]}
+        {#each [['PASS', data.statusSummary.PASS], ['Mox refusal', data.statusSummary['Mox refusal']], ['Environment', data.statusSummary.environment], ['Tutorial', data.statusSummary.tutorial]] as [label, count]}
           <span class="rounded-full border px-2.5 py-1 {statusClass(label === 'Environment' ? 'environment' : label)}">
             {label}: {count}
           </span>

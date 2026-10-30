@@ -142,3 +142,21 @@ In `.env` (copy `.env.example`):
 - Includes:
   - non-mock pipeline check (`mox-verilog` + `mox-sim`, waveform generated)
   - Surfer waveform render check when browser WebGL support is available in the test environment
+
+## Re-running the published lesson matrix
+
+The 109-case browser matrix is reproducible against any Mox WASM directory. A
+new Mox build from the fleet normally lands under
+`/scratch/thomas-ahle/tmp/sv-tutorial/...`; pass that build directory to the
+runner:
+
+```bash
+scripts/run-matrix.sh /scratch/thomas-ahle/tmp/sv-tutorial/<build>/bin
+```
+
+The runner temporarily serves that directory as `static/mox`, visits every
+lesson's run and verify path, and rewrites
+`docs/mox-bugs/mox-wasm-item16-failures.md` with the measured failure table.
+It then runs `npm run build`, whose prebuild step regenerates the status page
+and lesson badges from that table. The temporary artifact handoff is removed
+when the command exits; the generated census and status page remain for review.

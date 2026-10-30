@@ -99,7 +99,7 @@ export const lessonStatuses = [
         "slug": "sv/events",
         "mode": "run",
         "construct": "named event trigger and wait",
-        "diagnostic": "__moore_event_trigger` unresolved",
+        "diagnostic": "__moore_event_trigger unresolved",
         "clause": "§15.5 (named events)",
         "status": "Mox refusal"
       }
@@ -234,7 +234,7 @@ export const lessonStatuses = [
         "slug": "sv/interfaces",
         "mode": "run",
         "construct": "interface signal connection",
-        "diagnostic": "__mox_sim_notify_native_memory_write` unlinked",
+        "diagnostic": "__mox_sim_notify_native_memory_write unlinked",
         "clause": "§25.3 (interface declarations)",
         "status": "Mox refusal"
       }
@@ -249,7 +249,7 @@ export const lessonStatuses = [
         "slug": "sv/modports",
         "mode": "run",
         "construct": "modport direction view",
-        "diagnostic": "__mox_sim_notify_native_memory_write` unlinked",
+        "diagnostic": "__mox_sim_notify_native_memory_write unlinked",
         "clause": "§25.5 (modports)",
         "status": "Mox refusal"
       }
@@ -324,7 +324,7 @@ export const lessonStatuses = [
         "slug": "sv/covergroup-basics",
         "mode": "run",
         "construct": "covergroup allocation and sampling",
-        "diagnostic": "__mox_sim_register_host_allocation` unlinked",
+        "diagnostic": "__mox_sim_register_host_allocation unlinked",
         "clause": "§19.2 (covergroup declarations)",
         "status": "Mox refusal"
       }
@@ -339,7 +339,7 @@ export const lessonStatuses = [
         "slug": "sv/coverpoint-bins",
         "mode": "run",
         "construct": "coverpoint bins and ignore bins",
-        "diagnostic": "__mox_sim_register_host_allocation` unlinked",
+        "diagnostic": "__mox_sim_register_host_allocation unlinked",
         "clause": "§19.4 and §19.6 (coverpoints and bins)",
         "status": "Mox refusal"
       }
@@ -384,7 +384,7 @@ export const lessonStatuses = [
         "slug": "sv/queues-arrays",
         "mode": "run",
         "construct": "dynamic array and queue values",
-        "diagnostic": "__mox_sv_open_array_copy_or_register_bounds` unlinked",
+        "diagnostic": "__mox_sv_open_array_copy_or_register_bounds unlinked",
         "clause": "§§7.5 and 7.10 (arrays and queues)",
         "status": "Mox refusal"
       }
@@ -428,7 +428,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/concurrent-sim",
         "mode": "run",
-        "construct": "concurrent `assert property",
+        "construct": "concurrent assert property",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§16.2 (concurrent assertions)",
         "status": "Mox refusal"
@@ -458,7 +458,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/isunknown",
         "mode": "run",
-        "construct": "sampled `$isunknown` assertion",
+        "construct": "sampled $isunknown assertion",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§20.9 (bit system functions)",
         "status": "Mox refusal"
@@ -472,7 +472,7 @@ export const lessonStatuses = [
     "rows": [
       {
         "slug": "sva/immediate-assert",
-        "mode": "run, verify (`PASS*`)",
+        "mode": "run, verify (PASS*)",
         "construct": "immediate assertion action",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§16.3 (immediate assertions)",
@@ -533,7 +533,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/clock-delay",
         "mode": "run, verify",
-        "construct": "##m` and `##[m:n]` delays",
+        "construct": "##m and ##[m:n] delays",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§16.10.1 (cycle delay)",
         "status": "Mox refusal"
@@ -548,7 +548,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/rose-fell",
         "mode": "run, verify",
-        "construct": "$rose` and `$fell",
+        "construct": "$rose and $fell",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§16.9.3 (sampled-value functions)",
         "status": "Mox refusal"
@@ -578,7 +578,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/consecutive-rep",
         "mode": "run, verify",
-        "construct": "consecutive repetition `[*]",
+        "construct": "consecutive repetition [*]",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§16.10.4 (repetition)",
         "status": "Mox refusal"
@@ -593,7 +593,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/nonconsec-rep",
         "mode": "run, verify",
-        "construct": "goto repetition `[->]",
+        "construct": "goto repetition [->]",
         "diagnostic": "unbounded goto repetition has an unbounded sampled gap",
         "clause": "§16.10.6 (goto repetition)",
         "status": "Mox refusal"
@@ -608,7 +608,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/nonconsec-eq",
         "mode": "run, verify",
-        "construct": "non-consecutive repetition `[=]",
+        "construct": "non-consecutive repetition [=]",
         "diagnostic": "sequence-zero-delay-endpoint-overlap-not-representable",
         "clause": "§16.10.7 (non-consecutive repetition)",
         "status": "Mox refusal"
@@ -623,7 +623,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/throughout",
         "mode": "run, verify",
-        "construct": "throughout` sequence constraint",
+        "construct": "throughout sequence constraint",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§16.10.5 (throughout)",
         "status": "Mox refusal"
@@ -638,7 +638,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/sequence-ops",
         "mode": "run, verify",
-        "construct": "intersect`, `within`, `and`, `or",
+        "construct": "intersect, within, and, or",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§16.9 (sequence operators)",
         "status": "Mox refusal"
@@ -668,7 +668,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/stable-past",
         "mode": "run, verify",
-        "construct": "$stable` and `$past",
+        "construct": "$stable and $past",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§16.9.3 (sampled-value functions)",
         "status": "Mox refusal"
@@ -683,7 +683,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/changed",
         "mode": "run, verify",
-        "construct": "$changed` and `$sampled",
+        "construct": "$changed and $sampled",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§16.9.3 (sampled-value functions)",
         "status": "Mox refusal"
@@ -698,9 +698,9 @@ export const lessonStatuses = [
       {
         "slug": "sva/disable-iff",
         "mode": "run, verify",
-        "construct": "disable iff` property abort",
+        "construct": "disable iff property abort",
         "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.12.1 (`disable iff`)",
+        "clause": "§16.12.1 (disable iff)",
         "status": "Mox refusal"
       }
     ]
@@ -713,7 +713,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/abort",
         "mode": "run, verify",
-        "construct": "reject_on` and `accept_on",
+        "construct": "reject_on and accept_on",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§16.12.2 (abort operators)",
         "status": "Mox refusal"
@@ -758,7 +758,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/onehot",
         "mode": "run, verify",
-        "construct": "$onehot`, `$onehot0`, `$countones",
+        "construct": "$onehot, $onehot0, $countones",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§20.9 (bit system functions)",
         "status": "Mox refusal"
@@ -773,7 +773,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/triggered",
         "mode": "run, verify",
-        "construct": "sequence `.triggered` method",
+        "construct": "sequence .triggered method",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§16.9.11 (sequence methods)",
         "status": "Mox refusal"
@@ -788,7 +788,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/checker",
         "mode": "run, verify",
-        "construct": "checker` declaration",
+        "construct": "checker declaration",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§17.2 (checker declarations)",
         "status": "Mox refusal"
@@ -818,9 +818,9 @@ export const lessonStatuses = [
       {
         "slug": "sva/bind",
         "mode": "run",
-        "construct": "bind` checker attachment",
+        "construct": "bind checker attachment",
         "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§23.11 (`bind`)",
+        "clause": "§23.11 (bind)",
         "status": "Mox refusal"
       }
     ]
@@ -833,9 +833,9 @@ export const lessonStatuses = [
       {
         "slug": "sva/let",
         "mode": "run",
-        "construct": "let` sequence expression",
+        "construct": "let sequence expression",
         "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.8.4 (`let` declarations)",
+        "clause": "§16.8.4 (let declarations)",
         "status": "Mox refusal"
       }
     ]
@@ -863,7 +863,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/always-eventually",
         "mode": "run, verify",
-        "construct": "always` and `s_eventually",
+        "construct": "always and s_eventually",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§16.13 (liveness operators)",
         "status": "Mox refusal"
@@ -878,7 +878,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/until",
         "mode": "run, verify",
-        "construct": "until` and `s_until",
+        "construct": "until and s_until",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§16.10.3 (until operators)",
         "status": "Mox refusal"
@@ -892,7 +892,7 @@ export const lessonStatuses = [
     "rows": [
       {
         "slug": "sva/lec",
-        "mode": "verify (`PASS*`)",
+        "mode": "verify (PASS*)",
         "construct": "property miter for LEC",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§16.14 (assertion statements)",
@@ -908,7 +908,7 @@ export const lessonStatuses = [
       {
         "slug": "sva/followed-by",
         "mode": "verify",
-        "construct": "#-#` and `#=#` followed-by",
+        "construct": "#-# and #=# followed-by",
         "diagnostic": "temporal-property-evaluator-not-admitted",
         "clause": "§16.10.8 (followed-by operators)",
         "status": "Mox refusal"
@@ -1248,6 +1248,7 @@ export const lessonStatuses = [
 ];
 export const statusSummary = {
   "PASS": 26,
+  "tutorial": 0,
   "Mox refusal": 41,
   "environment": 16
 };

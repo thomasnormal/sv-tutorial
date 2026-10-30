@@ -136,3 +136,8 @@ export const lessons = parts.flatMap((part) =>
     }))
   )
 );
+
+// The route prerenderer includes quarantined lessons for direct inspection,
+// while the published navigation and legacy lesson numbering stay limited to
+// browser-qualified lessons above.
+export const allLessons = Object.values(metaMap).map((lesson) => ({ ...lesson }));

@@ -13,11 +13,16 @@ const base = process.env.VITE_BASE?.replace(/\/$/, '') ?? '';
 // entry names its cause; once fixed, Playwright reports the test as
 // "unexpectedly passed" so the entry gets removed.
 const WASM_REBUILD = 'pinned mox WASM (805b42d2) bug; native Mox passes — needs a WASM rebuild';
+const WASM_REFUSAL = 'published Mox WASM refusal; routed to coordinator with the exact construct';
 const KNOWN_FAILURES = {
+  'sv/events run': `${WASM_REFUSAL}: __moore_event_trigger is unresolved in mox-sim`,
   'sv/interfaces run': `mox-run "memory access out of bounds": ${WASM_REBUILD}`,
   'sv/modports run': `mox-run "memory access out of bounds": ${WASM_REBUILD}`,
   'sv/tasks-functions run': `mox-run "memory access out of bounds": ${WASM_REBUILD}`,
-  'sv/fsm run': `false "mem driven by always_ff" error on sram.sv: ${WASM_REBUILD}`,
+  'sv/covergroup-basics run': `${WASM_REFUSAL}: __mox_sim_register_host_allocation`,
+  'sv/coverpoint-bins run': `${WASM_REFUSAL}: __mox_sim_register_host_allocation`,
+  'sv/cross-coverage run': `${WASM_REFUSAL}: assertMooreCrossBinsofFilterStructABI`,
+  'sv/queues-arrays run': `${WASM_REFUSAL}: __mox_sv_open_array_copy_or_register_bounds`,
   'sv/protected-envelope-boundary run': `comment-form protected envelope support is not in the pinned WASM; native Mox passes: ${WASM_REBUILD}`,
   'sv/coverage-option-text run': 'pinned browser WASM lacks the coverage runtime host-allocation linkage; native Mox passes — needs a WASM rebuild',
   'sv/interface-method-receiver run': `interface-method receiver support is newer than the pinned WASM; native Mox passes: ${WASM_REBUILD}`,
@@ -28,6 +33,37 @@ const KNOWN_FAILURES = {
   'cocotb/edge-triggers run': `mox-sim-vpi aborts when the simulation starts: ${WASM_REBUILD}`,
   'cocotb/clockcycles-patterns run': `mox-sim-vpi aborts when the simulation starts: ${WASM_REBUILD}`
 };
+
+// The current browser artifact deliberately refuses temporal-property
+// evaluation until the Engine 2 evaluator is admitted. Keep every affected
+// lesson explicit in the QA report while the source examples remain useful
+// documentation and the coordinator tracks the upstream fix.
+const SVA_TEMPORAL_REFUSALS = [
+  'sva/concurrent-sim', 'sva/vacuous-pass', 'sva/isunknown',
+  'sva/sequence-basics', 'sva/implication', 'sva/formal-intro',
+  'sva/clock-delay', 'sva/rose-fell', 'sva/req-ack',
+  'sva/consecutive-rep', 'sva/nonconsec-rep', 'sva/nonconsec-eq',
+  'sva/throughout', 'sva/sequence-ops', 'sva/seq-args',
+  'sva/stable-past', 'sva/changed', 'sva/disable-iff', 'sva/abort',
+  'sva/cover-property', 'sva/local-vars', 'sva/onehot', 'sva/triggered',
+  'sva/checker', 'sva/recursive', 'sva/bind', 'sva/let',
+  'sva/formal-assume', 'sva/always-eventually', 'sva/until',
+  'sva/followed-by'
+];
+for (const slug of SVA_TEMPORAL_REFUSALS) {
+  const lesson = LESSONS.find((entry) => entry.slug === slug);
+  if (!lesson) continue;
+  if (['sim', 'both'].includes(lesson.runner)) {
+    KNOWN_FAILURES[`${slug} run`] = `${WASM_REFUSAL}: temporal-property-evaluator-not-admitted`;
+  }
+  if (['bmc', 'lec', 'both'].includes(lesson.runner)) {
+    KNOWN_FAILURES[`${slug} verify`] = `${WASM_REFUSAL}: temporal-property-evaluator-not-admitted`;
+  }
+}
+for (const mode of ['run', 'verify']) {
+  KNOWN_FAILURES[`sva/nonconsec-rep ${mode}`] = `${WASM_REFUSAL}: goto repetition has an unbounded sampled gap`;
+  KNOWN_FAILURES[`sva/nonconsec-eq ${mode}`] = `${WASM_REFUSAL}: sequence-zero-delay-endpoint-overlap-not-representable`;
+}
 for (const lesson of LESSONS) {
   if (lesson.slug.startsWith('uvm/')) {
     KNOWN_FAILURES[`${lesson.slug} run`] = `mox-verilog Aborted() after UVM/DPI/REGEX: ${WASM_REBUILD}`;

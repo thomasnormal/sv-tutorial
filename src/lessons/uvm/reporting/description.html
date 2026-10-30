@@ -14,6 +14,7 @@ endclass</pre>
                 <li><code>`uvm_error(ID, msg)</code> — always printed; increments error count; simulation continues</li>
                 <li><code>`uvm_fatal(ID, msg)</code> — always printed; immediately calls <code>$finish</code></li>
               </ul>
+              <p>The completion check treats any <code>UVM_ERROR</code> as a failed run. This exercise uses a warning for its demonstration so the run can finish cleanly; use <code>`uvm_error</code> when a real check fails.</p>
               <p>A UVM run starts with <code>run_test("test_name")</code> from the static top-level module. UVM constructs the named test class and drives it through a fixed sequence of <strong><dfn data-card="UVM phases are a sequence of named execution stages that all components go through in order: build_phase (create child components), connect_phase (wire TLM ports), run_phase (drive simulation time), check_phase (final scoreboard checks), report_phase (print summary). Build and connect phases are top-down and bottom-up respectively; run_phase is concurrent across all components.">phases</dfn></strong>. Only <code>run_phase</code> consumes time; the other phases set up or summarize the run.</p>
 <pre class="diagram">run_test("test_name")
        │
@@ -29,8 +30,8 @@ endclass</pre>
               <p>Open <code>my_test.sv</code> and complete the <code>run_phase</code> body:</p>
               <ol>
                 <li>Raise an objection to hold simulation open</li>
-                <li>Print an info message and an error message using the UVM macros</li>
+                <li>Print an info message and a warning message using the UVM macros</li>
                 <li>Drop the objection to let simulation end</li>
-                <li>Print the <code>PASS</code> completion marker after the drop</li>
+                <li>After the drop, print <code>PASS</code> only when the UVM error count is zero</li>
               </ol>
               <blockquote><p>Forgetting to call <code>drop_objection</code> is the most common beginner UVM bug — simulation will run forever. Always pair raise with drop.</p></blockquote>

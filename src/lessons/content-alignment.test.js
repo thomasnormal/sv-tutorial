@@ -131,9 +131,12 @@ describe('browser-audit lesson alignment', () => {
     expect(description).toContain('drop_objection');
     expect(description).toContain('`uvm_info(ID, msg, verbosity)');
     expect(description).toContain('`uvm_error(ID, msg)');
+    expect(description).toContain('uses a warning for its demonstration');
     expect(starter).toContain('TODO 1: raise the objection');
+    expect(starter).toContain('TODO 3: print a warning message using `uvm_warning');
     expect(starter).toContain('TODO 4: drop the objection');
-    expect(starter).toContain('TODO 5: print a PASS completion marker');
+    expect(starter).toContain('TODO 5: after the drop, print PASS only when the UVM error count is zero');
+    expect(read('uvm/reporting/my_test.sol.sv')).toContain('get_severity_count(UVM_ERROR) == 0');
     expect(top).toContain('run_test("my_test")');
   });
 

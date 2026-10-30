@@ -204,7 +204,7 @@ curriculum review before implementation.
 ### Chapter: UVM Foundations
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
-| `uvm/reporting` | The First UVM Test | ✅ | 26/27 | `sv/interfaces`, `sv/tasks-functions` | `uvm_component`, `uvm_test`, `` `uvm_info/warning/error ``, severity levels, `run_phase`, objections |
+| `uvm/reporting` | The First UVM Test | ✅ | 27/27 | `sv/interfaces`, `sv/tasks-functions` | `uvm_component`, `uvm_test`, `` `uvm_info/warning/error ``, severity levels, `run_phase`, objections |
 | `uvm/seq-item` | Sequence Items | ✅ | 27/27 | `uvm/reporting`, `sv/classes`, `sv/randomization` | `uvm_sequence_item`, `rand` fields, constraints, factory registration, field automation |
 
 ### Chapter: Stimulus

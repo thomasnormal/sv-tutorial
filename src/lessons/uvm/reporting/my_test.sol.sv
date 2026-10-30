@@ -11,8 +11,9 @@ class my_test extends uvm_test;
   task run_phase(uvm_phase phase);
     phase.raise_objection(this);
     `uvm_info("TEST", "Hello from UVM!", UVM_LOW)
-    `uvm_error("TEST", "Intentional error — simulation continues")
+    `uvm_warning("TEST", "Demonstration warning — simulation continues")
     phase.drop_objection(this);
-    $display("PASS");
+    if (uvm_report_server::get_server().get_severity_count(UVM_ERROR) == 0)
+      $display("PASS");
   endtask
 endclass

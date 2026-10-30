@@ -239,6 +239,13 @@ curriculum review before implementation.
 
 ---
 
+## Part 5 — MLIR & MOX
+
+### Chapter: Inside the Compiler
+| Slug | Title | Status | Score | Prereqs | Teaches |
+|---|---|---|---|---|---|
+| `mlir/intro` | What is MLIR? | ✅ | 27/27 | `sv/modules-and-ports` | intermediate representations, SSA values, types, and MLIR dialect namespaces |
+
 ## Diagram opportunities (from MIT 6.111 research)
 
 Reference PDFs in `reference/mit-6111/` (CC BY-NC-SA 4.0, Chandrakasan, Spring 2006).

@@ -7,16 +7,18 @@ and *SystemVerilog Assertions and Functional Coverage* by Ashok B. Mehta,
 3rd ed. (Springer, 2020) — cited as **Mehta §N** throughout — are noted
 where they are directly usable as a basis for a lesson.
 
-Legend: ✅ exists · 📝 planned (prioritised) · 💡 optional/stretch
+Legend: ✅ exists · ⏸ quarantined (implemented, browser path blocked) · 📝 planned (prioritised) · 💡 optional/stretch
 
 Scores are out of 27 (9 dimensions × 3 max). See `RUBRIC.md` for the rubric.
 Flag numbers identify the weak dimension(s): 1=Concept Focus, 2=Starter Calibration,
 3=Description Quality, 4=Progression, 5=Dual Coding, 6=Solution Idiom,
 7=Concept Importance, 8=Lesson Novelty, 9=Visual Novelty.
 
-The prioritized curriculum is fully published as of 2026-10-29: all tracker rows
-are marked ✅ and no 📝 lesson remains. Future lessons should be added through a
-curriculum review before implementation.
+The prioritized curriculum is fully published as of 2026-10-30: every
+browser-qualified row is marked ✅ and no 📝 lesson remains. Six implemented
+lessons stay explicitly quarantined until their documented Mox/WASM blockers are
+resolved. Future lessons should be added through a curriculum review before
+implementation.
 
 ---
 
@@ -248,6 +250,20 @@ curriculum review before implementation.
 | `mlir/comb` | The comb Dialect | ✅ | 27/27 | `mlir/intro`, `sv/priority-enc` | `comb` operations for add, mux, bitwise logic, and extracts in an SSA hardware graph |
 | `mlir/seq` | The seq Dialect: Registers | ✅ | 27/27 | `mlir/comb`, `sv/always-ff` | `seq.compreg`, clocked state, and lowering an SSA register into sequential hardware |
 | `mlir/lowering` | The Lowering Pipeline | ✅ | 27/27 | `mlir/intro`, `mlir/comb`, `mlir/seq` | dialect conversion from `hw`/`comb`/`seq` through `sv` to generated SystemVerilog |
+
+### Browser-quarantined lessons
+These lessons have starter and solution sources but remain out of the published
+navigation until the browser path is qualified. Their failures are tracked in
+`docs/mox-bugs/` and covered by `compiler-quarantine.test.js`.
+
+| Slug | Title | Status | Score | Blocker |
+|---|---|---|---|---|
+| `uvm/factory-override` | Factory Overrides | ⏸ | — | Mox UVM factory override is not applied; see `bug-uvm-phase-cleanup-hangs-and-factory-override.md` |
+| `uvm/ral` | Register Abstraction Layer | ⏸ | — | Full-UVM browser compilation timeout; see `mox-uvm-browser-compile-timeout.md` |
+| `cocotb/first-test` | Your First cocotb Test | ⏸ | — | Pinned WASM VPI path aborts before simulation |
+| `cocotb/clock-and-timing` | Clock and Timing | ⏸ | — | Pinned WASM VPI path aborts before simulation |
+| `cocotb/edge-triggers` | Edge Triggers and Clock | ⏸ | — | Pinned WASM VPI path aborts before simulation |
+| `cocotb/clockcycles-patterns` | ClockCycles and Patterns | ⏸ | — | Pinned WASM VPI path aborts before simulation |
 
 ## Diagram opportunities (from MIT 6.111 research)
 

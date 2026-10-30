@@ -14,6 +14,7 @@ constraint_mode(0) ─────┘  until re-enabled
               <p>An inline <code>with { }</code> block is <strong>AND</strong>-ed with every active class constraint:</p>
               <pre>void'(item.randomize() with { field == value; });</pre>
               <p>It narrows this call only. It does not replace a class constraint or change later calls.</p>
+              <p><code>randomize()</code> returns zero when the active rules cannot be satisfied. Check that result before using the fields; this lesson uses <code>if (!item.randomize()) `uvm_fatal(...)</code> so an impossible scenario cannot look like a passing one.</p>
               <h2>2 — Weighted distribution with <code>dist</code></h2>
               <p><code>mem_item</code> already declares a <code>weighted_c</code> constraint that biases <code>addr</code> toward boundary values 0 and 15 using a <dfn data-card="The dist constraint in SystemVerilog assigns relative weights to values or ranges, biasing the random solver toward certain outcomes. := assigns a weight per item (each value in a range gets that weight individually). :/ assigns a weight to the range as a whole. dist is used for boundary-value testing: weight the edges of a range more heavily to find off-by-one bugs faster.">dist</dfn> distribution:</p>
               <pre>constraint weighted_c {

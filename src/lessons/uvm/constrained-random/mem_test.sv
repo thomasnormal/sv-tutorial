@@ -16,7 +16,8 @@ class mem_test extends uvm_test;
     // ── Scenario 1: default weighted distribution ─────────────────────────────
     `uvm_info("TEST", "=== Scenario 1: weighted_c active ===", UVM_LOW)
     repeat (4) begin
-      void'(item.randomize());
+      if (!item.randomize())
+        `uvm_fatal("RAND", "weighted constraints could not be solved")
       `uvm_info("TEST", item.convert2string(), UVM_LOW)
     end
 
@@ -48,7 +49,8 @@ class mem_test extends uvm_test;
       int interior = 0;
       int boundary = 0;
       repeat (160) begin
-        void'(item.randomize());
+        if (!item.randomize())
+          `uvm_fatal("RAND", "unweighted constraints could not be solved")
         // TODO: classify each generated address as interior or boundary
       end
       if (interior >= 130)

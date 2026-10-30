@@ -206,10 +206,13 @@ describe('browser-audit lesson alignment', () => {
     const top = read('uvm/constrained-random/tb_top.sv');
     expect(description).toContain('three ways to do that');
     expect(description).toContain('randomize() with { }');
+    expect(description).toContain('returns zero when the active rules cannot be satisfied');
     expect(description).toContain('constraint_mode(0)');
     expect(item).toContain('TODO: add a dist weighting');
     expect(test).toContain('TODO: use randomize() with');
     expect(test).toContain('TODO: disable the named weighting constraint');
+    expect(test).toContain('if (!item.randomize())');
+    expect(read('uvm/constrained-random/mem_test.sol.sv')).toContain('if (!item.randomize() with');
     expect(top).toContain('get_severity_count(UVM_ERROR) == 0');
   });
 

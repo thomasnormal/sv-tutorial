@@ -212,7 +212,7 @@ curriculum review before implementation.
 |---|---|---|---|---|---|
 | `uvm/sequence` | Sequences | ✅ | 27/27 | `uvm/seq-item`, `uvm/reporting` | `uvm_sequence`, `start_item`, `finish_item`, sequencer arbitration, sequence body |
 | `uvm/driver` | The Driver | ✅ | 27/27 | `uvm/sequence`, `sv/interfaces`, `sv/modports` | `uvm_driver`, `seq_item_port`, `uvm_config_db`, `virtual interface`, transaction-to-pin driving |
-| `uvm/constrained-random` | Constrained-Random Scenarios | ✅ | 26/27 | `uvm/driver`, `sv/randomization` | inline `randomize() with`, `dist` weighting, named `constraint_mode()` control |
+| `uvm/constrained-random` | Constrained-Random Scenarios | ✅ | 27/27 | `uvm/driver`, `sv/randomization` | inline `randomize() with`, `dist` weighting, named `constraint_mode()` control |
 
 ### Chapter: Checking
 | Slug | Title | Status | Score | Prereqs | Teaches |

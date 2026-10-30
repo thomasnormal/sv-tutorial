@@ -16,7 +16,8 @@ class mem_test extends uvm_test;
     // ── Scenario 1: default weighted distribution ─────────────────────────────
     `uvm_info("TEST", "=== Scenario 1: weighted_c active ===", UVM_LOW)
     repeat (4) begin
-      void'(item.randomize());
+      if (!item.randomize())
+        `uvm_fatal("RAND", "weighted constraints could not be solved")
       `uvm_info("TEST", item.convert2string(), UVM_LOW)
     end
 
@@ -25,7 +26,8 @@ class mem_test extends uvm_test;
     begin
       int boundary_writes = 0;
       repeat (4) begin
-        void'(item.randomize() with { addr inside {0, 15}; we == 1; });
+        if (!item.randomize() with { addr inside {0, 15}; we == 1; })
+          `uvm_fatal("RAND", "boundary write constraint could not be solved")
         `uvm_info("TEST", item.convert2string(), UVM_LOW)
         if (!(item.addr inside {0, 15}) || item.we !== 1'b1)
           `uvm_error("TEST", $sformatf("FAIL: expected boundary write, got addr=%0d we=%0b", item.addr, item.we))
@@ -45,7 +47,8 @@ class mem_test extends uvm_test;
       int interior = 0;
       int boundary = 0;
       repeat (160) begin
-        void'(item.randomize());
+        if (!item.randomize())
+          `uvm_fatal("RAND", "unweighted constraints could not be solved")
         if (item.addr inside {[1:14]}) interior++;
         else boundary++;
       end

@@ -235,6 +235,7 @@ curriculum review before implementation.
 | Slug | Title | Status | Score | Prereqs | Teaches |
 |---|---|---|---|---|---|
 | `rtl/rtl-to-gates` | RTL to Gates | ✅ | 27/27 | `sv/always-comb`, `sv/always-ff` | how `always_comb` infers a multiplexer and `always_ff` infers a D flip-flop in a pipeline stage |
+| `rtl/synthesis-gotchas` | Synthesis Gotchas | ✅ | 27/27 | `sv/always-comb` | complete combinational case assignments, inferred-latch avoidance, and `unique case` synthesis intent |
 
 ---
 

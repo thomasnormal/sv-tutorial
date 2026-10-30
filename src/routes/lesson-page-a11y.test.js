@@ -17,6 +17,7 @@ describe('lesson panel accessibility contract', () => {
     expect((lessonPage.match(/onkeydown=\{\(e\) => adjustResize/g) ?? []).length).toBe(4);
     expect(lessonPage).toContain("{ ArrowLeft: -1, ArrowRight: 1 }");
     expect(lessonPage).toContain("{ ArrowUp: -1, ArrowDown: 1 }");
+    expect(lessonPage).toContain('const step = e.shiftKey ? 5 : 1;');
   });
 
   it('connects runtime tabs to labelled panels', () => {

@@ -148,14 +148,18 @@ describe('browser-audit lesson alignment', () => {
     expect(description).toContain('complete three things');
     expect(description).toContain('<strong>cp_addr</strong> coverpoint');
     expect(description).toContain('<strong>cp_we</strong> coverpoint');
-    expect(description).toContain('supplied check can reach 100%');
+    expect(description).toContain('empty covergroup has no bins');
+    expect(description).toContain('coverage_ready = 1');
+    expect(description).toContain('supplied check reaches 100%');
     expect(starter).toContain('TODO: add cp_addr coverpoint');
     expect(starter).toContain('TODO: add cp_we coverpoint');
+    expect(starter).toContain('coverage_ready = 1');
     expect(starter).toContain('item = t;');
     expect(starter).toContain('mem_cg.sample();');
     expect(solution).toContain('bins addr[] = {[0:15]};');
     expect(solution).toContain('bins reads  = {0};');
     expect(solution).toContain('bins writes = {1};');
+    expect(solution).toContain('bit coverage_ready = 1;');
     expect(top).toContain('get_severity_count(UVM_ERROR) == 0');
   });
 

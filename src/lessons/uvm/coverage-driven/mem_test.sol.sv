@@ -27,6 +27,9 @@ class mem_test extends uvm_test;
       end
     end
 
+    if (env.cov.mem_cg.get_coverage() < 100.0)
+      `uvm_error("COV", $sformatf("FAIL: coverage target not reached (%.1f%%)", env.cov.mem_cg.get_coverage()))
+
     phase.drop_objection(this);
   endtask
 endclass

@@ -195,15 +195,18 @@ describe('browser-audit lesson alignment', () => {
     expect(description).toContain('finite number of attempts');
     expect(description).toContain('raise_objection()');
     expect(description).toContain('drop_objection()');
-    expect(description).toContain('Log the current coverage after each sequence run.');
+    expect(description).toContain('Log the current coverage after each sequence run');
+    expect(description).toContain('check the final percentage');
     expect(starter).toContain('TODO: replace the single seq.start() call with a while loop');
     expect(starter).toContain('keeps running sequences until mem_cg coverage reaches 100%');
     expect(starter).toContain('logging current coverage after each run');
     expect(starter).toContain('seq.start(env.agent.seqr);');
+    expect(starter).toContain('FAIL: coverage only');
     expect(solution).toContain('while (env.cov.mem_cg.get_coverage() < 100.0)');
     expect(solution).toContain('`uvm_info("TEST", $sformatf("coverage = %.1f%%"');
     expect(solution).toContain('if (++iterations >= 50)');
     expect(solution).toContain('Reached iteration limit');
+    expect(solution).toContain('FAIL: coverage target not reached');
     expect(top).toContain('get_severity_count(UVM_ERROR) == 0');
   });
 

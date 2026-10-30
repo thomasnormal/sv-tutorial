@@ -21,6 +21,8 @@ class mem_test extends uvm_test;
     //       logging current coverage after each run
 
     seq.start(env.agent.seqr);
+    if (env.cov.mem_cg.get_coverage() < 100.0)
+      `uvm_error("COV", $sformatf("FAIL: coverage only %.1f%% after one sequence", env.cov.mem_cg.get_coverage()))
     phase.drop_objection(this);
   endtask
 endclass

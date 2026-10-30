@@ -563,10 +563,8 @@ const G = '\x1b[32m', R = '\x1b[31m', Y = '\x1b[33m', D = '\x1b[2m', X = '\x1b[0
 // Covergroup lessons (covergroup-basics, coverpoint-bins, cross-coverage): the starter is a
 // working SRAM test (prints PASS); the student adds coverpoints on top of the passing design.
 //
-// UVM lessons below are ones where the starter still passes despite incompleteness:
 const SKIP_START_CHECK = new Set([
   'sva/concurrent-sim', 'sva/vacuous-pass',
-  'uvm/coverage-driven',     // uvm_subscriber::report_phase virtual dispatch fails in MOX; $fatal never propagates
   // BMC starters that can't be distinguished from solutions via Z3:
   'sva-bmc/disable-iff',     // req|=>ack is sat both with and without disable iff (both have counterexamples)
 ]);

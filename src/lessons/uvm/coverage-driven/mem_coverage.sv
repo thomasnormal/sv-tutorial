@@ -21,6 +21,6 @@ class mem_coverage extends uvm_subscriber #(mem_item);
     real pct = mem_cg.get_coverage();
     `uvm_info("COV", $sformatf("Functional coverage: %.1f%%", pct), UVM_LOW)
     if (pct < 100.0)
-      $fatal(0, $sformatf("Coverage %.1f%% -- implement the coverage-driven loop in mem_test.sv", pct));
+      $fatal(0, $sformatf("Coverage %.1f%% - implement the coverage-driven loop in mem_test.sv", pct));
   endfunction
 endclass

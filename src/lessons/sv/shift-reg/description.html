@@ -1,0 +1,45 @@
+<p><strong>How can one bit enter a four-bit register while another leaves on every clock?</strong> The new operation here is vector concatenation: join a slice of the old register with <code>serial_in</code> to make the next value. A burst interface can use this shift pattern across a narrow pin or test link; the old most-significant bit becomes <code>serial_out</code>.</p>
+
+<h2>The pattern</h2>
+<p>The <code>always_ff</code>, rising edge, non-blocking assignment, and synchronous reset below are familiar from the previous lessons. Focus on the concatenation that builds the next vector for a register of width <code>N</code>:</p>
+<pre>always_ff @(posedge &lt;clk&gt;) begin
+  if (&lt;reset_is_active&gt;)
+    &lt;state&gt; &lt;= '0;
+  else begin
+    &lt;serial_out&gt; &lt;= &lt;state&gt;[N-1];
+    &lt;state&gt;      &lt;= {&lt;state&gt;[N-2:0], &lt;serial_in&gt;};
+  end
+end</pre>
+<p>The concatenation has the old lower bits on the left and the new serial bit on the right. Every rising edge therefore shifts the stored pattern toward the most-significant bit.</p>
+
+<h2>Watch one bit travel</h2>
+<svg width="440" height="174" viewBox="0 0 440 174" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <defs><marker id="shift-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#586469"/></marker></defs>
+  <text x="220" y="17" text-anchor="middle" fill="#0d6f72" font-weight="bold">one rising edge: 0 1 0 1 → 1 0 1 0</text>
+  <rect x="18" y="42" width="72" height="42" rx="5" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+  <text x="54" y="60" text-anchor="middle" fill="#9a5a18" font-weight="bold">serial_in</text>
+  <text x="54" y="75" text-anchor="middle" fill="#586469">new bit</text>
+  <line x1="92" y1="63" x2="124" y2="63" stroke="#586469" marker-end="url(#shift-arrow)"/>
+  <rect x="126" y="42" width="58" height="42" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="155" y="68" text-anchor="middle" fill="#0d6f72" font-weight="bold">0</text>
+  <line x1="186" y1="63" x2="201" y2="63" stroke="#586469" marker-end="url(#shift-arrow)"/>
+  <rect x="203" y="42" width="58" height="42" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="232" y="68" text-anchor="middle" fill="#0d6f72" font-weight="bold">1</text>
+  <line x1="263" y1="63" x2="278" y2="63" stroke="#586469" marker-end="url(#shift-arrow)"/>
+  <rect x="280" y="42" width="58" height="42" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="309" y="68" text-anchor="middle" fill="#0d6f72" font-weight="bold">0</text>
+  <line x1="340" y1="63" x2="355" y2="63" stroke="#586469" marker-end="url(#shift-arrow)"/>
+  <rect x="357" y="42" width="58" height="42" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="386" y="68" text-anchor="middle" fill="#0d6f72" font-weight="bold">1</text>
+  <line x1="309" y1="89" x2="309" y2="120" stroke="#586469" marker-end="url(#shift-arrow)"/>
+  <text x="309" y="139" text-anchor="middle" fill="#9a5a18" font-weight="bold">old MSB leaves as serial_out</text>
+  <text x="220" y="164" text-anchor="middle" fill="#586469">non-blocking &lt;= makes all four bits move together</text>
+</svg>
+
+<p><code>{a, b}</code> is a concatenation: it joins the bits of <code>a</code> and <code>b</code> into one vector. Because non-blocking assignments read the old right-hand side before updating the left-hand side, <code>serial_out &lt;= q[3]</code> captures the bit leaving while <code>q &lt;= {q[2:0], serial_in}</code> advances the register.</p>
+
+<h2>Exercise</h2>
+<p>Open <code>shift_reg.sv</code>. Add a synchronous active-low reset that clears both outputs. On every other rising edge, send the old <code>q[3]</code> to <code>serial_out</code>, then assign the concatenation that shifts <code>q[2:0]</code> and <code>serial_in</code> into the four-bit register. The testbench loads <code>1, 0, 1, 1</code>, then clocks zeroes to show the same bits leaving in order.</p>
+
+<h2>Testbench</h2>
+<p>Each check waits for a rising edge and samples one time unit later, after the non-blocking update has settled. The printed state shows the incoming bits filling the register, then the flush phase showing each old MSB on <code>serial_out</code>. The waveform gives the movement a second view.</p>

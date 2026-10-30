@@ -11,13 +11,32 @@ Instead we will use compile-time <strong>parameters</strong> to create flexible,
 <pre>sram #(.DEPTH(8),   .WIDTH(4))  u_small(...);
 sram #(.DEPTH(256), .WIDTH(16)) u_large(...);</pre>
 </p>
+<svg width="460" height="148" viewBox="0 0 460 148" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <defs><marker id="param-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#586469"/></marker></defs>
+  <rect x="16" y="38" width="120" height="58" rx="6" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+  <text x="76" y="60" text-anchor="middle" fill="#9a5a18" font-weight="bold">one sram</text>
+  <text x="76" y="78" text-anchor="middle" fill="#586469">DEPTH, WIDTH</text>
+  <line x1="142" y1="67" x2="188" y2="67" stroke="#586469" marker-end="url(#param-arrow)"/>
+  <rect x="192" y="16" width="112" height="48" rx="6" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="248" y="36" text-anchor="middle" fill="#0d6f72" font-weight="bold">u_small</text>
+  <text x="248" y="52" text-anchor="middle" fill="#586469">8 × 4</text>
+  <rect x="192" y="82" width="112" height="48" rx="6" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="248" y="102" text-anchor="middle" fill="#0d6f72" font-weight="bold">u_large</text>
+  <text x="248" y="118" text-anchor="middle" fill="#586469">256 × 16</text>
+  <line x1="310" y1="40" x2="372" y2="40" stroke="#586469" marker-end="url(#param-arrow)"/>
+  <line x1="310" y1="106" x2="372" y2="106" stroke="#586469" marker-end="url(#param-arrow)"/>
+  <text x="431" y="44" text-anchor="middle" fill="#0d6f72" font-weight="bold">same</text>
+  <text x="431" y="60" text-anchor="middle" fill="#586469">RTL</text>
+  <text x="431" y="110" text-anchor="middle" fill="#0d6f72" font-weight="bold">different</text>
+  <text x="431" y="126" text-anchor="middle" fill="#586469">shape</text>
+</svg>
 <p>
 We can apply some system functions, like
 <code><dfn data-card="$clog2(n) returns the ceiling of log base 2 of n. The argument is treated as unsigned, and $clog2(0) returns 0. It is evaluated in constant expressions, so it is the standard way to derive a minimum address width from a depth parameter (IEEE 1800-2023 §20.8.1).">$clog2</dfn></code>
 and <code><dfn data-card="$bits(expr) returns the number of bits required to hold an expression or fixed-size data type (IEEE 1800-2023 §20.6.2). It does not calculate the minimum width for a numeric value: an unsized decimal literal such as 16 is at least 32 bits wide (IEEE 1800-2023 §5.7.1).">$bits</dfn></code>
 at compile time. For this lesson, use <code>$clog2(DEPTH)</code> for the minimum number of address bits.</p>
 <p>Task: Add parametrization to <code>sram.sv</code>.
-Add the parameter block to the module header, then replace the hardcoded dimensions with parameter-derived equivalents: use <code>$clog2(DEPTH)</code> for the address port, <code>WIDTH</code> for both data ports and each memory element, and <code>DEPTH</code> for the memory range.</p>
-<blockquote><p>Always use <code>$clog2</code> for address widths derived from depth parameters — it automatically adjusts when the depth changes, so the address bus is always exactly the right size.</p></blockquote>
+Add the parameter block to the module header, derive a <code>localparam</code> for the last valid address, then replace the hardcoded dimensions with parameter-derived equivalents: use <code>$clog2(DEPTH)</code> for the address port, <code>WIDTH</code> for both data ports and each memory element, and the derived last address for the memory range. A <code>localparam</code> is an internal constant: callers can choose <code>DEPTH</code> and <code>WIDTH</code>, but cannot override the implementation's last-index calculation.</p>
+<blockquote><p>Always use <code>$clog2</code> for address widths derived from depth parameters — it automatically adjusts when the depth changes, so the address bus is always exactly the right size. Derive the final memory index from <code>DEPTH</code> too, so the same source works for every instance.</p></blockquote>
 <h2>Testbench</h2>
 <p>The solution testbench instantiates the same module <em>twice</em> with different parameters to demonstrate the power of parameterization: an 8-deep × 4-bit SRAM and a 256-deep × 16-bit SRAM, from a single RTL source.</p>

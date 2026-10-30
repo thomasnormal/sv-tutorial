@@ -9,6 +9,12 @@ interface mem_if (input logic clk);
                      we, addr, wdata, rdata);
   endfunction
 
-  // TODO: add modport initiator — testbench side: drives we/addr/wdata, reads clk and rdata
-  // TODO: add modport target   — SRAM side: reads commands, drives rdata
+  modport initiator (
+    // TODO: list the command signals this side drives.
+    // TODO: list the clock and read-data signals this side reads.
+  );
+  modport target (
+    // TODO: list the command and clock signals this side reads.
+    // TODO: list the read-data signal this side drives.
+  );
 endinterface

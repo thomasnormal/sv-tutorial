@@ -1,31 +1,24 @@
-<p>
-A <strong><dfn data-card="A function in SystemVerilog computes a value and returns immediately — it runs in zero simulation time. Functions cannot contain timing controls like @(posedge clk) or #delay. They're used for combinational computations: parity checks, encoders, address decoding. Functions can be called in continuous assign statements.">function</dfn></strong> is a piece of combinatorial logic, a blob of gates. It computes and returns a value immediately — it cannot consume simulation time.
-</p><p>
-A <strong><dfn data-card="A task is like a function but can consume simulation time. It can contain @(posedge clk) to wait for clock edges, making it ideal for driving bus transactions: assert a signal, wait a cycle, de-assert. Tasks don't return a value but can have output arguments. UVM drivers use tasks internally to send one transaction at a time onto the interface.">task</dfn></strong> is a co-routine. It doesn't return a value, and it can consume simulation time and wait for events, <code>@(posedge clk)</code> or <code>#N</code>.
-The syntax is:
-</p>
-<pre><code>task automatic task_name (input arg1, output arg2, ...);
-   // task body
-endtask</code></pre>
-<p>
-Here <code>automatic</code> means the task is re-entrant: it can be called recursively or from multiple places without interference — just like a normal C/C++ function whose local variables live on the stack, with a fresh copy created for each call.
-A non-<code>automatic</code> (static) task behaves like a C function where every local variable is declared <code>static</code>: all calls share the same memory, so concurrent calls will overwrite each other's state.
-</p>
-<p>
-Calling a task <code>write_word(addr, data)</code> is blocking.
-If you want to "spawn and forget" you can use <code><dfn data-card="The fork ... join_none block allows you to start a task in the background without waiting for it to finish. It's like saying 'go do this, but I don't care when you're done'. This is useful for starting parallel processes or timers that run independently of the main flow.">fork</dfn></code>.
-</p>
-<p><strong>Clock and delay together.</strong> Sometimes you need both an edge and a small delay: e.g. <code>@(posedge clk); #1;</code> waits for the rising edge, then advances 1 time unit so that combinational outputs and setup are settled before you drive or sample signals. That pattern keeps stimulus and sampling aligned with the clock while avoiding glitches at the edge.</p>
-<p><strong>Simulation hang disclaimer.</strong> In some environments, using <code>@(posedge clk); #1;</code> (or similar) in a task can cause the simulation to hang or run indefinitely — for example when the clock seen by the testbench is not the same as the one driving the DUT. If that happens, use the clock from the virtual interface instead: <code>@(posedge vif.clk)</code> (and if needed <code>@(posedge vif.clk); #1;</code>), so that your waits are tied to the same clock the interface and DUT use.</p>
-<p>Your task: In <code>tb.sv</code> implement the three routine stubs:</p>
-<ul>
-   <li><code>parity_check(d)</code> — a function that returns a single bit: <code>1</code> if <code>d</code> has an odd number of set bits. Hint: the reduction XOR operator <code>^d</code> computes this in one expression.</li>
-   <li><code>write_word(vif, addr, data)</code> — a task that drives one write transaction: assert <code>we</code>, set <code>addr</code> and <code>wdata</code>, wait one clock edge, then de-assert <code>we</code>.</li>
-   <li><code>read_word(vif, addr, data)</code> — a task that drives one read transaction: set <code>addr</code>, wait one clock edge, then capture <code>rdata</code>.</li>
-</ul>
-<blockquote><p>
-  Waiting for <code>@(posedge clk)</code> is not enough on its own. The testbench and the DUT are both sensitive to the same edge, so driving or sampling signals <em>at</em> the edge puts you in a race against the simulator's scheduler. The safe pattern is to wait for the edge and then advance a small delta — <code>@(posedge clk); #1;</code> — so that your assignments land in a quiet moment after the DUT has already reacted to the clock.
-</p></blockquote>
-<blockquote><p>These are the exact helper routines a UVM driver uses internally. In Part 3 the driver wraps them in a class method that pulls transactions from a sequencer — but the core protocol logic is the same.</p></blockquote>
-<h2>Testbench structure</h2>
-<p>The <code>initial</code> block calls <code>write_word</code> and <code>read_word</code> using the shared <code>mem_if</code> virtual interface, then checks the parity of the returned data with <code>parity_check</code>.</p>
+<p>The SRAM testbench repeats the same two jobs: compute a value immediately, or wait for a clock while driving a bus. Which helper should own each job? A <strong><dfn data-card="A function in SystemVerilog computes a value and returns immediately — it runs in zero simulation time. Functions cannot contain timing controls like @(posedge clk) or #delay. They're used for combinational computations: parity checks, encoders, address decoding. Functions can be called in continuous assign statements.">function</dfn></strong> returns a value without consuming simulation time; a <strong><dfn data-card="A task is like a function but can consume simulation time. It can contain @(posedge clk) to wait for clock edges, making it ideal for driving bus transactions: assert a signal, wait a cycle, de-assert. Tasks don't return a value but can have output arguments. UVM drivers use tasks internally to send one transaction at a time onto the interface.">task</dfn></strong> can wait for clock edges and use output arguments.</p>
+              <pre class="diagram">function: data in ──► value out       (zero time)
+task:     pins in ──► clock edge ──► pins out  (time advances)</pre>
+              <p>The reusable shapes are:</p>
+<pre>function automatic &lt;return_type&gt; check (&lt;input&gt; value);
+  // compute and return a value
+endfunction
+
+task automatic drive (&lt;input&gt; request, &lt;output&gt; result);
+  // wait, drive, or sample signals
+endtask</pre>
+              <p><code>automatic</code> gives each call its own local storage, so two calls cannot overwrite one another. A task does not use a return value; an <code>output</code> argument carries a result back to the caller.</p>
+              <p>In this SRAM bench, <code>parity_check</code> is the zero-time function. <code>write_word</code> and <code>read_word</code> are timing-aware tasks that use the shared <code>mem_if</code> from the previous Interfaces lesson.</p>
+              <pre class="diagram">write_word: drive we/address/data ─► rising edge ─► release we
+read_word:  drive address          ─► rising edge ─► capture rdata</pre>
+              <p>Waiting for <code>@(posedge clk)</code> and then <code>#1</code> lets the DUT update before the helper samples or releases a signal. Driving and sampling exactly on the edge would race the DUT's own <code>always_ff</code> block.</p>
+              <p>Open <code>tb.sv</code> and implement the three routine stubs:</p>
+              <ul>
+                <li><code>parity_check(d)</code> — return <code>1</code> when <code>d</code> has an odd number of set bits; reduction XOR (<code>^d</code>) computes it.</li>
+                <li><code>write_word(vif, addr, data)</code> — drive one write, wait one rising edge, then de-assert <code>we</code>.</li>
+                <li><code>read_word(vif, addr, data)</code> — set the address, wait one rising edge, then capture <code>rdata</code>.</li>
+              </ul>
+              <blockquote><p>These are the helper routines a UVM driver uses internally. In Part 3 the driver wraps the same protocol in a class method that receives transactions from a sequencer.</p></blockquote>
+              <p>The testbench writes and reads three addresses, prints each result and parity, and emits <code>PASS</code> only when every expected value matches.</p>

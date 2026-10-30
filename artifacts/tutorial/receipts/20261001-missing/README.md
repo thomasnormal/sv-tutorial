@@ -38,6 +38,16 @@ the browser WASM was rebuilt.
 | `cocotb/clock-and-timing` | generated Mox Icarus driver | BLOCKED | `clock-and-timing-cb18.log` |
 | `cocotb/edge-triggers` | generated Mox Icarus driver | BLOCKED | `edge-triggers-cb18.log` |
 | `cocotb/clockcycles-patterns` | generated Mox Icarus driver | BLOCKED | `clockcycles-patterns-cb18.log` |
+| `sv/priority-enc` | Playwright browser run | BLOCKED (missing local WASM artifact) | `priority-enc-browser.log` |
+| `sv/assign-operators` | Playwright browser run | BLOCKED (missing local WASM artifact) | `assign-operators-browser.log` |
+| `sv/shift-reg` | Playwright browser run | BLOCKED (missing local WASM artifact) | `shift-reg-browser.log` |
+| `sv/generate` | Playwright browser run | BLOCKED (missing local WASM artifact) | `generate-browser.log` |
+| `sv/typedef` | Playwright browser run | BLOCKED (missing local WASM artifact) | `typedef-browser.log` |
+| `sv/arrays-static` | Playwright browser run | BLOCKED (missing local WASM artifact) | `arrays-static-browser.log` |
+| `sv/mealy-fsm` | Playwright browser run | BLOCKED (missing local WASM artifact) | `mealy-fsm-browser.log` |
+| `sva/followed-by` | Playwright browser verify | BLOCKED (missing local WASM artifact) | `followed-by-browser.log` |
+| `sva/bind` | Playwright browser run | BLOCKED (missing local WASM artifact) | `bind-browser.log` |
+| `sva/let` | Playwright browser run | BLOCKED (missing local WASM artifact) | `let-browser.log` |
 
 The cocotb native smoke is marked `BLOCKED`, not `PASS`: the box has
 `cocotb` 2.0.1 but not `cocotb-test`, and the temporary compatibility install

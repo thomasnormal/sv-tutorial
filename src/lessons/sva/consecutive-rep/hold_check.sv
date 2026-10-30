@@ -1,11 +1,16 @@
 module hold_check(input logic clk, start, busy);
 
+  sequence busy_run;
+    // TODO: match three consecutive busy samples
+    1'b0;
+  endsequence
+
   property busy_hold_p;
     @(posedge clk)
-      // TODO: after start pulses, busy must stay high for exactly 3 consecutive cycles
-      ;
+      // TODO: after start pulses, busy_run must follow
+      start |=> busy_run;
   endproperty
 
-  busy_hold_a: assert property (busy_hold_p);
+  // TODO: assert busy_hold_p on every clock edge.
 
 endmodule

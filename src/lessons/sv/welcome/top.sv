@@ -1,5 +1,6 @@
-module top;
+module top(output logic greeted);
   initial begin
-    // TODO: print a greeting with $display, then call $finish
+    greeted = 1'b0;
+    // TODO: print a greeting with $display, then mark it complete
   end
 endmodule

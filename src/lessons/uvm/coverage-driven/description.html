@@ -1,16 +1,27 @@
-<p>Random stimulus without a stopping condition is unpredictable — you may run far more cycles than needed, or stop before all bins are hit. <strong><dfn data-card="Coverage-driven verification (CDV) is a methodology where the test keeps generating random stimulus until a coverage target is met. Instead of running a fixed number of transactions, the test loop queries coverage progress (get_coverage()) and stops when all bins are hit. This ensures both randomness (finding unexpected bugs) and completeness (every scenario was exercised).">Coverage-driven verification</dfn></strong> closes this loop:</p>
+<p>A coverage-driven test loop has this reusable shape:</p>
+<pre>task run_phase(uvm_phase phase);
+  phase.raise_objection(this);
+  while (&lt;covergroup&gt;.get_coverage() &lt; 100.0 &amp;&amp; &lt;attempts&gt; &lt; &lt;limit&gt;) begin
+    &lt;sequence&gt;.start(&lt;sequencer&gt;);
+  end
+  phase.drop_objection(this);
+endtask</pre>
+<p>Random stimulus without a stopping condition is unpredictable - you may run far more cycles than needed, or stop before all bins are hit. <strong><dfn data-card="Coverage-driven verification (CDV) is a methodology where the test keeps generating random stimulus until a coverage target is met. Instead of running a fixed number of transactions, the test loop queries coverage progress (get_coverage()) and stops when all bins are hit. This ensures both randomness (finding unexpected bugs) and completeness (every scenario was exercised).">Coverage-driven verification</dfn></strong> closes this loop:</p>
+<p><img src="coverage-loop.svg" alt="Coverage-driven loop from random stimulus through checking and sampling back to a coverage query"></p>
 <pre>
   ┌─────────────────────────────────────────────────┐
   │  while coverage &lt; 100%                          │
   │    generate random sequence                      │
-  │    drive SRAM → check scoreboard → sample cov   │
+  │    drive SRAM -> check scoreboard -> sample cov   │
   │    log current coverage %                        │
   └─────────────────────────────────────────────────┘
-          coverage == 100% → done
+          coverage == 100% -> done
 </pre>
 <p>Query progress using <code>get_coverage()</code> on the covergroup object:</p>
 <pre>env.cov.mem_cg.get_coverage()  // returns 0.0 to 100.0</pre>
-<p>Open <code>mem_test.sv</code>. Replace the single <code>seq.start()</code> call with a <code>while</code> loop that keeps creating and running sequences until <code>mem_cg</code> coverage reaches 100%. Log the current coverage after each sequence run.</p>
+<p>The loop condition has two jobs: stop when every required bin is hit, and stop after a finite number of attempts if a bin is unreachable. <code>raise_objection()</code> keeps the UVM test alive while sequences run; <code>drop_objection()</code> releases the phase when the target or guard ends the loop.</p>
+<p>After the loop, check the final percentage and report a UVM error if the limit fired early. That explicit verdict keeps an incomplete run visible even when a simulator does not propagate a collector's <code>report_phase</code> fatal.</p>
+<p>Open <code>mem_test.sv</code>. Replace the single <code>seq.start()</code> call with a <code>while</code> loop that keeps creating and running sequences until <code>mem_cg</code> coverage reaches 100%. Log the current coverage after each sequence run, then report an error if the bounded loop ends below the target.</p>
 <blockquote><p>Always add a maximum-iteration guard in case a coverage bin is unreachable with the current constraints. If the limit fires, find which bin has zero hits and adjust the constraints or stimulus so that range can be generated.</p></blockquote>
 <hr style="margin: 1em 0;">
-<p>To continue learning UVM, the <a href="https://github.com/mbits-mirafra/UVMCourse/wiki/02.Basics" target="_blank" rel="noopener">UVM Course wiki</a> covers the full UVM methodology in depth, including advanced sequencer arbitration, factory overrides, and the register layer.</p>
+<p>To continue learning UVM, the <a href="https://github.com/mbits-mirafra/UVMCourse/wiki/02.Basics" target="_blank" rel="noopener noreferrer">UVM Course wiki</a> covers the full UVM methodology in depth, including advanced sequencer arbitration, factory overrides, and the register layer.</p>

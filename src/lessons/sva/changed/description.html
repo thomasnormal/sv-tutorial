@@ -2,4 +2,19 @@
 <p>The companion function <code>$sampled(expr)</code> returns the value of an expression as sampled in the preponed region (the settled value at the clock edge). It is most useful inside action blocks to print what the checker actually saw:</p>
 <pre>else $error("data unchanged: 0x%0h", $sampled(data));</pre>
 <p>Open <code>toggle_check.sv</code> and complete the property body: while <code>update</code> is high, <code>data</code> must change every cycle.</p>
+<svg width="470" height="158" viewBox="0 0 470 158" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <text x="235" y="16" text-anchor="middle" fill="#0d6f72" font-weight="bold">$changed watches the sampled edge-to-edge delta</text>
+  <text x="78" y="47" text-anchor="middle" fill="#586469">sample</text>
+  <text x="168" y="47" text-anchor="middle" fill="#586469">t0</text><text x="258" y="47" text-anchor="middle" fill="#586469">t1</text><text x="348" y="47" text-anchor="middle" fill="#586469">t2</text><text x="438" y="47" text-anchor="middle" fill="#586469">t3</text>
+  <text x="78" y="78" text-anchor="middle" fill="#586469">update</text>
+  <rect x="153" y="63" width="210" height="22" rx="3" fill="#c8eded" stroke="#0d6f72"/><text x="258" y="78" text-anchor="middle" fill="#0d6f72">1  •  1  •  0</text>
+  <text x="78" y="111" text-anchor="middle" fill="#586469">data</text>
+  <rect x="153" y="96" width="30" height="22" rx="3" fill="#fff8ec" stroke="#c17d2a"/><text x="168" y="111" text-anchor="middle" fill="#9a5a18">10</text>
+  <rect x="243" y="96" width="30" height="22" rx="3" fill="#fff8ec" stroke="#c17d2a"/><text x="258" y="111" text-anchor="middle" fill="#9a5a18">11</text>
+  <rect x="333" y="96" width="30" height="22" rx="3" fill="#fff8ec" stroke="#c17d2a"/><text x="348" y="111" text-anchor="middle" fill="#9a5a18">12</text>
+  <line x1="183" y1="124" x2="243" y2="124" stroke="#c17d2a" stroke-width="2" marker-end="url(#ch-arrow)"/><line x1="273" y1="124" x2="333" y2="124" stroke="#c17d2a" stroke-width="2" marker-end="url(#ch-arrow)"/>
+  <text x="258" y="145" text-anchor="middle" fill="#9a5a18">$changed(data) = data !== $past(data)</text>
+  <defs><marker id="ch-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#c17d2a"/></marker></defs>
+</svg>
+<p>This follows the previous <code>$stable</code>/<code>$past</code> lesson: instead of asserting that a stalled value holds, assert that an updating value changes at every sampled edge. The starter includes <code>tb.sv</code> with two changing data samples while <code>update</code> is high. Run it before solving to see the deltas; after solving, the trace prints <code>PASS</code>. Verify searches for an update cycle where data repeats.</p>
 <blockquote><p><code>$changed</code> uses four-state inequality (<code>!==</code>) so it is also true when a signal transitions to or from X. To ignore X transitions use <code>data != $past(data)</code> (two-state inequality) instead.</p></blockquote>

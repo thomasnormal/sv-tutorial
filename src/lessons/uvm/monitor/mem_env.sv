@@ -1,5 +1,10 @@
+`ifndef SVT_UVM_MONITOR_MEM_ENV_SV
+`define SVT_UVM_MONITOR_MEM_ENV_SV
+
 import uvm_pkg::*;
 `include "uvm_macros.svh"
+`include "mem_agent.sv"
+`include "mem_scoreboard.sv"
 
 class mem_env extends uvm_env;
   `uvm_component_utils(mem_env)
@@ -15,3 +20,5 @@ class mem_env extends uvm_env;
     agent.mon.ap.connect(scbd.analysis_export);
   endfunction
 endclass
+
+`endif

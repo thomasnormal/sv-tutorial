@@ -1,10 +1,27 @@
-              <p>For the SRAM we care about exercising both halves of the address space — not just "did any address get hit." <strong>Named bins</strong> let you group values into meaningful categories:</p>
+              <p>Thirty-two random cycles can hit many addresses while still missing an important region. Verification plans therefore ask meaningful questions — did traffic reach both halves of the SRAM, and did it avoid reserved addresses? <strong>Named bins</strong> turn those questions into coverage categories that a team can review:</p>
               <pre>coverpoint addr {
   bins lo_half = {[0:7]};    // group: lower 8 addresses
   bins hi_half = {[8:15]};   // group: upper 8 addresses
 }</pre>
               <p>Now coverage is measured per group, not per raw value. You can also exclude values you never intend to exercise with <dfn data-card="ignore_bins marks certain values as uninteresting and excludes them from the coverage calculation. They won't count as covered or uncovered — the tool simply ignores them. Use this for reserved encodings, invalid states, or values that are impossible in your test environment. Contrast with illegal_bins, which additionally causes a simulation error if the value is ever seen.">ignore_bins</dfn>:</p>
               <pre>ignore_bins reserved = {14, 15};  // these addresses are off-limits</pre>
+              <svg width="455" height="128" viewBox="0 0 455 128" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:11px;margin:10px auto">
+                <text x="228" y="15" text-anchor="middle" fill="#0d6f72" font-weight="bold">one address signal, three verification decisions</text>
+                <rect x="18" y="35" width="112" height="36" rx="4" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+                <text x="74" y="50" text-anchor="middle" fill="#0d6f72" font-weight="bold">lo_half</text>
+                <text x="74" y="63" text-anchor="middle" fill="#586469">0–7 · must hit</text>
+                <rect x="138" y="35" width="112" height="36" rx="4" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+                <text x="194" y="50" text-anchor="middle" fill="#9a5a18" font-weight="bold">hi_half</text>
+                <text x="194" y="63" text-anchor="middle" fill="#586469">8–13 · must hit</text>
+                <rect x="258" y="35" width="82" height="36" rx="4" fill="#fbe9e9" stroke="#a43b3b" stroke-width="2"/>
+                <text x="299" y="50" text-anchor="middle" fill="#a43b3b" font-weight="bold">reserved</text>
+                <text x="299" y="63" text-anchor="middle" fill="#586469">14–15 · ignore</text>
+                <line x1="350" y1="53" x2="404" y2="53" stroke="#586469"/>
+                <text x="430" y="50" text-anchor="middle" fill="#0d6f72" font-weight="bold">coverage</text>
+                <text x="430" y="64" text-anchor="middle" fill="#586469">plan</text>
+                <text x="228" y="101" text-anchor="middle" fill="#9a5a18" font-weight="bold">a hit in 14 or 15 is not a missing requirement</text>
+                <text x="228" y="116" text-anchor="middle" fill="#586469">ignore_bins removes reserved values from the denominator</text>
+              </svg>
               <p>Open <code>cov_bins.sv</code>. The <code>cp_we</code> coverpoint already has explicit bins. Add explicit bins to <code>cp_addr</code>:</p>
               <ul>
                 <li>A bin for the lower half of the address space (0–7)</li>

@@ -1,5 +1,9 @@
+`ifndef SVT_UVM_ENV_MEM_SCOREBOARD_SV
+`define SVT_UVM_ENV_MEM_SCOREBOARD_SV
+
 import uvm_pkg::*;
 `include "uvm_macros.svh"
+`include "mem_item.sv"
 
 class mem_scoreboard extends uvm_scoreboard;
   `uvm_component_utils(mem_scoreboard)
@@ -29,3 +33,5 @@ class mem_scoreboard extends uvm_scoreboard;
     `uvm_info("SCBD", $sformatf("Results: PASS=%0d FAIL=%0d", pass_count, fail_count), UVM_LOW)
   endfunction
 endclass
+
+`endif

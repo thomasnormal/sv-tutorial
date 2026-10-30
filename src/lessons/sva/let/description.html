@@ -1,0 +1,47 @@
+<p>A bus-hold rule often appears in several assertions: while a transfer is valid but not accepted, the payload must stay unchanged. Copying that Boolean expression into every property makes maintenance risky. A <code>let</code> declaration gives the expression one name and lets each property pass the signals it wants to inspect.</p>
+
+<table style="border-collapse:collapse;width:100%;font-size:0.9em;margin:12px 0">
+  <thead><tr style="background:#f0f0ea">
+    <th style="padding:7px;text-align:left;border-bottom:2px solid #c17d2a">copy/paste version</th>
+    <th style="padding:7px;text-align:left;border-bottom:2px solid #0d6f72">named-rule version</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td style="padding:8px;vertical-align:top"><code>!(valid &amp;&amp; !ready)<br>|| $stable(data)</code><br><span style="color:#9a5a18">repeat this expression in every property</span></td>
+      <td style="padding:8px;vertical-align:top"><code>let hold_bus(...);</code><br><code>hold_bus(data, valid, ready)</code><br><span style="color:#0d6f72">name it once; pass new signals at each call</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>The pattern</h2>
+<pre>let &lt;rule&gt;(&lt;value&gt;, &lt;active&gt;, &lt;accepted&gt;) =
+  !(&lt;active&gt; &amp;&amp; !&lt;accepted&gt;) || $stable(&lt;value&gt;);
+
+property &lt;check&gt;;
+  @(posedge clk) &lt;rule&gt;(data, valid, ready);
+endproperty</pre>
+<p><code>let</code> is scoped to the surrounding module or package and takes formal arguments like a small property macro. It keeps the intent named and typed by the context, without textual substitution or a second module instance.</p>
+
+<svg width="450" height="175" viewBox="0 0 450 175" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <defs><marker id="let-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#586469"/></marker></defs>
+  <text x="225" y="17" text-anchor="middle" fill="#0d6f72" font-weight="bold">name the rule once, reuse it at each check</text>
+  <rect x="20" y="45" width="165" height="72" rx="6" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="102" y="68" text-anchor="middle" fill="#0d6f72" font-weight="bold">let hold_bus(...)</text>
+  <text x="102" y="88" text-anchor="middle" fill="#586469">valid &amp;&amp; !ready</text>
+  <text x="102" y="104" text-anchor="middle" fill="#586469">→ $stable(data)</text>
+  <line x1="187" y1="67" x2="267" y2="67" stroke="#586469" stroke-width="1.5" marker-end="url(#let-arrow)"/>
+  <line x1="187" y1="96" x2="267" y2="96" stroke="#586469" stroke-width="1.5" marker-end="url(#let-arrow)"/>
+  <rect x="270" y="31" width="160" height="46" rx="6" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+  <text x="350" y="51" text-anchor="middle" fill="#9a5a18" font-weight="bold">data_stable_p</text>
+  <text x="350" y="67" text-anchor="middle" fill="#586469">one property call</text>
+  <rect x="270" y="91" width="160" height="46" rx="6" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+  <text x="350" y="111" text-anchor="middle" fill="#9a5a18" font-weight="bold">future_property</text>
+  <text x="350" y="127" text-anchor="middle" fill="#586469">same rule, new signals</text>
+  <text x="225" y="160" text-anchor="middle" fill="#0d6f72" font-weight="bold">let is a named expression, not a copied string</text>
+</svg>
+
+<h2>Exercise</h2>
+<p>Open <code>let_check.sv</code>. Define <code>hold_bus(value, active, accepted)</code> with a <code>let</code> declaration, then call it from <code>data_stable_p</code>. The rule should require <code>$stable(value)</code> only while a valid transfer is waiting for acceptance. The testbench changes <code>data</code> during an accepted transfer and while invalid to show when the rule is active.</p>
+
+<h2>Testbench</h2>
+<p>The starter testbench prints each phase and leaves a TODO marker until the property is complete. The solution checks the held, accepted, and invalid payloads explicitly, then prints <code>PASS</code> when the trace is correct. The interesting result is the property source: one reusable expression explains all of the phases.</p>

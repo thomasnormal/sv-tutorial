@@ -1,0 +1,45 @@
+<p><strong>How can one width change update every declaration that uses it?</strong> This lesson focuses on typedef aliases: give a familiar packed vector a meaningful name, then reuse that name in ports, intermediate signals, and the testbench. The package namespace is the same sharing mechanism introduced with packed structs; the new step is carrying the alias through the design.</p>
+
+<h2>The pattern</h2>
+<p>The package and aliases are already supplied. The general shape you are reusing is:</p>
+<pre>package &lt;package_name&gt;;
+  typedef logic [N-1:0] &lt;type_name&gt;;
+endpackage
+
+import &lt;package_name&gt;::*;
+module &lt;module_name&gt; (
+  input  &lt;type_name&gt; a,
+  output &lt;type_name&gt; y
+);
+  &lt;type_name&gt; temporary;
+endmodule</pre>
+<p><code>typedef</code> creates an alias; it does not add storage or change the bits. The <code>_t</code> suffix is a common naming convention for named types. The package is a namespace so the alias has one definition shared by the design and its testbench.</p>
+
+<h2>One shape, many uses</h2>
+<svg width="450" height="182" viewBox="0 0 450 182" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <defs><marker id="typedef-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#586469"/></marker></defs>
+  <rect x="18" y="24" width="118" height="48" rx="5" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+  <text x="77" y="45" text-anchor="middle" fill="#9a5a18" font-weight="bold">typedef_pkg</text>
+  <text x="77" y="61" text-anchor="middle" fill="#586469">data_t = logic[7:0]</text>
+  <line x1="138" y1="48" x2="176" y2="48" stroke="#586469" marker-end="url(#typedef-arrow)"/>
+  <rect x="178" y="24" width="112" height="48" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="234" y="45" text-anchor="middle" fill="#0d6f72" font-weight="bold">ports</text>
+  <text x="234" y="61" text-anchor="middle" fill="#586469">left, right, result</text>
+  <line x1="292" y1="48" x2="330" y2="48" stroke="#586469" marker-end="url(#typedef-arrow)"/>
+  <rect x="332" y="24" width="100" height="48" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="382" y="45" text-anchor="middle" fill="#0d6f72" font-weight="bold">locals</text>
+  <text x="382" y="61" text-anchor="middle" fill="#586469">sum, next</text>
+  <text x="225" y="110" text-anchor="middle" fill="#0d6f72" font-weight="bold">one alias keeps width and intent together</text>
+  <rect x="80" y="130" width="128" height="30" rx="4" fill="#fff8ec" stroke="#c17d2a" stroke-width="1.5"/>
+  <text x="144" y="149" text-anchor="middle" fill="#9a5a18">testbench data_t</text>
+  <rect x="242" y="130" width="128" height="30" rx="4" fill="#fff8ec" stroke="#c17d2a" stroke-width="1.5"/>
+  <text x="306" y="149" text-anchor="middle" fill="#9a5a18">testbench lane_t</text>
+</svg>
+
+<p>The alias can be used in a port declaration, a local variable, or a testbench signal. If the package changes the width later, every use keeps the same named contract.</p>
+
+<h2>Exercise</h2>
+<p>Open <code>typedef_lab.sv</code>. The package already defines <code>data_t</code> and <code>lane_t</code>. Use those aliases for the intermediate signals and connect the sum, XOR result, and copied lane with continuous assignments. The testbench uses the aliases too, so the design and its checks share the same type names.</p>
+
+<h2>Testbench</h2>
+<p>The testbench drives two input pairs and two lane values, then checks the derived result and the copied alias-typed lane. The printed values make the bit widths visible while the shared type names keep declarations compact.</p>

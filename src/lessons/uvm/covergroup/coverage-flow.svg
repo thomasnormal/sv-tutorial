@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 190" role="img" aria-labelledby="title desc">
+  <title id="title">UVM coverage flow</title>
+  <desc id="desc">A monitor sends a transaction through an analysis port to a subscriber, which samples a covergroup and reports coverage.</desc>
+  <rect width="760" height="190" fill="white" rx="16"/>
+  <g font-family="sans-serif" font-size="16" text-anchor="middle">
+    <rect x="24" y="58" width="150" height="72" rx="12" fill="lightsteelblue" stroke="midnightblue" stroke-width="2"/>
+    <text x="99" y="88" fill="midnightblue">monitor</text>
+    <text x="99" y="110" fill="midnightblue">transaction</text>
+    <path d="M174 94 H220" stroke="midnightblue" stroke-width="3"/>
+    <path d="M220 94 l-12 -8 v16 z" fill="midnightblue"/>
+    <rect x="220" y="58" width="150" height="72" rx="12" fill="palegreen" stroke="darkgreen" stroke-width="2"/>
+    <text x="295" y="88" fill="darkgreen">write(item)</text>
+    <text x="295" y="110" fill="darkgreen">subscriber</text>
+    <path d="M370 94 H416" stroke="midnightblue" stroke-width="3"/>
+    <path d="M416 94 l-12 -8 v16 z" fill="midnightblue"/>
+    <rect x="416" y="58" width="150" height="72" rx="12" fill="moccasin" stroke="saddlebrown" stroke-width="2"/>
+    <text x="491" y="88" fill="saddlebrown">sample()</text>
+    <text x="491" y="110" fill="saddlebrown">covergroup</text>
+    <path d="M566 94 H612" stroke="midnightblue" stroke-width="3"/>
+    <path d="M612 94 l-12 -8 v16 z" fill="midnightblue"/>
+    <rect x="612" y="58" width="124" height="72" rx="12" fill="lavender" stroke="indigo" stroke-width="2"/>
+    <text x="674" y="88" fill="indigo">bins</text>
+    <text x="674" y="110" fill="indigo">100%?</text>
+    <text x="380" y="163" fill="midnightblue">analysis port carries the same item through each stage</text>
+  </g>
+</svg>

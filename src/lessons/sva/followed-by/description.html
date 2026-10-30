@@ -1,0 +1,47 @@
+<p>A burst-read property can fail silently when its trigger never happens. Ordinary implication (<code>|-&gt;</code> and <code>|=&gt;</code>) passes in that case, so a passing report may only mean that the test never reached the interesting behavior. The followed-by operators make a missing antecedent a failure, which exposes an unexercised protocol.</p>
+
+<blockquote style="margin:12px 0;padding:12px 16px;border-left:5px solid #c17d2a;background:#fff8ec;color:#5c451f"><strong>Vacuity alarm</strong><br><span style="display:inline-block;margin-top:6px;padding:3px 8px;border-radius:4px;background:#e8f2ff;color:#245887">no burst_start</span> <span style="margin:0 6px;color:#586469">→</span> <span style="display:inline-block;padding:3px 8px;border-radius:4px;background:#e8f2ff;color:#245887">|=&gt; passes</span> <span style="margin:0 6px;color:#586469">but nothing was checked</span><br><span style="display:inline-block;margin-top:6px;padding:3px 8px;border-radius:4px;background:#fde8e8;color:#9a2d2d">#-# / #=# fail</span> <span style="margin-left:6px;color:#586469">because the burst must actually match</span></blockquote>
+
+<h2>The pattern</h2>
+<pre>sequence &lt;event&gt;;
+  &lt;start&gt; ##1 &lt;step&gt; ##1 &lt;step&gt;;
+endsequence
+
+property &lt;must_follow&gt;;
+  @(posedge clk) &lt;event&gt; #-# &lt;check&gt;;
+endproperty
+
+property &lt;must_follow_later&gt;;
+  @(posedge clk) &lt;event&gt; #=# &lt;check&gt;;
+endproperty</pre>
+<p><code>#-#</code> starts the property on the same cycle that the sequence ends. <code>#=#</code> starts it one cycle later. Both operators require the sequence to match; this is the non-vacuous behavior that ordinary <code>|-&gt;</code> and <code>|=&gt;</code> do not provide.</p>
+
+<svg width="460" height="205" viewBox="0 0 460 205" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <defs><marker id="follow-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#586469"/></marker></defs>
+  <text x="230" y="17" text-anchor="middle" fill="#0d6f72" font-weight="bold">a matched sequence must have a future check</text>
+  <circle cx="62" cy="76" r="25" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="62" y="80" text-anchor="middle" fill="#0d6f72" font-weight="bold">start</text>
+  <circle cx="166" cy="76" r="25" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="166" y="80" text-anchor="middle" fill="#0d6f72" font-weight="bold">beat</text>
+  <circle cx="270" cy="76" r="25" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="270" y="80" text-anchor="middle" fill="#0d6f72" font-weight="bold">beat</text>
+  <line x1="87" y1="76" x2="139" y2="76" stroke="#586469" marker-end="url(#follow-arrow)"/>
+  <line x1="191" y1="76" x2="243" y2="76" stroke="#586469" marker-end="url(#follow-arrow)"/>
+  <text x="113" y="63" text-anchor="middle" fill="#586469">##1</text>
+  <text x="217" y="63" text-anchor="middle" fill="#586469">##1</text>
+  <line x1="295" y1="76" x2="363" y2="76" stroke="#0d6f72" stroke-width="2" marker-end="url(#follow-arrow)"/>
+  <rect x="365" y="50" width="76" height="52" rx="5" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+  <text x="403" y="72" text-anchor="middle" fill="#9a5a18" font-weight="bold">data_ok</text>
+  <text x="403" y="88" text-anchor="middle" fill="#586469">#-# same tick</text>
+  <line x1="295" y1="128" x2="363" y2="128" stroke="#c17d2a" stroke-width="2" marker-end="url(#follow-arrow)"/>
+  <rect x="365" y="105" width="76" height="47" rx="5" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+  <text x="403" y="125" text-anchor="middle" fill="#9a5a18" font-weight="bold">data_ok</text>
+  <text x="403" y="141" text-anchor="middle" fill="#586469">#=# next tick</text>
+  <text x="230" y="184" text-anchor="middle" fill="#586469">No start → #-# / #=# fails; |=&gt; can pass vacuously</text>
+</svg>
+
+<h2>Exercise</h2>
+<p>Open <code>followed_by.sv</code>. Define a three-event <code>burst_read</code> sequence, then complete the overlapped <code>#-#</code>, non-overlapped <code>#=#</code>, and ordinary <code>|=&gt;</code> properties. Click <strong>Verify</strong>: bounded model checking explores all input traces and shows a counterexample for the completed syntax exercise. Compare which operator starts <code>data_ok</code> on the sequence endpoint and which one starts a cycle later.</p>
+
+<h2>Testbench</h2>
+<p>The companion <code>tb.sv</code> drives one burst and labels the sequence endpoint and the following sample. The starter ends with a TODO marker; the supplied solution bench prints <code>PASS</code> after checking both timing points. BMC deliberately ignores testbench stimulus and supplies free inputs, so the formal result still comes from a counterexample rather than this single simulation trace.</p>

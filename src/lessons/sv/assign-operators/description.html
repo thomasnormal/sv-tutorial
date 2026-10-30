@@ -1,0 +1,56 @@
+<p>The SRAM controller constantly combines address, data, and control bits. The one new idea here is a continuous <code>assign</code>: it keeps a relationship live as a wire, so an output follows its inputs immediately without a clock or storage. The bitwise, reduction, ternary, and arithmetic expressions below are different values you can place on that same always-connected path.</p>
+
+<h2>The pattern</h2>
+<p>Start with the general form. A continuous assignment drives one output from an expression whenever any value in that expression changes:</p>
+<pre>assign &lt;output&gt; = &lt;expression&gt;;</pre>
+<p>For a vector, the operator works bit by bit; for a reduction, the operator collapses the whole vector to one bit; and a ternary chooses between two complete values:</p>
+<pre>assign bits  = left &amp; right;       // bitwise
+assign ready = |requests;           // reduction OR
+assign data  = select ? a : b;      // conditional choice</pre>
+
+<h2>Expressions on a live connection</h2>
+<svg width="430" height="205" viewBox="0 0 430 205" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <defs><marker id="op-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#586469"/></marker></defs>
+  <rect x="14" y="18" width="118" height="38" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="73" y="35" text-anchor="middle" fill="#0d6f72" font-weight="bold">a &amp; b</text>
+  <text x="73" y="49" text-anchor="middle" fill="#586469" font-size="10">bitwise AND</text>
+  <line x1="132" y1="37" x2="167" y2="37" stroke="#586469" marker-end="url(#op-arrow)"/>
+  <rect x="168" y="18" width="112" height="38" rx="5" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+  <text x="224" y="35" text-anchor="middle" fill="#9a5a18" font-weight="bold">assign</text>
+  <text x="224" y="49" text-anchor="middle" fill="#586469" font-size="10">always connected</text>
+  <line x1="280" y1="37" x2="315" y2="37" stroke="#586469" marker-end="url(#op-arrow)"/>
+  <rect x="316" y="18" width="100" height="38" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="366" y="35" text-anchor="middle" fill="#0d6f72" font-weight="bold">and_bits</text>
+  <text x="366" y="49" text-anchor="middle" fill="#586469" font-size="10">vector result</text>
+  <rect x="14" y="81" width="118" height="38" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="73" y="98" text-anchor="middle" fill="#0d6f72" font-weight="bold">|requests</text>
+  <text x="73" y="112" text-anchor="middle" fill="#586469" font-size="10">reduction OR</text>
+  <line x1="132" y1="100" x2="167" y2="100" stroke="#586469" marker-end="url(#op-arrow)"/>
+  <rect x="168" y="81" width="112" height="38" rx="5" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+  <text x="224" y="98" text-anchor="middle" fill="#9a5a18" font-weight="bold">one bit</text>
+  <text x="224" y="112" text-anchor="middle" fill="#586469" font-size="10">is anything set?</text>
+  <line x1="280" y1="100" x2="315" y2="100" stroke="#586469" marker-end="url(#op-arrow)"/>
+  <rect x="316" y="81" width="100" height="38" rx="5" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+  <text x="366" y="98" text-anchor="middle" fill="#0d6f72" font-weight="bold">valid</text>
+  <text x="366" y="112" text-anchor="middle" fill="#586469" font-size="10">0 or 1</text>
+  <rect x="14" y="144" width="118" height="38" rx="5" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+  <text x="73" y="161" text-anchor="middle" fill="#9a5a18" font-weight="bold">sel ? a : b</text>
+  <text x="73" y="175" text-anchor="middle" fill="#586469" font-size="10">ternary MUX</text>
+  <line x1="132" y1="163" x2="167" y2="163" stroke="#586469" marker-end="url(#op-arrow)"/>
+  <rect x="168" y="144" width="112" height="38" rx="5" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+  <text x="224" y="161" text-anchor="middle" fill="#9a5a18" font-weight="bold">chosen</text>
+  <text x="224" y="175" text-anchor="middle" fill="#586469" font-size="10">selected vector</text>
+  <text x="366" y="168" text-anchor="middle" fill="#586469" font-size="11">no clock</text>
+</svg>
+
+<p><strong>Bitwise</strong> <code>&amp;</code> and <code>|</code> preserve a vector's width. A <strong>reduction</strong> <code>|a</code> combines every bit of <code>a</code> into one result, useful for a “any request?” flag. The <strong>ternary</strong> <code>condition ? when_true : when_false</code> is a compact 2:1 multiplexer.</p>
+
+<h2>What the live expression preserves</h2>
+<p>Arithmetic does not magically grow to hold a carry. The 4-bit values <code>4'b1010</code> and <code>4'b0110</code> add to 16, but a 4-bit destination keeps only <code>4'b0000</code>. Widening both operands first with <code>{1'b0, a}</code> preserves the carry in a 5-bit result. That is <strong>overflow</strong>: the mathematical answer exists, but the chosen width cannot represent it.</p>
+<p>Signed vectors use two's-complement interpretation. The same four bits can mean a different number depending on the declaration: <code>logic [3:0]</code> is unsigned, while <code>logic signed [3:0]</code> lets <code>4'b1101</code> mean <code>-3</code>. Keep the signed declaration on both operands when adding signed values.</p>
+
+<h2>Exercise</h2>
+<p>Open <code>operator_lab.sv</code> and add the continuous assignments for the seven outputs. Use bitwise <code>&amp;</code>/<code>|</code>, reduction OR <code>|a</code>, a ternary for <code>chosen</code>, the ordinary 4-bit sum for <code>wrapped_sum</code>, widened operands for <code>full_sum</code>, and signed addition for <code>signed_sum</code>. The testbench deliberately chooses values that make the carry and signed interpretation visible.</p>
+
+<h2>Testbench</h2>
+<p>The starter testbench prints every derived value, checks the truncated and widened sums separately, flips the ternary selector, and prints <code>PASS</code> only when all checks match. The waveform gives the same idea a second form: inputs and each continuously driven output change without a clock edge.</p>

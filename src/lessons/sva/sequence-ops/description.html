@@ -42,4 +42,5 @@
   <li><strong>p_transfer</strong>: once <code>valid</code> is asserted, both <code>valid</code> and <code>ready</code> must hold high for exactly 4 consecutive cycles in lock-step.</li>
   <li><strong>p_complete</strong>: after <code>valid</code>, <code>ready</code> must arrive within 4 cycles <em>and</em> <code>done</code> must arrive within 8 cycles — checked independently.</li>
 </ol>
+<p>This builds on the previous <code>throughout</code> and repetition lessons: first make two four-cycle sequences line up, then let two completion windows progress independently. The starter includes <code>tb.sv</code> with a lock-step transfer and a later completion event. Run it before solving to see both endpoints; after solving, the same trace checks <code>done</code> and prints <code>PASS</code>. Verify searches for mismatched windows.</p>
 <blockquote><p>Two related operators: <code>or</code> (at least one sequence must match) and <code>within</code> (one sequence must start and end entirely inside another's window). Use those when you need "either/or" or containment checks.</p></blockquote>

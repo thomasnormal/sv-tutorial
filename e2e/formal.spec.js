@@ -48,11 +48,11 @@ test('BMC: solution proves all properties within the bound', async ({ page }) =>
   await expect(logs).not.toContainText('# mox-bmc exit code: 1');
 });
 
-test('BMC: shows only verify button, no run button', async ({ page }) => {
+test('BMC: shows verify and run buttons for proof and trace views', async ({ page }) => {
   await goToLesson(page, 'Implication & BMC', 'Bounded Model Checking');
 
   await expect(page.getByTestId('verify-button')).toBeVisible();
-  await expect(page.getByTestId('run-button')).toHaveCount(0);
+  await expect(page.getByTestId('run-button')).toBeVisible();
 });
 
 // ── BMC: assume property ──────────────────────────────────────────────────────

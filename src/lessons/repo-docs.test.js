@@ -9,6 +9,9 @@ describe('repository documentation', () => {
     const lock = readFileSync(path.resolve(process.cwd(), 'scripts/toolchain.lock.sh'), 'utf8');
 
     expect(readme).toContain('scripts/toolchain.lock.sh');
+    expect(readme).toContain('## Keyboard Controls');
+    expect(readme).toContain('hold **Shift** for a larger step');
+    expect(readme).toContain('**Ctrl+Enter** (or **Cmd+Enter**)');
     expect(readme).not.toContain('8e8ca87dcda1c8abd47103ae7789c8ed261d5de3');
     expect(readme).not.toContain('972cd847efb20661ea7ee8982dd19730aa040c75');
     expect(claude).toContain('src/lessons/index.js');

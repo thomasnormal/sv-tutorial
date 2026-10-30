@@ -1,5 +1,11 @@
+`ifndef SVT_UVM_ENV_MEM_ENV_SV
+`define SVT_UVM_ENV_MEM_ENV_SV
+
 import uvm_pkg::*;
 `include "uvm_macros.svh"
+`include "mem_agent.sv"
+`include "mem_scoreboard.sv"
+`include "mem_coverage.sv"
 
 class mem_env extends uvm_env;
   `uvm_component_utils(mem_env)
@@ -18,3 +24,5 @@ class mem_env extends uvm_env;
     agent.mon.ap.connect(cov.analysis_export);
   endfunction
 endclass
+
+`endif

@@ -5,6 +5,8 @@ class mem_coverage extends uvm_subscriber #(mem_item);
   `uvm_component_utils(mem_coverage)
 
   mem_item item;
+  bit cross_ready = 0;
+  // TODO: set cross_ready = 1 after adding the cross and ignore_bins
 
   covergroup mem_cg;
     cp_addr: coverpoint item.addr {
@@ -15,8 +17,8 @@ class mem_coverage extends uvm_subscriber #(mem_item);
       bins writes = {1};
     }
     // TODO 1: add addr_x_we cross of cp_addr and cp_we
-    // TODO 2: add ignore_bins to exclude writes to reserved addresses 14 and 15
-    //         hint: binsof(cp_addr.addr) intersect {14, 15} && binsof(cp_we.writes)
+    // TODO 2: exclude the write combinations for reserved addresses 14 and 15
+    //         from this cross while keeping the read combinations covered.
   endgroup
 
   function new(string name, uvm_component parent);
@@ -32,9 +34,9 @@ class mem_coverage extends uvm_subscriber #(mem_item);
   function void report_phase(uvm_phase phase);
     real pct = mem_cg.get_coverage();
     `uvm_info("COV", $sformatf("Cross coverage: %.1f%%", pct), UVM_LOW)
-    if (pct == 100.0)
-      `uvm_info("COV", "PASS: all required addr × op bins hit", UVM_LOW)
+    if (cross_ready && pct == 100.0)
+      `uvm_info("COV", "PASS: all required addr x op bins hit", UVM_LOW)
     else
-      $fatal(0, $sformatf("Coverage %.1f%% — add addr_x_we cross and ignore_bins, then implement this check", pct));
+      $fatal(0, $sformatf("Coverage %.1f%% - add the cross and reserved-address ignore bins", pct));
   endfunction
 endclass

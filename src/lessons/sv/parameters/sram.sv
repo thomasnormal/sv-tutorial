@@ -6,7 +6,8 @@ module sram (
   input  logic [7:0] wdata,  // TODO: use WIDTH for the data width
   output logic [7:0] rdata   // TODO: use WIDTH for the data width
 );
-  logic [7:0] mem [0:15];    // TODO: use WIDTH and DEPTH to parameterize the memory array
+  localparam int LAST_ADDR = 15; // TODO: derive the last index from DEPTH
+  logic [7:0] mem [0:LAST_ADDR]; // TODO: use WIDTH for each stored element
 
   always_ff @(posedge clk) begin
     if (we) mem[addr] <= wdata;

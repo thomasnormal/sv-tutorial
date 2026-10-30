@@ -1,22 +1,37 @@
-              <p>The <strong>driver</strong> is where the UVM world meets RTL. It pulls transactions from the sequencer, converts them to pin-level stimulus, and signals completion. The basic loop is:</p>
+              <pre class="diagram">mem_item object       UVM driver             SRAM interface
+┌──────────────┐      get_next_item      ┌───────────────┐
+│ we addr data │ ──────────────────────► │ we addr wdata │
+│       rdata  │ ◄──── item_done ────── │      rdata    │
+└──────────────┘      virtual mem_if    └───────────────┘</pre>
+              <p>The previous lesson's sequence handed <code>mem_item</code> objects to a logging driver. Now the <strong>driver</strong> is where the UVM world meets RTL: it pulls one transaction, converts its fields to pin-level stimulus, captures the result, and signals completion. A driver has this shape:</p>
+<pre>class &lt;name&gt; extends uvm_driver #(&lt;item_type&gt;);
+  virtual &lt;interface_type&gt; vif;
+  task run_phase(uvm_phase phase);
+    &lt;item_type&gt; req;
+    seq_item_port.get_next_item(req);
+    // drive req through vif
+    seq_item_port.item_done();
+  endtask
+endclass</pre>
+              <p>The basic loop is:</p>
               <ol>
                 <li>Call <code>seq_item_port.get_next_item(req)</code> — blocks until the sequencer has a transaction</li>
                 <li>Wait for the clock edge, then drive the interface signals from the item fields</li>
-                <li>Wait one more clock edge to capture any response (SRAM has 1-cycle read latency)</li>
+                <li>Wait one more clock edge so the transaction boundary has settled, then capture the SRAM's combinational read data</li>
                 <li>Call <code>seq_item_port.item_done()</code> — unblocks the sequence's <code>finish_item</code></li>
               </ol>
-              <p>The SRAM's registered-read latency means you drive on cycle N and read back on cycle N+1:</p>
+              <p>This lesson's SRAM has a combinational read port: once the address is present, <code>rdata</code> reflects the selected word. The driver still uses the next clock edge as a clean transaction boundary before copying that response back into the item:</p>
 <pre>
          cycle N          cycle N+1
 clk   ____/‾‾‾‾\____/‾‾‾‾\____
 addr  ──────[addr]────────────────
 we    ──────[we  ]────────────────
 wdata ──────[data]────────────────
-rdata ─────────────────[data]────   ← capture here
+rdata ──────[data]────────────────   ← capture after boundary
 </pre>
               <p>The DUT is accessed through a <strong>virtual interface</strong> handle retrieved from <code><dfn data-card="uvm_config_db is UVM's global key-value store for passing configuration between components. The testbench top module sets a virtual interface handle into the config_db before run_test() is called. Components retrieve it during build_phase using get(). The path-based key (e.g. 'uvm_test_top.env.agent.driver') scopes which components can see which values.">uvm_config_db</dfn></code>. Open <code>mem_driver.sv</code> and complete both phases:</p>
               <ul>
                 <li>In <code>build_phase</code>: call <code>uvm_config_db::get()</code> to retrieve the virtual interface — if it fails, call <code>`uvm_fatal</code></li>
-                <li>In <code>run_phase</code>: drive <code>we</code>, <code>addr</code>, and <code>wdata</code> onto the interface, then capture <code>rdata</code> after the latency cycle</li>
+                <li>In <code>run_phase</code>: drive <code>we</code>, <code>addr</code>, and <code>wdata</code> onto the interface, then capture <code>rdata</code> after the boundary edge</li>
               </ul>
               <blockquote><p>The virtual interface is the only bridge from the dynamic class world into the static module world. It must be <code>set</code> in <code>tb_top</code> before <code>run_test()</code> is called, and <code>get</code> by every component that needs DUT access.</p></blockquote>

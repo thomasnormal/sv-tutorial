@@ -76,10 +76,12 @@ export const parts = [
   {
     title: 'SystemVerilog Basics',
     chapters: [
-      { title: 'Introduction',          lessons: [L('sv/welcome'), L('sv/modules-and-ports'), L('sv/data-types'), L('sv/always-comb')] },
-      { title: 'Sequential Logic',      lessons: [L('sv/events'), L('sv/always-ff'), L('sv/counter')] },
-      { title: 'Data Types',            lessons: [L('sv/parameters'), L('sv/packed-structs')] },
-      { title: 'State Machines',        lessons: [L('sv/enums')] },
+      { title: 'Introduction',          lessons: [L('sv/welcome'), L('sv/modules-and-ports'), L('sv/data-types')] },
+      { title: 'Combinational Logic',    lessons: [L('sv/always-comb'), L('sv/priority-enc'), L('sv/assign-operators')] },
+      { title: 'Sequential Logic',      lessons: [L('sv/events'), L('sv/always-ff'), L('sv/counter'), L('sv/shift-reg')] },
+      { title: 'Data Types',            lessons: [L('sv/parameters'), L('sv/generate'), L('sv/packed-structs'), L('sv/typedef'), L('sv/arrays-static')] },
+      { title: 'Interfaces & Procedures', lessons: [L('sv/interfaces'), L('sv/modports'), L('sv/tasks-functions')] },
+      { title: 'State Machines',        lessons: [L('sv/enums'), L('sv/fsm'), L('sv/mealy-fsm')] },
       { title: 'Covergroups',            lessons: [L('sv/covergroup-basics'), L('sv/coverpoint-bins'), L('sv/cross-coverage')] },
       { title: 'Testbench Essentials',  lessons: [L('sv/classes'), L('sv/queues-arrays'), L('sv/fork-join'), L('sv/randomization')] },
     ],
@@ -95,8 +97,17 @@ export const parts = [
       { title: 'Sequence Operators',        lessons: [L('sva/throughout'), L('sva/sequence-ops'), L('sva/seq-args')] },
       { title: 'Sampled Value Functions',   lessons: [L('sva/stable-past'), L('sva/changed')] },
       { title: 'Protocols & Coverage',      lessons: [L('sva/disable-iff'), L('sva/abort'), L('sva/cover-property')] },
-      { title: 'Advanced Properties',       lessons: [L('sva/local-vars'), L('sva/onehot'), L('sva/triggered'), L('sva/checker'), L('sva/recursive')] },
-      { title: 'Formal Verification',       lessons: [L('sva/formal-assume'), L('sva/always-eventually'), L('sva/until'), L('sva/lec')] },
+      { title: 'Advanced Properties',       lessons: [L('sva/local-vars'), L('sva/onehot'), L('sva/triggered'), L('sva/checker'), L('sva/recursive'), L('sva/bind'), L('sva/let')] },
+      { title: 'Formal Verification',       lessons: [L('sva/formal-assume'), L('sva/always-eventually'), L('sva/until'), L('sva/lec'), L('sva/followed-by')] },
+    ],
+  },
+  {
+    title: 'Universal Verification Methodology',
+    chapters: [
+      { title: 'UVM Foundations', lessons: [L('uvm/reporting'), L('uvm/seq-item')] },
+      { title: 'Stimulus',       lessons: [L('uvm/sequence'), L('uvm/driver'), L('uvm/constrained-random')] },
+      { title: 'Checking',       lessons: [L('uvm/monitor'), L('uvm/env')] },
+      { title: 'Coverage',       lessons: [L('uvm/covergroup'), L('uvm/cross-coverage'), L('uvm/coverage-driven')] },
     ],
   },
   {

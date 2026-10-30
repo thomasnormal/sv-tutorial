@@ -44,10 +44,12 @@ logic [7:0] x [4]  // unpacked array: x[0] is 8 bits (element-select)</pre>
 <p><strong><dfn data-card="Packed arrays place dimension brackets before the variable name. All bits are laid out contiguously, forming one large bit-vector. You can read any contiguous slice with [hi:lo] or a single bit with [n]. Packed arrays are fully synthesizable and are the standard syntax for RTL signals — logic [7:0] is already a 1-D packed array.">Packed</dfn></strong> brackets go <em>before</em> the name — they form one contiguous bit-vector. <strong><dfn data-card="Unpacked arrays place dimension brackets after the variable name, like C arrays. Each element is a separate storage location. The SRAM memory array logic [WIDTH-1:0] mem [0:DEPTH-1] is an unpacked array: addr selects the element, and [WIDTH-1:0] is that element's packed width. Unpacked arrays of logic are synthesizable; unpacked arrays of int or other 2-state types are testbench-only.">Unpacked</dfn></strong> brackets go <em>after</em> the name — each element is independent storage. The SRAM memory array <code>logic [WIDTH-1:0] mem [0:DEPTH-1]</code> is exactly this: <code>addr</code> selects an element; <code>[WIDTH-1:0]</code> is each element's packed width.</p>
 
 <h2>Exercise</h2>
-<p>Open <code>data_types.sv</code>. Three declarations use the wrong type — each causes one test to fail. Fix them:</p>
+<p>Open <code>data_types.sv</code>. Five declarations use the wrong type or shape — each causes one test to fail. Match each declaration to the intent it serves:</p>
 <ul>
-  <li><code>count</code> is <code>bit [31:0]</code> — unsigned, cannot hold <code>-100</code>. Change to <code>int</code>.</li>
-  <li><code>data</code> is <code>bit [7:0]</code> — 2-state, silently drops <code>X</code> to <code>0</code>. Change to <code>logic [7:0]</code>.</li>
-  <li><code>mem</code> is <code>logic [7:0] mem</code> — a scalar; <code>mem[0]</code> is just bit 0. Add <code>[4]</code> after <code>mem</code> to make it an unpacked array of four bytes.</li>
+  <li><code>count</code> needs a signed 32-bit testbench integer so it can hold <code>-100</code>.</li>
+  <li><code>data</code> needs an 8-bit 4-state RTL signal so it preserves <code>X</code>.</li>
+  <li><code>mem</code> needs four unpacked elements, each holding one byte.</li>
+  <li><code>delta</code> needs a signed 8-bit testbench type for a small negative offset.</li>
+  <li><code>status</code> needs a 4-state 4-bit RTL type so an unknown status remains visible.</li>
 </ul>
-<p>Run before and after — three FAIL lines should become three OK lines, then <code>PASS</code>.</p>
+<p>Run before and after — five FAIL lines should become five OK lines, then the starter-visible <code>tb.sv</code> reports <code>PASS</code> only when all checks succeed.</p>

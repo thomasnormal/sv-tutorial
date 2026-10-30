@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 240" role="img" aria-labelledby="title desc">
+  <title id="title">Coverage-driven verification loop</title>
+  <desc id="desc">A bounded loop generates random transactions, drives and checks the SRAM, samples coverage, then either stops at full coverage or tries another sequence.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#24455f"/>
+    </marker>
+  </defs>
+  <rect width="760" height="240" rx="18" fill="#f6fbff" stroke="#c9dce8" stroke-width="2"/>
+  <g font-family="sans-serif" text-anchor="middle">
+    <rect x="28" y="72" width="150" height="74" rx="14" fill="#ffe6c7" stroke="#a85d18" stroke-width="2"/>
+    <text x="103" y="101" font-size="16" font-weight="bold" fill="#7a4210">randomize</text>
+    <text x="103" y="124" font-size="14" fill="#7a4210">next sequence</text>
+
+    <rect x="218" y="72" width="150" height="74" rx="14" fill="#d9f2e3" stroke="#26734d" stroke-width="2"/>
+    <text x="293" y="101" font-size="16" font-weight="bold" fill="#1d573a">drive + check</text>
+    <text x="293" y="124" font-size="14" fill="#1d573a">SRAM transaction</text>
+
+    <rect x="408" y="72" width="150" height="74" rx="14" fill="#dce8ff" stroke="#315b9b" stroke-width="2"/>
+    <text x="483" y="101" font-size="16" font-weight="bold" fill="#244675">sample()</text>
+    <text x="483" y="124" font-size="14" fill="#244675">covergroup bins</text>
+
+    <rect x="598" y="72" width="134" height="74" rx="14" fill="#eadcff" stroke="#7148a3" stroke-width="2"/>
+    <text x="665" y="101" font-size="16" font-weight="bold" fill="#55347e">100%?</text>
+    <text x="665" y="124" font-size="14" fill="#55347e">stop or repeat</text>
+
+    <path d="M178 109 H210" stroke="#24455f" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M368 109 H400" stroke="#24455f" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M558 109 H590" stroke="#24455f" stroke-width="3" marker-end="url(#arrow)"/>
+    <path d="M665 146 V190 H103 V154" fill="none" stroke="#24455f" stroke-width="3" marker-end="url(#arrow)"/>
+    <text x="380" y="218" font-size="14" fill="#24455f">bounded feedback: coverage decides when stimulus is enough</text>
+  </g>
+</svg>

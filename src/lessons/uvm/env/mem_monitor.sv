@@ -1,5 +1,10 @@
+`ifndef SVT_UVM_ENV_MEM_MONITOR_SV
+`define SVT_UVM_ENV_MEM_MONITOR_SV
+
 import uvm_pkg::*;
 `include "uvm_macros.svh"
+`include "mem_item.sv"
+`include "mem_if.sv"
 
 class mem_monitor extends uvm_monitor;
   `uvm_component_utils(mem_monitor)
@@ -14,15 +19,18 @@ class mem_monitor extends uvm_monitor;
   endfunction
   task run_phase(uvm_phase phase);
     mem_item item;
-    repeat (2) @(posedge vif.clk);
     forever begin
       @(posedge vif.clk);
-      item = mem_item::type_id::create("item");
-      item.we    = vif.we;
-      item.addr  = vif.addr;
-      item.wdata = vif.wdata;
-      item.rdata = vif.rdata;
-      ap.write(item);
+      if (vif.valid) begin
+        item = mem_item::type_id::create("item");
+        item.we    = vif.we;
+        item.addr  = vif.addr;
+        item.wdata = vif.wdata;
+        item.rdata = vif.rdata;
+        ap.write(item);
+      end
     end
   endtask
 endclass
+
+`endif

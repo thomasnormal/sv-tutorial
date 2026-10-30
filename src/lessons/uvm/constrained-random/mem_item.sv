@@ -1,3 +1,6 @@
+`ifndef SVT_UVM_CONSTRAINED_RANDOM_MEM_ITEM_SV
+`define SVT_UVM_CONSTRAINED_RANDOM_MEM_ITEM_SV
+
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
@@ -15,7 +18,8 @@ class mem_item extends uvm_sequence_item;
 
   // Bias toward boundary addresses: 0 and 15 are 3x more likely than interior
   constraint weighted_c {
-    addr dist { [0:0] := 3, [1:14] := 1, [15:15] := 3 };
+    addr inside {[0:15]};
+    // TODO: add a dist weighting that makes addresses 0 and 15 more likely
   }
 
   function new(string name = "mem_item"); super.new(name); endfunction
@@ -25,3 +29,5 @@ class mem_item extends uvm_sequence_item;
               : $sformatf("RD [%0d]", addr);
   endfunction
 endclass
+
+`endif

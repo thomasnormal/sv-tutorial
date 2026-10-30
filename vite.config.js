@@ -82,8 +82,8 @@ export default defineConfig({
     // Pre-compress JS/CSS/HTML assets at build time.
     // Served automatically by nginx (gzip_static on) or any CDN that looks for
     // .gz sidecar files. GitHub Pages compresses on the fly via its CDN.
-    compression({ algorithm: 'gzip',   include: /\.(js|css|html|svg)$/ }),
-    compression({ algorithm: 'brotliCompress', include: /\.(js|css|html|svg)$/, threshold: 1024 }),
+    compression({ algorithms: ['gzip'], include: /\.(js|css|html|svg)$/ }),
+    compression({ algorithms: ['brotliCompress'], include: /\.(js|css|html|svg)$/, threshold: 1024 }),
   ],
   define: {
     // z3-solver references the Node.js `global` object; alias it to globalThis

@@ -1,5 +1,6 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
+`include "mem_item.sv"
 
 class mem_seq extends uvm_sequence #(mem_item);
   `uvm_object_utils(mem_seq)

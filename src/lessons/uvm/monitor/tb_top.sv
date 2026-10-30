@@ -19,7 +19,6 @@ class monitor_test extends uvm_test;
   task run_phase(uvm_phase phase);
     mem_seq seq = mem_seq::type_id::create("seq");
     phase.raise_objection(this);
-    // Enable writes too
     seq.start(env.agent.seqr);
     phase.drop_objection(this);
   endtask

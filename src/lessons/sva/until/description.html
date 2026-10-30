@@ -1,12 +1,30 @@
-<p>The <strong><code>until</code></strong> family of operators expresses "hold this condition while waiting for that one":</p>
+<p>An SRAM master must keep a request valid until the arbiter says it is done. The <strong><code>until</code></strong> family expresses "hold this condition while waiting for that one", and makes the choice between a permitted timeout and a real deadlock explicit:</p>
+<pre>&lt;hold_condition&gt; until &lt;done_event&gt;
+&lt;hold_condition&gt; s_until &lt;done_event&gt;
+&lt;hold_condition&gt; until_with &lt;done_event&gt;</pre>
 <ul>
   <li><code>p <dfn data-card="until in SVA is a temporal operator: 'p until q' means p must hold true at every clock tick starting now, until q becomes true. The weak form doesn't require q to ever occur — if the trace ends without q firing, the property still passes. The strong form s_until requires q to eventually happen. until_with adds the requirement that p also holds on the same cycle q fires.">until</dfn> q</code> — weak: <code>p</code> holds at every tick until <code>q</code> becomes true. If <code>q</code> never occurs the property still holds (vacuously).</li>
   <li><code>p s_until q</code> — strong: same as above but <code>q</code> <em>must</em> eventually occur.</li>
   <li><code>p until_with q</code> — inclusive: <code>p</code> is also required to hold on the same cycle that <code>q</code> first becomes true.</li>
 </ul>
+<svg width="470" height="174" viewBox="0 0 470 174" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <rect x="10" y="8" width="450" height="156" rx="6" fill="#fffdf7" stroke="#d5cbb2"/>
+  <text x="235" y="25" text-anchor="middle" fill="#0d6f72" font-weight="bold">hold the request, then include the completion edge</text>
+  <text x="71" y="57" text-anchor="end" fill="#586469">valid</text>
+  <path d="M82 53 H150 V38 H290 V53 H430" fill="none" stroke="#0d6f72" stroke-width="2"/>
+  <text x="71" y="91" text-anchor="end" fill="#586469">data_ok</text>
+  <path d="M82 87 H150 V72 H290 V87 H430" fill="none" stroke="#c17d2a" stroke-width="2"/>
+  <text x="71" y="125" text-anchor="end" fill="#586469">done</text>
+  <path d="M82 121 H220 V106 H290 V121 H430" fill="none" stroke="#9a5a18" stroke-width="2"/>
+  <line x1="290" y1="32" x2="290" y2="143" stroke="#9a5a18" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="185" y="151" text-anchor="middle" fill="#0d6f72">valid s_until done</text>
+  <text x="350" y="151" text-anchor="middle" fill="#9a5a18">until_with checks data_ok on done</text>
+</svg>
 <p>Open <code>hold_check.sv</code> and complete two properties:</p>
 <ul>
   <li><strong>p_valid_holds</strong>: once <code>valid</code> goes high it must stay high until <code>done</code> arrives — and <code>done</code> must eventually arrive.</li>
   <li><strong>p_done_clean</strong>: from the moment <code>valid</code> is high, <code>data_ok</code> must hold on every cycle including the cycle that <code>done</code> fires.</li>
 </ul>
+<p>This builds on <code>sva/always-eventually</code>: <code>s_until</code> combines a hold condition with the eventual progress guarantee, while <code>until_with</code> makes the completion cycle inclusive. These are the same request/response obligations an SRAM scoreboard checks around each transaction.</p>
 <blockquote><p>The <code>nexttime</code> operator is the single-step companion: <code>nexttime p</code> requires <code>p</code> to hold at the very next clock tick. <code>s_nexttime p</code> is the strong variant (fails if there is no next tick). These combine naturally with <code>until</code> to build recursive temporal patterns.</p></blockquote>
+<p>The starter includes <code>tb.sv</code> with a valid request, a completion edge, and a clean payload throughout. Run it before solving to see the phases; the solution trace prints <code>PASS</code> after checking the request and completion values.</p>

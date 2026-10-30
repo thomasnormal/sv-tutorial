@@ -1,11 +1,16 @@
 module multi_ack(input logic clk, req, ack, done);
 
+  sequence three_acks;
+    // TODO: match three non-consecutive acknowledgement pulses
+    1'b0;
+  endsequence
+
   property three_acks_p;
     @(posedge clk)
-      // TODO: after req, wait for 3 non-consecutive ack pulses, then check done is high
-      ;
+      // TODO: after req, wait for three_acks, then check done next cycle
+      req |=> three_acks ##1 done;
   endproperty
 
-  three_acks_a: assert property (three_acks_p);
+  // TODO: assert three_acks_p on every clock edge.
 
 endmodule

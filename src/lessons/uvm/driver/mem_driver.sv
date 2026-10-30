@@ -1,5 +1,10 @@
+`ifndef SVT_UVM_DRIVER_MEM_DRIVER_SV
+`define SVT_UVM_DRIVER_MEM_DRIVER_SV
+
 import uvm_pkg::*;
 `include "uvm_macros.svh"
+`include "mem_item.sv"
+`include "mem_if.sv"
 
 class mem_driver extends uvm_driver #(mem_item);
   `uvm_component_utils(mem_driver)
@@ -28,3 +33,5 @@ class mem_driver extends uvm_driver #(mem_item);
     end
   endtask
 endclass
+
+`endif

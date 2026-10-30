@@ -1,12 +1,28 @@
-<p>SVA provides two operators for reasoning about entire future traces rather than bounded windows:</p>
+<p>An SRAM arbiter must make progress: after reset releases, a waiting master should eventually receive the write lock, and once the lock is granted it must not silently drop. SVA provides two operators for reasoning about those entire future traces rather than bounded windows:</p>
 <ul>
   <li><code>s_eventually prop</code> — <strong>strong eventually</strong>: <code>prop</code> must become true at some future clock tick. Fails if the trace ends without it occurring.</li>
   <li><code>always prop</code> — <code>prop</code> must hold at <em>every</em> clock tick from now on.</li>
 </ul>
+<svg width="470" height="174" viewBox="0 0 470 174" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <rect x="10" y="8" width="450" height="156" rx="6" fill="#fffdf7" stroke="#d5cbb2"/>
+  <text x="235" y="25" text-anchor="middle" fill="#0d6f72" font-weight="bold">one trace, two questions about the future</text>
+  <text x="65" y="57" text-anchor="end" fill="#586469">rst_n</text>
+  <path d="M80 53 H150 V38 H220 V53 H430" fill="none" stroke="#c17d2a" stroke-width="2"/>
+  <text x="65" y="91" text-anchor="end" fill="#586469">lock</text>
+  <path d="M80 87 H220 V72 H430" fill="none" stroke="#0d6f72" stroke-width="2"/>
+  <line x1="220" y1="34" x2="220" y2="142" stroke="#c17d2a" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <circle cx="220" cy="87" r="5" fill="#0d6f72"/>
+  <text x="220" y="111" text-anchor="middle" fill="#0d6f72" font-weight="bold">s_eventually lock</text>
+  <path d="M250 119 H420" stroke="#0d6f72" stroke-width="5" stroke-linecap="round"/>
+  <text x="335" y="140" text-anchor="middle" fill="#0d6f72">always lock after it rises</text>
+  <text x="220" y="157" text-anchor="middle" fill="#9a5a18">the first rule asks “will it happen?”</text>
+</svg>
 <p>The <em>strong</em> vs <em>weak</em> distinction matters for formal tools: a weak property (<code>eventually</code>) is satisfied vacuously by a finite trace that never reaches the condition, while a strong property (<code>s_eventually</code>) demands the condition eventually occurs:</p>
 <p>Open <code>liveness.sv</code> and fill in both property bodies:</p>
 <ul>
   <li><strong>p_lock_live</strong>: after reset de-asserts (<code>$rose(rst_n)</code>), <code>lock</code> must eventually become true</li>
   <li><strong>p_lock_stable</strong>: once <code>lock</code> is high it must remain high forever</li>
 </ul>
+<p>This extends <code>sva/formal-assume</code>: there you constrained the environment's reset entry point; here you reuse the same sampled-clock properties to ask whether the design makes progress afterward. In a real SRAM system, the liveness rule catches a deadlocked request while the safety rule catches ownership being dropped mid-transaction.</p>
 <blockquote><p><code>s_eventually</code> and <code>always</code> used as property operators are <strong>IEEE 1800-2012</strong> features. They express <dfn data-card="LTL (Linear Temporal Logic) is a formal logic for reasoning about properties over time. It adds temporal operators to classical logic: G (globally/always), F (finally/eventually), X (next), and U (until). SVA's s_eventually maps to F, always maps to G. LTL properties describe what must hold over all future time steps of a trace, rather than just within a bounded window.">Linear Temporal Logic (LTL)</dfn> properties and require a formal tool that supports unbounded reasoning. Bounded model checking can only <em>falsify</em> them within its bound — if BMC reports no counterexample, that is <strong>not</strong> a proof. It only means no violation was found up to the exploration depth. Fully proving liveness requires an unbounded prover or k-induction.</p></blockquote>
+<p>The starter includes <code>tb.sv</code> with reset release, a later lock grant, and several held cycles. Run it before solving to see the trace; the solution trace prints <code>PASS</code> after checking that the lock arrived and stayed high.</p>

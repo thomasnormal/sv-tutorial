@@ -40,6 +40,7 @@
   let copyEnabled = $state(false);
   let showCopyModal = $state(false);
   let copyEnableChecked = $state(false);
+  let copyModalEl = $state(null);
   let didAnnounceTrimThisRun = $state(false);
   let mox = $state(null);
   let glossaryCard = $state(null); // { body, top, left }
@@ -215,6 +216,12 @@
     if (completed && hasSolution) {
       completedSlugs.update(s => new Set([...s, lesson.slug]));
     }
+  });
+
+  // Move focus into the copy warning when it opens so keyboard users do not
+  // continue typing in the editor behind the modal.
+  $effect(() => {
+    if (showCopyModal && copyModalEl) copyModalEl.focus();
   });
 
   // Auto-switch away from waves tab if no waveform
@@ -415,6 +422,30 @@
     };
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
+  }
+
+  function adjustResize(e, orientation, value, setValue, min, max) {
+    const delta = orientation === 'vertical'
+      ? ({ ArrowLeft: -1, ArrowRight: 1 }[e.key] ?? 0)
+      : ({ ArrowUp: -1, ArrowDown: 1 }[e.key] ?? 0);
+    if (!delta) return;
+    e.preventDefault();
+    const step = e.shiftKey ? 5 : 1;
+    setValue(Math.min(Math.max(value + delta * step, min), max));
+  }
+
+  function onRuntimeTabKeydown(e) {
+    const tabs = ['logs', 'waves'];
+    const current = tabs.indexOf(activeRuntimeTab);
+    let next = current;
+    if (e.key === 'ArrowRight') next = (current + 1) % tabs.length;
+    else if (e.key === 'ArrowLeft') next = (current - 1 + tabs.length) % tabs.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = tabs.length - 1;
+    else return;
+    e.preventDefault();
+    activeRuntimeTab = tabs[next];
+    document.getElementById(`runtime-tab-${tabs[next]}`)?.focus();
   }
 
   async function runSim(mode = 'sim') {
@@ -631,17 +662,23 @@
   </article>
 
   <!-- Horizontal drag handle — wide only -->
-  <div role="separator" aria-label="Resize panels" aria-orientation="vertical"
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
+  <div role="separator" aria-label="Resize lesson and editor panels" aria-orientation="vertical"
+       aria-valuemin="15" aria-valuemax="75" aria-valuenow={Math.round(hSplit)} tabindex="0"
        class="max-narrow:hidden flex-none w-[0.7rem] flex items-center justify-center cursor-col-resize select-none group"
        style="touch-action:none"
-       onpointerdown={startHResize}>
+       onpointerdown={startHResize}
+       onkeydown={(e) => adjustResize(e, 'vertical', hSplit, value => hSplit = value, 15, 75)}>
     <div class="w-[2px] h-8 rounded-full bg-border group-hover:bg-teal transition-colors"></div>
   </div>
   <!-- Vertical drag handle — narrow only -->
-  <div role="separator" aria-label="Resize panels" aria-orientation="horizontal"
+  <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
+  <div role="separator" aria-label="Resize lesson and editor panels" aria-orientation="horizontal"
+       aria-valuemin="15" aria-valuemax="75" aria-valuenow={Math.round(hSplit)} tabindex="0"
        class="hidden max-narrow:flex flex-none h-[0.7rem] items-center justify-center cursor-row-resize select-none group"
        style="touch-action:none"
-       onpointerdown={startNarrowResize}>
+       onpointerdown={startNarrowResize}
+       onkeydown={(e) => adjustResize(e, 'horizontal', hSplit, value => hSplit = value, 15, 75)}>
     <div class="h-[2px] w-8 rounded-full bg-border group-hover:bg-teal transition-colors"></div>
   </div>
 
@@ -662,8 +699,12 @@
           </svg>
         </button>
         {#if showOptions}
-          <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-          <div class="fixed inset-0 z-40" onclick={() => (showOptions = false)}></div>
+          <button
+            type="button"
+            class="fixed inset-0 z-40 cursor-default border-0 bg-transparent p-0"
+            aria-label="Close editor options"
+            onclick={() => (showOptions = false)}
+          ></button>
           <div class="absolute right-0 top-[calc(100%+0.4rem)] z-50 bg-surface border border-border rounded-[12px] shadow-app p-2 flex flex-col min-w-[160px]">
             {#if hasSolution}
               <button
@@ -777,10 +818,13 @@
             {@render runButtons()}
           </div>
           <!-- Drag handle -->
-          <div role="separator" aria-orientation="vertical"
+          <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
+          <div role="separator" aria-label="Resize editor files" aria-orientation="vertical"
+               aria-valuemin="20" aria-valuemax="80" aria-valuenow={Math.round(hSplitEditor)} tabindex="0"
                class="flex-none w-3 relative cursor-col-resize select-none group"
                style="touch-action:none; background-color:{$darkMode ? '#1e2422' : '#faf7ef'}"
-               onpointerdown={startEditorHResize}>
+               onpointerdown={startEditorHResize}
+               onkeydown={(e) => adjustResize(e, 'vertical', hSplitEditor, value => hSplitEditor = value, 20, 80)}>
             <div class="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border group-hover:bg-teal transition-colors"></div>
           </div>
           <!-- Right pane -->
@@ -874,10 +918,13 @@
     </div>
 
     <!-- Vertical drag handle -->
-    <div role="separator" aria-label="Resize panels" aria-orientation="horizontal"
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions -->
+    <div role="separator" aria-label="Resize editor and output panels" aria-orientation="horizontal"
+         aria-valuemin="20" aria-valuemax="80" aria-valuenow={Math.round(vSplit)} tabindex="0"
          class="flex-none h-[0.7rem] flex items-center justify-center cursor-row-resize select-none group"
          style="touch-action:none"
-         onpointerdown={startVResize}>
+         onpointerdown={startVResize}
+         onkeydown={(e) => adjustResize(e, 'horizontal', vSplit, value => vSplit = value, 20, 80)}>
       <div class="h-[2px] w-8 rounded-full bg-border group-hover:bg-teal transition-colors"></div>
     </div>
 
@@ -888,14 +935,18 @@
       <!-- Header: Logs/Waves tab switcher + waveform toolbar -->
       {#if hasWaveform}
         <div class="flex items-center gap-[0.4rem] px-[0.5rem] py-[0.35rem]">
-          <div role="tablist" class="flex gap-[0.35rem]">
-            <button role="tab" aria-selected={activeRuntimeTab === 'logs'}
+          <div role="tablist" aria-label="Runtime output" class="flex gap-[0.35rem]">
+            <button id="runtime-tab-logs" role="tab" aria-controls="runtime-panel-logs" aria-selected={activeRuntimeTab === 'logs'}
+              tabindex={activeRuntimeTab === 'logs' ? 0 : -1}
               onclick={() => (activeRuntimeTab = 'logs')}
+              onkeydown={onRuntimeTabKeydown}
               data-testid="runtime-tab-logs"
               class="inline-flex items-center text-[0.8rem] rounded-[10px] border px-2 py-1 whitespace-nowrap transition-colors {activeRuntimeTab === 'logs' ? 'border-teal text-teal bg-tab-selected-bg' : 'border-border bg-surface-2'}"
             >Logs</button>
-            <button role="tab" aria-selected={activeRuntimeTab === 'waves'}
+            <button id="runtime-tab-waves" role="tab" aria-controls="runtime-panel-waves" aria-selected={activeRuntimeTab === 'waves'}
+              tabindex={activeRuntimeTab === 'waves' ? 0 : -1}
               onclick={() => (activeRuntimeTab = 'waves')}
+              onkeydown={onRuntimeTabKeydown}
               data-testid="runtime-tab-waves"
               class="inline-flex items-center text-[0.8rem] rounded-[10px] border px-2 py-1 whitespace-nowrap transition-colors {activeRuntimeTab === 'waves' ? 'border-teal text-teal bg-tab-selected-bg' : 'border-border bg-surface-2'}"
             >Waves</button>
@@ -919,6 +970,9 @@
 
       <!-- Logs tab content -->
       <div
+        id="runtime-panel-logs"
+        role="tabpanel"
+        aria-labelledby="runtime-tab-logs"
         data-testid="runtime-logs"
         class="m-0 bg-logs-bg text-logs-text p-[0.6rem] overflow-auto font-mono text-[0.78rem]
                {activeRuntimeTab === 'waves' ? 'hidden' : 'flex-1 min-h-0'}"
@@ -948,7 +1002,12 @@
 
       <!-- Waves tab content — always mounted so Surfer doesn't reload on tab switch -->
       {#if hasWaveform}
-        <div class="{activeRuntimeTab === 'waves' ? 'flex-1 min-h-0' : 'hidden'}">
+        <div
+          id="runtime-panel-waves"
+          role="tabpanel"
+          aria-labelledby="runtime-tab-waves"
+          class="{activeRuntimeTab === 'waves' ? 'flex-1 min-h-0' : 'hidden'}"
+        >
           <WaveformViewer
             bind:this={waveformRef}
             bind:signalsReady={waveSignalsReady}
@@ -973,10 +1032,15 @@
 {/if}
 
 {#if showCopyModal}
-  <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-       onclick={(e) => e.target === e.currentTarget && onCopyModalOk()}>
-    <div role="dialog" aria-modal="true" aria-labelledby="copy-modal-title"
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <button
+      type="button"
+      class="absolute inset-0 cursor-default border-0 bg-transparent p-0"
+      aria-label="Close copy warning"
+      onclick={onCopyModalOk}
+    ></button>
+    <div bind:this={copyModalEl} role="dialog" aria-modal="true" aria-labelledby="copy-modal-title"
+         tabindex="-1"
          onkeydown={onCopyModalKeydown}
          class="bg-surface rounded-[14px] shadow-xl p-8 max-w-[440px] mx-4 flex flex-col gap-4 border border-border">
       <h2 id="copy-modal-title" class="m-0 text-[1.2rem] font-semibold leading-snug">Copy is currently disabled!</h2>
@@ -989,7 +1053,6 @@
         enable copy for the duration of this session
       </label>
       <button
-        autofocus
         onclick={onCopyModalOk}
         class="self-start px-6 py-[0.45rem] bg-teal text-white rounded-[8px] font-medium text-[0.9rem] hover:opacity-90 transition-opacity"
       >OK</button>

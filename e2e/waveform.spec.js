@@ -54,6 +54,22 @@ test('run generates a real VCD (non-mock pipeline)', async ({ page }) => {
   await expect(logs).not.toContainText('exit code: 0');
 });
 
+test('runtime tabs support keyboard navigation', async ({ page }) => {
+  await runModulesAndPorts(page);
+
+  const logsTab = page.getByTestId('runtime-tab-logs');
+  const wavesTab = page.getByTestId('runtime-tab-waves');
+  await expect(logsTab).toHaveAttribute('tabindex', '0');
+  await expect(wavesTab).toHaveAttribute('tabindex', '-1');
+
+  await logsTab.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(wavesTab).toBeFocused();
+  await expect(wavesTab).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByTestId('runtime-tab-logs')).toHaveAttribute('tabindex', '-1');
+  await expect(page.locator('#runtime-panel-waves')).toBeVisible();
+});
+
 test('surfer renders waveform when WebGL2 is available', async ({ page }) => {
   await page.goto('/surfer/index.html#dev');
   const crashBanner = page.getByText('Sorry, Surfer crashed');

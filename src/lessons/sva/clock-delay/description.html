@@ -4,6 +4,21 @@
   <li><code>##[m:n]</code> — between <em>m</em> and <em>n</em> cycles later</li>
   <li><code>##[1:$]</code> — one or more cycles (<code>$</code> means unbounded)</li>
 </ul>
+<svg width="470" height="174" viewBox="0 0 470 174" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <text x="235" y="16" text-anchor="middle" fill="#0d6f72" font-weight="bold">a request opens a two-to-five-cycle window</text>
+  <text x="80" y="47" text-anchor="middle" fill="#586469">sampled edge</text>
+  <text x="168" y="47" text-anchor="middle" fill="#586469">t0</text><text x="228" y="47" text-anchor="middle" fill="#586469">t1</text><text x="288" y="47" text-anchor="middle" fill="#586469">t2</text><text x="348" y="47" text-anchor="middle" fill="#586469">t3</text><text x="408" y="47" text-anchor="middle" fill="#586469">t4</text>
+  <text x="80" y="77" text-anchor="middle" fill="#586469">mem_req</text>
+  <rect x="157" y="62" width="22" height="22" rx="3" fill="#c8eded" stroke="#0d6f72"/><text x="168" y="77" text-anchor="middle" fill="#0d6f72" font-size="10">1</text>
+  <text x="80" y="111" text-anchor="middle" fill="#586469">mem_ack</text>
+  <rect x="277" y="96" width="22" height="22" rx="3" fill="#fff8ec" stroke="#c17d2a"/><text x="288" y="111" text-anchor="middle" fill="#9a5a18" font-size="10">2</text>
+  <rect x="397" y="96" width="22" height="22" rx="3" fill="#fff8ec" stroke="#c17d2a"/><text x="408" y="111" text-anchor="middle" fill="#9a5a18" font-size="10">5</text>
+  <line x1="179" y1="73" x2="277" y2="106" stroke="#c17d2a" stroke-width="2" stroke-dasharray="5 4"/><line x1="179" y1="81" x2="397" y2="106" stroke="#c17d2a" stroke-width="2" stroke-dasharray="5 4"/>
+  <text x="337" y="78" text-anchor="middle" fill="#9a5a18">legal acknowledgement window</text>
+  <text x="235" y="145" text-anchor="middle" fill="#0d6f72">##2 is the earliest legal edge; ##5 is the latest</text>
+  <text x="235" y="163" text-anchor="middle" fill="#586469">a response at t1 or t6 would fail</text>
+</svg>
 <p>Open <code>delay_check.sv</code>. The spec is: <em>after a memory request (<code>mem_req</code>), the response (<code>mem_ack</code>) must arrive within 2 to 5 clock cycles.</em></p>
-<p>Complete the property body using <code>|-> ##[2:5]</code>, then press <strong>verify</strong>.</p>
+<p>The previous sequence lesson named multi-cycle patterns; here the delay itself is the rule. Complete the one-sample <code>delayed_ack</code> sequence, use <code>|-> ##[2:5]</code> in the property, and add its assertion before pressing <strong>verify</strong>.</p>
+<p>The starter includes <code>tb.sv</code> with an acknowledgement at the earliest legal edge. Run it before solving to see the trace; after solving, the same trace checks the expected edge and prints <code>PASS</code>. Verify still searches unconstrained requests and acknowledgements for an off-by-one counterexample.</p>
 <p>If the delay range is wrong, the Verify log reports <strong>COUNTEREXAMPLE FOUND</strong> and lists the model's signal assignments. BMC does not generate a Waves tab; use those assignments to spot off-by-one errors.</p>

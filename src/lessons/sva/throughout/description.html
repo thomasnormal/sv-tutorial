@@ -2,5 +2,17 @@
 <pre>expr throughout seq</pre>
 <p>At each evaluation step of <code>seq</code>, <code>expr</code> is checked. If <code>expr</code> ever goes false while <code>seq</code> is still running, the sequence fails.</p>
 <p>A typical use is mode/enable stability: chip-select must stay asserted for an entire 8-clock SPI transfer. Once <code>cs_n</code> falls (goes active-low), it must not rise again for the whole transfer — 8 consecutive MOSI bits.</p>
+<svg width="470" height="176" viewBox="0 0 470 176" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+  <text x="235" y="16" text-anchor="middle" fill="#0d6f72" font-weight="bold">throughout guards every bit of the transfer</text>
+  <text x="72" y="46" text-anchor="middle" fill="#586469">sample</text>
+  <text x="126" y="46" text-anchor="middle" fill="#586469">t0</text><text x="166" y="46" text-anchor="middle" fill="#586469">t1</text><text x="206" y="46" text-anchor="middle" fill="#586469">t2</text><text x="246" y="46" text-anchor="middle" fill="#586469">t3</text><text x="286" y="46" text-anchor="middle" fill="#586469">t4</text><text x="326" y="46" text-anchor="middle" fill="#586469">t5</text><text x="366" y="46" text-anchor="middle" fill="#586469">t6</text><text x="406" y="46" text-anchor="middle" fill="#586469">t7</text>
+  <text x="72" y="77" text-anchor="middle" fill="#586469">cs_n</text>
+  <rect x="154" y="62" width="264" height="22" rx="3" fill="#c8eded" stroke="#0d6f72"/><text x="286" y="77" text-anchor="middle" fill="#0d6f72">0 throughout 8 cycles</text>
+  <text x="72" y="111" text-anchor="middle" fill="#586469">mosi</text>
+  <text x="166" y="111" text-anchor="middle" fill="#9a5a18">1</text><text x="206" y="111" text-anchor="middle" fill="#9a5a18">0</text><text x="246" y="111" text-anchor="middle" fill="#9a5a18">1</text><text x="286" y="111" text-anchor="middle" fill="#9a5a18">0</text><text x="326" y="111" text-anchor="middle" fill="#9a5a18">1</text><text x="366" y="111" text-anchor="middle" fill="#9a5a18">0</text><text x="406" y="111" text-anchor="middle" fill="#9a5a18">1</text>
+  <line x1="126" y1="54" x2="126" y2="138" stroke="#c17d2a" stroke-width="2" stroke-dasharray="5 4"/><text x="126" y="153" text-anchor="middle" fill="#9a5a18">$fell(cs_n)</text>
+  <text x="286" y="170" text-anchor="middle" fill="#586469">one high cs_n sample inside the bar breaks the property</text>
+</svg>
 <p>Open <code>spi_check.sv</code> and complete the property: when <code>cs_n</code> falls, use <code>throughout</code> to assert that <code>cs_n</code> stays low for an 8-cycle MOSI sequence.</p>
+<p>The previous clock-delay lesson taught how to count sampled cycles; reuse that timing discipline here. The starter includes <code>tb.sv</code> with eight MOSI samples while <code>cs_n</code> stays low. Run it before solving to see the guarded transfer; after solving, the same trace prints <code>PASS</code>. Verify searches for a mid-transfer chip-select glitch.</p>
 <blockquote><p><code>(!cs_n) throughout seq</code> is equivalent to writing <code>sync_reject_on(cs_n) seq</code> — both fail as soon as <code>cs_n</code> rises mid-transfer. <code>throughout</code> is usually more readable for the stability idiom.</p></blockquote>

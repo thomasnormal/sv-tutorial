@@ -1,13 +1,21 @@
+<p>A cross collector has this reusable shape:</p>
+<pre>covergroup &lt;group&gt;;
+  &lt;name_a&gt;: coverpoint &lt;signal_a&gt;;
+  &lt;name_b&gt;: coverpoint &lt;signal_b&gt;;
+  &lt;pair_bins&gt;: cross &lt;name_a&gt;, &lt;name_b&gt;;
+endgroup</pre>
 <p>Individual coverpoints track signals in isolation. <strong>Cross coverage</strong> tracks <em>combinations</em> — it creates a bin for every pair, proving that every address was both read and written:</p>
+<p><img src="cross-matrix.svg" alt="Cross coverage matrix with read and write bins for addresses zero through fifteen; reserved write cells at addresses fourteen and fifteen are ignored"></p>
+<p>The two independent coverpoints can reach 100% without proving any address-operation pair. The starter includes a <code>cross_ready</code> guard so that vacuous result cannot look complete.</p>
 <pre>
   addr \ op  │ read │ write
   ───────────┼──────┼───────
-   0 – 13    │  ✓   │   ✓     ← 28 required bins
-  14 – 15    │  ✓   │   —     ← writes excluded (reserved)
+   0 – 13    │  ✓   │   ✓     ← 28 cross bins
+  14 – 15    │  ✓   │   —     ← 2 required read bins; writes ignored
 </pre>
 <p>The cross syntax creates one bin per combination of bins from two coverpoints:</p>
 <pre>addr_x_we: cross cp_addr, cp_we;</pre>
-<p>That single line creates 32 bins (16 addr × 2 ops). But addresses 14 and 15 are <em>reserved</em> — our sequence never writes them — so those 2 write-bins will always be empty. Instead of letting them fail coverage, exclude them with <code><dfn data-card="binsof(cp.bin) selects a specific set of bins from a coverpoint by name or value. The intersect keyword further filters to only those bins whose values overlap with a given set. Together they let you write precise ignore_bins or illegal_bins for cross coverage — excluding specific combinations without removing the whole coverpoint.">binsof</dfn></code> and <code>intersect</code>:</p>
+<p>That single line creates 32 bins (16 addr x 2 ops). Addresses 14 and 15 are <em>reserved</em> — our sequence never writes them — so those 2 write-bins will always be empty. The remaining 30 bins are checked. Exclude the reserved pair with <code><dfn data-card="binsof(cp.bin) selects a specific set of bins from a coverpoint by name or value. The intersect keyword further filters to only those bins whose values overlap with a given set. Together they let you write precise ignore_bins or illegal_bins for cross coverage — excluding specific combinations without removing the whole coverpoint.">binsof</dfn></code> and <code>intersect</code>:</p>
 <pre>ignore_bins no_write_reserved =
     binsof(cp_addr.addr) intersect {14, 15} &&
     binsof(cp_we.writes);</pre>
@@ -15,6 +23,6 @@
 <ol>
   <li>Add the <code>addr_x_we</code> cross of <code>cp_addr</code> and <code>cp_we</code></li>
   <li>Add the <code>ignore_bins</code> for reserved write addresses (14 and 15)</li>
-  <li>Complete <code>report_phase</code> — print PASS at 100%, or a <code>`uvm_error</code> naming which address-operation bins were missed</li>
+  <li>Set <code>cross_ready = 1</code>, then use the cross result to confirm every required address-operation pair</li>
 </ol>
 <blockquote><p><code>binsof(cp.bin) intersect {values}</code> selects only those bins whose values overlap the set. This is how you surgically exclude specific cross combinations without removing a whole coverpoint.</p></blockquote>

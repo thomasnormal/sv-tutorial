@@ -1,0 +1,8 @@
+Command: CI=1 npx playwright test e2e/solutions.spec.js -g 'Followed-By: #-# and #=#' --workers=1
+Result: 1 failed (two attempts, 120s each) at the BMC runtime assertion
+Browser route: /lesson/sva/followed-by
+The test applied the golden solution and reached Verify. Verification was
+blocked before bounded output because the shared browser runtime is unavailable:
+  # runtime unavailable: Error: Failed to load tool script: http://127.0.0.1:4173/mox/mox-verilog.js
+  # MOX BMC runtime unavailable; refresh the page and try again
+No [z3] verdict was available. The checkout has no static/mox artifacts.

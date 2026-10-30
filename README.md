@@ -2,6 +2,14 @@
 
 Svelte-based interactive tutorial shell for SystemVerilog, SVA, and UVM.
 
+The [curriculum tracker](CURRICULUM.md) is the source of truth for lesson order,
+prerequisites, and quality scores. Completed lessons include starter and solution
+source plus a runnable testbench with labelled PASS/FAIL output where the lesson
+can be checked in simulation.
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for setup, lesson authoring, validation,
+and pull-request guidance.
+
 ## Reproducible Requirements
 
 Pinned versions are centralized in `scripts/toolchain.lock.sh`:
@@ -92,6 +100,11 @@ In `.env` (copy `.env.example`):
 - For local/offline cocotb, install Pyodide assets once:
   - `npm run setup:pyodide`
 - Keep runtime URLs same-origin (default `/mox/*`, `/z3/*`, `/surfer/*`, `/pyodide/*`) for robust offline behavior.
+
+## Keyboard Controls
+
+- Focus a panel separator and press **Arrow** keys to resize it; hold **Shift** for a larger step.
+- Press **Ctrl+Enter** (or **Cmd+Enter**) to run the current lesson, and **Escape** to close open menus or dialogs.
 
 ## Runtime Notes
 

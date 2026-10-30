@@ -1,12 +1,19 @@
-<p>As structs allow us to group fields together,
-<strong>interfaces</strong> group signals into a named bundle that can be passed as a single port:</p>
+<p>The SRAM testbench and the DUT currently need the same clock, write-enable, address, and data signals. Passing each wire separately makes a growing bus hard to read and easy to misconnect. An <strong>interface</strong> groups those signals into one shared connection:</p>
+<pre class="diagram">testbench                         SRAM
+  bus.we ─────────────────────────► bus.we
+  bus.addr ───────────────────────► bus.addr
+  bus.wdata ──────────────────────► bus.wdata
+  bus.rdata ◄────────────────────── bus.rdata
+             one shared mem_if bus</pre>
+<p>The general shape is:</p>
 <pre>interface &lt;name&gt; ([input|output] &lt;type&gt; &lt;port&gt;, ...);
     &lt;type&gt;       &lt;signal&gt;;
     &lt;type&gt; [N:0] &lt;signal&gt;;
     ...
     function &lt;type&gt; &lt;name&gt;(); ... endfunction
 endinterface</pre>
-<p>With this interface, we can write out sram module as just</p>
+<p>An interface instance is shared by reference: the testbench and <code>sram</code> see the same live signals. This differs from a packed struct, whose fields form a value that is copied when it is passed around.</p>
+<p>With this interface, the SRAM module needs one port:</p>
 <pre>
 module sram (mem_if bus);
   logic [7:0] mem [0:15];
@@ -18,21 +25,17 @@ module sram (mem_if bus);
 endmodule
 </pre>
 <p>Signals are accessed with dot notation — <code>bus.addr</code>, <code>bus.rdata</code> — just like struct fields.</p>
-<blockquote><p>On the surface fields in structs and signals in interfaces may seem very similar. But structs are passed by value (copy) while interfaces are a shared, by-reference connection when two modules need to communicate over the same set of wires.</p>
-</blockquote>
 
-<p>In contrast with struts, interfaces can have <strong>functions</strong> that operate on its signals.
+<p>Interfaces can also contain <strong>functions</strong> that operate on their signals.
 The function body has direct access to the interface's own signals — no extra argument needed.
-These functions are not synthesisable and live only in testbenches and simulation models:</p>
+This string-returning function is a simulation helper for the testbench:</p>
 <pre>function string sprint();
     return $sformatf(...);
 endfunction</pre>
 <p>Any module that holds the interface calls it as <code>bus.sprint()</code>.
 Note: <code>$sformatf()</code> is like <code>$display()</code> but returns a string instead of printing to the console.
 </p>
-<p>Task: implement <code>sprint()</code>
-in <code>mem_if.sv</code>
-so the testbench can log each transaction.
+<p>Task: implement <code>sprint()</code> in <code>mem_if.sv</code>. Build one readable string containing <code>we</code>, <code>addr</code>, <code>wdata</code>, and <code>rdata</code>, then return it so the testbench can log and check each transaction. Keep the labels and hexadecimal formatting shown by the example output.
 </p>
 
 <blockquote><p>System Verilog also has <strong>classes</strong>, which are like structs with methods, and support inheritance and polymorphism.
@@ -40,4 +43,4 @@ so the testbench can log each transaction.
 </blockquote>
 
 <h2>Testbench</h2>
-<p>The testbench creates the interface instance and passes it to both the SRAM and the initial block. After each write it calls <code>bus.sprint()</code> to log the bus state, then reads back and checks the result.</p>
+<p>The testbench creates the interface instance and passes it to both the SRAM and the initial block. After each write and read it calls <code>bus.sprint()</code>, checks the formatted snapshot, and checks the returned data. A final <code>PASS</code> means both the interface method and the SRAM behavior are correct.</p>

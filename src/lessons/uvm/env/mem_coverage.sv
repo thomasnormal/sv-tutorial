@@ -1,5 +1,9 @@
+`ifndef SVT_UVM_ENV_MEM_COVERAGE_SV
+`define SVT_UVM_ENV_MEM_COVERAGE_SV
+
 import uvm_pkg::*;
 `include "uvm_macros.svh"
+`include "mem_item.sv"
 
 class mem_coverage extends uvm_subscriber #(mem_item);
   `uvm_component_utils(mem_coverage)
@@ -20,3 +24,5 @@ class mem_coverage extends uvm_subscriber #(mem_item);
     `uvm_info("COV", $sformatf("Functional coverage: %.1f%%", mem_cg.get_coverage()), UVM_LOW)
   endfunction
 endclass
+
+`endif

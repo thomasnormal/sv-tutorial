@@ -1,4 +1,5 @@
 <p><strong><dfn data-card="A packed struct maps named fields onto a single contiguous bit-vector, with no gaps or padding. The struct as a whole can be treated as a plain logic [N:0] — you can assign it, compare it, or wire it through a port. Fields are declared MSB-first, so the first field occupies the most significant bits.">Packed structs</dfn></strong> bundle related signals — write-enable, address, and data — into a single named type. Instead of three separate ports you pass one <code>mem_cmd_t</code>; the receiver unpacks by field name.</p>
+<p>This lesson reuses the synchronous SRAM from <code>always_ff</code> and the fixed memory dimensions from the parameterized SRAM lesson. The storage and clocking are already supplied in <code>sram_cmd.sv</code>; your new job is to define the command bus once so the DUT, testbench, and the later UVM driver can share the same layout.</p>
 
 <h2>Syntax</h2>
 <pre>typedef struct packed {
@@ -59,7 +60,7 @@ cmd.addr = 4'd3;</pre>
 cmd = 13'b1_0101_01001101;</pre>
 
 <h2>Packages</h2>
-<p>The type is declared in a <dfn data-card="A SystemVerilog package is a named namespace for sharing type definitions, functions, parameters, and tasks across multiple modules without copy-pasting. Declare types once in a package; any module can access them with 'import pkg_name::*;' or use the scoped form 'pkg_name::type_name'. Packages are similar to C++ namespaces or Python modules. In this design, mem_pkg exports mem_cmd_t so both the DUT and the testbench use the identical struct definition.">package</dfn> so both the DUT (<code>sram_cmd.sv</code>) and the testbench share exactly one definition. The DUT receives a single <code>mem_cmd_t cmd</code> port and accesses <code>cmd.we</code>, <code>cmd.addr</code>, <code>cmd.wdata</code> by name.</p>
+<p>The type is declared in a <dfn data-card="A SystemVerilog package is a named namespace for sharing type definitions, functions, parameters, and tasks across multiple modules without copy-pasting. Declare types once in a package; any module can access them with 'import pkg_name::*;' or use the scoped form 'pkg_name::type_name'. Packages are similar to C++ namespaces or Python modules. In this design, mem_pkg exports mem_cmd_t so both the DUT and the testbench use the identical struct definition. The package is the reusable boundary: <code>sram_cmd.sv</code> and <code>tb.sv</code> import it instead of repeating the fields.</p>
 
 <blockquote><p>This is the command bus for our memory chip. In Part 3 the UVM driver will assemble a <code>mem_cmd_t</code> from a sequence item and drive it onto the interface every clock cycle.</p></blockquote>
 

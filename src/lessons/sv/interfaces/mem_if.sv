@@ -5,6 +5,9 @@ interface mem_if (input logic clk);
   logic [7:0]  wdata;
   logic [7:0]  rdata;
 
-  // TODO: implement sprint() — return a formatted string showing the current
-  //       signal values (we, addr, wdata, rdata) using $sformatf
+  function string sprint();
+    string summary;
+    // TODO: use $sformatf to capture all four live bus fields in summary.
+    // TODO: return the formatted summary to the caller.
+  endfunction
 endinterface

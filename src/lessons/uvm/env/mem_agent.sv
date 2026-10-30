@@ -1,5 +1,11 @@
+`ifndef SVT_UVM_ENV_MEM_AGENT_SV
+`define SVT_UVM_ENV_MEM_AGENT_SV
+
 import uvm_pkg::*;
 `include "uvm_macros.svh"
+`include "mem_item.sv"
+`include "mem_driver.sv"
+`include "mem_monitor.sv"
 
 class mem_agent extends uvm_agent;
   `uvm_component_utils(mem_agent)
@@ -17,3 +23,5 @@ class mem_agent extends uvm_agent;
     drv.seq_item_port.connect(seqr.seq_item_export);
   endfunction
 endclass
+
+`endif

@@ -1,5 +1,6 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
+`include "mem_item.sv"
 
 // Logging stub: receives each item from the sequencer and prints it.
 // No DUT connection needed — this lesson is about the sequence handshake.

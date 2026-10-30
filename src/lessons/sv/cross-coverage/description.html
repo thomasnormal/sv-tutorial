@@ -2,5 +2,20 @@
               <p>Two coverpoints can each report 100% while an entire class of interactions is untested. If all writes happened to land on low addresses and all reads on high addresses, both <code>cp_addr</code> and <code>cp_we</code> reach 100% — but the cross reveals the gap.</p>
               <p><strong>Cross coverage</strong> tracks combinations. Crossing two coverpoints with <em>m</em> and <em>n</em> bins produces <em>m × n</em> cross-bins. For the SRAM that is 2 × 2 = 4 bins:</p>
               <pre>addr_x_we: cross cp_addr, cp_we;</pre>
+              <svg width="430" height="190" viewBox="0 0 430 190" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
+                <text x="262" y="16" text-anchor="middle" fill="#0d6f72" font-weight="bold">addr_x_we: the four interactions</text>
+                <text x="116" y="62" text-anchor="middle" fill="#586469" transform="rotate(-90 116 62)">operation</text>
+                <text x="217" y="42" text-anchor="middle" fill="#586469">lo_half</text>
+                <text x="330" y="42" text-anchor="middle" fill="#586469">hi_half</text>
+                <text x="142" y="91" text-anchor="middle" fill="#586469">read</text>
+                <text x="142" y="145" text-anchor="middle" fill="#586469">write</text>
+                <rect x="168" y="54" width="98" height="48" rx="4" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+                <rect x="280" y="54" width="98" height="48" rx="4" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+                <rect x="168" y="108" width="98" height="48" rx="4" fill="#fff8ec" stroke="#c17d2a" stroke-width="2"/>
+                <rect x="280" y="108" width="98" height="48" rx="4" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>
+                <text x="217" y="83" text-anchor="middle" fill="#0d6f72" font-weight="bold">hit?</text><text x="329" y="83" text-anchor="middle" fill="#9a5a18" font-weight="bold">hit?</text>
+                <text x="217" y="137" text-anchor="middle" fill="#9a5a18" font-weight="bold">hit?</text><text x="329" y="137" text-anchor="middle" fill="#0d6f72" font-weight="bold">hit?</text>
+                <text x="273" y="181" text-anchor="middle" fill="#586469">two 100% coverpoints can still hide one empty cell</text>
+              </svg>
               <p>Open <code>cov_cross.sv</code>. The two coverpoints from the previous lesson are already defined. Add the <code>addr_x_we</code> cross definition inside the covergroup. Run to see whether 64 random cycles hit all four address-half × read/write combinations.</p>
               <blockquote><p>This is the central lesson of cross coverage: perfect scores on individual coverpoints can hide large gaps. Cross coverage is especially valuable for address region × operation type, opcode × privilege level, or any pair of orthogonal protocol dimensions.</p></blockquote>

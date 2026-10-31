@@ -17,4 +17,4 @@
 <p>
   This is the same style used in larger cocotb environments: drive, await edge, assert.
 </p>
-<p class="runtime-note"><strong>Browser status:</strong> the current WASM VPI worker exits at 0&nbsp;fs before cocotb reports a result; this Python example remains available until the VPI environment is repaired.</p>
+<p class="runtime-note"><strong>Known limitation:</strong> the pinned WASM VPI artifact does not deliver the §38.36.1 value-change callback after a cocotb clock write, so this ClockCycles run remains a documented Mox refusal. You can still run the same test with a native cocotb simulator.</p>

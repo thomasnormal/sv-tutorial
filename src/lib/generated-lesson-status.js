@@ -1188,69 +1188,69 @@ export const lessonStatuses = [
   {
     "slug": "cocotb/first-test",
     "title": "Your First cocotb Test",
-    "status": "environment",
+    "status": "PASS",
     "rows": [
       {
         "slug": "cocotb/first-test",
-        "mode": "run",
-        "construct": "VPI worker exits at 0 fs",
-        "diagnostic": "mox-sim-vpi completed at 0 fs without a cocotb result",
-        "clause": "environment (VPI worker)",
-        "status": "environment"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
   {
     "slug": "cocotb/clock-and-timing",
     "title": "Clock and Timing",
-    "status": "environment",
+    "status": "PASS",
     "rows": [
       {
         "slug": "cocotb/clock-and-timing",
-        "mode": "run",
-        "construct": "VPI worker exits at 0 fs",
-        "diagnostic": "mox-sim-vpi completed at 0 fs without a cocotb result",
-        "clause": "environment (VPI worker)",
-        "status": "environment"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
   {
     "slug": "cocotb/edge-triggers",
     "title": "Edge Triggers and Clock",
-    "status": "environment",
+    "status": "Mox refusal",
     "rows": [
       {
         "slug": "cocotb/edge-triggers",
         "mode": "run",
-        "construct": "VPI worker exits at 0 fs",
-        "diagnostic": "mox-sim-vpi completed at 0 fs without a cocotb result",
-        "clause": "environment (VPI worker)",
-        "status": "environment"
+        "construct": "VPI value-change callback after a cocotb clock write",
+        "diagnostic": "VPI value-change callback did not fire for cocotb edge trigger",
+        "clause": "§38.36.1 (VPI value-change callbacks)",
+        "status": "Mox refusal"
       }
     ]
   },
   {
     "slug": "cocotb/clockcycles-patterns",
     "title": "ClockCycles and Patterns",
-    "status": "environment",
+    "status": "Mox refusal",
     "rows": [
       {
         "slug": "cocotb/clockcycles-patterns",
         "mode": "run",
-        "construct": "VPI worker exits at 0 fs",
-        "diagnostic": "mox-sim-vpi completed at 0 fs without a cocotb result",
-        "clause": "environment (VPI worker)",
-        "status": "environment"
+        "construct": "VPI value-change callback after a cocotb clock write",
+        "diagnostic": "VPI value-change callback did not fire for cocotb clock cycle trigger",
+        "clause": "§38.36.1 (VPI value-change callbacks)",
+        "status": "Mox refusal"
       }
     ]
   }
 ];
 export const statusSummary = {
-  "PASS": 26,
+  "PASS": 28,
   "tutorial": 0,
-  "Mox refusal": 41,
-  "environment": 16
+  "Mox refusal": 43,
+  "environment": 12
 };
 export const matrixHistory = {
   "old": {

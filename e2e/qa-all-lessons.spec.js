@@ -29,10 +29,8 @@ const KNOWN_FAILURES = {
   'sv/interface-method-receiver run': `interface-method receiver support is newer than the pinned WASM; native Mox passes: ${WASM_REBUILD}`,
   'sva/sequence-basics verify': 'Mox BMC crashes on an assert with a pass action (llhd.process handoff)',
   'sva/formal-assume run': 'Mox evaluates an initial assume property at every clock edge, not once (§16.14.6)',
-  'cocotb/first-test run': `${ENVIRONMENT_BLOCKER}: mox-sim-vpi completed at 0 fs without a cocotb result`,
-  'cocotb/clock-and-timing run': `${ENVIRONMENT_BLOCKER}: mox-sim-vpi completed at 0 fs without a cocotb result`,
-  'cocotb/edge-triggers run': `${ENVIRONMENT_BLOCKER}: mox-sim-vpi completed at 0 fs without a cocotb result`,
-  'cocotb/clockcycles-patterns run': `${ENVIRONMENT_BLOCKER}: mox-sim-vpi completed at 0 fs without a cocotb result`
+  'cocotb/edge-triggers run': `${WASM_REFUSAL}: VPI value-change callback did not fire for cocotb edge trigger`,
+  'cocotb/clockcycles-patterns run': `${WASM_REFUSAL}: VPI value-change callback did not fire for cocotb clock cycle trigger`
 };
 
 // The current browser artifact deliberately refuses temporal-property

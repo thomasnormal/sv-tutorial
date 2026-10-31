@@ -161,6 +161,15 @@ It then runs `npm run build`, whose prebuild step regenerates the status page
 and lesson badges from that table. The temporary artifact handoff is removed
 when the command exits; the generated census and status page remain for review.
 
+For a focused rerun, set `MATRIX_SLUGS` to a comma-separated list and send the
+partial census to a temporary path, for example:
+
+```bash
+MATRIX_SLUGS=cocotb/first-test,cocotb/clock-and-timing \
+MATRIX_OUTPUT=/tmp/cocotb-matrix.md \
+MATRIX_MOX_SHA=<mox-commit> scripts/run-matrix.sh /scratch/thomas-ahle/tmp/sv-tutorial/<build>/bin
+```
+
 Each run also writes a complete four-column result table to `results/<mox-sha>.md`.
 The SHA is inferred from a Mox checkout ancestor when possible; for a fleet
 artifact directory, provide it explicitly with `MATRIX_MOX_SHA=<git-sha>`. Keep

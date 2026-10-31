@@ -4,11 +4,11 @@ test('generated status page covers every lesson', async ({ page }) => {
   await page.goto('/status');
   await expect(page.getByTestId('status-page')).toBeVisible();
   await expect(page.getByTestId('status-row')).toHaveCount(83);
-  await expect(page.getByTestId('status-summary')).toContainText('PASS: 26');
-  await expect(page.getByTestId('status-summary')).toContainText('Mox refusal: 41');
-  await expect(page.getByTestId('status-summary')).toContainText('Environment: 16');
+  await expect(page.getByTestId('status-summary')).toContainText('PASS: 28');
+  await expect(page.getByTestId('status-summary')).toContainText('Mox refusal: 43');
+  await expect(page.getByTestId('status-summary')).toContainText('Environment: 12');
   await expect(page.getByTestId('matrix-diff')).toContainText('What changed');
-  await expect(page.getByTestId('matrix-diff')).toContainText('sva/immediate-assert');
+  await expect(page.getByTestId('matrix-diff')).toContainText('cocotb/first-test');
 });
 
 test('affected lesson exposes its measured limitation and native variant', async ({ page }) => {

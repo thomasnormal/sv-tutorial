@@ -1254,81 +1254,81 @@ export const statusSummary = {
 };
 export const matrixHistory = {
   "old": {
-    "sha": "b90b3a51a68b772a1510c837166afd6d429d8f20",
-    "generatedAt": "2026-10-30T23:32:10.000Z",
-    "summary": "109 cases, 49 PASS / 60 FAIL",
-    "artifactSource": ""
-  },
-  "new": {
     "sha": "0df7bdd0e53ec68f785d3e4725b5b46b5da1b7f1",
     "generatedAt": "2026-10-31T01:59:20.000Z",
     "summary": "109 cases, 49 PASS / 60 FAIL",
     "artifactSource": "existing item-18 static/mox artifact; current-main rebuild blocked by EX_IOERR and ::write wasm portability errors"
+  },
+  "new": {
+    "sha": "9636c42438ea7465dfb8ec7d6a3bc4bc257f230a",
+    "generatedAt": "2026-10-31T09:05:40.000Z",
+    "summary": "109 cases, 53 PASS / 56 FAIL",
+    "artifactSource": "Checked-in item-21 WASM artifact fallback; current origin/main 9636c42438e build stopped at llvm/Support/ExitCodes.h:30 EX_IOERR (wasm32)"
   }
 };
 export const matrixDiff = {
   "moves": [
     {
-      "slug": "sva/immediate-assert",
+      "slug": "cocotb/clock-and-timing",
       "mode": "run",
-      "oldStatus": "Mox refusal",
+      "oldStatus": "environment",
       "newStatus": "PASS",
       "oldVerdict": "FAIL",
       "newVerdict": "PASS",
-      "oldDiagnostic": "temporal-property-evaluator-not-admitted",
+      "oldDiagnostic": "press ▶ to run",
       "newDiagnostic": ""
     },
     {
-      "slug": "sva/immediate-assert",
-      "mode": "verify",
-      "oldStatus": "Mox refusal",
+      "slug": "cocotb/first-test",
+      "mode": "run",
+      "oldStatus": "environment",
       "newStatus": "PASS",
       "oldVerdict": "FAIL",
       "newVerdict": "PASS",
-      "oldDiagnostic": "temporal-property-evaluator-not-admitted",
-      "newDiagnostic": ""
-    },
-    {
-      "slug": "sva/lec",
-      "mode": "verify",
-      "oldStatus": "Mox refusal",
-      "newStatus": "PASS",
-      "oldVerdict": "FAIL",
-      "newVerdict": "PASS",
-      "oldDiagnostic": "temporal-property-evaluator-not-admitted",
+      "oldDiagnostic": "press ▶ to run",
       "newDiagnostic": ""
     }
   ],
   "diagnosticChanges": [
     {
-      "slug": "sva/immediate-assert",
+      "slug": "cocotb/clockcycles-patterns",
+      "mode": "run",
+      "oldStatus": "environment",
+      "newStatus": "Mox refusal",
+      "oldVerdict": "FAIL",
+      "newVerdict": "FAIL",
+      "oldDiagnostic": "press ▶ to run",
+      "newDiagnostic": "VPI value-change callback did not fire for cocotb clock cycle trigger"
+    },
+    {
+      "slug": "cocotb/edge-triggers",
+      "mode": "run",
+      "oldStatus": "environment",
+      "newStatus": "Mox refusal",
+      "oldVerdict": "FAIL",
+      "newVerdict": "FAIL",
+      "oldDiagnostic": "press ▶ to run",
+      "newDiagnostic": "VPI value-change callback did not fire for cocotb edge trigger"
+    },
+    {
+      "slug": "sva/sequence-ops",
       "mode": "run",
       "oldStatus": "Mox refusal",
-      "newStatus": "PASS",
+      "newStatus": "Mox refusal",
       "oldVerdict": "FAIL",
-      "newVerdict": "PASS",
+      "newVerdict": "FAIL",
       "oldDiagnostic": "temporal-property-evaluator-not-admitted",
-      "newDiagnostic": ""
+      "newDiagnostic": "Mox command exited non-zero"
     },
     {
-      "slug": "sva/immediate-assert",
-      "mode": "verify",
+      "slug": "sva/throughout",
+      "mode": "run",
       "oldStatus": "Mox refusal",
-      "newStatus": "PASS",
+      "newStatus": "Mox refusal",
       "oldVerdict": "FAIL",
-      "newVerdict": "PASS",
+      "newVerdict": "FAIL",
       "oldDiagnostic": "temporal-property-evaluator-not-admitted",
-      "newDiagnostic": ""
-    },
-    {
-      "slug": "sva/lec",
-      "mode": "verify",
-      "oldStatus": "Mox refusal",
-      "newStatus": "PASS",
-      "oldVerdict": "FAIL",
-      "newVerdict": "PASS",
-      "oldDiagnostic": "temporal-property-evaluator-not-admitted",
-      "newDiagnostic": ""
+      "newDiagnostic": "press ▶ to run"
     }
   ]
 };

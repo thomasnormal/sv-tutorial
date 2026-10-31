@@ -24,7 +24,7 @@ describe('generated lesson status', () => {
     expect(statusForLesson('sva/nonconsec-rep').status).toBe('Mox refusal');
     expect(statusForLesson('sva/nonconsec-rep').rows[0].diagnostic).toContain('unbounded sampled gap');
     expect(statusForLesson('uvm/reporting').status).toBe('environment');
-    expect(statusForLesson('cocotb/first-test').rows[0].diagnostic).toContain('0 fs');
+    expect(statusForLesson('cocotb/first-test').status).toBe('PASS');
     expect(statusForLesson('sv/welcome').status).toBe('PASS');
   });
 

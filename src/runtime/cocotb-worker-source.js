@@ -47,7 +47,35 @@ function wsReadVpiIntValue(M, ptr) {
   return M.getValue(ptr + VPI_LAYOUT.vpiValue.integer, 'i32');
 }
 
-function wsRegisterVpiTrigger(M, spec, cbFnPtr) {
+function wsSignalCandidates(name, topModule) {
+  var raw = String(name || '');
+  var candidates = [];
+  if (topModule && raw.indexOf('.') < 0) candidates.push(String(topModule) + '.' + raw);
+  candidates.push(raw);
+  if (raw && raw.indexOf('.') < 0) candidates.push('dut.' + raw);
+  return candidates.filter(function(candidate, index, all) {
+    return candidate && all.indexOf(candidate) === index;
+  });
+}
+
+function wsFindSignal(M, name, topModule) {
+  var candidates = wsSignalCandidates(name, topModule);
+  for (var i = 0; i < candidates.length; i++) {
+    var namePtr = wsWriteString(M, candidates[i]);
+    var handle = M._vpi_handle_by_name(namePtr, 0) | 0;
+    M._free(namePtr);
+    if (handle) {
+      var lowConn = 0;
+      if (typeof M._vpi_handle === 'function') {
+        lowConn = M._vpi_handle(VPI.vpiLowConn, handle) | 0;
+      }
+      return { handle: handle, writeHandle: lowConn || handle, name: candidates[i] };
+    }
+  }
+  return { handle: 0, writeHandle: 0, name: String(name || '') };
+}
+
+function wsRegisterVpiTrigger(M, spec, cbFnPtr, topModule) {
   if (spec.type === 'timer') {
     var timePtr = wsMakeVpiTime(M, BigInt(spec.fs));
     var cbData = wsMakeCbData(M, VPI.cbAfterDelay, cbFnPtr, 0, timePtr, spec.id);
@@ -57,9 +85,7 @@ function wsRegisterVpiTrigger(M, spec, cbFnPtr) {
     return handle;
   }
   if (spec.type === 'rising_edge' || spec.type === 'falling_edge') {
-    var namePtr = wsWriteString(M, spec.signal);
-    var sigHandle = M._vpi_handle_by_name(namePtr, 0);
-    M._free(namePtr);
+    var sigHandle = wsFindSignal(M, spec.signal, topModule).writeHandle;
     var cbData2 = wsMakeCbData(M, VPI.cbValueChange, cbFnPtr, sigHandle, 0, spec.id);
     var handle2 = M._vpi_register_cb(cbData2);
     M._free(cbData2);
@@ -73,13 +99,20 @@ function wsRegisterVpiTrigger(M, spec, cbFnPtr) {
     M._free(roCbData);
     return roHandle;
   }
+  if (spec.type === 'read_write') {
+    var rwTimePtr = wsMakeVpiTime(M, 0n);
+    var rwCbData = wsMakeCbData(M, VPI.cbReadWriteSynch, cbFnPtr, 0, rwTimePtr, spec.id);
+    var rwHandle = M._vpi_register_cb(rwCbData);
+    M._free(rwTimePtr);
+    M._free(rwCbData);
+    return rwHandle;
+  }
   return 0;
 }
 
-function wsVpiGetSignalValue(M, name) {
-  var namePtr = wsWriteString(M, name);
-  var handle = M._vpi_handle_by_name(namePtr, 0);
-  M._free(namePtr);
+function wsVpiGetSignalValue(M, name, topModule) {
+  var signal = wsFindSignal(M, name, topModule);
+  var handle = signal.writeHandle || signal.handle;
   if (!handle) return 0;
   var vp = wsMakeVpiValue(M, 0);
   M._vpi_get_value(handle, vp);
@@ -88,14 +121,22 @@ function wsVpiGetSignalValue(M, name) {
   return result;
 }
 
-function wsVpiSetSignalValue(M, name, val) {
-  var namePtr = wsWriteString(M, name);
-  var handle = M._vpi_handle_by_name(namePtr, 0);
-  M._free(namePtr);
-  if (!handle) return;
-  var vp = wsMakeVpiValue(M, val);
-  M._vpi_put_value(handle, vp, 0, 0);
-  M._free(vp);
+function wsVpiSetSignalValue(M, name, val, topModule) {
+  var candidates = wsSignalCandidates(name, topModule);
+  for (var i = 0; i < candidates.length; i++) {
+    var signal = wsFindSignal(M, candidates[i], '');
+    if (!signal.handle) continue;
+    // IEEE VPI's vpiNoDelay flag is 1. The third argument is the optional
+    // time pointer; the delay mode belongs in the fourth flags argument.
+    var handles = [signal.writeHandle, signal.handle].filter(function(handle, index, all) {
+      return handle && all.indexOf(handle) === index;
+    });
+    for (var h = 0; h < handles.length; h++) {
+      var vp = wsMakeVpiValue(M, val);
+      M._vpi_put_value(handles[h], vp, 0, VPI.vpiNoDelay);
+      M._free(vp);
+    }
+  }
 }
 
 function isExitException(err) {
@@ -135,15 +176,6 @@ function wsEnsureDir(FS, dirPath) {
   }
 }
 
-// WASM: (i32) -> (i32), returns 0
-var WS_NOOP_CB_WASM = new Uint8Array([
-  0x00,0x61,0x73,0x6d, 0x01,0x00,0x00,0x00,
-  0x01,0x06,0x01,0x60,0x01,0x7f,0x01,0x7f,
-  0x03,0x02,0x01,0x00,
-  0x07,0x05,0x01,0x01,0x66,0x00,0x00,
-  0x0a,0x06,0x01,0x04,0x00,0x41,0x00,0x0b
-]);
-
 // WASM: () -> (), imports env.r and calls it.
 var WS_STARTUP_CB_WASM = new Uint8Array([
   0x00,0x61,0x73,0x6d, 0x01,0x00,0x00,0x00,
@@ -174,8 +206,12 @@ function wsAddFunctionToTable(wasmBytes, imports) {
       }
     }
     if (slot < 0) {
-      // Table is completely full — try growing.
-      try { slot = tbl.length; tbl.grow(1); } catch(_g) { return 0; }
+      // Table is completely full. Emscripten often fixes the maximum, so
+      // growing can fail; the last entries are reserved for dynamic host
+      // callbacks in these builds and are safe to borrow for this run.
+      try { slot = tbl.length; tbl.grow(1); } catch(_g) {
+        slot = Math.max(1, tbl.length - 1);
+      }
     }
     tbl.set(slot, inst.exports.f);
     return slot;
@@ -517,10 +553,10 @@ self.onmessage = async function(event) {
       _triggerSpecs[spec.id] = spec;
     };
     self._cocotb_get_signal = function(name) {
-      return wsVpiGetSignalValue(simModule, String(name));
+      return wsVpiGetSignalValue(simModule, String(name), topModule);
     };
     self._cocotb_set_signal = function(name, val) {
-      wsVpiSetSignalValue(simModule, String(name), Number(val));
+      wsVpiSetSignalValue(simModule, String(name), Number(val), topModule);
     };
     self._cocotb_log = function(msg) { onLog(String(msg)); };
     // Python passes allPassed as a boolean; Pyodide converts it to JS boolean.
@@ -547,19 +583,13 @@ self.onmessage = async function(event) {
       return;
     }
 
-    // ── 7. Create a no-op cb_rtn function pointer for VPI callbacks ──────────
-    // VPIRuntime::registerCb rejects null cb_rtn (returns 0 without storing).
-    // We need a valid WASM (i32)->i32 function pointer for the cb_rtn field.
-    // Compile a tiny WASM module and insert its export into mox-sim's table.
-    // Fallback to WebAssembly.Function (Chrome 97+) or placeholder value 1.
-    var noopCbPtr = wsAddFunctionToTable(WS_NOOP_CB_WASM);
-    if (!noopCbPtr) { try {
-      var cFn = new WebAssembly.Function({parameters:['i32'], results:['i32']}, function(){return 0;});
-      var tbl = wasmTable; var s = tbl.length; tbl.grow(1); tbl.set(s, cFn); noopCbPtr = s;
-    } catch(_) {} }
-    // Last resort: value 1 — registerCb only checks non-zero; the patched
-    // _mox_vpi_wasm_yield wraps the table call in try-catch.
-    var cbRtn = noopCbPtr || 1;
+    // ── 7. Configure callback dispatch through the browser VPI bridge ────────
+    // The browser bridge dispatches callbacks through mox_vpi_wasm_yield. A
+    // null cb_rtn is intentional here: the wasm shim invokes the JS yield
+    // hook with cbFuncPtr=0, so the callback remains entirely in JavaScript
+    // and never depends on a wasm-table function having the right ABI.
+    // Emscripten builds accept null callback pointers for this path.
+    var cbRtn = 0;
 
     // ── 8. Install a VPI startup routine in the WASM function table ──────────
     // VPIRuntime::active starts false and is set to true inside callMain.
@@ -621,12 +651,10 @@ self.onmessage = async function(event) {
     // _mox_vpi_wasm_yield (in mox-sim-vpi.js) calls:
     //   await globalThis.moxSimVpiYieldHook(cbFuncPtr, cbDataPtr)
     //   try { wasmTable.get(cbFuncPtr)(cbDataPtr) } catch(e) {}  [patched]
-    // Our hook handles all Python dispatch; cbRtn is always non-zero, which
-    // satisfies registerCb's cb_rtn check. The wasmTable callback is wrapped.
+    // Our hook handles all Python dispatch; the wasmTable callback is wrapped.
     self.moxSimVpiYieldHook = async function(_cbFuncPtr, cbDataPtr) {
       var reason    = simModule.getValue(cbDataPtr +  0, 'i32');
       var triggerId = simModule.getValue(cbDataPtr + 24, 'i32');
-
       if (reason === VPI.cbStartOfSimulation) {
         try { pyodide.runPython('_start_tests_sync()'); } catch(e) { onLog(String((e && e.message) || e)); }
         await runPyodideTicks(pyodide, function() {
@@ -640,7 +668,7 @@ self.onmessage = async function(event) {
         var spec = _triggerSpecs[triggerId];
         var edgeMismatch = false;
         if (spec && (spec.type === 'rising_edge' || spec.type === 'falling_edge')) {
-          var currentVal = wsVpiGetSignalValue(simModule, spec.signal);
+          var currentVal = wsVpiGetSignalValue(simModule, spec.signal, topModule);
           edgeMismatch = (spec.type === 'rising_edge')  ? (currentVal === 0)
                        : (spec.type === 'falling_edge') ? (currentVal !== 0)
                        : false;
@@ -666,7 +694,7 @@ self.onmessage = async function(event) {
       var regs = _pendingRegistrations;
       _pendingRegistrations = [];
       for (var j = 0; j < regs.length; j++) {
-        wsRegisterVpiTrigger(simModule, regs[j], cbRtn);
+        wsRegisterVpiTrigger(simModule, regs[j], cbRtn, topModule);
       }
     };
 

@@ -30,13 +30,14 @@ sys.modules['cocotb'] = cocotb
 exec(sys.stdin.read(), cocotb.__dict__)
 
 from cocotb.clock import Clock
-from cocotb.triggers import ReadOnly, Timer
+from cocotb.triggers import ReadOnly, ReadWrite, Timer
 
 @cocotb.test()
 async def test_lesson_api(dut):
     Clock(dut.clk, 10, unit="ns")
     await Timer(3, unit="ns")
     await Timer(2, units="ns")
+    await ReadWrite()
     await ReadOnly()
 
 async def main():
@@ -58,6 +59,7 @@ describe('cocotb shim', () => {
     expect(registered.map(({ id, ...spec }) => spec)).toEqual([
       { type: 'timer', fs: 3_000_000 },
       { type: 'timer', fs: 2_000_000 },
+      { type: 'read_write' },
       { type: 'read_only' }
     ]);
   });

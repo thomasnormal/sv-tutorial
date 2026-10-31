@@ -18,6 +18,7 @@ export const VPI = Object.freeze({
   vpiFullName: 3,
   vpiSize: 4,
   vpiReg: 48,
+  vpiLowConn: 80,
 
   // Callback reasons.
   cbValueChange: 1,
@@ -48,6 +49,9 @@ export const VPI = Object.freeze({
   vpiRealVal: 7,
   vpiStringVal: 8,
   vpiVectorVal: 9,
+
+  // vpi_put_value delay modes.
+  vpiNoDelay: 1,
 
   // vpi_time types.
   vpiScaledRealTime: 1,

@@ -113,6 +113,16 @@ class ReadOnly:
         await event.wait()
 
 
+class ReadWrite:
+    """await ReadWrite() — wait until current-time writes have settled."""
+    def __await__(self):
+        return self._wait().__await__()
+
+    async def _wait(self):
+        _id, event = _register({'type': 'read_write'})
+        await event.wait()
+
+
 class ClockCycles:
     """await ClockCycles(dut.clk, n)  — wait for n rising edges."""
     def __init__(self, signal, num_cycles, rising=True):
@@ -242,6 +252,7 @@ class _TriggersModule:
     FallingEdge = FallingEdge
     ClockCycles = ClockCycles
     ReadOnly = ReadOnly
+    ReadWrite = ReadWrite
 
 class _ClockModule:
     Clock = Clock
@@ -256,6 +267,7 @@ triggers_mod.RisingEdge = RisingEdge
 triggers_mod.FallingEdge = FallingEdge
 triggers_mod.ClockCycles = ClockCycles
 triggers_mod.ReadOnly = ReadOnly
+triggers_mod.ReadWrite = ReadWrite
 sys.modules['cocotb.triggers'] = triggers_mod
 
 clock_mod = types.ModuleType('cocotb.clock')

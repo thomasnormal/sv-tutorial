@@ -88,10 +88,11 @@ PREVIEW_PID=""
 cleanup() {
   if [[ -n "$PREVIEW_PID" ]]; then kill "$PREVIEW_PID" 2>/dev/null || true; wait "$PREVIEW_PID" 2>/dev/null || true; fi
   if [[ "$RESTORE_NEEDED" == 1 ]]; then
-    rm -f "$STATIC_MOX"
+    # The build adapter may materialize a staged symlink as a directory.
+    rm -rf "$STATIC_MOX"
     mv "$BACKUP_MOX" "$STATIC_MOX"
   elif [[ "$RESTORE_NEEDED" == 2 ]]; then
-    rm -f "$STATIC_MOX"
+    rm -rf "$STATIC_MOX"
   fi
   rm -rf "$BACKUP_ROOT"
   if [[ -n "$INPUT_COPY_ROOT" ]]; then rm -rf "$INPUT_COPY_ROOT"; fi

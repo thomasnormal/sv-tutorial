@@ -1,11 +1,17 @@
 import cocotb
-from cocotb.triggers import Timer
+from cocotb.triggers import ReadOnly, ReadWrite, Timer
 
 
 async def check(dut, a, b, expected):
+    # Enter cocotb's writable phase before driving the DUT.  Mox batches VPI
+    # writes made from ReadWrite and settles combinational logic before
+    # ReadOnly resumes the test.
+    await Timer(1, units="fs")
+    await ReadWrite()
     dut.A.value = a
     dut.B.value = b
-    await Timer(2, units="ns")   # let combinational logic settle
+    await Timer(1, units="ns")
+    await ReadOnly()
     assert dut.X.value == expected, f"{a} + {b} = {dut.X.value} (expected {expected})"
 
 

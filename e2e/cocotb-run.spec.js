@@ -11,5 +11,7 @@ test('cocotb: a run settles with a test result or the simulator error', async ({
   await button.click();
   await expect(logs).toContainText('$ mox-sim', { timeout: 60_000 });
   await expect(button).not.toHaveAttribute('aria-label', /^Cancel/, { timeout: 60_000 });
-  await expect(logs).toContainText(/^(PASS|FAIL|ERROR)\s+\w+|Aborted\(/m);
+  // Tool output is prefixed with its source stream (for example
+  // `stderr FAIL ...`), so the result token need not begin the line.
+  await expect(logs).toContainText(/\b(PASS|FAIL|ERROR)\s+\w+|Aborted\(/);
 });

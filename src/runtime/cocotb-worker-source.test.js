@@ -15,4 +15,16 @@ describe('cocotb worker source', () => {
   it('omits debug MLIR dump logging', () => {
     expect(COCOTB_WORKER_SOURCE).not.toContain('MLIR (first 2000 chars)');
   });
+
+  it('resolves cocotb signals through the top-level hierarchy', () => {
+    expect(COCOTB_WORKER_SOURCE).toMatch(
+      /function wsSignalCandidates\(name, topModule\)[\s\S]*?String\(topModule\) \+ '\.' \+ raw[\s\S]*?candidates\.push\(raw\)[\s\S]*?['"]dut\.['"] \+ raw/
+    );
+    expect(COCOTB_WORKER_SOURCE).toContain('wsVpiSetSignalValue(simModule, String(name), Number(val), topModule)');
+  });
+
+  it('uses the IEEE vpiNoDelay mode for signal writes', () => {
+    expect(COCOTB_WORKER_SOURCE).toContain('VPI.vpiNoDelay');
+    expect(COCOTB_WORKER_SOURCE).toContain('M._vpi_put_value(handles[h], vp, 0, VPI.vpiNoDelay)');
+  });
 });

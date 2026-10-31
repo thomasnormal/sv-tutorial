@@ -21,6 +21,10 @@ const artifactNote = process.env.MATRIX_ARTIFACT_NOTE || '';
 const caseTimeout = Number(process.env.MATRIX_CASE_TIMEOUT_MS || 180_000);
 const environmentTimeout = Number(process.env.MATRIX_ENV_TIMEOUT_MS || 30_000);
 const caseLimit = Number(process.env.MATRIX_LIMIT || 0);
+const requestedSlugs = (process.env.MATRIX_SLUGS || '')
+  .split(',')
+  .map((slug) => slug.trim())
+  .filter(Boolean);
 
 const MoxRefusal = 'Mox refusal';
 const Environment = 'environment';
@@ -123,11 +127,26 @@ function statusForCase({ slug, mode, log, error, catalog }) {
   const text = stripAnsi(`${log}\n${error || ''}`);
   const baseline = catalog.get(slug);
 
+  // The startup/timer path is healthy for the cocotb lessons after keeping
+  // the DUT alive. The edge-trigger lessons still hang because the pinned VPI
+  // artifact never delivers cbValueChange after a cocotb clock write.
+  const cocotbValueChangeGap =
+    ['cocotb/edge-triggers', 'cocotb/clockcycles-patterns'].includes(slug) &&
+    /timed out|timeout|Cancel|press ▶ to run/i.test(text);
+  if (cocotbValueChangeGap) return MoxRefusal;
+
   const environment =
     /mox-sim-vpi completed at 0 fs|compile timed out before simulation|browser environment|browser run did not start/i.test(text) ||
     (slug.startsWith('uvm/') && /timed out|timeout|Aborted\(/i.test(text)) ||
     (slug.startsWith('cocotb/') && /timed out|timeout|Error|0 fs|runtime unavailable/i.test(text));
   if (environment) return Environment;
+
+  // A completed cocotb result proves that the browser worker and Pyodide
+  // reached the test. A failing result is therefore a simulator/VPI
+  // disposition, rather than the old environment timeout row.
+  if (slug.startsWith('cocotb/') && /\b(?:FAIL|ERROR)\s+\w+/i.test(text)) {
+    return MoxRefusal;
+  }
 
   const moxDiagnostic = /__moore_event_trigger|__mox_|continuous-evaluator-effect-ownership-not-admitted|assertMooreCrossBinsofFilterStructABI|temporal-property-evaluator-not-admitted|unbounded goto repetition|sequence-zero-delay-endpoint-overlap-not-representable|Aborted\(|runtime unavailable|exit code: [1-9]/i.test(text);
   if (moxDiagnostic || (baseline?.status === MoxRefusal && /FAIL|error|refusal|Aborted|exit code/i.test(text))) {
@@ -139,8 +158,12 @@ function statusForCase({ slug, mode, log, error, catalog }) {
 async function openSolved(page, lesson) {
   const [part, name] = lesson.slug.split('/');
   await page.goto(`${baseURL.replace(/\/$/, '')}/lesson/${part}/${name}`, { waitUntil: 'domcontentloaded' });
-  await expect(page.getByTestId('lesson-title')).toHaveText(lesson.title, { timeout: 15_000 });
-  await page.locator('button[data-active]').first().waitFor({ timeout: 15_000 });
+  // The preview can take tens of seconds to hydrate while the WASM artifacts
+  // are being read from a cold browser cache. Keep this setup timeout separate
+  // from the simulation timeout so a slow page load is not misreported as a
+  // lesson failure.
+  await expect(page.getByTestId('lesson-title')).toHaveText(lesson.title, { timeout: 60_000 });
+  await page.getByTestId('options-button').waitFor({ timeout: 60_000 });
   await page.getByTestId('options-button').click();
   const solveButton = page.getByTestId('solve-button');
   if (await solveButton.count() > 0) {
@@ -191,9 +214,16 @@ async function runCase(browser, item, index, total, catalog) {
     await context.close().catch(() => {});
   }
 
-  const failed = Boolean(error) || /exit code: [1-9]|Aborted\(|runtime unavailable|compile timed out|mox-sim-vpi completed at 0 fs|timed out before simulation/i.test(stripAnsi(log));
+  const failed = Boolean(error) || /exit code: [1-9]|Aborted\(|runtime unavailable|compile timed out|mox-sim-vpi completed at 0 fs|timed out before simulation/i.test(stripAnsi(log)) ||
+    (item.slug.startsWith('cocotb/') && /\b(?:FAIL|ERROR)\s+\w+/i.test(stripAnsi(log)));
   const status = failed ? statusForCase({ ...item, log, error, catalog }) : 'PASS';
-  const diagnostic = failed ? compactDiagnostic(log, error) : '';
+  const diagnostic = failed
+    ? (status === MoxRefusal && item.slug === 'cocotb/edge-triggers'
+      ? 'VPI value-change callback did not fire for cocotb edge trigger'
+      : status === MoxRefusal && item.slug === 'cocotb/clockcycles-patterns'
+        ? 'VPI value-change callback did not fire for cocotb clock cycle trigger'
+        : compactDiagnostic(log, error))
+    : '';
   const result = { ...item, status, diagnostic, log, error };
   const mark = status === 'PASS' ? 'PASS' : status === MoxRefusal ? 'MOX' : status === Environment ? 'ENV' : 'TUTORIAL';
   process.stdout.write(`[${String(index + 1).padStart(3)}/${total}] ${mark} ${item.slug} ${item.mode}${diagnostic ? ` — ${diagnostic}` : ''}\n`);
@@ -312,7 +342,14 @@ function writeResultTable(results, total, summary) {
 
 const catalog = readExistingCatalog();
 const allCases = casesFromMetadata();
-const cases = caseLimit > 0 ? allCases.slice(0, caseLimit) : allCases;
+const selectedCases = requestedSlugs.length
+  ? allCases.filter(({ slug }) => requestedSlugs.includes(slug))
+  : allCases;
+if (requestedSlugs.length && selectedCases.length !== requestedSlugs.length) {
+  const missing = requestedSlugs.filter((slug) => !allCases.some((item) => item.slug === slug));
+  throw new Error(`Unknown matrix lesson slug(s): ${missing.join(', ')}`);
+}
+const cases = caseLimit > 0 ? selectedCases.slice(0, caseLimit) : selectedCases;
 const browser = await chromium.launch({ headless: true, args: ['--use-angle=swiftshader', '--enable-webgl', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const results = [];
 try {

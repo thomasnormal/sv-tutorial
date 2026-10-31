@@ -160,3 +160,24 @@ lesson's run and verify path, and rewrites
 It then runs `npm run build`, whose prebuild step regenerates the status page
 and lesson badges from that table. The temporary artifact handoff is removed
 when the command exits; the generated census and status page remain for review.
+
+Each run also writes a complete four-column result table to `results/<mox-sha>.md`.
+The SHA is inferred from a Mox checkout ancestor when possible; for a fleet
+artifact directory, provide it explicitly with `MATRIX_MOX_SHA=<git-sha>`. Keep
+these files as the build history, then compare two builds with:
+
+When an artifact is a documented fallback rather than a freshly rebuilt
+checkout, record that with `MATRIX_ARTIFACT_NOTE="..."`; the note appears in
+the result history and status page.
+
+```bash
+scripts/matrix-diff.sh results/<old-sha>.md results/<new-sha>.md
+```
+
+The `/status` page generates its **What changed** section from the two newest
+result tables. A fleet build copied from `/scratch/thomas-ahle/tmp/sv-tutorial/`
+should therefore be run as, for example:
+
+```bash
+MATRIX_MOX_SHA=<mox-commit> scripts/run-matrix.sh /scratch/thomas-ahle/tmp/sv-tutorial/<build>/bin
+```

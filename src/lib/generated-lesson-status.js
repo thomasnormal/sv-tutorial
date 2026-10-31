@@ -1252,5 +1252,85 @@ export const statusSummary = {
   "Mox refusal": 41,
   "environment": 16
 };
+export const matrixHistory = {
+  "old": {
+    "sha": "b90b3a51a68b772a1510c837166afd6d429d8f20",
+    "generatedAt": "2026-10-30T23:32:10.000Z",
+    "summary": "109 cases, 49 PASS / 60 FAIL",
+    "artifactSource": ""
+  },
+  "new": {
+    "sha": "0df7bdd0e53ec68f785d3e4725b5b46b5da1b7f1",
+    "generatedAt": "2026-10-31T01:59:20.000Z",
+    "summary": "109 cases, 49 PASS / 60 FAIL",
+    "artifactSource": "existing item-18 static/mox artifact; current-main rebuild blocked by EX_IOERR and ::write wasm portability errors"
+  }
+};
+export const matrixDiff = {
+  "moves": [
+    {
+      "slug": "sva/immediate-assert",
+      "mode": "run",
+      "oldStatus": "Mox refusal",
+      "newStatus": "PASS",
+      "oldVerdict": "FAIL",
+      "newVerdict": "PASS",
+      "oldDiagnostic": "temporal-property-evaluator-not-admitted",
+      "newDiagnostic": ""
+    },
+    {
+      "slug": "sva/immediate-assert",
+      "mode": "verify",
+      "oldStatus": "Mox refusal",
+      "newStatus": "PASS",
+      "oldVerdict": "FAIL",
+      "newVerdict": "PASS",
+      "oldDiagnostic": "temporal-property-evaluator-not-admitted",
+      "newDiagnostic": ""
+    },
+    {
+      "slug": "sva/lec",
+      "mode": "verify",
+      "oldStatus": "Mox refusal",
+      "newStatus": "PASS",
+      "oldVerdict": "FAIL",
+      "newVerdict": "PASS",
+      "oldDiagnostic": "temporal-property-evaluator-not-admitted",
+      "newDiagnostic": ""
+    }
+  ],
+  "diagnosticChanges": [
+    {
+      "slug": "sva/immediate-assert",
+      "mode": "run",
+      "oldStatus": "Mox refusal",
+      "newStatus": "PASS",
+      "oldVerdict": "FAIL",
+      "newVerdict": "PASS",
+      "oldDiagnostic": "temporal-property-evaluator-not-admitted",
+      "newDiagnostic": ""
+    },
+    {
+      "slug": "sva/immediate-assert",
+      "mode": "verify",
+      "oldStatus": "Mox refusal",
+      "newStatus": "PASS",
+      "oldVerdict": "FAIL",
+      "newVerdict": "PASS",
+      "oldDiagnostic": "temporal-property-evaluator-not-admitted",
+      "newDiagnostic": ""
+    },
+    {
+      "slug": "sva/lec",
+      "mode": "verify",
+      "oldStatus": "Mox refusal",
+      "newStatus": "PASS",
+      "oldVerdict": "FAIL",
+      "newVerdict": "PASS",
+      "oldDiagnostic": "temporal-property-evaluator-not-admitted",
+      "newDiagnostic": ""
+    }
+  ]
+};
 export const lessonStatusBySlug = Object.fromEntries(lessonStatuses.map((entry) => [entry.slug, entry]));
 export function statusForLesson(slug) { return lessonStatusBySlug[slug] ?? { slug, title: slug, status: 'PASS', rows: [] }; }

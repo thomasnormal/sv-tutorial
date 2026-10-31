@@ -36,6 +36,41 @@
       </div>
     </div>
 
+    <section class="rounded-[12px] border border-border bg-surface p-4 shadow-app" data-testid="matrix-diff">
+      <h2 class="text-[1.05rem] font-semibold text-foreground">What changed</h2>
+      {#if data.matrixHistory.old && data.matrixHistory.new}
+        <p class="mt-1 text-[0.8rem] text-muted-foreground">
+          Compared Mox <span class="font-mono">{data.matrixHistory.old.sha}</span> with
+          <span class="font-mono">{data.matrixHistory.new.sha}</span>.
+        </p>
+        {#if data.matrixHistory.new.artifactSource}
+          <p class="mt-1 text-[0.78rem] text-amber-700 dark:text-amber-300">{data.matrixHistory.new.artifactSource}</p>
+        {/if}
+        {#if data.matrixDiff.moves.length === 0 && data.matrixDiff.diagnosticChanges.length === 0}
+          <p class="mt-3 text-[0.85rem] text-muted-foreground">No PASS/FAIL moves or Mox diagnostic changes.</p>
+        {:else}
+          {#if data.matrixDiff.moves.length > 0}
+            <h3 class="mt-3 text-[0.85rem] font-medium text-foreground">PASS ↔ FAIL moves</h3>
+            <ul class="mt-1 list-disc pl-5 text-[0.82rem] text-muted-foreground">
+              {#each data.matrixDiff.moves as row}
+                <li><span class="font-medium text-foreground">{row.slug}</span> ({row.mode}): {row.oldVerdict} → {row.newVerdict}{row.newDiagnostic || row.oldDiagnostic ? ` — ${row.newDiagnostic || row.oldDiagnostic}` : ''}</li>
+              {/each}
+            </ul>
+          {/if}
+          {#if data.matrixDiff.diagnosticChanges.length > 0}
+            <h3 class="mt-3 text-[0.85rem] font-medium text-foreground">Mox diagnostic changes</h3>
+            <ul class="mt-1 list-disc pl-5 text-[0.82rem] text-muted-foreground">
+              {#each data.matrixDiff.diagnosticChanges as row}
+                <li><span class="font-medium text-foreground">{row.slug}</span> ({row.mode}): {row.oldDiagnostic || '—'} → {row.newDiagnostic || '—'}</li>
+              {/each}
+            </ul>
+          {/if}
+        {/if}
+      {:else}
+        <p class="mt-1 text-[0.8rem] text-muted-foreground">A second result table is needed before a build-to-build comparison is available.</p>
+      {/if}
+    </section>
+
     <div class="overflow-x-auto rounded-[12px] border border-border bg-surface shadow-app">
       <table class="w-full min-w-[760px] border-collapse text-left text-[0.82rem]">
         <thead class="bg-surface-2 text-[0.72rem] uppercase tracking-[0.08em] text-muted-foreground">

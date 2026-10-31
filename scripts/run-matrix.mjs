@@ -5,7 +5,7 @@
  * failure census.  The shell wrapper owns the preview server and stages the
  * requested Mox directory under static/mox; this module only drives pages.
  */
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { chromium, expect } from '@playwright/test';
 import meta from '../src/lessons/meta.js';
@@ -13,6 +13,11 @@ import meta from '../src/lessons/meta.js';
 const root = resolve(new URL('..', import.meta.url).pathname);
 const baseURL = process.env.MATRIX_BASE_URL || process.argv[2] || 'http://127.0.0.1:4173';
 const outputPath = resolve(process.env.MATRIX_OUTPUT || resolve(root, 'docs/mox-bugs/mox-wasm-item16-failures.md'));
+const resultsOutputPath = process.env.MATRIX_RESULTS_OUTPUT
+  ? resolve(process.env.MATRIX_RESULTS_OUTPUT)
+  : null;
+const moxSha = process.env.MATRIX_MOX_SHA || 'unknown';
+const artifactNote = process.env.MATRIX_ARTIFACT_NOTE || '';
 const caseTimeout = Number(process.env.MATRIX_CASE_TIMEOUT_MS || 180_000);
 const environmentTimeout = Number(process.env.MATRIX_ENV_TIMEOUT_MS || 30_000);
 const caseLimit = Number(process.env.MATRIX_LIMIT || 0);
@@ -52,7 +57,11 @@ function splitMarkdownRow(line) {
 }
 
 function unescapeCell(cell) {
-  return cell.replaceAll('\\|', '|').replace(/^`([\s\S]*)`$/, '$1').trim();
+  const trimmed = cell.replaceAll('\\|', '|').trim();
+  const backticks = trimmed.match(/`/g) || [];
+  return backticks.length === 2 && trimmed.startsWith('`') && trimmed.endsWith('`')
+    ? trimmed.slice(1, -1)
+    : trimmed;
 }
 
 function splitRow(line) {
@@ -278,6 +287,29 @@ function writeCensus(results, catalog, total) {
   return { pass, fail, rawPass, rawFail, mox: moxRows.length, environment: envRows.length, tutorial: tutorialRows.length };
 }
 
+function writeResultTable(results, total, summary) {
+  if (!resultsOutputPath) return;
+  const generatedAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+  const lines = [
+    '# Browser matrix result table',
+    '',
+    `- Mox build: \`${moxSha}\``,
+    `- Generated: ${generatedAt}`,
+    `- Matrix: ${total} cases, ${summary.pass} PASS / ${summary.fail} FAIL`,
+    ...(artifactNote ? [`- Artifact source: ${artifactNote}`] : []),
+    '',
+    '| Lesson | Mode | Status | Diagnostic |',
+    '|---|---|---|---|',
+    ...results.map((row) => [row.slug, row.mode, row.status, row.diagnostic || '']
+      .map((cell, index) => index === 0 ? `\`${String(cell).replaceAll('`', '')}\`` : String(cell).replaceAll('|', '\\|'))
+      .map((cell) => cell)
+      .reduce((cells, cell) => `${cells}${cells ? ' | ' : '| '}${cell}`, '') + ' |')
+  ];
+  mkdirSync(resolve(resultsOutputPath, '..'), { recursive: true });
+  writeFileSync(resultsOutputPath, `${lines.join('\n')}\n`);
+  console.log(`Result table: ${resultsOutputPath}`);
+}
+
 const catalog = readExistingCatalog();
 const allCases = casesFromMetadata();
 const cases = caseLimit > 0 ? allCases.slice(0, caseLimit) : allCases;
@@ -291,6 +323,7 @@ try {
   await browser.close();
 }
 const summary = writeCensus(results, catalog, cases.length);
+writeResultTable(results, cases.length, summary);
 console.log(`Matrix complete: ${summary.pass} PASS / ${summary.fail} FAIL across ${cases.length} cases`);
 console.log(`Raw observations: ${summary.rawPass} PASS / ${summary.rawFail} FAIL`);
 console.log(`Census: ${summary.mox} Mox, ${summary.environment} environment, ${summary.tutorial} tutorial rows → ${outputPath}`);

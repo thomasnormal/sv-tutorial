@@ -15,3 +15,11 @@ The twelve UVM rows remain environment rows. Full-UVM compilation emitted the
 `uvm_config_db_implementation.svh` escape warning and was still compiling after
 240 seconds in a direct browser run, so increasing the matrix polling timeout
 would not turn those rows into a green lesson run.
+
+## Browser harness block
+
+The navigation-based `e2e/cocotb.spec.js` run is separately environment-blocked:
+`locator.click: Test timeout of 180000ms exceeded` while waiting for
+`getByRole('button', { name: 'cocotb Basics' })` at `e2e/cocotb.spec.js:8`.
+No simulator result was reached. A process check found no lingering Playwright
+or Vite process after the run was stopped.

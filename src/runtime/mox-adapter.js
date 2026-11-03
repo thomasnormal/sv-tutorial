@@ -1141,7 +1141,7 @@ self.onmessage = async (event) => {
 let workerBlobUrl = null;
 const packageManifestCache = new Map();
 
-async function packageArtifactsFor(files, manifestUrl) {
+async function packageArtifactsFor(files, manifestUrl, toolchain = {}) {
   if (!manifestUrl) return [];
   const manifestHref = absoluteUrl(manifestUrl);
   if (!packageManifestCache.has(manifestHref)) {
@@ -1160,10 +1160,12 @@ async function packageArtifactsFor(files, manifestUrl) {
   const entries = Array.isArray(manifest?.packages) ? manifest.packages : [];
   return entries
     .filter((entry) => packageUsesFiles(entry, files))
+    .filter((entry) => entry.tool !== 'run' || !!toolchain.run)
     .map((entry) => ({
       name: entry.name || 'package',
       path: entry.path,
       url: packageArtifactUrl(entry.url, manifestUrl),
+      tool: entry.tool === 'run' ? 'run' : 'verilog',
       flags: Array.isArray(entry.flags) ? entry.flags : ['--read-vlib-mapped-moore-ir'],
       sourceFiles: Array.isArray(entry.sourceFiles) ? entry.sourceFiles : [],
       sourceRoot: typeof entry.sourceRoot === 'string' ? entry.sourceRoot : '',
@@ -1573,7 +1575,11 @@ export class MoxWasmAdapter {
       };
 
       if (svPaths.length > 0) try {
-        packageArtifacts = await packageArtifactsFor(files, this.config.packageManifestUrl);
+        packageArtifacts = await packageArtifactsFor(
+          files,
+          this.config.packageManifestUrl,
+          this.config.toolchain
+        );
         if (packageArtifacts.length) {
           emitLog(`# loaded ${packageArtifacts.map((artifact) => artifact.name).join(', ')} precompiled package`);
         }
@@ -1593,7 +1599,12 @@ export class MoxWasmAdapter {
       // Plain SystemVerilog simulation may use an explicitly configured
       // unified runner. The default browser toolchain uses the explicit
       // mox-verilog -> mox-sim pipeline, as do UVM and MLIR-source lessons.
-      if (simulate && svPaths.length > 0 && !useFullUvm && this.config.toolchain.run && !this._runUnavailable) {
+      const packageRunArtifacts = packageArtifacts.filter((artifact) => artifact.tool === 'run');
+      if (
+        simulate && svPaths.length > 0 &&
+        (!useFullUvm || packageRunArtifacts.length > 0) &&
+        this.config.toolchain.run && !this._runUnavailable
+      ) {
         const compileRoots = compileRootSourcePaths(files).map((p) => normalizePath(p));
         // Rebuild a plain, structured-cloneable object (the incoming `files`
         // may be a reactive proxy that postMessage cannot clone).
@@ -1602,6 +1613,10 @@ export class MoxWasmAdapter {
         );
         const buildRunArgs = (withTraceAll) => {
           const args = [...this.config.runArgs, ...coverageArgs(files)];
+          for (const artifact of packageRunArtifacts) {
+            args.push(...packageCompileArgs(artifact),
+              ...(artifact.includeDirs || []).flatMap((dir) => ['-I', dir]));
+          }
           for (const topName of topModules) args.push('--top', topName);
           args.push('--vcd', wavePath);
           if (withTraceAll) args.push('--trace-all');
@@ -1617,6 +1632,7 @@ export class MoxWasmAdapter {
             files: runWorkspaceFiles,
             readFiles: [wavePath],
             createDirs: ['/workspace/out'],
+            packageArtifacts,
             onOutput: stream.onOutput
           });
           return { res, stream };

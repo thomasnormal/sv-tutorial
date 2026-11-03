@@ -281,4 +281,46 @@ describe('generic package artifact loading', () => {
     expect(compile.args).toContain('--read-vlib-lowered-library-ir=/mox/packages/lowered_pkg-test.vlib');
     expect(compile.args).not.toContain('--read-vlib');
   });
+
+  it('routes a package-declared run import through the configured unified tool', async () => {
+    const calls = [];
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        packages: [{
+          name: 'run_pkg',
+          path: '/mox/packages/run_pkg.vlib',
+          url: 'run_pkg.vlib',
+          tool: 'run',
+          flags: ['--read-vlib-lowered-library-ir'],
+          detect: ['\\bimport\\s+run_pkg::']
+        }]
+      })
+    })));
+    const adapter = createAdapterWithInvokeTool(async (toolName, request) => {
+      calls.push({ toolName, request });
+      return {
+        exitCode: 0,
+        stdout: 'PASS\\n',
+        stderr: '',
+        files: { '/workspace/out/waves.vcd': '$enddefinitions $end\\n' }
+      };
+    });
+    adapter.config.packageManifestUrl = '/mox/packages/run-manifest.json';
+    adapter.config.toolchain.run = { js: '/mox/mox-run.js', wasm: '/mox/mox-run.wasm' };
+
+    const result = await adapter.run({
+      files: {
+        '/src/tb.sv': 'import run_pkg::*; module tb; initial $display("PASS"); endmodule\\n'
+      },
+      top: 'tb'
+    });
+
+    expect(result.ok).toBe(true);
+    expect(calls).toHaveLength(1);
+    expect(calls[0].toolName).toBe('run');
+    expect(calls[0].request.args).toContain(
+      '--read-vlib-lowered-library-ir=/mox/packages/run_pkg.vlib'
+    );
+  });
 });

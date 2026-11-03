@@ -139,12 +139,15 @@ manifest entry's `sourceRoot`, `includeDirs`, and `sourceFiles` fields. This
 keeps macro/include resolution available to the lesson while avoiding a
 second frontend pass over the package itself.
 
-The manifest's `flags` field is the import contract. It currently contains
+The manifest's `tool` and `flags` fields are the import contract. Entries may
+set `tool: "run"` when the package requires the unified `mox-run` frontend;
+otherwise the separate `mox-verilog`/`mox-sim` pipeline is used. The `flags`
+field currently contains
 `--read-vlib-mapped-moore-ir` for the pinned Mox WASM frontend. When the
 general lowered-library reader lands, a site build can replace that field with
 `--read-vlib-lowered-library-ir`; the runner forwards the manifest flags and
-still supplies the ordinary lesson source roots, so no UVM-specific runtime
-branch is needed.
+still supplies the ordinary lesson source roots through the selected tool, so
+no UVM-specific runtime branch is needed.
 
 ## Keyboard Controls
 

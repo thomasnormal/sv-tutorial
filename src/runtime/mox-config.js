@@ -22,6 +22,7 @@ export function getRuntimeBasePath() {
 }
 
 export const Z3_SCRIPT_URL = `${BASE}z3/z3-built.js`;
+export const MOX_PACKAGE_MANIFEST_URL = `${BASE}mox/packages/manifest.json`;
 const DEFAULT_TOOLCHAIN = {
   verilog: {
     js: `${BASE}mox/mox-verilog.js`,
@@ -127,6 +128,7 @@ export function getMoxRuntimeConfig() {
       }
     },
     pyodideUrl: import.meta.env.VITE_PYODIDE_URL || `${BASE}pyodide/pyodide.js`,
+    packageManifestUrl: import.meta.env.VITE_MOX_PACKAGE_MANIFEST_URL || MOX_PACKAGE_MANIFEST_URL,
     verilogArgs: parseArgs(import.meta.env.VITE_MOX_VERILOG_ARGS, DEFAULT_VERILOG_ARGS),
     simArgs: parseArgs(import.meta.env.VITE_MOX_SIM_ARGS, DEFAULT_SIM_ARGS),
     runArgs: parseArgs(import.meta.env.VITE_MOX_RUN_ARGS, DEFAULT_RUN_ARGS),
@@ -147,6 +149,7 @@ export function getRuntimeEnvDoc() {
     VITE_MOX_BMC_WASM_URL: 'mox-bmc WASM artifact URL.',
     VITE_MOX_VERILOG_ARGS: 'JSON array or space-separated args passed before source files.',
     VITE_MOX_SIM_ARGS: 'JSON array or space-separated args passed before MLIR input.',
-    VITE_MOX_BMC_ARGS: 'JSON array or space-separated args for BMC fallback.'
+    VITE_MOX_BMC_ARGS: 'JSON array or space-separated args for BMC fallback.',
+    VITE_MOX_PACKAGE_MANIFEST_URL: 'Package artifact manifest URL (one entry per precompiled package).'
   };
 }

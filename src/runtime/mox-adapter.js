@@ -49,6 +49,42 @@ function sourcePathsFromWorkspace(files) {
     .sort();
 }
 
+function absoluteUrl(rawUrl) {
+  try {
+    return new URL(rawUrl, window.location.href).href;
+  } catch {
+    return rawUrl;
+  }
+}
+
+function packageArtifactUrl(rawUrl, manifestUrl) {
+  try {
+    return new URL(rawUrl, absoluteUrl(manifestUrl)).href;
+  } catch {
+    // Vitest and non-browser callers do not provide a location object. Keep
+    // relative manifest entries useful there as well as in the browser.
+    const raw = String(rawUrl || '');
+    if (raw.startsWith('/')) return raw;
+    const base = String(manifestUrl || '').replace(/[^/]*$/, '');
+    return `${base}${raw}`;
+  }
+}
+
+function packageUsesFiles(entry, files) {
+  const patterns = Array.isArray(entry?.detect) ? entry.detect : [];
+  if (!patterns.length) return false;
+  return Object.values(files).some((content) => {
+    if (typeof content !== 'string') return false;
+    return patterns.some((pattern) => {
+      try {
+        return new RegExp(pattern, 'm').test(content);
+      } catch {
+        return false;
+      }
+    });
+  });
+}
+
 function mlirPathsFromWorkspace(files) {
   return Object.keys(files)
     .filter((path) => ext(path) === '.mlir')
@@ -655,6 +691,11 @@ function makeInMemFS(onStdoutChunk = null, onStderrChunk = null) {
       ensureParentDir(filePath);
       store[filePath] = new TextEncoder().encode(String(text ?? ''));
     },
+    writeBinaryFile: function(path, bytes) {
+      const filePath = String(path);
+      ensureParentDir(filePath);
+      store[filePath] = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    },
     readTextFile: function(path) {
       const filePath = String(path);
       if (!store[filePath]) {
@@ -897,32 +938,45 @@ self.onmessage = async (event) => {
       const rootPath = (manifest && typeof manifest.rootPath === 'string' && manifest.rootPath.length > 0)
         ? manifest.rootPath
         : '/mox/uvm-core/src';
-      const relPaths = Array.isArray(manifest && manifest.files) ? manifest.files : [];
+      const packageSourceRoot = (Array.isArray(req.packageArtifacts) ? req.packageArtifacts : [])
+        .find((artifact) => typeof artifact.sourceRoot === 'string' && artifact.sourceRoot.length > 0)?.sourceRoot;
+      const effectiveRootPath = packageSourceRoot || rootPath;
+      const requestedPackageSources = new Set(
+        (Array.isArray(req.packageArtifacts) ? req.packageArtifacts : [])
+          .flatMap((artifact) => Array.isArray(artifact.sourceFiles) ? artifact.sourceFiles : [])
+          .map((path) => String(path).replace(/^\/+/, ''))
+      );
+      const allRelPaths = Array.isArray(manifest && manifest.files) ? manifest.files : [];
+      const relPaths = requestedPackageSources.size
+        ? allRelPaths.filter((path) => requestedPackageSources.has(String(path).replace(/^\/+/, '')))
+        : allRelPaths;
       const srcBaseUrl = new URL('src/', manifestUrl).href;
-      for (const relRaw of relPaths) {
-        if (typeof relRaw !== 'string') continue;
-        const rel = relRaw.replace(/^\/+/, '');
-        if (!rel || rel.includes('..')) continue;
-        const fsPath = rootPath.replace(/\/+$/, '') + '/' + rel;
-        const sourceUrl = new URL(rel, srcBaseUrl).href;
-        if (inMemFS && typeof inMemFS.registerRemoteFile === 'function') {
+      const sourceEntries = relPaths
+        .filter((relRaw) => typeof relRaw === 'string')
+        .map((relRaw) => {
+          const rel = relRaw.replace(/^\/+/, '');
+          if (!rel || rel.includes('..')) return null;
+          return {
+            rel,
+            fsPath: effectiveRootPath.replace(/\/+$/, '') + '/' + rel,
+            sourceUrl: new URL(rel, srcBaseUrl).href
+          };
+        })
+        .filter(Boolean);
+      if (inMemFS && typeof inMemFS.writeTextFile === 'function') {
+        const fetchedSources = await Promise.all(sourceEntries.map(async ({ fsPath, sourceUrl }) => {
           const srcResponse = await fetch(sourceUrl);
           if (!srcResponse.ok) {
             throw new Error(
-              'Failed to load UVM source: ' +
-              sourceUrl +
-              ' (' +
-              srcResponse.status +
-              ' ' +
-              srcResponse.statusText +
-              ')'
+              'Failed to load UVM source: ' + sourceUrl + ' (' +
+              srcResponse.status + ' ' + srcResponse.statusText + ')'
             );
           }
-          const srcText = await srcResponse.text();
-          inMemFS.writeTextFile(fsPath, srcText);
-          continue;
-        }
-        if (typeof fsApi.createLazyFile === 'function') {
+          return { fsPath, text: await srcResponse.text() };
+        }));
+        for (const { fsPath, text } of fetchedSources) inMemFS.writeTextFile(fsPath, text);
+      } else if (typeof fsApi.createLazyFile === 'function') {
+        for (const { fsPath, sourceUrl } of sourceEntries) {
           const idx = fsPath.lastIndexOf('/');
           const parent = idx <= 0 ? '/' : fsPath.slice(0, idx);
           const base = idx === -1 ? fsPath : fsPath.slice(idx + 1);
@@ -933,6 +987,66 @@ self.onmessage = async (event) => {
             // Ignore duplicate registrations.
           }
         }
+      }
+    }
+    // A package entry may carry its own source staging information. This is
+    // the generic counterpart to the UVM manifest above: package artifacts
+    // that need source replay can name a sourceRoot and sourceBaseUrl without
+    // depending on a UVM-specific manifest.
+    for (const artifact of (req.uvmManifestUrl ? [] : (Array.isArray(req.packageArtifacts) ? req.packageArtifacts : []))) {
+      if (!artifact || typeof artifact.sourceBaseUrl !== 'string' || !artifact.sourceBaseUrl ||
+          typeof artifact.sourceRoot !== 'string' || !artifact.sourceRoot ||
+          !Array.isArray(artifact.sourceFiles)) continue;
+      const sourceBaseUrl = artifact.sourceBaseUrl.endsWith('/')
+        ? artifact.sourceBaseUrl
+        : artifact.sourceBaseUrl + '/';
+      const sourceEntries = artifact.sourceFiles
+        .filter((relRaw) => typeof relRaw === 'string')
+        .map((relRaw) => {
+          const rel = relRaw.replace(/^\/+/, '');
+          if (!rel || rel.includes('..')) return null;
+          let sourceUrl;
+          try { sourceUrl = new URL(rel, sourceBaseUrl).href; } catch { sourceUrl = sourceBaseUrl + rel; }
+          return { fsPath: artifact.sourceRoot.replace(/\/+$/, '') + '/' + rel, sourceUrl };
+        })
+        .filter(Boolean);
+      if (inMemFS && typeof inMemFS.writeTextFile === 'function') {
+        const fetchedSources = await Promise.all(sourceEntries.map(async ({ fsPath, sourceUrl }) => {
+          const srcResponse = await fetch(sourceUrl);
+          if (!srcResponse.ok) {
+            throw new Error('Failed to load package source: ' + sourceUrl +
+              ' (' + srcResponse.status + ' ' + srcResponse.statusText + ')');
+          }
+          return { fsPath, text: await srcResponse.text() };
+        }));
+        for (const { fsPath, text } of fetchedSources) inMemFS.writeTextFile(fsPath, text);
+      } else if (typeof fsApi.createLazyFile === 'function') {
+        for (const { fsPath, sourceUrl } of sourceEntries) {
+          const idx = fsPath.lastIndexOf('/');
+          const parent = idx <= 0 ? '/' : fsPath.slice(0, idx);
+          const base = idx === -1 ? fsPath : fsPath.slice(idx + 1);
+          ensureDir(fsApi, parent);
+          try { fsApi.createLazyFile(parent, base, sourceUrl, true, false); } catch { /* duplicate */ }
+        }
+      }
+    }
+    // Package artifacts are loaded by the same generic frontend boundary as
+    // source-backed libraries.  The worker receives only a path and URL, so
+    // any package (not just UVM) can be precompiled and cached by the site.
+    for (const artifact of Array.isArray(req.packageArtifacts) ? req.packageArtifacts : []) {
+      if (!artifact || typeof artifact.path !== 'string' || typeof artifact.url !== 'string') continue;
+      const response = await fetch(artifact.url, { cache: 'force-cache' });
+      if (!response.ok) {
+        throw new Error('Failed to load package artifact: ' + artifact.url +
+          ' (' + response.status + ' ' + response.statusText + ')');
+      }
+      const bytes = new Uint8Array(await response.arrayBuffer());
+      const artifactPath = artifact.path.startsWith('/') ? artifact.path : '/' + artifact.path;
+      if (inMemFS && typeof inMemFS.writeBinaryFile === 'function') {
+        inMemFS.writeBinaryFile(artifactPath, bytes);
+      } else {
+        ensureDir(fsApi, artifactPath.slice(0, artifactPath.lastIndexOf('/')) || '/');
+        fsApi.writeFile(artifactPath, bytes);
       }
     }
     console.log('[mox-worker] runtime ready, writing files');
@@ -999,6 +1113,39 @@ self.onmessage = async (event) => {
 `;
 
 let workerBlobUrl = null;
+let packageManifestPromise = null;
+
+async function packageArtifactsFor(files, manifestUrl) {
+  if (!manifestUrl) return [];
+  if (!packageManifestPromise) {
+    packageManifestPromise = fetch(absoluteUrl(manifestUrl), { cache: 'force-cache' })
+      .then((response) => {
+        if (!response.ok) throw new Error(`Failed to load package manifest (${response.status})`);
+        return response.json();
+      })
+      .catch((error) => {
+        packageManifestPromise = null;
+        throw error;
+      });
+  }
+  const manifest = await packageManifestPromise;
+  const entries = Array.isArray(manifest?.packages) ? manifest.packages : [];
+  return entries
+    .filter((entry) => packageUsesFiles(entry, files))
+    .map((entry) => ({
+      name: entry.name || 'package',
+      path: entry.path,
+      url: packageArtifactUrl(entry.url, manifestUrl),
+      flags: Array.isArray(entry.flags) ? entry.flags : ['--read-vlib-mapped-moore-ir'],
+      sourceFiles: Array.isArray(entry.sourceFiles) ? entry.sourceFiles : [],
+      sourceRoot: typeof entry.sourceRoot === 'string' ? entry.sourceRoot : '',
+      sourceBaseUrl: entry.sourceBaseUrl
+        ? packageArtifactUrl(entry.sourceBaseUrl, manifestUrl)
+        : '',
+      includeDirs: Array.isArray(entry.includeDirs) ? entry.includeDirs : []
+    }))
+    .filter((entry) => typeof entry.path === 'string' && typeof entry.url === 'string');
+}
 
 function getWorkerBlobUrl() {
   if (workerBlobUrl) return workerBlobUrl;
@@ -1015,6 +1162,7 @@ function runToolInWorker({
   readFiles,
   createDirs = [],
   uvmManifestUrl = null,
+  packageArtifacts = [],
   onOutput = null,
   signal = null
 }) {
@@ -1074,7 +1222,10 @@ function runToolInWorker({
       reject(new Error(String(event?.message || 'worker crashed')));
     };
 
-    worker.postMessage({ jsUrl, wasmUrl, args, files, readFiles, createDirs, uvmManifestUrl });
+    worker.postMessage({
+      jsUrl, wasmUrl, args, files, readFiles, createDirs, uvmManifestUrl,
+      packageArtifacts
+    });
   });
 }
 
@@ -1295,7 +1446,15 @@ export class MoxWasmAdapter {
 
   async _invokeTool(
     toolName,
-    { args, files = {}, readFiles = [], createDirs = [], uvmManifestUrl = null, onOutput = null }
+    {
+      args,
+      files = {},
+      readFiles = [],
+      createDirs = [],
+      uvmManifestUrl = null,
+      packageArtifacts = [],
+      onOutput = null
+    }
   ) {
     const tool = this.config.toolchain[toolName];
     if (!tool) throw new Error(`Unknown MOX tool: ${toolName}`);
@@ -1308,6 +1467,7 @@ export class MoxWasmAdapter {
       readFiles,
       createDirs,
       uvmManifestUrl,
+      packageArtifacts,
       onOutput,
       signal: this._runController?.signal ?? null
     });
@@ -1365,6 +1525,7 @@ export class MoxWasmAdapter {
       const wavePath = '/workspace/out/waves.vcd';
       const useFullUvm = svPaths.length > 0 && needsUvmLibrary(files);
       const uvmManifestUrl = useFullUvm ? getUvmManifestUrl() : null;
+      let packageArtifacts = [];
 
       const logs = [];
       const emitLog = (entry) => {
@@ -1381,6 +1542,15 @@ export class MoxWasmAdapter {
           sawStream: () => sawStream
         };
       };
+
+      if (svPaths.length > 0) try {
+        packageArtifacts = await packageArtifactsFor(files, this.config.packageManifestUrl);
+        if (packageArtifacts.length) {
+          emitLog(`# loaded ${packageArtifacts.map((artifact) => artifact.name).join(', ')} precompiled package`);
+        }
+      } catch (error) {
+        emitLog(`# package manifest unavailable: ${error.message}`);
+      }
 
       if (typeof onStatus === 'function') onStatus('compiling');
       let compileExitCode = 0;
@@ -1467,8 +1637,12 @@ export class MoxWasmAdapter {
           compileArgs = singleUnit
             ? (compileArgs.includes('--single-unit') ? compileArgs : [...compileArgs, '--single-unit'])
             : removeFlag(compileArgs, '--single-unit');
-          if (useFullUvm) {
+          if (useFullUvm && !packageArtifacts.length) {
             compileArgs.push('--uvm-path', UVM_FS_ROOT, '-I', UVM_INCLUDE_ROOT);
+          }
+          for (const artifact of packageArtifacts) {
+            compileArgs.push('--read-vlib', artifact.path, ...(artifact.flags || []),
+              ...(artifact.includeDirs || []).flatMap((dir) => ['-I', dir]));
           }
           for (const topName of topModules) {
             compileArgs.push('--top', topName);
@@ -1521,6 +1695,7 @@ export class MoxWasmAdapter {
               readFiles: [mlirPath],
               createDirs: ['/workspace/out'],
               uvmManifestUrl,
+              packageArtifacts,
               onOutput: compileStream.onOutput
             });
           } catch (error) {

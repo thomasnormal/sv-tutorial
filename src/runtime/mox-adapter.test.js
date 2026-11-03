@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MoxWasmAdapter } from './mox-adapter.js';
 
 function createAdapterWithInvokeTool(invokeTool) {
@@ -9,6 +9,10 @@ function createAdapterWithInvokeTool(invokeTool) {
   adapter._invokeTool = invokeTool;
   return adapter;
 }
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe('MoxWasmAdapter.run with MLIR workspace input', () => {
   it('simulates MLIR input directly without requiring SystemVerilog files', async () => {
@@ -177,5 +181,60 @@ describe('MoxWasmAdapter.run without a mox-run artifact', () => {
       top: 'top'
     });
     expect(calls).toEqual(['verilog', 'sim']);
+  });
+});
+
+describe('generic package artifact loading', () => {
+  it('selects a detected package and passes its mapped-vlib flags to the frontend', async () => {
+    const calls = [];
+    vi.stubGlobal('fetch', vi.fn(async (url) => {
+      expect(url).toBe('/mox/packages/manifest.json');
+      return {
+        ok: true,
+        json: async () => ({
+          packages: [{
+            name: 'example_pkg',
+            path: '/mox/packages/example_pkg-test.vlib',
+            url: 'example_pkg-test.vlib',
+            flags: ['--read-vlib-mapped-moore-ir'],
+            detect: ['\\bimport\\s+example_pkg::']
+          }]
+        })
+      };
+    }));
+    const adapter = createAdapterWithInvokeTool(async (toolName, request) => {
+      calls.push({ toolName, request });
+      if (toolName === 'verilog') {
+        return {
+          exitCode: 0,
+          stdout: '',
+          stderr: '',
+          files: { '/workspace/out/design.llhd.mlir': 'hw.module @tb() { hw.output }\n' }
+        };
+      }
+      return { exitCode: 0, stdout: 'PASS\n', stderr: '', files: {} };
+    });
+
+    const result = await adapter.run({
+      files: {
+        '/src/tb.sv': 'import example_pkg::*; module tb; initial $display("PASS"); endmodule\n'
+      },
+      top: 'tb'
+    });
+
+    expect(result.ok).toBe(true);
+    const compile = calls.find(({ toolName }) => toolName === 'verilog').request;
+    expect(compile.args).toContain('--read-vlib');
+    expect(compile.args).toContain('/mox/packages/example_pkg-test.vlib');
+    expect(compile.args).toContain('--read-vlib-mapped-moore-ir');
+    expect(compile.args).not.toContain('--uvm-path');
+    expect(compile.packageArtifacts).toEqual([
+      expect.objectContaining({
+        name: 'example_pkg',
+        path: '/mox/packages/example_pkg-test.vlib',
+        url: '/mox/packages/example_pkg-test.vlib'
+      })
+    ]);
+    expect(result.logs).toContain('# loaded example_pkg precompiled package');
   });
 });

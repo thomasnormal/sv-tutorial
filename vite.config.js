@@ -35,6 +35,31 @@ function previewHeadersPlugin() {
   };
 }
 
+/** Cache immutable Mox package artifacts while allowing the manifest to move
+ * when a new Mox build is published. The same policy is used in dev and
+ * preview so browser timing checks match the deployed static asset behavior.
+ */
+function packageCacheHeadersPlugin() {
+  const apply = (_req, res, next) => {
+    const url = String(_req.url || '').split('?')[0];
+    if (/\/mox\/packages\/manifest\.json$/.test(url)) {
+      res.setHeader('Cache-Control', 'public, max-age=300');
+    } else if (/\/mox\/packages\/[^/]+\.vlib$/.test(url)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+    next();
+  };
+  return {
+    name: 'mox-package-cache-headers',
+    configureServer(server) {
+      server.middlewares.use(apply);
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(apply);
+    }
+  };
+}
+
 /**
  * Vite plugin that serves z3-built.js as an unbundled static file.
  *
@@ -78,6 +103,7 @@ export default defineConfig({
     sveltekit(),
     tailwindcss(),
     previewHeadersPlugin(),
+    packageCacheHeadersPlugin(),
     serveZ3Plugin(),
     // Pre-compress JS/CSS/HTML assets at build time.
     // Served automatically by nginx (gzip_static on) or any CDN that looks for

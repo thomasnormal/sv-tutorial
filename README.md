@@ -97,6 +97,7 @@ In `.env` (copy `.env.example`):
 - `VITE_MOX_VERILOG_ARGS`
 - `VITE_MOX_SIM_ARGS`
 - `VITE_MOX_BMC_ARGS`
+- `VITE_MOX_PACKAGE_MANIFEST_URL` (package artifact manifest; default: `/mox/packages/manifest.json`)
 
 ## Offline Mode
 
@@ -105,6 +106,38 @@ In `.env` (copy `.env.example`):
 - For local/offline cocotb, install Pyodide assets once:
   - `npm run setup:pyodide`
 - Keep runtime URLs same-origin (default `/mox/*`, `/z3/*`, `/surfer/*`, `/pyodide/*`) for robust offline behavior.
+
+### Precompiled packages
+
+The browser runner can load package-level frontend artifacts before compiling a
+lesson. `static/mox/packages/manifest.json` contains one entry per package,
+including detection regexes, the artifact URL, frontend flags, source files,
+and the Mox SHA that produced it. Artifact URLs are resolved relative to the
+manifest, so the same bundle works at `/` and under a GitHub Pages base path.
+When a lesson matches an entry, the runner downloads the binary `.vlib` once,
+writes it into the worker filesystem, and invokes Mox with
+`--read-vlib <artifact> --read-vlib-mapped-moore-ir`; the lesson's own source is
+then lowered normally. If no matching artifact is available, the existing
+source-backed package path remains in use.
+
+Artifacts are immutable and named with the producing Mox SHA, for example
+`uvm_pkg-b90b3a5.vlib` (58,912,612 bytes, about 57 MiB). The manifest is short
+cached; `.vlib` files receive a one-year immutable cache policy. Build a
+sectioned artifact for any package with:
+
+```bash
+scripts/build-package-artifact.sh \
+  --mox-verilog /path/to/mox-verilog \
+  --source /path/to/package.sv \
+  --include-dir /path/to/includes \
+  --output static/mox/packages/package-<mox-sha>.vlib \
+  --name package
+```
+
+The package source's include root and source files are staged using the
+manifest entry's `sourceRoot`, `includeDirs`, and `sourceFiles` fields. This
+keeps macro/include resolution available to the lesson while avoiding a
+second frontend pass over the package itself.
 
 ## Keyboard Controls
 

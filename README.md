@@ -134,6 +134,9 @@ scripts/build-package-artifact.sh \
   --name package
 ```
 
+The pinned native before/after receipt for all 12 UVM lessons is published at
+[`docs/mox-bugs/uvm-package-b90b3a51a68.md`](docs/mox-bugs/uvm-package-b90b3a51a68.md).
+
 The package source's include root and source files are staged using the
 manifest entry's `sourceRoot`, `includeDirs`, and `sourceFiles` fields. This
 keeps macro/include resolution available to the lesson while avoiding a

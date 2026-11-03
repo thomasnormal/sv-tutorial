@@ -12,17 +12,14 @@ while mapped-vlib rows take about 80–113 s and four rows time out at 120 s.
 The browser `uvm/reporting` probe reached mapped-vlib diagnostics but did not
 return within 900 s.
 
-Interp's in-progress general consumer adds
-`mox-run --read-vlib-lowered-library-ir=<file>` alongside ordinary sources.
-The site adapter already supports this contract through a manifest `tool:
-"run"` entry and path-qualified flags. The native rebuild check on 2026-11-03
-failed before linking because the patch includes the nonexistent
-`mlir/IR/SymbolInterfaces.h`; the generated interface is supplied through
-`SymbolTable.h`. No browser `mox-run.js`/`.wasm` exists, and Mox's current
-`tools/CMakeLists.txt` excludes `mox-run` when `EMSCRIPTEN` is enabled. The
-manifest therefore remains on the validated mapped-vlib/mox-verilog path, and
-UVM browser rows stay timeout-dispositioned until a browser-compatible lowered
-library consumer is landed.
+Interp's in-progress general consumer first adds
+`mox-run --read-vlib-lowered-library-ir=<file>` alongside ordinary sources,
+but the coordinator has ruled that the browser stays on the existing
+`mox-verilog` → `mox-sim` pipeline. The same shared frontend boundary must
+therefore be exposed by `mox-verilog`; the site must not switch to a separate
+browser `mox-run` artifact. The manifest remains on the validated mapped-vlib
+path, and UVM browser rows stay timeout-dispositioned until the shared
+lowered-library consumer is landed.
 
 ## Native consumer qualification (2026-11-03)
 

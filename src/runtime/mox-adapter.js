@@ -70,6 +70,20 @@ function packageArtifactUrl(rawUrl, manifestUrl) {
   }
 }
 
+function packageCompileArgs(artifact) {
+  const flags = Array.isArray(artifact?.flags) ? artifact.flags : [];
+  const usesLoweredLibrary = flags.some((flag) =>
+    String(flag) === '--read-vlib-lowered-library-ir' ||
+    String(flag).startsWith('--read-vlib-lowered-library-ir=')
+  );
+  if (usesLoweredLibrary) {
+    return flags.map((flag) => String(flag) === '--read-vlib-lowered-library-ir'
+      ? `${flag}=${artifact.path}`
+      : String(flag).replaceAll('{path}', artifact.path));
+  }
+  return ['--read-vlib', artifact.path, ...flags.map((flag) => String(flag).replaceAll('{path}', artifact.path))];
+}
+
 function packageUsesFiles(entry, files) {
   const patterns = Array.isArray(entry?.detect) ? entry.detect : [];
   if (!patterns.length) return false;
@@ -1125,22 +1139,24 @@ self.onmessage = async (event) => {
 `;
 
 let workerBlobUrl = null;
-let packageManifestPromise = null;
+const packageManifestCache = new Map();
 
 async function packageArtifactsFor(files, manifestUrl) {
   if (!manifestUrl) return [];
-  if (!packageManifestPromise) {
-    packageManifestPromise = fetch(absoluteUrl(manifestUrl), { cache: 'force-cache' })
+  const manifestHref = absoluteUrl(manifestUrl);
+  if (!packageManifestCache.has(manifestHref)) {
+    const manifestPromise = fetch(manifestHref, { cache: 'force-cache' })
       .then((response) => {
         if (!response.ok) throw new Error(`Failed to load package manifest (${response.status})`);
         return response.json();
       })
       .catch((error) => {
-        packageManifestPromise = null;
+        packageManifestCache.delete(manifestHref);
         throw error;
       });
+    packageManifestCache.set(manifestHref, manifestPromise);
   }
-  const manifest = await packageManifestPromise;
+  const manifest = await packageManifestCache.get(manifestHref);
   const entries = Array.isArray(manifest?.packages) ? manifest.packages : [];
   return entries
     .filter((entry) => packageUsesFiles(entry, files))
@@ -1659,7 +1675,7 @@ export class MoxWasmAdapter {
             compileArgs.push('--uvm-path', UVM_FS_ROOT, '-I', UVM_INCLUDE_ROOT);
           }
           for (const artifact of packageArtifacts) {
-            compileArgs.push('--read-vlib', artifact.path, ...(artifact.flags || []),
+            compileArgs.push(...packageCompileArgs(artifact),
               ...(artifact.includeDirs || []).flatMap((dir) => ['-I', dir]));
           }
           for (const topName of topModules) {

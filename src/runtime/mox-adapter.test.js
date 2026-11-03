@@ -237,4 +237,48 @@ describe('generic package artifact loading', () => {
     ]);
     expect(result.logs).toContain('# loaded example_pkg precompiled package');
   });
+
+  it('maps the lowered-library contract to a path-qualified import flag', async () => {
+    const calls = [];
+    vi.stubGlobal('fetch', vi.fn(async (url) => {
+      expect(url).toBe('/mox/packages/lowered-manifest.json');
+      return {
+        ok: true,
+        json: async () => ({
+          packages: [{
+            name: 'lowered_pkg',
+            path: '/mox/packages/lowered_pkg-test.vlib',
+            url: 'lowered_pkg-test.vlib',
+            flags: ['--read-vlib-lowered-library-ir'],
+            detect: ['\\bimport\\s+lowered_pkg::']
+          }]
+        })
+      };
+    }));
+    const adapter = createAdapterWithInvokeTool(async (toolName, request) => {
+      calls.push({ toolName, request });
+      if (toolName === 'verilog') {
+        return {
+          exitCode: 0,
+          stdout: '',
+          stderr: '',
+          files: { '/workspace/out/design.llhd.mlir': 'hw.module @tb() { hw.output }\\n' }
+        };
+      }
+      return { exitCode: 0, stdout: 'PASS\\n', stderr: '', files: {} };
+    });
+    adapter.config.packageManifestUrl = '/mox/packages/lowered-manifest.json';
+
+    const result = await adapter.run({
+      files: {
+        '/src/tb.sv': 'import lowered_pkg::*; module tb; initial $display("PASS"); endmodule\\n'
+      },
+      top: 'tb'
+    });
+
+    expect(result.ok).toBe(true);
+    const compile = calls.find(({ toolName }) => toolName === 'verilog').request;
+    expect(compile.args).toContain('--read-vlib-lowered-library-ir=/mox/packages/lowered_pkg-test.vlib');
+    expect(compile.args).not.toContain('--read-vlib');
+  });
 });

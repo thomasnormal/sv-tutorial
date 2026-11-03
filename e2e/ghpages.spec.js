@@ -24,7 +24,10 @@ async function applySolution(page) {
 
 async function expectCleanUvmRun(logs) {
   await expect(logs).toContainText('$ mox-verilog', { timeout: 45_000 });
-  await expect(logs).toContainText('--uvm-path /mox/uvm-core', { timeout: 10_000 });
+  await expect(logs).toContainText(
+    /--read-vlib \/mox\/packages\/uvm_pkg-[^ ]+\.vlib|--uvm-path \/mox\/uvm-core/,
+    { timeout: 10_000 }
+  );
   await expect.poll(
     async () => (await logs.textContent()) ?? '',
     { timeout: 60_000, intervals: [500, 1000] }

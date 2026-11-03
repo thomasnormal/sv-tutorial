@@ -1524,7 +1524,7 @@ export class MoxWasmAdapter {
       const mlirPath = '/workspace/out/design.llhd.mlir';
       const wavePath = '/workspace/out/waves.vcd';
       const useFullUvm = svPaths.length > 0 && needsUvmLibrary(files);
-      const uvmManifestUrl = useFullUvm ? getUvmManifestUrl() : null;
+      let uvmManifestUrl = null;
       let packageArtifacts = [];
 
       const logs = [];
@@ -1548,8 +1548,13 @@ export class MoxWasmAdapter {
         if (packageArtifacts.length) {
           emitLog(`# loaded ${packageArtifacts.map((artifact) => artifact.name).join(', ')} precompiled package`);
         }
+        // A package artifact carries its own source replay metadata. Do not
+        // also load the legacy UVM manifest: doing so stages every UVM source
+        // file and turns a package import back into a source-library pass.
+        if (useFullUvm && !packageArtifacts.length) uvmManifestUrl = getUvmManifestUrl();
       } catch (error) {
         emitLog(`# package manifest unavailable: ${error.message}`);
+        if (useFullUvm) uvmManifestUrl = getUvmManifestUrl();
       }
 
       if (typeof onStatus === 'function') onStatus('compiling');

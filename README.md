@@ -139,6 +139,13 @@ manifest entry's `sourceRoot`, `includeDirs`, and `sourceFiles` fields. This
 keeps macro/include resolution available to the lesson while avoiding a
 second frontend pass over the package itself.
 
+The manifest's `flags` field is the import contract. It currently contains
+`--read-vlib-mapped-moore-ir` for the pinned Mox WASM frontend. When the
+general lowered-library reader lands, a site build can replace that field with
+`--read-vlib-lowered-library-ir`; the runner forwards the manifest flags and
+still supplies the ordinary lesson source roots, so no UVM-specific runtime
+branch is needed.
+
 ## Keyboard Controls
 
 - Focus a panel separator and press **Arrow** keys to resize it; hold **Shift** for a larger step.

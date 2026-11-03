@@ -1035,6 +1035,9 @@ self.onmessage = async (event) => {
     // any package (not just UVM) can be precompiled and cached by the site.
     for (const artifact of Array.isArray(req.packageArtifacts) ? req.packageArtifacts : []) {
       if (!artifact || typeof artifact.path !== 'string' || typeof artifact.url !== 'string') continue;
+      const artifactLoadStart = (typeof performance !== 'undefined' && typeof performance.now === 'function')
+        ? performance.now()
+        : Date.now();
       const response = await fetch(artifact.url, { cache: 'force-cache' });
       if (!response.ok) {
         throw new Error('Failed to load package artifact: ' + artifact.url +
@@ -1048,6 +1051,15 @@ self.onmessage = async (event) => {
         ensureDir(fsApi, artifactPath.slice(0, artifactPath.lastIndexOf('/')) || '/');
         fsApi.writeFile(artifactPath, bytes);
       }
+      const artifactLoadEnd = (typeof performance !== 'undefined' && typeof performance.now === 'function')
+        ? performance.now()
+        : Date.now();
+      self.postMessage({
+        type: 'stream',
+        stream: 'stdout',
+        line: '# package artifact ' + artifact.path + ' loaded (' +
+          Math.round(artifactLoadEnd - artifactLoadStart) + ' ms, ' + bytes.byteLength + ' bytes)'
+      });
     }
     console.log('[mox-worker] runtime ready, writing files');
     if (inMemFS) {

@@ -1170,12 +1170,13 @@ function runToolInWorker({
     const worker = new Worker(getWorkerBlobUrl());
     let sawStream = false;
     let timeout;
+    const toolTimeoutMs = packageArtifacts.length > 0 ? 900000 : 300000;
     const resetTimeout = () => {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
         worker.terminate();
         reject(new Error(`${jsUrl}: tool invocation timed out`));
-      }, 300000);
+      }, toolTimeoutMs);
     };
     resetTimeout();
 

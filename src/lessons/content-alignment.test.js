@@ -74,6 +74,8 @@ describe('browser-audit lesson alignment', () => {
     expect(description).toContain('ordered control conditions');
     expect(description).toContain('repeat(5) @(posedge clk);');
     expect(description).toContain('reset higher priority than enable');
+    expect(description).toContain('keeps <code>en=1</code> while <code>rst_n=0</code>');
+    expect(description).toContain('reset branch wins before the increment branch');
     expect(starter).toContain('synchronous reset, then increment when en');
     expect(starter).toContain('always_ff @(posedge clk)');
     const alwaysFf = read('sv/always-ff/description.html');

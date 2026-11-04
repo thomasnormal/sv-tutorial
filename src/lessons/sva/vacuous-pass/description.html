@@ -25,4 +25,5 @@ rg_cover:  cover sequence (@(posedge clk) $rose(req) ##[1:2] gnt)
   <li>Open <code>vacuous.sv</code> and add the <code>assert property</code> and <code>cover sequence</code> statements for the request/grant window. Run — with no request, the assertion is vacuous and there is no nonvacuous request/grant match.</li>
   <li>Open <code>tb.sv</code> and uncomment the TODO lines to pulse <code>req</code> and then drive <code>gnt</code> high. Run again — the sequence cover fires, proving that the request/grant scenario was exercised.</li>
 </ol>
+<p>In the second run, the pulse is sampled on a rising edge: <code>$rose(req)</code> starts the attempt there, and <code>gnt</code> is driven for the next sampled edge. The first run cannot fail because it never creates an attempt; the second run produces visible cover output because it does.</p>
 <blockquote><p>If the simulation ends with zero nonvacuous coverage and zero assertion failures, the property may still be vacuous. A clean run only means something when the trigger or its sequence is covered.</p></blockquote>

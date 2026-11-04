@@ -272,6 +272,17 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('req |-> ##[1:3] gnt');
   });
 
+  it('keeps the vacuous-pass experiment explicit about its two runs', () => {
+    const description = read('sva/vacuous-pass/description.html');
+    const starter = read('sva/vacuous-pass/tb.sv');
+    const solution = read('sva/vacuous-pass/vacuous.sol.sv');
+    expect(description).toContain('the pulse is sampled on a rising edge');
+    expect(description).toContain('first run cannot fail because it never creates an attempt');
+    expect(description).toContain('second run produces visible cover output');
+    expect(starter).toContain('TODO: uncomment the request stimulus');
+    expect(solution).toContain('cover sequence (@(posedge clk) $rose(req) ##[1:2] gnt)');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

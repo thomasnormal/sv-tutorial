@@ -278,8 +278,10 @@ describe('generic package artifact loading', () => {
 
     expect(result.ok).toBe(true);
     const compile = calls.find(({ toolName }) => toolName === 'verilog').request;
-    expect(compile.args).toContain('--read-vlib-lowered-library-ir=/mox/packages/lowered_pkg-test.vlib');
-    expect(compile.args).not.toContain('--read-vlib');
+    expect(compile.args).toContain('--read-vlib');
+    expect(compile.args).toContain('/mox/packages/lowered_pkg-test.vlib');
+    expect(compile.args).toContain('--read-vlib-lowered-library-ir');
+    expect(compile.args).not.toContain('--read-vlib-lowered-library-ir=/mox/packages/lowered_pkg-test.vlib');
   });
 
   it('routes a package-declared run import through the configured unified tool', async () => {

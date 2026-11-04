@@ -24,25 +24,28 @@ const DEFAULT_LESSONS = [
 
 function usage() {
   console.error(`Usage: node scripts/measure-uvm-package.mjs --mox-verilog PATH \
-  --uvm-root PATH --artifact PATH --output PATH [--lesson SLUG] [--timeout-ms N]`);
+  --uvm-root PATH --artifact PATH --output PATH [--artifact-mode mapped|lowered] \
+  [--lesson SLUG] [--timeout-ms N]`);
   process.exit(2);
 }
 
 function parseArgs(argv) {
-  const out = { lessons: DEFAULT_LESSONS, timeoutMs: 900_000, output: '' };
+  const out = { lessons: DEFAULT_LESSONS, timeoutMs: 900_000, output: '', artifactMode: 'mapped' };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--mox-verilog') out.moxVerilog = argv[++i];
     else if (arg === '--uvm-root') out.uvmRoot = argv[++i];
     else if (arg === '--artifact') out.artifact = argv[++i];
     else if (arg === '--output') out.output = argv[++i];
+    else if (arg === '--artifact-mode') out.artifactMode = argv[++i];
     else if (arg === '--lesson') out.lessons = [argv[++i]];
     else if (arg === '--timeout-ms') out.timeoutMs = Number(argv[++i]);
     else if (arg === '--help' || arg === '-h') usage();
     else usage();
   }
   if (!out.moxVerilog || !out.uvmRoot || !out.artifact || !out.output ||
-      !Number.isFinite(out.timeoutMs) || out.timeoutMs < 1) usage();
+      !Number.isFinite(out.timeoutMs) || out.timeoutMs < 1 ||
+      !['mapped', 'lowered'].includes(out.artifactMode)) usage();
   return out;
 }
 
@@ -118,6 +121,9 @@ async function main() {
       const artifactOutput = path.join(tempRoot, `${slug}.artifact.mlir`);
       const sourceLog = path.join(tempRoot, `${slug}.source.log`);
       const artifactLog = path.join(tempRoot, `${slug}.artifact.log`);
+      const artifactFlags = options.artifactMode === 'lowered'
+        ? ['--read-vlib', options.artifact, '--read-vlib-lowered-library-ir']
+        : ['--read-vlib', options.artifact, '--read-vlib-mapped-moore-ir'];
       const common = [
         '--resource-guard=false', '--ir-llhd', '--timescale', '1ns/1ns',
         '--single-unit', '-I', path.join(options.uvmRoot, 'src'), '--top', 'tb_top'
@@ -127,8 +133,7 @@ async function main() {
         path.join(lessonDir, 'tb_top.sv')
       ], options.timeoutMs, sourceLog);
       const artifact = await runFrontend(options.moxVerilog, [
-        ...common, '--read-vlib', options.artifact,
-        '--read-vlib-mapped-moore-ir', '-o', artifactOutput,
+        ...common, ...artifactFlags, '-o', artifactOutput,
         path.join(lessonDir, 'tb_top.sv')
       ], options.timeoutMs, artifactLog);
       rows.push({
@@ -145,7 +150,7 @@ async function main() {
       '# UVM package precompile receipt', '',
       `- Mox frontend: \`${options.moxVerilog}\``,
       `- UVM source root: \`${options.uvmRoot}\``,
-      `- Artifact: \`${options.artifact}\` (${artifactBytes} bytes)`,
+      `- Artifact: \`${options.artifact}\` (${artifactBytes} bytes; ${options.artifactMode} mode)`,
       `- Timeout per invocation: ${options.timeoutMs} ms`, '',
       '| lesson | source ms | artifact ms | source result | artifact result | source MLIR bytes | artifact MLIR bytes | artifact bytes |',
       '| --- | ---: | ---: | --- | --- | ---: | ---: | ---: |'

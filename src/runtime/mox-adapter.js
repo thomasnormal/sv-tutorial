@@ -70,13 +70,21 @@ function packageArtifactUrl(rawUrl, manifestUrl) {
   }
 }
 
-function packageCompileArgs(artifact) {
+function packageCompileArgs(artifact, toolName = 'verilog') {
   const flags = Array.isArray(artifact?.flags) ? artifact.flags : [];
   const usesLoweredLibrary = flags.some((flag) =>
     String(flag) === '--read-vlib-lowered-library-ir' ||
     String(flag).startsWith('--read-vlib-lowered-library-ir=')
   );
   if (usesLoweredLibrary) {
+    // mox-verilog exposes this as a boolean switch paired with its generic
+    // --read-vlib filename option. mox-run keeps a string-valued option, so
+    // retain the path-qualified form there.
+    if (toolName !== 'run') {
+      return ['--read-vlib', artifact.path, ...flags
+        .filter((flag) => !String(flag).startsWith('--read-vlib-lowered-library-ir='))
+        .map((flag) => String(flag).replaceAll('{path}', artifact.path))];
+    }
     return flags.map((flag) => String(flag) === '--read-vlib-lowered-library-ir'
       ? `${flag}=${artifact.path}`
       : String(flag).replaceAll('{path}', artifact.path));
@@ -1614,7 +1622,7 @@ export class MoxWasmAdapter {
         const buildRunArgs = (withTraceAll) => {
           const args = [...this.config.runArgs, ...coverageArgs(files)];
           for (const artifact of packageRunArtifacts) {
-            args.push(...packageCompileArgs(artifact),
+            args.push(...packageCompileArgs(artifact, 'run'),
               ...(artifact.includeDirs || []).flatMap((dir) => ['-I', dir]));
           }
           for (const topName of topModules) args.push('--top', topName);
@@ -1691,7 +1699,7 @@ export class MoxWasmAdapter {
             compileArgs.push('--uvm-path', UVM_FS_ROOT, '-I', UVM_INCLUDE_ROOT);
           }
           for (const artifact of packageArtifacts) {
-            compileArgs.push(...packageCompileArgs(artifact),
+            compileArgs.push(...packageCompileArgs(artifact, 'verilog'),
               ...(artifact.includeDirs || []).flatMap((dir) => ['-I', dir]));
           }
           for (const topName of topModules) {

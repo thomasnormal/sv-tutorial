@@ -479,6 +479,20 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('(valid && !ready) |=> $stable(data)');
   });
 
+  it('keeps changed stimulus ordered around the final delta', () => {
+    const description = read('sva/changed/description.html');
+    const starter = read('sva/changed/toggle_check.sv');
+    const testbench = read('sva/changed/tb.sv');
+    const solution = read('sva/changed/toggle_check.sol.sv');
+    expect(description).toContain('<code>t2</code>');
+    expect(description).toContain('<code>$changed(data)</code> passes');
+    expect(description).toContain('deasserts <code>update</code> together');
+    expect(description).toContain('without opening another update obligation');
+    expect(starter).toContain('TODO: when update is high');
+    expect(testbench).toContain('data = 8\'h12; update = 0;');
+    expect(solution).toContain('update |=> $changed(data)');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

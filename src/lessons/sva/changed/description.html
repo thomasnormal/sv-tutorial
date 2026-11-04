@@ -17,4 +17,10 @@
   <defs><marker id="ch-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#c17d2a"/></marker></defs>
 </svg>
 <p>This follows the previous <code>$stable</code>/<code>$past</code> lesson: instead of asserting that a stalled value holds, assert that an updating value changes at every sampled edge. The starter includes <code>tb.sv</code> with two changing data samples while <code>update</code> is high. Run it before solving to see the deltas; after solving, the trace prints <code>PASS</code>. Verify searches for an update cycle where data repeats.</p>
+<table><thead><tr><th>Sampled edge</th><th><code>update</code></th><th><code>data</code> and <code>$changed</code></th></tr></thead><tbody>
+<tr><td><code>t1</code></td><td>1</td><td><code>10</code>; opens a next-edge change check</td></tr>
+<tr><td><code>t2</code></td><td>1</td><td><code>11</code>; <code>$changed(data)</code> passes</td></tr>
+<tr><td><code>t3</code></td><td>0</td><td><code>12</code>; the obligation from <code>t2</code> passes, and no new one starts</td></tr>
+</tbody></table>
+<p>The testbench changes <code>data</code> to <code>12</code> and deasserts <code>update</code> together after the <code>t2</code> edge. That lets the final change be sampled at <code>t3</code> without opening another update obligation.</p>
 <blockquote><p><code>$changed</code> uses four-state inequality (<code>!==</code>) so it is also true when a signal transitions to or from X. To ignore X transitions use <code>data != $past(data)</code> (two-state inequality) instead.</p></blockquote>

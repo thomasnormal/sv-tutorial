@@ -13,9 +13,7 @@ module tb;
     @(posedge clk); #1;
     data = 8'h11;
     @(posedge clk); #1;
-    data = 8'h12;
-    @(posedge clk); #1;
-    update = 0;
+    data = 8'h12; update = 0;
 
     $display("TODO: complete p_data_changes, then rerun this sampled-delta trace.");
     $finish;

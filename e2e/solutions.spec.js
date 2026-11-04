@@ -82,7 +82,7 @@ const LESSONS = [
   { chapter: 'Sequential Logic',        title: 'Flip-Flops with always_ff',                     runner: null },
   { chapter: 'Sequential Logic',        title: 'Up-Counter',                                    runner: null },
   { chapter: 'Sequential Logic',        title: 'Shift Register',                                runner: null },
-  { chapter: 'Parameterized Modules',   title: 'Parameters and localparam',                     runner: null },
+  { chapter: 'Data Types',              title: 'Parameters',                                   runner: null },
   { chapter: 'Data Types',              title: 'Generate Loops and If',                        runner: null },
   { chapter: 'Data Types',              title: 'Typedef and Type Aliases',                     runner: null },
   { chapter: 'Data Types',              title: 'Static Packed and Unpacked Arrays',           runner: null },

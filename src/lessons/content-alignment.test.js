@@ -259,6 +259,8 @@ describe('browser-audit lesson alignment', () => {
     expect(parameters).toContain('IEEE 1800-2023 §20.6.2');
     expect(parameters).toContain('IEEE 1800-2023 §20.8.1');
     expect(parameters).toContain('replace the hardcoded dimensions');
+    expect(parameters).toContain('$clog2(10)</code> is <code>4');
+    expect(parameters).toContain('addresses 0 through 9 are valid');
     expect(enums).not.toContain('remove <code>state_bits</code>');
     expect(enums).toContain('do not add a separate <code>state_bits</code> port');
     expect(enums).toContain('IEEE 1800-2023 §6.19');

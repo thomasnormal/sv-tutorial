@@ -493,6 +493,21 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('update |=> $changed(data)');
   });
 
+  it('keeps disable-iff timing aligned with reset-gated attempts', () => {
+    const description = read('sva/disable-iff/description.html');
+    const starter = read('sva/disable-iff/reset_check.sv');
+    const testbench = read('sva/disable-iff/tb.sv');
+    const solution = read('sva/disable-iff/reset_check.sol.sv');
+    expect(description).toContain('<code>t0</code>');
+    expect(description).toContain('the request is disabled');
+    expect(description).toContain('opens an acknowledgement obligation');
+    expect(description).toContain('would abort that attempt immediately');
+    expect(starter).toContain('TODO: match an acknowledgement on the sampled edge');
+    expect(testbench).toContain('request during reset is ignored');
+    expect(solution).toContain('@(posedge clk) disable iff (!rst_n)');
+    expect(solution).toContain('req |=> ack_next');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

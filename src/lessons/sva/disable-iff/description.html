@@ -13,4 +13,11 @@
                 <defs><marker id="di-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#0d6f72"/></marker></defs>
               </svg>
               <p>The earlier implication lesson supplied the <code>|=></code> timing; here add the one-sample <code>ack_next</code> sequence and keep the implication behind reset. The starter includes <code>tb.sv</code> with a request during reset (ignored) and a request after reset (checked). Run it before solving to see both phases; after solving, the trace prints <code>PASS</code>. Verify searches for an active request without a following acknowledgement.</p>
+              <table><thead><tr><th>Sampled edge</th><th><code>rst_n</code>/<code>req</code>/<code>ack</code></th><th>Property state</th></tr></thead><tbody>
+              <tr><td><code>t0</code></td><td><code>0/1/0</code></td><td>reset is active; the request is disabled</td></tr>
+              <tr><td><code>t1</code></td><td><code>1/1/0</code></td><td>property is enabled and opens an acknowledgement obligation</td></tr>
+              <tr><td><code>t2</code></td><td><code>1/0/1</code></td><td><code>ack_next</code> satisfies the post-reset request</td></tr>
+              <tr><td><code>t3</code></td><td><code>0/0/0</code></td><td>reset disables new attempts again</td></tr>
+              </tbody></table>
+              <p>Because <code>disable iff</code> is asynchronous, asserting reset while an obligation is still pending would abort that attempt immediately. In this trace reset returns only after <code>ack_next</code> has completed, so the successful post-reset handshake remains satisfied.</p>
               <blockquote><p><code>disable iff</code> is asynchronous: the property is disabled the moment the condition becomes true, not at the next clock edge.</p></blockquote>

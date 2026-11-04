@@ -76,6 +76,7 @@ const LESSONS = [
   // ── SystemVerilog Basics ────────────────────────────────────────────────────
   { chapter: 'Introduction',            title: 'Welcome',                                       runner: null },
   { chapter: 'Introduction',            title: 'Modules and Ports',                             runner: null },
+  { chapter: 'Introduction',            title: 'Data Types',                                    runner: null },
   { chapter: 'Combinational Logic',     title: 'always_comb and case',                          runner: null },
   { chapter: 'Combinational Logic',     title: 'Priority Encoder',                              runner: null },
   { chapter: 'Combinational Logic',     title: 'Operators & Arithmetic',                        runner: null },

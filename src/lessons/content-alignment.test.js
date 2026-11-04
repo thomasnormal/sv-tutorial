@@ -50,6 +50,8 @@ describe('browser-audit lesson alignment', () => {
     const starter = read('sv/data-types/data_types.sv');
     expect(description).toContain('Five declarations use the wrong type or shape');
     expect(description).toContain('five FAIL lines should become five OK lines');
+    expect(description).toContain('four elements with the default index range <code>[0:3]</code>');
+    expect(description).toContain('<code>mem[0]</code> selects the first whole byte');
     expect(starter).toContain('signed 8-bit 2-state type for a testbench offset');
     expect(starter).toContain('4-state 4-bit type for an RTL status nibble');
   });

@@ -598,6 +598,25 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('valid |=> $stable(data)');
   });
 
+  it('keeps bind attachment aligned with sampled counter timing', () => {
+    const description = read('sva/bind/description.html');
+    const target = read('sva/bind/counter.sv');
+    const starter = read('sva/bind/counter_check.sv');
+    const testbench = read('sva/bind/tb.sv');
+    const solution = read('sva/bind/counter_check.sol.sv');
+    expect(description).toContain('one checker instance for each target instance');
+    expect(description).toContain('<code>t1</code>');
+    expect(description).toContain('sampled values before the counter\'s nonblocking assignment');
+    expect(description).toContain('every <code>counter</code> instance receives its own checker');
+    expect(target).toContain('counter interface reused by the bound checker');
+    expect(starter).toContain('TODO: when en is high, count increments on the following edge');
+    expect(starter).toContain('TODO: bind counter to one counter_checker instance with named ports.');
+    expect(testbench).toContain('counting: count=%0d (expect 4)');
+    expect(solution).toContain('en |=> count == $past(count) + 8\'d1');
+    expect(solution).toContain('bind counter counter_checker count_check_i');
+    expect(solution).toContain('.count (count)');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

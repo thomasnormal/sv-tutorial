@@ -11,7 +11,7 @@ endmodule
 bind &lt;target_module&gt; &lt;checker&gt; &lt;instance&gt; (
   .clk(clk), .&lt;signal&gt;(&lt;signal&gt;)
 );</pre>
-<p>The checker declares ports for the signals it observes. The bind names the target module, creates one checker instance, and connects those ports to signals in every target instance. The target module stays unchanged.</p>
+<p>The checker declares ports for the signals it observes. The bind names the target module, creates one checker instance for each target instance, and connects those ports to signals in that target. The target module stays unchanged.</p>
 
 <svg width="450" height="175" viewBox="0 0 450 175" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
   <defs><marker id="bind-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#586469"/></marker></defs>
@@ -29,6 +29,16 @@ bind &lt;target_module&gt; &lt;checker&gt; &lt;instance&gt; (
   <text x="225" y="57" text-anchor="middle" fill="#586469">bind</text>
   <text x="225" y="158" text-anchor="middle" fill="#0d6f72" font-weight="bold">the counter source never mentions its checker</text>
 </svg>
+
+<h2>What the bound checker samples</h2>
+<table><thead><tr><th>Sampled edge</th><th>Counter sample</th><th>Bound assertion</th></tr></thead><tbody>
+<tr><td><code>t0</code></td><td><code>rst_n=0</code>, <code>count=0</code></td><td><code>disable iff (!rst_n)</code> ignores the reset edge</td></tr>
+<tr><td><code>t1</code></td><td><code>en=1</code>, <code>count=0</code>; the NBA updates count to <code>1</code> afterward</td><td><code>en |=&gt;</code> starts an obligation for the next sampled edge</td></tr>
+<tr><td><code>t2</code></td><td><code>count=1</code>; the next NBA prepares <code>2</code></td><td><code>count == $past(count) + 1</code> compares <code>1</code> with the prior sample <code>0</code></td></tr>
+<tr><td><code>t5</code></td><td><code>en=0</code>, <code>count=4</code></td><td>no new increment obligation; the target holds its value</td></tr>
+<tr><td><code>t7</code></td><td><code>rst_n=0</code>; reset drives <code>count</code> to <code>0</code> after the edge</td><td>the checker is disabled while reset is asserted</td></tr>
+</tbody></table>
+<p>Concurrent assertions read sampled values before the counter's nonblocking assignment takes effect. The non-overlapping <code>|=&gt;</code> therefore checks the updated count on the following edge. Because the bind targets the module name, every <code>counter</code> instance receives its own checker with that instance's local signals.</p>
 
 <h2>Exercise</h2>
 <p>Open <code>counter_check.sv</code>. Complete the property so an enabled counter increments on the following clock, then bind <code>counter_checker</code> to <code>counter</code> with named port connections. The supplied <code>counter.sv</code> is the same interface used earlier; leave it untouched. Run the testbench to see the counter count, hold, and reset while the bound assertion observes it from outside.</p>

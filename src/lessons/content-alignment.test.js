@@ -36,6 +36,15 @@ describe('browser-audit lesson alignment', () => {
     expect(description).toContain('supplied scaffolding');
   });
 
+  it('keeps modules and ports aligned with the typed declaration pattern', () => {
+    const description = read('sv/modules-and-ports/description.html');
+    const starter = read('sv/modules-and-ports/adder.sv');
+    expect(description).toContain('Read <code>input logic [7:0] a</code> from left to right');
+    expect(description).toContain('direction, <code>logic</code> gives the four-state type');
+    expect(starter).toContain('declare a as an 8-bit logic input');
+    expect(starter).toContain('declare sum as an 8-bit logic output');
+  });
+
   it('keeps the data-types exercise aligned with its five intent checks', () => {
     const description = read('sv/data-types/description.html');
     const starter = read('sv/data-types/data_types.sv');

@@ -249,6 +249,18 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('assert ($time == 40)');
   });
 
+  it('keeps constrained randomization honest about solver failure', () => {
+    const description = read('sv/randomization/description.html');
+    const starter = read('sv/randomization/rand_txn.sv');
+    const solution = read('sv/randomization/rand_txn.sol.sv');
+    expect(description).toContain('The return value indicates success');
+    expect(description).toContain('always check it');
+    expect(starter).toContain('check that it succeeds');
+    expect(starter).toContain('assert (t.randomize())');
+    expect(solution).toContain('high_bank override randomize failed');
+    expect(solution).not.toContain("void'(t.randomize())");
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

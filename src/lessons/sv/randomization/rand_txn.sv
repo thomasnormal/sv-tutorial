@@ -21,7 +21,7 @@ module rand_txn_tb;
     // ── Scenario 1: default constraint active ─────────────────────────────
     $display("=== low_bank (addr 0-7) ===");
     repeat (4) begin
-      void'(t.randomize());
+      assert (t.randomize()) else $fatal(1, "FAIL: low_bank randomize failed");
       $display("  addr=%0d  we=%0b", t.addr, t.we);
       assert (t.addr inside {[0:7]}) else $fatal(1, "FAIL: addr out of range");
     end
@@ -30,7 +30,7 @@ module rand_txn_tb;
     $display("=== high_bank override (addr 8-15) ===");
     repeat (4) begin
       // TODO: call t.randomize() with an inline constraint { addr inside {[8:15]}; }
-      //       then $display addr and we, then assert addr >= 8
+      //       check that it succeeds, then $display addr and we, then assert addr >= 8
       $display("  addr=%0d  we=%0b", t.addr, t.we);
     end
 
@@ -38,7 +38,7 @@ module rand_txn_tb;
     $display("=== no constraint (addr 0-15) ===");
     t.low_bank_c.constraint_mode(0);
     repeat (4) begin
-      void'(t.randomize());
+      assert (t.randomize()) else $fatal(1, "FAIL: unconstrained randomize failed");
       $display("  addr=%0d  we=%0b", t.addr, t.we);
     end
 

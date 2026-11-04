@@ -651,6 +651,22 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('@(posedge clk) disable iff (rst) state != 2\'d3');
   });
 
+  it('keeps liveness and safety aligned with their sampled endpoints', () => {
+    const description = read('sva/always-eventually/description.html');
+    const starter = read('sva/always-eventually/liveness.sv');
+    const testbench = read('sva/always-eventually/tb.sv');
+    const solution = read('sva/always-eventually/liveness.sol.sv');
+    expect(description).toContain('<code>t1</code>');
+    expect(description).toContain('<code>s_eventually lock</code> liveness obligation');
+    expect(description).toContain('<code>always lock</code> continues to require ownership');
+    expect(description).toContain('cannot prove the unbounded tail');
+    expect(starter).toContain('// TODO: after reset de-asserts, lock must eventually become true');
+    expect(starter).toContain('// TODO: once lock asserts, it must hold true at every future cycle');
+    expect(testbench).toContain('lock trace: rst_n=%0b lock=%0b (expect 1,1)');
+    expect(solution).toContain('$rose(rst_n) |-> s_eventually lock');
+    expect(solution).toContain('lock |-> always lock');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

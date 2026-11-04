@@ -18,6 +18,14 @@
   <text x="220" y="157" text-anchor="middle" fill="#9a5a18">the first rule asks “will it happen?”</text>
 </svg>
 <p>The <em>strong</em> vs <em>weak</em> distinction matters for formal tools: a weak property (<code>eventually</code>) is satisfied vacuously by a finite trace that never reaches the condition, while a strong property (<code>s_eventually</code>) demands the condition eventually occurs:</p>
+<h2>One trace, two obligations</h2>
+<table><thead><tr><th>Sampled edge</th><th>Signals</th><th>Property state</th></tr></thead><tbody>
+<tr><td><code>t0</code></td><td><code>rst_n=0</code>, <code>lock=0</code></td><td>neither property has a trigger yet</td></tr>
+<tr><td><code>t1</code></td><td><code>rst_n=1</code>, <code>lock=0</code></td><td><code>$rose(rst_n)</code> starts the <code>s_eventually lock</code> liveness obligation</td></tr>
+<tr><td><code>t2</code></td><td><code>lock=1</code></td><td>the liveness obligation is witnessed; <code>lock |-&gt; always lock</code> starts its safety obligation</td></tr>
+<tr><td><code>t3+</code></td><td><code>lock=1</code> on every later sample</td><td><code>always lock</code> continues to require ownership at every future edge</td></tr>
+</tbody></table>
+<p>The two operators answer different questions at different endpoints: <code>s_eventually</code> needs one future witness after the reset edge, while <code>always</code> extends the lock guarantee indefinitely from the edge where it is observed. A finite BMC trace can show a counterexample to either obligation, but it cannot prove the unbounded tail.</p>
 <p>Open <code>liveness.sv</code> and fill in both property bodies:</p>
 <ul>
   <li><strong>p_lock_live</strong>: after reset de-asserts (<code>$rose(rst_n)</code>), <code>lock</code> must eventually become true</li>

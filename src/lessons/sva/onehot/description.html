@@ -25,4 +25,10 @@
   <li><strong>grant_idle_p</strong>: whenever <code>any_grant</code> is low, <code>grant</code> must be all zeros</li>
 </ol>
 <p>This reuses the request/grant timing pattern from <code>sva/concurrent-sim</code>, but adds a structural invariant to the grant bus. The starter includes <code>tb.sv</code> with two legal grants and an idle cycle. Run it first to see the trace; after solving, the same trace prints <code>PASS</code> and the signal timeline makes the single-owner rule visible.</p>
+<table><thead><tr><th>Sampled edge</th><th><code>any_grant</code>/<code>grant</code></th><th>Required shape</th></tr></thead><tbody>
+<tr><td><code>t0</code></td><td><code>1 / 4'b0010</code></td><td><code>$onehot(grant)</code> passes: exactly one owner</td></tr>
+<tr><td><code>t1</code></td><td><code>1 / 4'b1000</code></td><td>a different single owner is still legal</td></tr>
+<tr><td><code>t2</code></td><td><code>0 / 4'b0000</code></td><td>idle property requires all bits to be zero</td></tr>
+</tbody></table>
+<p><code>$onehot</code> intentionally rejects the idle vector, so the separate <code>!any_grant</code> property checks that case. If an interface allows either one owner or idle in one expression, use <code>$onehot0(grant)</code>; use <code>$countones</code> when the protocol needs a numeric bound instead.</p>
 <blockquote><p><code>|req</code> is a reduction OR: it is 1 if any bit of <code>req</code> is 1. It is often used as a shorthand antecedent: <code>|req |-> $onehot0(gnt)</code> means "when any request is active, at most one grant is given."</p></blockquote>

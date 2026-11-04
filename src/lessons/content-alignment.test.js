@@ -553,6 +553,21 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('(valid_in, v = in_data) |=> ##2 (out_data == v)');
   });
 
+  it('keeps onehot ownership checks aligned with idle handling', () => {
+    const description = read('sva/onehot/description.html');
+    const starter = read('sva/onehot/arbiter_check.sv');
+    const testbench = read('sva/onehot/tb.sv');
+    const solution = read('sva/onehot/arbiter_check.sol.sv');
+    expect(description).toContain('<code>t0</code>');
+    expect(description).toContain('<code>$onehot(grant)</code> passes');
+    expect(description).toContain('separate <code>!any_grant</code> property');
+    expect(description).toContain('use <code>$onehot0(grant)</code>');
+    expect(starter).toContain('TODO: property grant_onehot_p');
+    expect(testbench).toContain('Two legal ownership decisions followed by an idle bus');
+    expect(solution).toContain('any_grant |-> $onehot(grant)');
+    expect(solution).toContain('!any_grant |-> (grant == 4\'b0)');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

@@ -143,14 +143,14 @@ keeps macro/include resolution available to the lesson while avoiding a
 second frontend pass over the package itself.
 
 The manifest's `tool` and `flags` fields are the import contract. The current
-browser tool is the separate `mox-verilog`/`mox-sim` pipeline, and the `flags`
-field contains `--read-vlib-mapped-moore-ir` for its pinned WASM frontend. A
-future lowered-library package will keep that same browser tool: once the
-shared Mox frontend exposes `--read-vlib-lowered-library-ir` alongside ordinary
-SystemVerilog inputs, a site build can replace the manifest flag and rerun the
-UVM matrix. The runner forwards the manifest flags and ordinary lesson source
-roots generically; it does not select a UVM-specific path or require a
-separate `mox-run` browser artifact.
+published browser package uses the separate `mox-verilog`/`mox-sim` pipeline
+with `--read-vlib-mapped-moore-ir`. The same runner also supports a lowered
+library package by passing `--read-vlib <artifact> --read-vlib-lowered-library-ir`
+to `mox-verilog` (or the path-qualified form to `mox-run`); that mode remains
+unpublished until the shared frontend's generic-method qualification is green.
+The runner forwards the manifest flags and ordinary lesson source roots
+generically; it does not select a UVM-specific path or require a separate
+`mox-run` browser artifact.
 
 ## Keyboard Controls
 

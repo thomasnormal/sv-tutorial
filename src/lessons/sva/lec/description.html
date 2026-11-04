@@ -44,6 +44,13 @@
 </table>
 
 <p>Logic synthesis routinely applies these transformations — and LEC proves the result is identical to the RTL spec.</p>
+<h2>What the equivalence check covers</h2>
+<table><thead><tr><th>Inputs</th><th>Spec output</th><th>Impl expression checked</th></tr></thead><tbody>
+<tr><td><code>a,b,c</code> = <code>000</code> through <code>111</code></td><td>three reference bits for NAND, NOR, and mux</td><td>the same three bits from the De Morgan and mux expansions</td></tr>
+<tr><td>any distinguishing combination</td><td colspan="2"><code>sat</code> means the miter found a concrete counterexample input</td></tr>
+<tr><td>all eight combinations match</td><td colspan="2"><code>unsat</code> means no input can distinguish <code>Spec</code> from <code>Impl</code></td></tr>
+</tbody></table>
+<p>The simulation loop enumerates the same eight input combinations so you can inspect each output tuple. Verify builds the logical miter for all inputs at once; it does not rely on the testbench having sampled a particular order.</p>
 <p>The starter includes <code>tb.sv</code>, which enumerates all eight input combinations and prints each pair of outputs. Its solved counterpart reports <code>PASS</code> only after the Boolean implementation agrees with the reference on every combination; Verify still performs the exhaustive formal comparison.</p>
 
 <h2>Exercise</h2>

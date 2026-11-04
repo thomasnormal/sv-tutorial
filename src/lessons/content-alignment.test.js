@@ -683,6 +683,25 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('valid |-> data_ok until_with done');
   });
 
+  it('keeps LEC identities aligned with exhaustive comparison', () => {
+    const description = read('sva/lec/description.html');
+    const starter = read('sva/lec/top.sv');
+    const testbench = read('sva/lec/tb.sv');
+    const solution = read('sva/lec/top.sol.sv');
+    expect(description).toContain('<code>000</code> through <code>111</code>');
+    expect(description).toContain('<code>sat</code> means the miter found a concrete counterexample input');
+    expect(description).toContain('<code>unsat</code> means no input can distinguish');
+    expect(description).toContain('enumerates the same eight input combinations');
+    expect(starter).toContain('TODO 1: ~(a & b) = ? using De Morgan\'s law');
+    expect(starter).toContain('TODO 2: ~(a | b) = ? using De Morgan\'s law');
+    expect(starter).toContain('TODO 3: c ? a : b = ? using Boolean expansion');
+    expect(testbench).toContain('for (int i = 0; i < 8; i++)');
+    expect(testbench).toContain('TODO: replace the three Impl placeholders');
+    expect(solution).toContain('assign nand_y = ~a | ~b;');
+    expect(solution).toContain('assign nor_y  = ~a & ~b;');
+    expect(solution).toContain('assign mux_y  = a_when_c | b_when_not_c;');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

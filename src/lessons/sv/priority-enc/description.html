@@ -12,6 +12,7 @@
 end</pre>
 
 <p><code>casez</code> is a case statement that treats <code>?</code> and high-impedance <code>Z</code> bits as wildcards. In a pattern such as <code>4'b1???</code>, only the leftmost bit matters; each <code>?</code> can match either 0 or 1. Unlike <code>casex</code>, <code>casez</code> does not hide an unknown <code>X</code> in the request.</p>
+<p>That four-state behavior is useful during bring-up: if a request bit is still <code>X</code>, no branch that requires a definite 0 or 1 matches it, so the default keeps the outputs known instead of inventing a winner. You can then investigate the unknown request at the source.</p>
 
 <svg width="420" height="190" viewBox="0 0 420 190" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
   <defs><marker id="prio-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#586469"/></marker></defs>

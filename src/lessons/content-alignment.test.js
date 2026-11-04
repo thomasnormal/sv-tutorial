@@ -50,6 +50,8 @@ describe('browser-audit lesson alignment', () => {
     const starter = read('sv/priority-enc/priority_enc.sv');
     expect(description).toContain('first matching branch wins');
     expect(description).toContain('4\'b1???');
+    expect(description).toContain('does not hide an unknown <code>X</code>');
+    expect(description).toContain('default keeps the outputs known');
     expect(starter).toContain('casez (req)');
     expect(starter).toContain('four branches in descending priority');
   });

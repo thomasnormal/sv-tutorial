@@ -821,6 +821,24 @@ describe('browser-audit lesson alignment', () => {
     expect(testbench).toContain('sim.fmt.literal "PASS\\0A"');
   });
 
+  it('keeps the first cocotb lesson aligned with VPI phase timing', () => {
+    const description = read('cocotb/first-test/description.html');
+    const rtl = read('cocotb/first-test/adder.sv');
+    const solution = read('cocotb/first-test/adder.sol.sv');
+    const python = read('cocotb/first-test/test_adder.py');
+    expect(description).toContain('<code>ReadWrite()</code>');
+    expect(description).toContain('<code>Timer(1, units="ns")</code>');
+    expect(description).toContain('<code>ReadOnly()</code>');
+    expect(description).toContain('<code>15 + 15 = 30</code>');
+    expect(description).toContain('Complete the missing assignment in the <code>always @(*)</code> block');
+    expect(rtl).toContain('// TODO: compute X as the sum of A and B');
+    expect(solution).toContain('always @(*) X = A + B;');
+    expect(python).toContain('await Timer(1, units="fs")');
+    expect(python).toContain('await ReadWrite()');
+    expect(python).toContain('await ReadOnly()');
+    expect(python).toContain('check(dut, 15, 15, 30)');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

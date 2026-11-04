@@ -6,11 +6,20 @@
 <p>
   A test is any <code>async</code> function decorated with <code>@cocotb.test()</code>. The <code>dut</code>
   argument gives you handles to every port — assign <code>.value</code> to drive, read <code>.value</code>
-  to observe. <code>await Timer(2, units="ns")</code> suspends the coroutine until combinational logic
-  settles — the Python equivalent of <code>#2;</code> in SystemVerilog.
+  to observe. The helper enters <code>ReadWrite</code> before driving, waits with
+  <code>await Timer(1, units="ns")</code>, then enters <code>ReadOnly</code> to sample the settled
+  combinational result.
 </p>
+<h2>One check, four phases</h2>
+<table><thead><tr><th>Python step</th><th>Purpose</th><th>Adder example</th></tr></thead><tbody>
+<tr><td><code>Timer(1, units="fs")</code></td><td>let the VPI callback enter the current simulation slot</td><td>the DUT still has its prior inputs</td></tr>
+<tr><td><code>ReadWrite()</code></td><td>write <code>dut.A.value</code> and <code>dut.B.value</code></td><td>drives a new pair such as <code>9, 6</code></td></tr>
+<tr><td><code>Timer(1, units="ns")</code></td><td>allow the combinational <code>always @(*)</code> block to recalculate</td><td><code>X</code> settles to <code>15</code></td></tr>
+<tr><td><code>ReadOnly()</code></td><td>sample without scheduling another write</td><td>the assertion compares <code>X.value</code> with the expected sum</td></tr>
+</tbody></table>
+<p>The output is five bits wide, so the <code>15 + 15 = 30</code> case remains representable. The starter already contains the combinational block; complete its missing assignment rather than changing the coroutine timing.</p>
 <p>
   Open <code>adder.sv</code>. The Python testbench already drives four input combinations and checks
-  the result. Add the missing <code>assign</code> statement to make all checks pass.
+  the result. Complete the missing assignment in the <code>always @(*)</code> block to make all checks pass.
 </p>
 <p class="runtime-note"><strong>Browser status:</strong> the solved example runs through the browser VPI worker and reports its cocotb result. The starter is intentionally incomplete until you add the assignment.</p>

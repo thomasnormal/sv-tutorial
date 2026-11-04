@@ -523,6 +523,22 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('start |=> reject_on(err) ack_window');
   });
 
+  it('keeps cover-property timing distinct from assertion correctness', () => {
+    const description = read('sva/cover-property/description.html');
+    const starter = read('sva/cover-property/bus_check.sv');
+    const testbench = read('sva/cover-property/tb.sv');
+    const solution = read('sva/cover-property/bus_check.sol.sv');
+    expect(description).toContain('<code>t+1</code>');
+    expect(description).toContain('cover records the nonvacuous match');
+    expect(description).toContain('If <code>frame_</code> never rises');
+    expect(description).toContain('answers “did this scenario happen?”');
+    expect(starter).toContain('TODO: assert ldpcheck');
+    expect(starter).toContain('TODO: cover  ldpcheck');
+    expect(testbench).toContain('frame pulse followed by ldp_ falling two sampled edges later');
+    expect(solution).toContain('aP: assert property (ldpcheck)');
+    expect(solution).toContain('cP: cover property (ldpcheck)');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

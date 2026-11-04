@@ -10,4 +10,10 @@
                 <text x="235" y="160" text-anchor="middle" fill="#586469">a passing assertion alone cannot prove the trigger happened</text>
               </svg>
               <p>The previous sequence lesson showed how a property describes a temporal pattern. Here add both checks: <code>assert property</code> guards correctness, while <code>cover property</code> records that the frame-to-strobe scenario was actually reached. The starter includes <code>tb.sv</code> with one concrete frame and falling strobe. Run it before solving to see the trace; after solving, the cover action reports <code>PASS</code>. Verify still searches for a failing timing path.</p>
+              <table><thead><tr><th>Sampled edge</th><th>Signals</th><th>Property result</th></tr></thead><tbody>
+              <tr><td><code>t</code></td><td><code>$rose(frame_)</code></td><td>the assertion attempt starts and cover has a trigger to record</td></tr>
+              <tr><td><code>t+1</code></td><td><code>ldp_</code> still high</td><td>earliest <code>##1</code> response edge has not fallen yet</td></tr>
+              <tr><td><code>t+2</code></td><td><code>$fell(ldp_)</code></td><td>the one-to-two-cycle property succeeds; cover records the nonvacuous match</td></tr>
+              </tbody></table>
+              <p>If <code>frame_</code> never rises, the assertion can remain vacuously quiet and the cover counter stays empty. A cover action message therefore answers “did this scenario happen?” while the assertion's failure action answers “did any attempted scenario violate the timing?”</p>
               <blockquote><p>Always pair <code>assert</code> and coverage on the same intent. IEEE 1800-2023 §§16.14.3 and 16.14.8 define vacuous success; when the trigger itself must be observed, use <code>cover sequence</code> or inspect the nonvacuous coverage counter.</p></blockquote>

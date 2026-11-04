@@ -464,6 +464,21 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('wr_rd_p(4\'hF, 8\'hFF)');
   });
 
+  it('keeps stable-past stimulus ordered around the handshake edge', () => {
+    const description = read('sva/stable-past/description.html');
+    const starter = read('sva/stable-past/stable_check.sv');
+    const testbench = read('sva/stable-past/tb.sv');
+    const solution = read('sva/stable-past/stable_check.sol.sv');
+    expect(description).toContain('<code>t1</code>');
+    expect(description).toContain('<code>$stable(data)</code> passes');
+    expect(description).toContain('raises <code>ready</code> while <code>data</code> is still <code>3C</code>');
+    expect(description).toContain('Moving the data change one edge earlier would violate the property');
+    expect(starter).toContain('TODO: while valid is high and ready is low');
+    expect(testbench).toContain('ready = 1;');
+    expect(testbench).toContain('data = 8\'hA5;');
+    expect(solution).toContain('(valid && !ready) |=> $stable(data)');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

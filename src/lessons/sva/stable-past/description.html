@@ -19,4 +19,10 @@
   <defs><marker id="sp-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#0d6f72"/></marker></defs>
 </svg>
 <p>This follows the concurrent-assertion sampling model from the earlier simulation lesson: the antecedent is sampled at one edge, then <code>$stable(data)</code> compares that edge with <code>$past(data)</code> at the next. The starter includes <code>tb.sv</code> with a stalled transfer that holds <code>data</code>, then changes it only after <code>ready</code> rises. Run it before solving to see the history; after solving, the trace prints <code>PASS</code>. Verify searches for a data change during a stall.</p>
+<table><thead><tr><th>Sampled edge</th><th><code>valid</code>/<code>ready</code></th><th><code>data</code> and obligation</th></tr></thead><tbody>
+<tr><td><code>t1</code></td><td><code>1/0</code></td><td><code>3C</code>; the stall opens a next-edge stability check</td></tr>
+<tr><td><code>t2</code></td><td><code>1/1</code></td><td><code>3C</code>; <code>$stable(data)</code> passes and the transfer is accepted</td></tr>
+<tr><td><code>t3</code></td><td><code>1/1</code></td><td><code>A5</code> is now legal because <code>ready</code> was already sampled high</td></tr>
+</tbody></table>
+<p>The testbench therefore separates the events: it raises <code>ready</code> while <code>data</code> is still <code>3C</code>, waits for that edge to be sampled, and changes <code>data</code> afterward. Moving the data change one edge earlier would violate the property.</p>
 <blockquote><p><code>$stable(data)</code> compares sampled four-state values. For an explicit equivalent, use <code>data === $past(data)</code>; case equality keeps an X-to-X or Z-to-Z comparison stable, unlike <code>==</code> (IEEE 1800-2023 §16.9.3).</p></blockquote>

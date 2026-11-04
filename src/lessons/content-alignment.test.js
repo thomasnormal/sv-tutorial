@@ -147,6 +147,8 @@ describe('browser-audit lesson alignment', () => {
     expect(starter).toContain('one-bit lane across the vector in both branches');
     expect(starter).toContain('named generate-for from 0 through WIDTH-1');
     expect(starter).toContain('matching generate-for');
+    expect(description).toContain('different from a procedural <code>for</code> loop');
+    expect(description).toContain('only the XOR branch exists');
   });
 
   it('keeps the typedef exercise aligned with its shared aliases', () => {

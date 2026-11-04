@@ -13,7 +13,8 @@ endgenerate</pre>
 end else begin : &lt;fallback_path&gt;
   ...
 end</pre>
-<p><code>genvar</code> is a loop index for elaboration, rather than a signal that changes during simulation. The names after <code>begin :</code> give generated scopes stable, readable names in waveforms and diagnostics.</p>
+<p><code>genvar</code> is a loop index for elaboration, rather than a signal that changes during simulation. The names after <code>begin :</code> give generated scopes stable, readable names in waveforms and diagnostics. This is different from a procedural <code>for</code> loop inside <code>always_comb</code>: a generate loop creates separate structural assignments before time 0, while a procedural loop runs again whenever its block is evaluated.</p>
+<blockquote><p>The <code>if (USE_XOR)</code> is also elaboration-time selection. With <code>USE_XOR=1</code>, only the XOR branch exists in that instance; the OR branch is not a second runtime path that the simulator chooses on every input change.</p></blockquote>
 
 <h2>Replicate a lane</h2>
 <svg width="450" height="180" viewBox="0 0 450 180" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">

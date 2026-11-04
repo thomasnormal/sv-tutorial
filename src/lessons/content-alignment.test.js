@@ -261,6 +261,17 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).not.toContain("void'(t.randomize())");
   });
 
+  it('keeps concurrent assertion timing aligned with the driven scenarios', () => {
+    const description = read('sva/concurrent-sim/description.html');
+    const starter = read('sva/concurrent-sim/tb.sv');
+    const solution = read('sva/concurrent-sim/monitor.sol.sv');
+    expect(description).toContain('the first allowed edge for <code>gnt</code>');
+    expect(description).toContain('no grant by <code>t+3</code> fails');
+    expect(description).toContain('valid grant at the second allowed edge');
+    expect(starter).toContain('// +2 cycles: gnt seen');
+    expect(solution).toContain('req |-> ##[1:3] gnt');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

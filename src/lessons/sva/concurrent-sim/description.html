@@ -5,11 +5,17 @@
   else $error("property violated!");
 cover property (my_prop);</pre>
 <p>Open <code>monitor.sv</code>. It declares the property <code>req_then_gnt</code>: whenever <code>req</code> is high, <code>gnt</code> must arrive within 1–3 cycles (using the <code>|-&gt;</code> implication and <code>##[1:3]</code> clock-delay range).</p>
+<table><thead><tr><th>Sampled edge</th><th>What the property checks</th></tr></thead><tbody>
+<tr><td><code>t</code></td><td><code>req</code> is the antecedent; a matching attempt starts</td></tr>
+<tr><td><code>t+1</code></td><td>the first allowed edge for <code>gnt</code></td></tr>
+<tr><td><code>t+2</code> or <code>t+3</code></td><td>later allowed edges; a grant at any one satisfies this attempt</td></tr>
+</tbody></table>
+<p><code>|-&gt;</code> is the overlapping implication: the consequent sequence is anchored to the same sampled attempt, and its <code>##[1:3]</code> range names the next three clock edges. A request that is high at <code>t</code> but has no grant by <code>t+3</code> fails at that third edge.</p>
 <p>Complete two small instrumentation blocks after the property declaration. Together they take about five lines: one named checker reports a missed grant, and one coverage action prints a timestamp when the property is exercised.</p>
 <ul>
   <li><code>req_gnt_check: assert property (req_then_gnt)</code> with an <code>else $error(...)</code> — fires when gnt is late</li>
   <li><code>cover property (req_then_gnt);</code> — records successful evaluation attempts; vacuous successes are tracked separately, so use <code>cover sequence</code> when the request itself must be observed</li>
 </ul>
-<p>Click <strong>Run</strong>. The testbench drives three scenarios: a valid grant, a missing grant, and back-to-back requests. With the assertion in place the missing-grant scenario prints an error in the log.</p>
+<p>Click <strong>Run</strong>. The testbench drives three scenarios: a valid grant at the second allowed edge, a missing grant, and back-to-back requests. With the assertion in place the missing-grant scenario prints an error in the log.</p>
 <p>Then open the <strong>Waves</strong> tab. The simulator automatically records every <code>assert</code> and <code>cover</code> statement as an <code>__sva__</code> signal alongside the design signals. A high (1) value means the assertion is currently passing; it drops to 0 at the clock edge where the property is violated:</p>
 <blockquote><p>Simulation covers only the paths your testbench drives. IEEE 1800-2023 §§16.14.3 and 16.14.8 distinguish successful and vacuous coverage attempts. The next chapter replaces the testbench with a <strong>formal model checker</strong> that checks every possible input sequence — no testbench required.</p></blockquote>

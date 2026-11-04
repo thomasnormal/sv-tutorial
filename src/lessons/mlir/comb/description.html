@@ -15,6 +15,14 @@
 <h2>casez becomes comb.mux</h2>
 <p>The priority encoder from Part 1 used nested <code>casez</code> branches — each branch checked whether a higher-indexed bit was set. In comb IR, that same priority ordering is expressed as a <strong>chain of multiplexers</strong>: if <code>req[3]</code> is set, output 3; else if <code>req[2]</code>, output 2; and so on.</p>
 <p>Open <code>priority_enc.mlir</code> and trace the mux chain from <code>%g01</code> → <code>%g012</code> → <code>%grant</code>. Each step adds one priority level. The <code>comb.extract</code> operations slice individual bits out of the 4-bit <code>%req</code> vector — equivalent to <code>req[3]</code>, <code>req[2]</code> etc. in SystemVerilog.</p>
+<h2>Trace one priority decision</h2>
+<table><thead><tr><th>SSA step</th><th>Input for <code>req=0010</code></th><th>Result</th></tr></thead><tbody>
+<tr><td><code>%req0..%req3 = comb.extract</code></td><td>bit 1 is set; the others are clear</td><td><code>%req1=1</code>, so the encoder has a valid request</td></tr>
+<tr><td><code>%g01 = comb.mux %req1, %c1, %c0</code></td><td>select is <code>1</code></td><td><code>%g01=1</code> when no higher request has won yet</td></tr>
+<tr><td><code>%g012 = comb.mux %req2, %c2, %g01</code></td><td><code>%req2=0</code></td><td>passes the lower-priority result <code>1</code></td></tr>
+<tr><td><code>%grant = comb.mux %req3, %c3, %g012</code></td><td><code>%req3=0</code></td><td>final grant is <code>1</code>; <code>comb.or</code> makes <code>valid=1</code></td></tr>
+</tbody></table>
+<p>Because each mux chooses its true input before passing the false input onward, a higher request bit overrides every lower result. The chain is stateless: changing <code>req</code> recomputes the entire graph without a clock or stored history.</p>
 
 <h2>No implicit conversions</h2>
 <p>Every operand and result has an explicit type and all operands must match. There are no implicit zero-extensions or sign-extensions. This strictness makes the IR unambiguous — a tool can rely on the types without guessing.</p>

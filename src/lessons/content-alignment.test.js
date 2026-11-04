@@ -772,6 +772,21 @@ describe('browser-audit lesson alignment', () => {
     expect(testbench).toContain('sim.terminate success, quiet');
   });
 
+  it('keeps the comb dialect aligned with priority mux data flow', () => {
+    const description = read('mlir/comb/description.html');
+    const source = read('mlir/comb/priority_enc.mlir');
+    const testbench = read('mlir/comb/priority_enc_tb.mlir');
+    expect(description).toContain('<code>%g01 = comb.mux %req1, %c1, %c0</code>');
+    expect(description).toContain('<code>%grant = comb.mux %req3, %c3, %g012</code>');
+    expect(description).toContain('changing <code>req</code> recomputes the entire graph');
+    expect(source).toContain('hw.module @priority_enc(in %req : i4');
+    expect(source).toContain('%req1 = comb.extract %req from 1 : (i4) -> i1');
+    expect(source).toContain('%g012  = comb.mux %req2, %c2, %g01');
+    expect(source).toContain('%valid = comb.or %req0, %req1, %req2, %req3 : i1');
+    expect(testbench).toContain('%req   = hw.constant 2 : i4');
+    expect(testbench).toContain('sim.fmt.literal "PASS\\0A"');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

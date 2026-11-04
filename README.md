@@ -147,7 +147,7 @@ published browser package uses the separate `mox-verilog`/`mox-sim` pipeline
 with `--read-vlib-mapped-moore-ir`. The same runner also supports a lowered
 library package by passing `--read-vlib <artifact> --read-vlib-lowered-library-ir`
 to `mox-verilog` (or the path-qualified form to `mox-run`); that mode remains
-unpublished until the shared frontend's generic-method qualification is green.
+unpublished until its compatibility matrix is green.
 The runner forwards the manifest flags and ordinary lesson source roots
 generically; it does not select a UVM-specific path or require a separate
 `mox-run` browser artifact.

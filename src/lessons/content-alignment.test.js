@@ -283,6 +283,16 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('cover sequence (@(posedge clk) $rose(req) ##[1:2] gnt)');
   });
 
+  it('keeps $isunknown coverage aligned with vector and sampling behavior', () => {
+    const description = read('sva/isunknown/description.html');
+    const testbench = read('sva/isunknown/tb.sv');
+    const solution = read('sva/isunknown/xcheck.sol.sv');
+    expect(description).toContain("logic [3:0] addr = 4'b01x0");
+    expect(description).toContain('changed value is sampled by the <em>next</em> rising edge');
+    expect(testbench).toContain('Inject X on addr');
+    expect(solution).toContain('!$isunknown(addr)');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

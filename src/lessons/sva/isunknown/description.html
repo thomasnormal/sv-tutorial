@@ -27,6 +27,9 @@
 
 <h2><code>$isunknown(expr)</code></h2>
 <p><code>$isunknown(expr)</code> returns <code>1</code> if <em>any</em> bit of <code>expr</code> is <code>X</code> or <code>Z</code>. It is <strong>simulation-only</strong> — formal tools use two-state logic where X and Z do not exist. Use it to catch:</p>
+<pre>logic [3:0] addr = 4'b01x0;
+$isunknown(addr)   // 1: one bit is unknown
+!$isunknown(addr)  // 0: the whole vector is not known yet</pre>
 <ul>
   <li>Uninitialized registers (start of simulation before reset completes)</li>
   <li>Floating bus wires (undriven output ports)</li>
@@ -51,4 +54,5 @@ assert property (p_no_x_signal);</pre>
   <li><strong>TODO 3:</strong> <code>rdata</code> must never contain X or Z</li>
 </ul>
 <p>The testbench deliberately drives each signal to <code>'x</code> in turn and labels the expected failures. Run the simulation to see <code>we_a</code>, <code>addr_a</code>, and <code>rdata_a</code> fire at their injection points, then use the final PASS line as evidence that all three probes were exercised.</p>
+<p>Each assignment follows a <code>#1</code> delay after a rising edge, so the changed value is sampled by the <em>next</em> rising edge. That is why the three injections appear as three separate assertion failures instead of being collapsed into one sample.</p>
 <blockquote><p><code>$isunknown</code> is <strong>simulation-only</strong>. Formal tools work in two-state (0/1) logic and do not model X or Z — do not use it inside a BMC or LEC design.</p></blockquote>

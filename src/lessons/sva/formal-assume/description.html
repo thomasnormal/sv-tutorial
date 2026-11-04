@@ -22,6 +22,14 @@
 <pre>assume property (@(posedge clk) constraint_expr);</pre>
 <p>Think of <code><dfn data-card="assume property tells the formal tool 'treat this as a given — constrain the input space to only sequences where this holds.' It is the dual of assert: assert constrains what the design must produce, while assume constrains what inputs the tool is allowed to try. Over-constraining with assume can hide real bugs by ruling out valid input sequences, so assumptions should be conservative and checked carefully.">assume</dfn></code> as the dual of <code>assert</code>: <code>assert</code> says "the design must guarantee this", while <code>assume</code> says "the environment promises this".</p>
 <blockquote><p>This extends <code>sva/formal-intro</code>: that lesson searched every initial state, while this one adds the environment contract that reset is high on the first edge. You still use the same sampled clock and bounded assertion, but now separate an input promise from a design guarantee.</p></blockquote>
+<h2>Assumption and assertion timeline</h2>
+<table><thead><tr><th>Sampled edge</th><th>Environment / state</th><th>Formal meaning</th></tr></thead><tbody>
+<tr><td><code>t0</code></td><td><code>rst=1</code>; <code>state</code> may still be unknown before the NBA update</td><td><code>initial assume property</code> accepts this reset-starting world</td></tr>
+<tr><td><code>t1</code></td><td>reset remains high; the counter's state has been driven to <code>RED</code></td><td><code>disable iff (rst)</code> keeps <code>no_invalid</code> inactive</td></tr>
+<tr><td><code>t2</code></td><td><code>rst=0</code>; the FSM advances from <code>RED</code> to <code>GREEN</code></td><td>the assertion checks only legal post-reset state values</td></tr>
+<tr><td><code>t3+</code></td><td>the FSM cycles <code>GREEN → YELLOW → RED</code></td><td>the assumption constrains the starting environment; the assertion checks the design invariant</td></tr>
+</tbody></table>
+<p>The assumption is sampled at the first clock edge because it is inside an <code>initial</code> procedural block. The state register updates in the nonblocking-assignment region after that sample, so the reset guard prevents the assertion from treating the pre-reset value as a design failure. Keep assumptions on environment inputs such as <code>rst</code>; constraining the design's own <code>state</code> would hide the initialization behavior this exercise is meant to expose.</p>
 <p>Open <code>top.sv</code>. A traffic-light FSM cycles RED → GREEN → YELLOW → RED. The <code>state</code> output should never reach the illegal value <code>3</code>.</p>
 <ol>
   <li>The starter already provides the one-time <code>assume property</code> that constrains BMC to start in reset. Read it as the environment assumption for this exercise.</li>

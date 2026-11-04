@@ -635,6 +635,22 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('$stable(value)');
   });
 
+  it('keeps formal assumptions aligned with reset and invariant timing', () => {
+    const description = read('sva/formal-assume/description.html');
+    const starter = read('sva/formal-assume/top.sv');
+    const testbench = read('sva/formal-assume/tb.sv');
+    const solution = read('sva/formal-assume/top.sol.sv');
+    expect(description).toContain('<code>t0</code>');
+    expect(description).toContain('<code>initial assume property</code> accepts this reset-starting world');
+    expect(description).toContain('<code>disable iff (rst)</code> keeps <code>no_invalid</code> inactive');
+    expect(description).toContain('assumptions on environment inputs such as <code>rst</code>');
+    expect(starter).toContain('// TODO: assume property — rst is high at the first clock edge');
+    expect(starter).toContain('// TODO: state 3 is never reached');
+    expect(testbench).toContain('Simulation complete; click Verify');
+    expect(solution).toContain('initial assume property (@(posedge clk) rst);');
+    expect(solution).toContain('@(posedge clk) disable iff (rst) state != 2\'d3');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

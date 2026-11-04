@@ -13,4 +13,11 @@
                 <defs><marker id="lv-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#c17d2a"/></marker></defs>
               </svg>
               <p>The clock-delay lesson counted edges; this lesson carries the value across them. The starter includes <code>tb.sv</code> with one input transaction and its delayed output. Run it before solving to see the captured value travel; after solving, the trace prints <code>PASS</code>. Verify also checks overlapping transactions independently because each evaluation owns its local variable.</p>
+              <table><thead><tr><th>Sampled edge</th><th>Signals</th><th>Local-variable state</th></tr></thead><tbody>
+              <tr><td><code>t0</code></td><td><code>valid_in=1, in_data=A5</code></td><td><code>(valid_in, v = in_data)</code> captures <code>v=A5</code></td></tr>
+              <tr><td><code>t1</code></td><td><code>out_data=00</code></td><td><code>|=></code> advances to the first response edge</td></tr>
+              <tr><td><code>t2</code></td><td><code>out_data=00</code></td><td><code>##2</code> is still counting; the same <code>v</code> is retained</td></tr>
+              <tr><td><code>t3</code></td><td><code>out_data=A5</code></td><td><code>out_data == v</code> succeeds</td></tr>
+              </tbody></table>
+              <p>If another <code>valid_in</code> arrives before <code>t3</code>, it starts a second evaluation with its own <code>v</code>; the two captured values do not overwrite one another.</p>
               <blockquote><p>Local variables are thread-local: every concurrent evaluation of the sequence gets its own copy, so overlapping in-flight transactions are checked independently.</p></blockquote>

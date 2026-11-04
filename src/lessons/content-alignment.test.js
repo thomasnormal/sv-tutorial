@@ -539,6 +539,20 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('cP: cover property (ldpcheck)');
   });
 
+  it('keeps local-variable capture aligned with the delayed output edge', () => {
+    const description = read('sva/local-vars/description.html');
+    const starter = read('sva/local-vars/pipeline_check.sv');
+    const testbench = read('sva/local-vars/tb.sv');
+    const solution = read('sva/local-vars/pipeline_check.sol.sv');
+    expect(description).toContain('<code>t0</code>');
+    expect(description).toContain('<code>v=A5</code>');
+    expect(description).toContain('<code>##2</code> is still counting');
+    expect(description).toContain('its own <code>v</code>');
+    expect(starter).toContain('TODO: capture in_data when valid_in fires');
+    expect(testbench).toContain('three-edge output point');
+    expect(solution).toContain('(valid_in, v = in_data) |=> ##2 (out_data == v)');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

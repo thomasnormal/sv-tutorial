@@ -37,6 +37,7 @@ end</pre>
 </svg>
 
 <p><code>{a, b}</code> is a concatenation: it joins the bits of <code>a</code> and <code>b</code> into one vector. Because non-blocking assignments read the old right-hand side before updating the left-hand side, <code>serial_out &lt;= q[3]</code> captures the bit leaving while <code>q &lt;= {q[2:0], serial_in}</code> advances the register.</p>
+<p>Read the indices from right to left in that expression: the rightmost term becomes <code>q[0]</code>, so <code>serial_in</code> is the newest bit; the leftmost term becomes <code>q[3]</code>, so that oldest bit is the next one to leave. With this convention, a stream enters at the least-significant end and exits at the most-significant end.</p>
 
 <h2>Exercise</h2>
 <p>Open <code>shift_reg.sv</code>. Add a synchronous active-low reset that clears both outputs. On every other rising edge, send the old <code>q[3]</code> to <code>serial_out</code>, then assign the concatenation that shifts <code>q[2:0]</code> and <code>serial_in</code> into the four-bit register. The testbench loads <code>1, 0, 1, 1</code>, then clocks zeroes to show the same bits leaving in order.</p>

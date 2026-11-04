@@ -89,6 +89,8 @@ describe('browser-audit lesson alignment', () => {
     expect(description).toContain('vector concatenation');
     expect(description).toContain('{&lt;state&gt;[N-2:0], &lt;serial_in&gt;}');
     expect(description).toContain('old <code>q[3]</code> to <code>serial_out</code>');
+    expect(description).toContain('the rightmost term becomes <code>q[0]</code>');
+    expect(description).toContain('stream enters at the least-significant end');
     expect(starter).toContain('synchronously clear q and serial_out');
     expect(starter).toContain('expose the old MSB, then shift serial_in into q[0]');
   });

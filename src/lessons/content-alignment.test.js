@@ -375,6 +375,20 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('$rose(req) |=> ##[0:2] ack_window');
   });
 
+  it('keeps consecutive repetition aligned with contiguous samples', () => {
+    const description = read('sva/consecutive-rep/description.html');
+    const starter = read('sva/consecutive-rep/hold_check.sv');
+    const testbench = read('sva/consecutive-rep/tb.sv');
+    const solution = read('sva/consecutive-rep/hold_check.sol.sv');
+    expect(description).toContain('<code>t+1</code>');
+    expect(description).toContain('a 0 here breaks the run');
+    expect(description).toContain('does not allow a gap or skip ahead');
+    expect(description).toContain('<code>busy[*2:3]</code>');
+    expect(starter).toContain('TODO: match three consecutive busy samples');
+    expect(testbench).toContain('three consecutive busy samples');
+    expect(solution).toContain('busy[*3]');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

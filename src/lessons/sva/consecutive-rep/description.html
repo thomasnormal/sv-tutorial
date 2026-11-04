@@ -31,4 +31,11 @@
   <text x="278" y="120" text-anchor="middle" fill="#586469" font-size="12">3 consecutive cycles</text>
 </svg>
 <p>Open <code>hold_check.sv</code>. The spec is: <em>after a <code>start</code> pulse, <code>busy</code> must stay high for exactly 3 consecutive cycles.</em></p>
+<table><thead><tr><th>Sampled edge</th><th><code>busy</code></th><th>What <code>[*3]</code> requires</th></tr></thead><tbody>
+<tr><td><code>t</code></td><td><code>start</code> is high</td><td><code>|=></code> begins checking on the next edge</td></tr>
+<tr><td><code>t+1</code></td><td>1</td><td>first consecutive sample</td></tr>
+<tr><td><code>t+2</code></td><td>1</td><td>second sample; a 0 here breaks the run</td></tr>
+<tr><td><code>t+3</code></td><td>1</td><td>third and final required sample</td></tr>
+</tbody></table>
+<p>The repetition count is contiguous: <code>busy[*3]</code> does not allow a gap or skip ahead. A range such as <code>busy[*2:3]</code> would accept either two or three samples, while this property deliberately demands all three.</p>
 <p>Complete the one-run <code>busy_run</code> sequence with <code>busy[*3]</code>, use it after <code>|=></code>, and add the property assertion. The starter includes <code>tb.sv</code> with one start pulse and a three-cycle busy run; Run it before solving to see the repeated samples, then rerun the solved trace for <code>PASS</code>. Verify searches for a busy signal that breaks the consecutive run.</p>

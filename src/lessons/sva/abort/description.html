@@ -14,4 +14,11 @@
   <defs><marker id="ab-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#c17d2a"/></marker></defs>
 </svg>
 <p>This follows <code>disable iff</code>: instead of suppressing a property before it starts, <code>reject_on(err)</code> watches an active burst and fails it if an error arrives in the window. The starter includes <code>tb.sv</code> with a successful acknowledgement and an error only after that window closes. Run it before solving to see the boundary; after solving, the trace prints <code>PASS</code>. Verify searches for an error or a missing acknowledgement during the active burst.</p>
+<table><thead><tr><th>Sampled edge</th><th>Signals</th><th>Window meaning</th></tr></thead><tbody>
+<tr><td><code>t0</code></td><td><code>start=1</code></td><td><code>|=></code> moves the check to the next edge</td></tr>
+<tr><td><code>t+1</code></td><td><code>ack</code> may be 1</td><td><code>##0</code> is the earliest legal acknowledgement</td></tr>
+<tr><td><code>t+2</code> through <code>t+4</code></td><td><code>ack</code> may arrive</td><td>the remaining legal window; <code>reject_on(err)</code> watches it</td></tr>
+<tr><td><code>t+5</code></td><td>late <code>err=1</code></td><td>the acknowledgement already ended the sequence, so the error is ignored</td></tr>
+</tbody></table>
+<p>The range is written <code>##[0:3]</code> because <code>|=></code> has already advanced one edge: together they cover one through four cycles after <code>start</code>. An <code>err</code> transition during that active range rejects the property; <code>accept_on(err)</code> would instead pass it immediately.</p>
 <blockquote><p><code>reject_on(cond) seq</code> is equivalent to <code>(!cond) throughout seq</code> — both fail when <code>cond</code> goes true during the sequence window. <code>reject_on</code> is more expressive because it also applies to composite properties, not just sequences.</p></blockquote>

@@ -508,6 +508,21 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('req |=> ack_next');
   });
 
+  it('keeps abort rejection windows aligned after non-overlap', () => {
+    const description = read('sva/abort/description.html');
+    const starter = read('sva/abort/abort_check.sv');
+    const testbench = read('sva/abort/tb.sv');
+    const solution = read('sva/abort/abort_check.sol.sv');
+    expect(description).toContain('<code>t+1</code>');
+    expect(description).toContain('<code>##0</code> is the earliest legal acknowledgement');
+    expect(description).toContain('<code>##[0:3]</code>');
+    expect(description).toContain('<code>accept_on(err)</code>');
+    expect(starter).toContain('TODO: if err fires while ack_window is active');
+    expect(testbench).toContain('late error arrives after the window');
+    expect(solution).toContain('##[0:3] ack');
+    expect(solution).toContain('start |=> reject_on(err) ack_window');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

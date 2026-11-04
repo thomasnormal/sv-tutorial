@@ -1,7 +1,7 @@
 module abort_check(input logic clk, start, ack, err);
 
   sequence ack_window;
-    ##[1:4] ack;
+    ##[0:3] ack;
   endsequence
 
   property p_burst_ok;

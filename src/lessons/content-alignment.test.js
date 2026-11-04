@@ -617,6 +617,24 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('.count (count)');
   });
 
+  it('keeps let reuse aligned with the guarded stability phases', () => {
+    const description = read('sva/let/description.html');
+    const starter = read('sva/let/let_check.sv');
+    const testbench = read('sva/let/tb.sv');
+    const solution = read('sva/let/let_check.sol.sv');
+    expect(description).toContain('<code>t1</code>');
+    expect(description).toContain('<code>$stable(data)</code> compares with the prior sample');
+    expect(description).toContain('acceptance makes the guard false');
+    expect(description).toContain('does not create procedural storage or a new module');
+    expect(starter).toContain('TODO: define a parameterised let expression for a held data bus.');
+    expect(starter).toContain('TODO: while valid is high and ready is low, data stays stable');
+    expect(testbench).toContain('A ready handshake permits the next value to change.');
+    expect(testbench).toContain('invalid bus: data=%h (expect 5C)');
+    expect(solution).toContain('let hold_bus(value, active, accepted) =');
+    expect(solution).toContain('@(posedge clk) hold_bus(data, valid, ready);');
+    expect(solution).toContain('$stable(value)');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

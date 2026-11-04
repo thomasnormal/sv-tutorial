@@ -40,6 +40,15 @@ endproperty</pre>
   <text x="225" y="160" text-anchor="middle" fill="#0d6f72" font-weight="bold">let is a named expression, not a copied string</text>
 </svg>
 
+<h2>When the named rule is active</h2>
+<table><thead><tr><th>Sampled edge</th><th>Bus sample</th><th><code>hold_bus</code> result</th></tr></thead><tbody>
+<tr><td><code>t0</code></td><td><code>valid=0</code>, <code>ready=0</code>, <code>data=31</code></td><td><code>active &amp;&amp; !accepted</code> is false, so the bus may change</td></tr>
+<tr><td><code>t1</code></td><td><code>valid=1</code>, <code>ready=0</code>, <code>data=31</code></td><td>the waiting phase is active; <code>$stable(data)</code> compares with the prior sample</td></tr>
+<tr><td><code>t2</code></td><td><code>valid=1</code>, <code>ready=1</code>, <code>data=A6</code></td><td>acceptance makes the guard false, so this data change is allowed</td></tr>
+<tr><td><code>t3</code></td><td><code>valid=0</code>, <code>ready=0</code>, <code>data=5C</code></td><td>the invalid phase is outside the hold rule and may change again</td></tr>
+</tbody></table>
+<p>A <code>let</code> call is expanded with the expressions passed at each sampled edge; it does not create procedural storage or a new module. Here the named guard selects the only phase where <code>$stable(data)</code> matters, while the same rule can be called from additional properties with different signals.</p>
+
 <h2>Exercise</h2>
 <p>Open <code>let_check.sv</code>. Define <code>hold_bus(value, active, accepted)</code> with a <code>let</code> declaration, then call it from <code>data_stable_p</code>. The rule should require <code>$stable(value)</code> only while a valid transfer is waiting for acceptance. The testbench changes <code>data</code> during an accepted transfer and while invalid to show when the rule is active.</p>
 

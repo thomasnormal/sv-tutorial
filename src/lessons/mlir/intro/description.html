@@ -30,4 +30,12 @@
   sv    — SystemVerilog output (always blocks, wire, assign …)
   verif — verification         (assert, assume)
 </pre>
+<h2>Follow one SSA value</h2>
+<table><thead><tr><th>Operation</th><th>Type / value</th><th>Role in the adder</th></tr></thead><tbody>
+<tr><td><code>hw.module @adder</code></td><td><code>in %a : i8</code>, <code>in %b : i8</code></td><td>declares two 8-bit input values and one 8-bit output</td></tr>
+<tr><td><code>%0 = comb.add %a, %b : i8</code></td><td><code>%0 : i8</code></td><td>creates one SSA result; the value is defined once and can be reused</td></tr>
+<tr><td><code>hw.output %0 : i8</code></td><td>sum receives <code>%0</code></td><td>terminates the module's data-flow graph</td></tr>
+<tr><td><code>hw.instance</code> in <code>@tb</code></td><td><code>5 + 3 = 8</code></td><td>the LLHD testbench drives and probes the instance, then prints <code>PASS</code></td></tr>
+</tbody></table>
+<p>Types travel with values through every operation: an <code>i8</code> add produces an <code>i8</code> result, while the module output names where that result leaves the graph. There is no procedural ordering between the operations; their data dependencies determine the hardware.</p>
 <p>The next three lessons walk through each of the hardware dialects in turn, using the SRAM you built in Part 1 as the running example.</p>

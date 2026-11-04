@@ -757,6 +757,21 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('2\'b11: y = 4\'b1000;');
   });
 
+  it('keeps the MLIR intro aligned with its SSA adder data flow', () => {
+    const description = read('mlir/intro/description.html');
+    const source = read('mlir/intro/adder.mlir');
+    const testbench = read('mlir/intro/adder_tb.mlir');
+    expect(description).toContain('<code>%0 = comb.add %a, %b : i8</code>');
+    expect(description).toContain('<code>5 + 3 = 8</code>');
+    expect(description).toContain('There is no procedural ordering between the operations');
+    expect(source).toContain('hw.module @adder(in %a : i8, in %b : i8, out sum : i8)');
+    expect(source).toContain('%0 = comb.add %a, %b : i8');
+    expect(source).toContain('hw.output %0 : i8');
+    expect(testbench).toContain('hw.instance "dut" @adder');
+    expect(testbench).toContain('sim.proc.print');
+    expect(testbench).toContain('sim.terminate success, quiet');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

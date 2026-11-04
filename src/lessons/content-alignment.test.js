@@ -702,6 +702,26 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('assign mux_y  = a_when_c | b_when_not_c;');
   });
 
+  it('keeps followed-by operators aligned with sequence endpoints', () => {
+    const description = read('sva/followed-by/description.html');
+    const starter = read('sva/followed-by/followed_by.sv');
+    const testbench = read('sva/followed-by/tb.sv');
+    const solution = read('sva/followed-by/followed_by.sol.sv');
+    expect(description).toContain('<code>2</code>');
+    expect(description).toContain('<code>#-#</code> checks <code>data_ok</code> on this same endpoint');
+    expect(description).toContain('<code>#=#</code> checks one sampled edge after the endpoint');
+    expect(description).toContain('if the three-event burst never matches');
+    expect(starter).toContain('TODO: describe a start followed by two beat cycles');
+    expect(starter).toContain('TODO: require data_ok when burst_read ends (overlapped)');
+    expect(starter).toContain('TODO: require data_ok one cycle after burst_read ends (non-overlapped)');
+    expect(testbench).toContain('cycle 2 (sequence endpoint)');
+    expect(testbench).toContain('cycle 3 (next sample)');
+    expect(solution).toContain('burst_start ##1 burst_beat ##1 burst_beat;');
+    expect(solution).toContain('burst_read #-# data_ok');
+    expect(solution).toContain('burst_read #=# data_ok');
+    expect(solution).toContain('burst_start |=> data_ok');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

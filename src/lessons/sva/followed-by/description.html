@@ -39,6 +39,14 @@ endproperty</pre>
   <text x="403" y="141" text-anchor="middle" fill="#586469">#=# next tick</text>
   <text x="230" y="184" text-anchor="middle" fill="#586469">No start → #-# / #=# fails; |=&gt; can pass vacuously</text>
 </svg>
+<h2>Endpoint versus next-sample timing</h2>
+<table><thead><tr><th>Sampled cycle</th><th>Burst signals</th><th>Followed-by check</th></tr></thead><tbody>
+<tr><td><code>0</code></td><td><code>burst_start=1</code></td><td>the sequence begins; ordinary <code>|=&gt;</code> starts its one-edge consequent</td></tr>
+<tr><td><code>1</code></td><td>first <code>burst_beat=1</code>, <code>data_ok=1</code></td><td>the ordinary implication's consequent is sampled here</td></tr>
+<tr><td><code>2</code></td><td>second <code>burst_beat=1</code>, <code>data_ok=1</code></td><td>the sequence ends; <code>#-#</code> checks <code>data_ok</code> on this same endpoint</td></tr>
+<tr><td><code>3</code></td><td>burst ended, <code>data_ok=1</code></td><td><code>#=#</code> checks one sampled edge after the endpoint</td></tr>
+</tbody></table>
+<p><code>#-#</code> and <code>#=#</code> are non-vacuous sequence operators: if the three-event burst never matches, the property fails instead of silently passing. The ordinary <code>burst_start |=&gt; data_ok</code> comparison only needs its trigger and does not prove that a complete burst occurred.</p>
 
 <h2>Exercise</h2>
 <p>Open <code>followed_by.sv</code>. Define a three-event <code>burst_read</code> sequence, then complete the overlapped <code>#-#</code>, non-overlapped <code>#=#</code>, and ordinary <code>|=&gt;</code> properties. Click <strong>Verify</strong>: bounded model checking explores all input traces and shows a counterexample for the completed syntax exercise. Compare which operator starts <code>data_ok</code> on the sequence endpoint and which one starts a cycle later.</p>

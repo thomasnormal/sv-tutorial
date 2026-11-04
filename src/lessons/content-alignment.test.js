@@ -76,6 +76,9 @@ describe('browser-audit lesson alignment', () => {
     expect(description).toContain('reset higher priority than enable');
     expect(starter).toContain('synchronous reset, then increment when en');
     expect(starter).toContain('always_ff @(posedge clk)');
+    const alwaysFf = read('sv/always-ff/description.html');
+    expect(alwaysFf).toContain('The same scheduling rule explains the <code>#1</code>');
+    expect(alwaysFf).toContain('active region');
   });
 
   it('keeps the shift-register exercise aligned with its concatenation behavior', () => {

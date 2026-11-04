@@ -839,6 +839,23 @@ describe('browser-audit lesson alignment', () => {
     expect(python).toContain('check(dut, 15, 15, 30)');
   });
 
+  it('keeps cocotb clock timing aligned with synchronous counter reset', () => {
+    const description = read('cocotb/clock-and-timing/description.html');
+    const rtl = read('cocotb/clock-and-timing/counter.sv');
+    const solution = read('cocotb/clock-and-timing/counter.sol.sv');
+    const python = read('cocotb/clock-and-timing/test_counter.py');
+    expect(description).toContain('five rising edges increment <code>count</code> to <code>5</code>');
+    expect(description).toContain('the next posedge clears the count back to <code>0</code>');
+    expect(description).toContain('Reset is synchronous');
+    expect(rtl).toContain('// TODO: reset count to 0 when rst is high, otherwise increment');
+    expect(solution).toContain('if (rst) count <= 4\'d0;');
+    expect(solution).toContain('else     count <= count + 4\'d1;');
+    expect(python).toContain('async def clock_cycle(dut, period_ns=10):');
+    expect(python).toContain('await Timer(period_ns // 2, units="ns")');
+    expect(python).toContain('for _ in range(5):');
+    expect(python).toContain('assert dut.count.value == 5');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

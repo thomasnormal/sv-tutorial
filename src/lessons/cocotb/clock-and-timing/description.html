@@ -8,6 +8,13 @@
   After each rising edge the DUT has already updated, so you can read
   <code>dut.count.value</code> immediately — no extra delay needed.
 </p>
+<h2>Clock and reset timeline</h2>
+<table><thead><tr><th>Phase</th><th>Signals</th><th>Counter result</th></tr></thead><tbody>
+<tr><td>reset cycle</td><td><code>rst=1</code>; clock goes low then high after 5 ns</td><td>the posedge synchronously clears <code>count</code> to <code>0</code></td></tr>
+<tr><td>five count cycles</td><td><code>rst=0</code>; each helper call creates one low→high period</td><td>five rising edges increment <code>count</code> to <code>5</code></td></tr>
+<tr><td>mid-run reset</td><td><code>rst=1</code> for one more clock cycle</td><td>the next posedge clears the count back to <code>0</code></td></tr>
+</tbody></table>
+<p><code>clock_cycle</code> returns after the second 5 ns wait, so the nonblocking assignment from the rising edge has settled before the assertion reads <code>dut.count.value</code>. Reset is synchronous: changing <code>rst</code> between edges does not clear the register until the next rising edge.</p>
 <p>
   Open <code>counter.sv</code> and implement the 4-bit up-counter with synchronous reset.
   When <code>rst</code> is high, <code>count</code> must clear to zero on the next rising edge.

@@ -449,6 +449,21 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('(##[1:4] ready) and (##[1:8] done)');
   });
 
+  it('keeps sequence formal arguments aligned with sampled readback timing', () => {
+    const description = read('sva/seq-args/description.html');
+    const starter = read('sva/seq-args/sram_check.sv');
+    const testbench = read('sva/seq-args/tb.sv');
+    const solution = read('sva/seq-args/sram_check.sol.sv');
+    expect(description).toContain('<code>t+1</code>');
+    expect(description).toContain('<code>read_txn(a,d)</code>');
+    expect(description).toContain('substituted at each call site during elaboration');
+    expect(description).toContain('same-edge guard');
+    expect(starter).toContain('TODO: fill in the write_txn body');
+    expect(testbench).toContain('Two writes and reads exercise both formal-argument call sites');
+    expect(solution).toContain('write_txn(a, d) |=> (addr == a) |-> read_txn(a, d)');
+    expect(solution).toContain('wr_rd_p(4\'hF, 8\'hFF)');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

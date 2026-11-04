@@ -41,5 +41,11 @@ sequence write_at_15; we &amp;&amp; addr == 4'hF  &amp;&amp; wdata == 8'hFF ends
   <li>Fill in the <code>wr_rd_p</code> property body using <code>write_txn</code>, <code>|=></code>, and <code>read_txn</code>.</li>
   <li>Write two labelled <code>assert property</code> statements for <code>(4'd0, 8'hA5)</code> and <code>(4'hF, 8'hFF)</code>.</li>
 </ol>
+<table><thead><tr><th>Sampled edge</th><th>Signals</th><th>Formal-argument expansion</th></tr></thead><tbody>
+<tr><td><code>t</code></td><td><code>we=1, addr=a, wdata=d</code></td><td><code>write_txn(a,d)</code> matches the write</td></tr>
+<tr><td><code>t+1</code></td><td><code>addr=a, rdata=d</code></td><td><code>|=></code> advances here; <code>|-></code> checks <code>read_txn(a,d)</code> on this same edge</td></tr>
+<tr><td>another call site</td><td><code>addr=4'hF, wdata=8'hFF</code></td><td><code>wr_rd_p(4'hF, 8'hFF)</code> is a separate expanded property</td></tr>
+</tbody></table>
+<p>The inner <code>|-></code> is a same-edge guard: if <code>addr == a</code> is false at <code>t+1</code>, that call has no read obligation on that edge. The typed formals are substituted at each call site during elaboration; they do not remember a later runtime address or data value.</p>
 <p>The starter includes <code>tb.sv</code> with two concrete writes and reads that exercise both call sites. Run it before solving to see the SRAM values, then rerun the solved trace for <code>PASS</code>; Verify still checks the elaborated properties without a testbench.</p>
 <blockquote><p>Formals are inlined at elaboration time — the model checker sees two fully expanded, independent properties. To check <em>all</em> address/data pairs in one pass, you need a local variable to capture the write's values and carry them into the consequent (covered in <strong>Local Variables in Sequences</strong>).</p></blockquote>

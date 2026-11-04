@@ -27,6 +27,9 @@ The basic operations on events are: </p>
 
 <p>The post is instantaneous: every process suspended at <code>@(write_done)</code> resumes in the same simulation time step. Events carry no data and cannot be synthesised — they live only in testbenches and simulation models. That makes them especially useful for verification handoffs: a driver can announce that stimulus is ready, a monitor can announce that a response was observed, and a scoreboard can wait for both before checking it.</p>
 <p>There is one ordering detail to remember: <code>@(write_done)</code> catches a future post only. If another process may post before your wait starts, use <code>wait(write_done.triggered)</code>; the <code>triggered</code> state remains true for the rest of the current simulation time slot. In this exercise the reader starts waiting at time zero and the writer posts at time 10, so the simpler <code>@(write_done)</code> is sufficient.</p>
+<pre>// Use this form when either side may run first:
+wait(write_done.triggered);
+// The wait can observe a post already made in this time slot.</pre>
 
 <h2>A two-event pipeline</h2>
 <p><code>event_sync.sv</code> chains writer, reader, and checker using two events:</p>

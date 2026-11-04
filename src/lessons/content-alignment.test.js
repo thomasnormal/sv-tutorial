@@ -119,6 +119,13 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('rdata <= mem[addr];');
   });
 
+  it('keeps the events lesson explicit about same-slot race safety', () => {
+    const description = read('sv/events/description.html');
+    expect(description).toContain('<code>wait(write_done.triggered)</code>');
+    expect(description).toContain('Use this form when either side may run first');
+    expect(description).toContain('already made in this time slot');
+  });
+
   it('keeps the shift-register exercise aligned with its concatenation behavior', () => {
     const description = read('sv/shift-reg/description.html');
     const starter = read('sv/shift-reg/shift_reg.sv');

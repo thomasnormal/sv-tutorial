@@ -348,6 +348,19 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('##[2:5] delayed_ack');
   });
 
+  it('keeps rose/fell windows aligned with sampled transitions', () => {
+    const description = read('sva/rose-fell/description.html');
+    const starter = read('sva/rose-fell/edge_check.sv');
+    const testbench = read('sva/rose-fell/tb.sv');
+    const solution = read('sva/rose-fell/edge_check.sol.sv');
+    expect(description).toContain('<code>t+1</code>');
+    expect(description).toContain('earliest legal rise');
+    expect(description).toContain('keeping <code>ack</code> high from an earlier cycle');
+    expect(starter).toContain('TODO: match one sampled rising edge on ack');
+    expect(testbench).toContain('active-low chip-select edge');
+    expect(solution).toContain('$fell(cs_n) |=> ##[0:1] ack_rise');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

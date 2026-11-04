@@ -6,5 +6,11 @@
 <p>These are more precise than a bare level check: <code>$rose(req)</code> triggers once per rising edge, not on every cycle that <code>req</code> stays high.</p>
 <p>Open <code>edge_check.sv</code>. The spec is: <em>when chip-select <code>cs_n</code> falls (goes active-low), <code>ack</code> must rise within 1–2 clock cycles.</em></p>
 <p>Complete the one-sample <code>ack_rise</code> sequence, then use <code>$fell(cs_n) |=> ##[0:1] ack_rise</code> and assert the property. The non-overlapping implication starts checking after the falling edge, so the range covers the first and second response cycles.</p>
+<table><thead><tr><th>Sampled edge</th><th><code>cs_n</code>/<code>ack</code></th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>t</code></td><td><code>cs_n: 1&rarr;0</code></td><td><code>$fell(cs_n)</code> starts the attempt</td></tr>
+<tr><td><code>t+1</code></td><td><code>ack: 0&rarr;1</code></td><td><code>##0</code> of the post-implication window; earliest legal rise</td></tr>
+<tr><td><code>t+2</code></td><td>ack may rise here</td><td><code>##1</code>; latest legal rise</td></tr>
+</tbody></table>
+<p><code>$rose(ack)</code> must see the transition at the sampled edge; keeping <code>ack</code> high from an earlier cycle would not satisfy <code>ack_rise</code>. The supplied testbench therefore drives <code>ack=1</code> only after the chip-select fall has been sampled.</p>
 <p>The starter includes <code>tb.sv</code> with one active-low chip-select transition and an acknowledgement rising on the first legal response edge. Run it before solving to see the sampled edges; after solving, the same trace checks the edge and prints <code>PASS</code>. Verify explores unconstrained transitions to find an acknowledgement that arrives too early or too late.</p>
 <blockquote><p>When an assertion fails, the Verify log reports <strong>COUNTEREXAMPLE FOUND</strong> and lists the model's signal assignments. BMC does not generate a Waves tab.</p></blockquote>

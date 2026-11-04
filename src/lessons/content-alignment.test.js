@@ -188,6 +188,16 @@ describe('browser-audit lesson alignment', () => {
     expect(starter).toContain('Drive grant/done/busy from the current state and inputs.');
   });
 
+  it('keeps covergroup sampling aligned with nonblocking stimulus timing', () => {
+    const description = read('sv/covergroup-basics/description.html');
+    const starter = read('sv/covergroup-basics/cov_intro.sv');
+    expect(description).toContain('nonblocking assignments');
+    expect(description).toContain('new random values become visible after that edge');
+    expect(description).toContain('first sample records the initial zeros');
+    expect(starter).toContain('we   <= $random;');
+    expect(starter).toContain('addr <= $random;');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

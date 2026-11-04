@@ -1,13 +1,13 @@
 module handshake_check(input logic clk, req, ack);
   property p_req_ack;
-    @(posedge clk) req |=> ##[1:3] ack;
+    @(posedge clk) req |=> ##[0:2] ack;
   endproperty
   req_ack_a: assert property (p_req_ack);
 endmodule
 
 module data_stable_check(input logic clk, valid, input logic [7:0] data);
   property p_data_stable;
-    @(posedge clk) valid |-> $stable(data);
+    @(posedge clk) valid |=> $stable(data);
   endproperty
   data_stable_a: assert property (p_data_stable);
 endmodule

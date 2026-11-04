@@ -23,9 +23,9 @@ module tb;
       $display("FAIL: channel 1 response or held data was incorrect");
       $finish;
     end
-    ack1 = 0; ack2 = 0; valid2 = 1; data2 = 8'h5A;
+    ack1 = 0; ack2 = 1; valid2 = 0; data2 = 8'h5A;
     @(posedge clk); #1;
-    ack2 = 1; valid2 = 0;
+    ack2 = 0;
     @(posedge clk); #1;
     if (ack2 !== 1) begin
       $display("FAIL: channel 2 response did not arrive in its legal window");

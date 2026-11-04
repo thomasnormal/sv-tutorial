@@ -582,6 +582,22 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('s_req_done.triggered |-> ##[1:3] ack');
   });
 
+  it('keeps checker instances aligned with non-overlap timing', () => {
+    const description = read('sva/checker/description.html');
+    const starter = read('sva/checker/top.sv');
+    const testbench = read('sva/checker/tb.sv');
+    const solution = read('sva/checker/top.sol.sv');
+    expect(description).toContain('<code>##[0:2]</code>');
+    expect(description).toContain('<code>$stable(data)</code> compares this sample');
+    expect(description).toContain('data change on the edge where <code>valid</code> first becomes inactive');
+    expect(starter).toContain('TODO 1: when req fires');
+    expect(starter).toContain('TODO 2: while valid is high');
+    expect(testbench).toContain('independent channel timing');
+    expect(testbench).toContain('ack1 = 0; ack2 = 1; valid2 = 0');
+    expect(solution).toContain('req |=> ##[0:2] ack');
+    expect(solution).toContain('valid |=> $stable(data)');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

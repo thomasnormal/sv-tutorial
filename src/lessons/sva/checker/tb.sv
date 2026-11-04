@@ -19,9 +19,9 @@ module tb;
     @(posedge clk); #1;
     ack1 = 1; valid1 = 0; valid2 = 1; data2 = 8'h5A;
     @(posedge clk); #1;
-    ack1 = 0; ack2 = 0; valid2 = 1; data2 = 8'h5A;
+    ack1 = 0; ack2 = 1; valid2 = 0; data2 = 8'h5A;
     @(posedge clk); #1;
-    ack2 = 1; valid2 = 0;
+    ack2 = 0;
     @(posedge clk); #1;
 
     $display("TODO: complete both checker properties, then rerun this two-channel trace.");

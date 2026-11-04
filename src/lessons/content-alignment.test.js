@@ -433,6 +433,22 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('(!cs_n) throughout (1\'b1[*8])');
   });
 
+  it('keeps sequence composition aligned with endpoint timing', () => {
+    const description = read('sva/sequence-ops/description.html');
+    const starter = read('sva/sequence-ops/bus_check.sv');
+    const testbench = read('sva/sequence-ops/tb.sv');
+    const solution = read('sva/sequence-ops/bus_check.sol.sv');
+    expect(description).toContain('<code>t1</code> through <code>t3</code>');
+    expect(description).toContain('both operands end together after four samples');
+    expect(description).toContain('<code>done</code> has its own eight-cycle window');
+    expect(description).toContain('when one complete sequence must fit inside another');
+    expect(starter).toContain('TODO 1: use intersect');
+    expect(starter).toContain('TODO 2: use and');
+    expect(testbench).toContain('done arrives later in its own window');
+    expect(solution).toContain('(valid[*4]) intersect (ready[*4])');
+    expect(solution).toContain('(##[1:4] ready) and (##[1:8] done)');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

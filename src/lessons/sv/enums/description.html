@@ -22,4 +22,5 @@
                 <li>Change the existing <code>state</code> port from <code>logic [1:0]</code> to <code>ctrl_state_t</code> — do not add a separate <code>state_bits</code> port</li>
                 <li>Give all four enum names their own <code>case</code> branches: <code>IDLE</code> and <code>CMD</code> leave both outputs low, while <code>READ</code> and <code>WRITE</code> assert their matching output</li>
               </ol>
+              <p>The <code>default</code> branch is deliberate even though the four legal names cover all four 2-bit values. During reset or bring-up, a state can contain <code>X</code> bits or an out-of-range value after the enum is widened; the default keeps both outputs low and preserves the combinational block's complete assignment.</p>
               <blockquote><p>In the next lesson we'll build the full memory access controller FSM that transitions between these states. The enum you define here becomes the state register type.</p></blockquote>

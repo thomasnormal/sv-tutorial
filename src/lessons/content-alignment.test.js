@@ -75,6 +75,14 @@ describe('browser-audit lesson alignment', () => {
     expect(starter).toContain('four branches in descending priority');
   });
 
+  it('keeps enum decoding explicit about invalid-state recovery', () => {
+    const description = read('sv/enums/description.html');
+    const solution = read('sv/enums/status.sol.sv');
+    expect(description).toContain('state can contain <code>X</code> bits');
+    expect(description).toContain('default keeps both outputs low');
+    expect(solution).toContain('default: ;');
+  });
+
   it('keeps the always_comb exercise latch-safe', () => {
     const description = read('sv/always-comb/description.html');
     const starter = read('sv/always-comb/mux.sv');

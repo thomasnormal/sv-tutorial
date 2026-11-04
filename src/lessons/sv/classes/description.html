@@ -59,7 +59,7 @@ endfunction</pre>
 <p>Open <code>mem_item.sv</code> and complete three tasks:</p>
 <ol>
   <li>Declare four fields: <code>bit we</code>, <code>logic [3:0] addr</code>, <code>logic [7:0] wdata</code>, <code>logic [7:0] rdata</code>.</li>
-  <li>Fill in the constructor body using <code>this.field = arg</code>; leave <code>rdata</code> at its default (0).</li>
+  <li>Fill in the constructor body using <code>this.field = arg</code>; explicitly initialize <code>rdata</code> to <code>8'h00</code> so a newly created item has a known readback value.</li>
   <li>Implement <code>convert2string</code>: return <code>"WR[&lt;addr&gt;]=&lt;wdata&gt;"</code> for writes, <code>"RD[&lt;addr&gt;]"</code> for reads.</li>
 </ol>
-<p>The testbench (already in the file) demonstrates handle sharing: assigning <code>t2 = t1</code> and then modifying <code>t2.wdata</code> changes <code>t1.wdata</code> too. Then <code>t2 = new(...)</code> creates a fresh object, leaving <code>t1</code> unchanged.</p>
+<p>The testbench (already in the file) demonstrates handle sharing: assigning <code>t2 = t1</code> and then modifying <code>t2.wdata</code> changes <code>t1.wdata</code> too. Then <code>t2 = new(...)</code> creates a fresh object, leaving <code>t1</code> unchanged. It also relies on the constructor's explicit <code>rdata = 8'h00</code>, which avoids carrying an unknown value into a later scoreboard comparison.</p>

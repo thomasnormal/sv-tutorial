@@ -217,6 +217,16 @@ describe('browser-audit lesson alignment', () => {
     expect(starter).toContain('TODO: add a cross of cp_addr and cp_we');
   });
 
+  it('keeps class construction explicit about four-state readback', () => {
+    const description = read('sv/classes/description.html');
+    const starter = read('sv/classes/mem_item.sv');
+    const solution = read('sv/classes/mem_item.sol.sv');
+    expect(description).toContain('explicitly initialize <code>rdata</code> to <code>8\'h00</code>');
+    expect(description).toContain('avoids carrying an unknown value');
+    expect(starter).toContain('initialize rdata to a known zero value');
+    expect(solution).toContain('this.rdata = 8\'h00;');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

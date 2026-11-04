@@ -7,12 +7,12 @@ class mem_item;
   //   bit         we
   //   logic [3:0] addr
   //   logic [7:0] wdata
-  //   logic [7:0] rdata
+  //   logic [7:0] rdata (initialize it explicitly in new)
 
   // Constructor — called with 'new(we, addr, wdata)'
   function new(bit we, logic [3:0] addr, logic [7:0] wdata);
     // TODO: store each argument into the matching field using this.field = arg
-    //       leave rdata at its default value (0)
+    //       initialize rdata to a known zero value
   endfunction
 
   // Pretty-print for $display

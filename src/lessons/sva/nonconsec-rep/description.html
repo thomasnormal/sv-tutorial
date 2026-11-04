@@ -27,6 +27,16 @@
 </svg>
 <p>After <code>req</code>, <code>ack</code> goes high 3 separate times — with gaps between them — and then <code>done</code> must be high immediately after the third pulse.</p>
 <p>Compare with consecutive repetition: <code>ack[*3]</code> requires 3 cycles in a row, while <code>ack[->3]</code> allows gaps between pulses.</p>
+<table><thead><tr><th>Sampled edge</th><th><code>ack</code>/<code>done</code></th><th>Sequence meaning</th></tr></thead><tbody>
+<tr><td><code>t</code></td><td><code>req=1</code></td><td><code>|=></code> starts looking on the next edge</td></tr>
+<tr><td><code>t+1</code></td><td><code>ack=1</code></td><td>first <code>[->3]</code> match</td></tr>
+<tr><td><code>t+2</code></td><td><code>ack=0</code></td><td>gap allowed; the sequence remains open</td></tr>
+<tr><td><code>t+3</code></td><td><code>ack=1</code></td><td>second match</td></tr>
+<tr><td><code>t+4</code></td><td><code>ack=0</code></td><td>another allowed gap</td></tr>
+<tr><td><code>t+5</code></td><td><code>ack=1</code></td><td>third match; <code>ack[->3]</code> ends here</td></tr>
+<tr><td><code>t+6</code></td><td><code>done=1</code></td><td><code>##1 done</code> checks the following edge</td></tr>
+</tbody></table>
+<p>Goto repetition ends on the third match, so the following <code>##1</code> has one unambiguous endpoint to check. The related <code>ack[=3]</code> operator also counts three matches but lets its sequence continue through later cycles; choose <code>[->3]</code> when the next protocol action must be tied to the third match.</p>
 <p>Open <code>multi_ack.sv</code> and complete the property body: after <code>req</code>, wait for 3 non-consecutive <code>ack</code> pulses, then check that <code>done</code> is high on the very next cycle.</p>
 <p>Complete the named <code>three_acks</code> sequence with <code>ack[->3]</code>, use it after <code>req</code> with <code>|=></code>, and add the assertion. The starter includes <code>tb.sv</code> with three separated acknowledgement pulses and <code>done</code> immediately after the third. Run it before solving to see the gaps; the solved trace checks the endpoint and prints <code>PASS</code>. Verify searches for a missing or badly placed pulse.</p>
 <blockquote><p>The related operator <code>[=m]</code> is similar but does not require the sequence to end on the last match — the window can extend further. For most protocol checks, <code>[->m]</code> is what you want.</p></blockquote>

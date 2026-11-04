@@ -389,6 +389,21 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('busy[*3]');
   });
 
+  it('keeps goto repetition aligned with its third-match endpoint', () => {
+    const description = read('sva/nonconsec-rep/description.html');
+    const starter = read('sva/nonconsec-rep/multi_ack.sv');
+    const testbench = read('sva/nonconsec-rep/tb.sv');
+    const solution = read('sva/nonconsec-rep/multi_ack.sol.sv');
+    expect(description).toContain('<code>t+5</code>');
+    expect(description).toContain('gap allowed; the sequence remains open');
+    expect(description).toContain('<code>##1 done</code>');
+    expect(description).toContain('lets its sequence continue through later cycles');
+    expect(starter).toContain('TODO: match three non-consecutive acknowledgement pulses');
+    expect(testbench).toContain('Three separated acknowledgement pulses');
+    expect(solution).toContain('ack[->3]');
+    expect(solution).toContain('three_acks ##1 done');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

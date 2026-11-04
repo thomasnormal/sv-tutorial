@@ -18,4 +18,10 @@ s_req_done.triggered |-> ...</pre>
 <p>The related <code>.matched</code> method is useful when a sequence is composed across clocks. It reports the source sequence's endpoint result at the first sampling event of the destination clock; same-clock composition remains valid, while <code>.triggered</code> directly tests the endpoint at that point (IEEE 1800-2023 §16.13.5).</p>
 <p>Open <code>trigger_check.sv</code> and complete the property: when the request sequence ends, <code>ack</code> must arrive within 3 cycles.</p>
 <p>This builds on <code>sva/sequence-basics</code>: the sequence still describes a multi-edge event, while <code>.triggered</code> turns its endpoint into a reusable Boolean trigger. The starter includes <code>tb.sv</code> with one request, a busy-to-idle transition, and an acknowledgement one edge after completion. Run it before solving to follow the endpoint; the solved trace prints <code>PASS</code>.</p>
+<table><thead><tr><th>Sampled edge</th><th><code>req</code>/<code>busy</code>/<code>ack</code></th><th>Endpoint timing</th></tr></thead><tbody>
+<tr><td><code>t0</code></td><td><code>1/1/0</code></td><td>the first term of <code>s_req_done</code> matches</td></tr>
+<tr><td><code>t1</code></td><td><code>0/0/0</code></td><td><code>req ##1 !busy</code> ends; <code>s_req_done.triggered</code> is true here</td></tr>
+<tr><td><code>t2</code></td><td><code>0/0/1</code></td><td><code>##1 ack</code> is the earliest legal response</td></tr>
+</tbody></table>
+<p><code>.triggered</code> is an endpoint event, not a level that stays high for the whole sequence. If the sequence completes again later, it produces another endpoint trigger and another independent response attempt.</p>
 <blockquote><p><code>.triggered</code> can also be used <em>inside another sequence</em>. IEEE 1800-2023 §16.9.11 shows an expression such as <code>reset ##1 inst ##1 e1.triggered ##1 branch_back</code>; the method tests the endpoint at that point without requiring the source sequence to start there.</p></blockquote>

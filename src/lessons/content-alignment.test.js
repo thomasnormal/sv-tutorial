@@ -568,6 +568,20 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('!any_grant |-> (grant == 4\'b0)');
   });
 
+  it('keeps triggered endpoint timing aligned with the response window', () => {
+    const description = read('sva/triggered/description.html');
+    const starter = read('sva/triggered/trigger_check.sv');
+    const testbench = read('sva/triggered/tb.sv');
+    const solution = read('sva/triggered/trigger_check.sol.sv');
+    expect(description).toContain('<code>t1</code>');
+    expect(description).toContain('<code>s_req_done.triggered</code> is true here');
+    expect(description).toContain('<code>##1 ack</code> is the earliest legal response');
+    expect(description).toContain('an endpoint event, not a level');
+    expect(starter).toContain('TODO: when s_req_done fires');
+    expect(testbench).toContain('request leaves its busy phase');
+    expect(solution).toContain('s_req_done.triggered |-> ##[1:3] ack');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

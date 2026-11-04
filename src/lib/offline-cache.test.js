@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   LOCAL_RUNTIME_PATHS,
+  packageManifestAssetUrls,
   PYODIDE_COMPANION_FILES,
   buildConfiguredRuntimeUrls,
   dedupeStrings,
@@ -12,6 +13,23 @@ import {
 } from './offline-cache.js';
 
 describe('offline-cache helpers', () => {
+  it('expands a generic package manifest into artifact and source URLs', () => {
+    const manifestUrl = 'https://example.test/sv-tutorial/mox/packages/manifest.json';
+    const urls = packageManifestAssetUrls(manifestUrl, {
+      packages: [{
+        url: 'example_pkg-abc.vlib',
+        sourceBaseUrl: '../uvm-core/src/',
+        sourceFiles: ['macros/defs.svh', '/tlm/port.svh', '../escape.svh']
+      }]
+    });
+    expect(urls).toEqual([
+      manifestUrl,
+      'https://example.test/sv-tutorial/mox/packages/example_pkg-abc.vlib',
+      'https://example.test/sv-tutorial/mox/uvm-core/src/macros/defs.svh',
+      'https://example.test/sv-tutorial/mox/uvm-core/src/tlm/port.svh'
+    ]);
+  });
+
   it('normalizes and joins base paths', () => {
     expect(normalizeBasePath('')).toBe('/');
     expect(normalizeBasePath('/sv-tutorial')).toBe('/sv-tutorial/');

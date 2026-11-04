@@ -11,11 +11,13 @@
     OFFLINE_RUNTIME_CACHE,
     OFFLINE_STATE_KEY,
     offlineReadySentinelUrl,
+    PACKAGE_MANIFEST_RELATIVE_PATH,
     PYODIDE_MANIFEST_RELATIVE_PATH,
     UVM_MANIFEST_RELATIVE_PATH,
     buildConfiguredRuntimeUrls,
     dedupeStrings,
     joinBasePath,
+    packageManifestAssetUrls,
   } from '$lib/offline-cache.js';
   import { darkMode } from '$lib/stores/settings.js';
   import { completedSlugs } from '$lib/stores/completed.js';
@@ -193,6 +195,17 @@
       }
     } catch {
       // Best-effort: UVM sources are only needed for UVM lessons.
+    }
+
+    const configuredPackageManifest = String(config?.packageManifestUrl || '').trim();
+    const packageManifestUrl = toAbsolute(
+      configuredPackageManifest || joinBasePath(basePath, PACKAGE_MANIFEST_RELATIVE_PATH)
+    );
+    try {
+      const packageManifest = await fetchJson(packageManifestUrl);
+      urls.push(...packageManifestAssetUrls(packageManifestUrl, packageManifest));
+    } catch {
+      // Package artifacts are optional; source-backed lessons still work.
     }
 
     const pyodideManifestUrl = toAbsolute(joinBasePath(basePath, PYODIDE_MANIFEST_RELATIVE_PATH));

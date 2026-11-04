@@ -107,6 +107,12 @@ In `.env` (copy `.env.example`):
   - `npm run setup:pyodide`
 - Keep runtime URLs same-origin (default `/mox/*`, `/z3/*`, `/surfer/*`, `/pyodide/*`) for robust offline behavior.
 
+The offline bundle also reads `mox/packages/manifest.json` and caches every
+package artifact and declared source file from that manifest. This means a
+precompiled package remains available after the first online download, just
+like the Mox WASM binaries; immutable artifact URLs keep later manifest
+updates from invalidating an already cached package.
+
 ### Precompiled packages
 
 The browser runner can load package-level frontend artifacts before compiling a

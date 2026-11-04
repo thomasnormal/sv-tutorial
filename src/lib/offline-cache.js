@@ -33,6 +33,7 @@ export const LOCAL_RUNTIME_PATHS = [
 
 export const PYODIDE_MANIFEST_RELATIVE_PATH = 'pyodide/pyodide-manifest.json';
 export const UVM_MANIFEST_RELATIVE_PATH = 'mox/uvm-core/uvm-manifest.json';
+export const PACKAGE_MANIFEST_RELATIVE_PATH = 'mox/packages/manifest.json';
 
 export const PYODIDE_COMPANION_FILES = [
   'pyodide.js',
@@ -89,6 +90,44 @@ export function siblingUrls(baseFileUrl, fileNames) {
       return '';
     }
   }).filter(Boolean);
+}
+
+/**
+ * Return every same-manifest asset needed by a generic precompiled package.
+ * Package URLs and optional source replay URLs are resolved relative to the
+ * manifest, so a package can be published under any application base path.
+ */
+export function packageManifestAssetUrls(manifestUrl, manifest) {
+  const urls = [];
+  let manifestHref;
+  try {
+    manifestHref = new URL(String(manifestUrl)).href;
+  } catch {
+    return urls;
+  }
+  urls.push(manifestHref);
+
+  for (const entry of Array.isArray(manifest?.packages) ? manifest.packages : []) {
+    if (!entry || typeof entry !== 'object') continue;
+    if (typeof entry.url === 'string' && entry.url) {
+      try { urls.push(new URL(entry.url, manifestHref).href); } catch { /* malformed entry */ }
+    }
+
+    if (typeof entry.sourceBaseUrl !== 'string' || !entry.sourceBaseUrl ||
+        !Array.isArray(entry.sourceFiles)) continue;
+    let sourceBase;
+    try {
+      sourceBase = new URL(entry.sourceBaseUrl, manifestHref).href;
+    } catch {
+      continue;
+    }
+    for (const rawPath of entry.sourceFiles) {
+      const rel = String(rawPath || '').replace(/^\/+/, '');
+      if (!rel || rel.includes('..')) continue;
+      try { urls.push(new URL(rel, sourceBase).href); } catch { /* malformed entry */ }
+    }
+  }
+  return dedupeStrings(urls);
 }
 
 export function buildConfiguredRuntimeUrls({ basePath = '/', runtimeConfig = null, z3ScriptUrl = '' } = {}) {

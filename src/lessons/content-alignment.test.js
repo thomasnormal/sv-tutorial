@@ -304,6 +304,17 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('Write to full FIFO');
   });
 
+  it('keeps sequence basics explicit about edge-counted delays', () => {
+    const description = read('sva/sequence-basics/description.html');
+    const starter = read('sva/sequence-basics/grant_check.sv');
+    const solution = read('sva/sequence-basics/grant_check.sol.sv');
+    expect(description).toContain('samples <code>cStart</code> and the first <code>req</code> term on the same rising edge');
+    expect(description).toContain('clock-edge count, not a time literal');
+    expect(description).toContain('second subsequent sampled edge');
+    expect(starter).toContain('TODO: req is high, then 2 cycles later gnt is high');
+    expect(solution).toContain('req ##2 gnt');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

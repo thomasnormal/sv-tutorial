@@ -19,6 +19,7 @@
   <text x="290" y="145" text-anchor="middle" fill="#9a5a18" font-weight="bold">property: cStart |--&gt; sr1 • assert checks every edge</text>
 </svg>
 <p>Fill in the sequence body, the property body, and add the <code>assert property</code> statement. The property uses the <strong>implication</strong> operator <code>|-&gt;</code>: if the left-hand trigger is true, the right-hand sequence must follow. The next lesson covers both implication forms in depth.</p>
+<p>Here <code>cStart |-> sr1</code> samples <code>cStart</code> and the first <code>req</code> term on the same rising edge. The <code>##2</code> is a clock-edge count, not a time literal: <code>gnt</code> is checked on the second subsequent sampled edge, whatever the clock period is.</p>
 <p>The starter also includes <code>tb.sv</code>. Click <strong>Run</strong> to see one concrete trace with the trigger, request, and delayed grant; after solving, the assertion checks that trace while <strong>Verify</strong> still searches unconstrained input sequences for a counterexample.</p>
 <blockquote><p>A property is never evaluated on its own — it must be <strong>asserted</strong>, <strong>covered</strong>, or <strong>assumed</strong>.</p></blockquote>
 <blockquote><p>When the model checker finds a violation, the Verify log reports <strong>COUNTEREXAMPLE FOUND</strong> and lists the model's signal assignments. BMC does not generate a Waves tab.</p></blockquote>

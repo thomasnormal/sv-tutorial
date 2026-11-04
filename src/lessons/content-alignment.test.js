@@ -326,6 +326,17 @@ describe('browser-audit lesson alignment', () => {
     expect(testbench).toContain('same-edge/next-edge trace');
   });
 
+  it('keeps bounded reset proof aligned with its next-edge obligation', () => {
+    const description = read('sva/formal-intro/description.html');
+    const starter = read('sva/formal-intro/top.sv');
+    const solution = read('sva/formal-intro/top.sol.sv');
+    expect(description).toContain('<code>reset_event</code> matches');
+    expect(description).toContain('<code>cnt == 0</code> must hold');
+    expect(description).toContain('consequent starts one sampled edge after');
+    expect(starter).toContain('TODO: replace the placeholder with a sampled reset event');
+    expect(solution).toContain('reset_event |=> (cnt == 0)');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

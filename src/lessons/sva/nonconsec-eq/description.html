@@ -32,6 +32,15 @@
   <text x="332" y="180" text-anchor="middle" fill="#cc5f2d" font-size="11">gap allowed</text>
 </svg>
 <p>Open <code>multi_ack2.sv</code>. The spec is: after <code>start</code>, <code>ack</code> must pulse exactly 3 times, and then <code>done</code> must go high at some point afterwards — but not necessarily on the very next cycle.</p>
+<table><thead><tr><th>Sampled edge</th><th><code>ack</code>/<code>done</code></th><th>What remains legal</th></tr></thead><tbody>
+<tr><td><code>t</code></td><td><code>start=1</code></td><td><code>|=></code> starts the burst on the next edge</td></tr>
+<tr><td><code>t+1</code></td><td><code>ack=1</code></td><td>first counted pulse</td></tr>
+<tr><td><code>t+3</code></td><td><code>ack=1</code></td><td>second counted pulse; gaps are allowed</td></tr>
+<tr><td><code>t+5</code></td><td><code>ack=1</code></td><td>third pulse; the count is complete</td></tr>
+<tr><td><code>t+6</code></td><td><code>ack=0, done=0</code></td><td><code>[=3]</code> can still extend through this trailing gap</td></tr>
+<tr><td><code>t+7</code></td><td><code>done=1</code></td><td><code>##[0:$] done</code> accepts the variable-latency completion</td></tr>
+</tbody></table>
+<p>The third pulse completes the count, but <code>[=3]</code> may end later than that pulse. The unbounded <code>##[0:$]</code> then waits for <code>done</code>; this is why a delayed completion is legal here, while the previous <code>[->3] ##1 done</code> lesson required the very next edge.</p>
 <p>Complete the named <code>ack_burst</code> sequence with <code>ack[=3]</code>, chain an unbounded delay to <code>done</code>, and add the assertion. The starter includes <code>tb.sv</code> with three separated pulses and a deliberately late completion; Run it before solving to see why the endpoint stays open, then rerun the solved trace for <code>PASS</code>. Verify searches for a missing pulse or a completion that never arrives.</p>
 <p>This matters in real event-driven protocols such as DMA descriptors and interrupt aggregation: a fixed number of events may be required while downstream work takes a variable amount of time. The surprise is that <code>[=3]</code> keeps the sequence alive after the third match, while <code>[->3]</code> ends at that match.</p>
 <blockquote><p>Use <code>[=m]</code> when the protocol says "m pulses must occur before completion" but the completion signal has variable latency. Use <code>[->m]</code> when completion is defined as arriving one cycle after the final pulse.</p></blockquote>

@@ -5,6 +5,7 @@
 }</pre>
               <p>Now coverage is measured per group, not per raw value. You can also exclude values you never intend to exercise with <dfn data-card="ignore_bins marks certain values as uninteresting and excludes them from the coverage calculation. They won't count as covered or uncovered — the tool simply ignores them. Use this for reserved encodings, invalid states, or values that are impossible in your test environment. Contrast with illegal_bins, which additionally causes a simulation error if the value is ever seen.">ignore_bins</dfn>:</p>
               <pre>ignore_bins reserved = {14, 15};  // these addresses are off-limits</pre>
+              <p>The range on <code>hi_half</code> can still say <code>[8:15]</code>: the following <code>ignore_bins</code> removes 14 and 15 from that coverpoint's denominator. The meaningful address plan therefore has two requirements — <code>lo_half</code> and the non-reserved part of <code>hi_half</code> — and a random hit on 14 or 15 is simply discarded. Ignoring a value does not prevent the stimulus from generating it.</p>
               <svg width="455" height="128" viewBox="0 0 455 128" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:11px;margin:10px auto">
                 <text x="228" y="15" text-anchor="middle" fill="#0d6f72" font-weight="bold">one address signal, three verification decisions</text>
                 <rect x="18" y="35" width="112" height="36" rx="4" fill="#e6f5f5" stroke="#0d6f72" stroke-width="2"/>

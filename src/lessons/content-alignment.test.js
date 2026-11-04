@@ -198,6 +198,15 @@ describe('browser-audit lesson alignment', () => {
     expect(starter).toContain('addr <= $random;');
   });
 
+  it('keeps named-bin exclusions aligned with the coverage denominator', () => {
+    const description = read('sv/coverpoint-bins/description.html');
+    const solution = read('sv/coverpoint-bins/cov_bins.sol.sv');
+    expect(description).toContain('removes 14 and 15 from that coverpoint\'s denominator');
+    expect(description).toContain('Ignoring a value does not prevent the stimulus from generating it');
+    expect(solution).toContain('bins hi_half = {[8:15]};');
+    expect(solution).toContain('ignore_bins reserved = {14, 15};');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

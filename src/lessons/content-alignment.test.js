@@ -207,6 +207,16 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('ignore_bins reserved = {14, 15};');
   });
 
+  it('keeps cross coverage aligned with its four named-bin cells', () => {
+    const description = read('sv/cross-coverage/description.html');
+    const starter = read('sv/cross-coverage/cov_cross.sv');
+    expect(description).toContain('Each cell is built from the named bins');
+    expect(description).toContain('16 × 2 raw value pairs');
+    expect(description).toContain('high-address write');
+    expect(description).toContain('name any missing cell');
+    expect(starter).toContain('TODO: add a cross of cp_addr and cp_we');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

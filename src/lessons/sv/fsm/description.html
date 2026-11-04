@@ -1,3 +1,21 @@
+<p>For any synchronous finite-state machine, start with this reusable two-block shape:</p>
+<pre>typedef enum logic [N-1:0] { &lt;STATE_A&gt;, &lt;STATE_B&gt; } state_t;
+state_t state, next;
+
+always_ff @(posedge clk)
+  state &lt;= next;
+
+always_comb begin
+  next = state;              // hold unless a branch changes it
+  &lt;outputs&gt; = '0;            // give every output a safe default
+  case (state)
+    &lt;STATE_A&gt;: ...
+    &lt;STATE_B&gt;: ...
+    default:   next = &lt;STATE_A&gt;;
+  endcase
+end</pre>
+<p>The <code>always_ff</code> block is the only place that stores <code>state</code>. The <code>always_comb</code> block calculates <code>next</code> and decodes the current state into outputs. Starting with <code>next = state</code> means an unmentioned transition holds its state; assigning output defaults before the <code>case</code> means every branch drives a value instead of inferring storage.</p>
+
               <svg width="380" height="130" viewBox="0 0 380 130" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:10px auto">
   <defs>
     <marker id="fsm-a" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
@@ -34,6 +52,7 @@
               </ul>
               <p>Open <code>mem_ctrl.sv</code>. The two-always skeleton and default assignments are already set up. Fill in the <code>case</code> branches inside <code>always_comb</code>: the transition conditions in <code>IDLE</code>, and the output + transition for <code>READING</code> and <code>WRITING</code>.</p>
               <p><strong>Important:</strong> Do not modify <code>state</code> in your solution — <code>state</code> is updated only by the <code>always_ff</code> block. In <code>always_comb</code> you only assign to <code>next</code> (and the outputs). The combinational block computes the <em>next</em> state; the flip-flop block applies it on the clock edge.</p>
+              <p>That ordering gives the controller a one-cycle rhythm: a command sampled while in <code>IDLE</code> selects <code>READING</code> or <code>WRITING</code> for the next edge, and the corresponding output is visible during that state. The following edge returns to <code>IDLE</code>, where <code>ready</code> is high again.</p>
               <blockquote><p>Keep outputs in the <code>always_comb</code> block, never in the <code>always_ff</code> block — Moore outputs are a function of state only, not of the current inputs. A <strong>Mealy FSM</strong> would also allow outputs to depend directly on inputs, giving a one-cycle faster response — but at the cost of glitchy combinational outputs that change mid-cycle whenever inputs change. Moore is the safer default for synchronous RTL.</p></blockquote>
               <h2>Testbench</h2>
-              <p>The testbench cycles through all three states — idle, write command, read command — and checks that <code>sram_we</code> and <code>ready</code> assert at the right times.</p>
+              <p>The testbench cycles through all three states — idle, write command, read command — and checks that <code>sram_we</code> and <code>ready</code> assert at the right times. It prints <code>PASS</code> only when every check succeeds and reports the failure count otherwise.</p>

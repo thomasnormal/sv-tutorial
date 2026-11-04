@@ -167,6 +167,17 @@ describe('browser-audit lesson alignment', () => {
     expect(description).toContain('only the XOR branch exists');
   });
 
+  it('keeps the Moore FSM explanation aligned with its two-block timing', () => {
+    const description = read('sv/fsm/description.html');
+    const testbench = read('sv/fsm/tb.sv');
+    expect(description).toContain('reusable two-block shape');
+    expect(description).toContain('next = state');
+    expect(description).toContain('output defaults before the <code>case</code>');
+    expect(description).toContain('one-cycle rhythm');
+    expect(description).toContain('reports the failure count otherwise');
+    expect(testbench).toContain('FAIL: %0d Moore FSM checks were wrong');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

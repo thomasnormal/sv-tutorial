@@ -50,6 +50,7 @@ module tb;
     if (sram_we !== 1'b0) fail++;
 
     if (fail == 0) $display("PASS");
+    else $display("FAIL: %0d Moore FSM checks were wrong", fail);
     $finish;
   end
 endmodule

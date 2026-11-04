@@ -419,6 +419,20 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('ack_burst ##[0:$] done');
   });
 
+  it('keeps throughout timing independent of arbitrary MOSI data', () => {
+    const description = read('sva/throughout/description.html');
+    const starter = read('sva/throughout/spi_check.sv');
+    const testbench = read('sva/throughout/tb.sv');
+    const solution = read('sva/throughout/spi_check.sol.sv');
+    expect(description).toContain('<code>t+1</code> through <code>t+8</code>');
+    expect(description).toContain('each MOSI bit may be 0 or 1');
+    expect(description).toContain('<code>1\'b1[*8]</code>');
+    expect(description).toContain('without accidentally requiring <code>mosi</code> to be high');
+    expect(starter).toContain('TODO: when cs_n falls');
+    expect(testbench).toContain('eight-sample MOSI transfer');
+    expect(solution).toContain('(!cs_n) throughout (1\'b1[*8])');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

@@ -14,5 +14,11 @@
   <text x="286" y="170" text-anchor="middle" fill="#586469">one high cs_n sample inside the bar breaks the property</text>
 </svg>
 <p>Open <code>spi_check.sv</code> and complete the property: when <code>cs_n</code> falls, use <code>throughout</code> to assert that <code>cs_n</code> stays low for an 8-cycle MOSI sequence.</p>
+<table><thead><tr><th>Sampled edge</th><th><code>cs_n</code></th><th>Transfer slot</th></tr></thead><tbody>
+<tr><td><code>t</code></td><td><code>1&rarr;0</code></td><td><code>$fell(cs_n)</code> starts the obligation</td></tr>
+<tr><td><code>t+1</code> through <code>t+8</code></td><td>must remain 0</td><td>eight sampled slots; each MOSI bit may be 0 or 1</td></tr>
+<tr><td><code>t+9</code></td><td>may return to 1</td><td>the guarded transfer has ended</td></tr>
+</tbody></table>
+<p>Use <code>1'b1[*8]</code> as the eight-slot sequence: the literal means “a sampled slot exists,” so it counts cycles without accidentally requiring <code>mosi</code> to be high. The <code>throughout</code> operand <code>!cs_n</code> is checked at every one of those slots.</p>
 <p>The previous clock-delay lesson taught how to count sampled cycles; reuse that timing discipline here. The starter includes <code>tb.sv</code> with eight MOSI samples while <code>cs_n</code> stays low. Run it before solving to see the guarded transfer; after solving, the same trace prints <code>PASS</code>. Verify searches for a mid-transfer chip-select glitch.</p>
 <blockquote><p><code>(!cs_n) throughout seq</code> is equivalent to writing <code>sync_reject_on(cs_n) seq</code> — both fail as soon as <code>cs_n</code> rises mid-transfer. <code>throughout</code> is usually more readable for the stability idiom.</p></blockquote>

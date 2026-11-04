@@ -183,6 +183,9 @@ describe('browser-audit lesson alignment', () => {
     expect(starter).toContain('odd number of set bits (reduction XOR)');
     expect(starter).toContain('drive vif.we=1, vif.addr, vif.wdata for one rising edge');
     expect(starter).toContain('set vif.addr, wait one rising edge, capture vif.rdata into data');
+    expect(starter).toContain('FAIL: %0d task/function checks were wrong');
+    expect(description).toContain('starter testbench writes and reads one address');
+    expect(description).toContain('solution repeats the same helpers at three addresses');
   });
 
   it('keeps the first UVM test aligned with its objection lifecycle', () => {

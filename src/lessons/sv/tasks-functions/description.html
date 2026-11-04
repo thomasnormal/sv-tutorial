@@ -21,4 +21,4 @@ read_word:  drive address          ─► rising edge ─► capture rdata</pre>
                 <li><code>read_word(vif, addr, data)</code> — set the address, wait one rising edge, then capture <code>rdata</code>.</li>
               </ul>
               <blockquote><p>These are the helper routines a UVM driver uses internally. In Part 3 the driver wraps the same protocol in a class method that receives transactions from a sequencer.</p></blockquote>
-              <p>The testbench writes and reads three addresses, prints each result and parity, and emits <code>PASS</code> only when every expected value matches.</p>
+              <p>The starter testbench writes and reads one address so you can focus on the three routine bodies; it prints <code>PASS</code> only when the readback and parity are both correct. The supplied solution repeats the same helpers at three addresses and checks every result.</p>

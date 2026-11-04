@@ -36,11 +36,17 @@ module tb;
 
   initial begin
     logic [7:0] result;
+    int fail = 0;
     write_word(4'd5, 8'd42);
     read_word (4'd5, result);
     $display("mem[5] = %0d  parity=%b (expect 42, parity=%b)",
              result, parity_check(result), ^8'd42);
-    if (result === 8'd42 && parity_check(result) === ^8'd42) $display("PASS");
+    if (result !== 8'd42 || parity_check(result) !== ^8'd42) begin
+      $display("FAIL: task readback or parity was incorrect");
+      fail++;
+    end
+    if (fail == 0) $display("PASS");
+    else $display("FAIL: %0d task/function checks were wrong", fail);
     $finish;
   end
 endmodule

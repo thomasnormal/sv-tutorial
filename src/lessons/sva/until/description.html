@@ -20,6 +20,14 @@
   <text x="185" y="151" text-anchor="middle" fill="#0d6f72">valid s_until done</text>
   <text x="350" y="151" text-anchor="middle" fill="#9a5a18">until_with checks data_ok on done</text>
 </svg>
+<h2>Inclusive completion timing</h2>
+<table><thead><tr><th>Sampled edge</th><th>Signals</th><th>Temporal obligation</th></tr></thead><tbody>
+<tr><td><code>t0</code></td><td><code>valid=0</code>, <code>done=0</code></td><td>no request is active, so neither implication starts</td></tr>
+<tr><td><code>t1</code></td><td><code>valid=1</code>, <code>done=0</code>, <code>data_ok=1</code></td><td><code>valid s_until done</code> keeps <code>valid</code> high and requires a future <code>done</code>; the clean-data rule is active</td></tr>
+<tr><td><code>t2</code></td><td><code>valid=1</code>, <code>done=1</code>, <code>data_ok=1</code></td><td><code>until_with</code> includes the completion edge, so <code>data_ok</code> is checked here too</td></tr>
+<tr><td><code>t3</code></td><td><code>valid=0</code>, <code>done=0</code>, <code>data_ok=0</code></td><td>the transaction is over; the hold and clean-payload obligations have ended</td></tr>
+</tbody></table>
+<p>The weak <code>until</code> form would permit a finite trace that never reaches <code>done</code>; <code>s_until</code> rejects that deadlock. The separate <code>until_with</code> expression is inclusive only for <code>data_ok</code>, while the valid hold uses the strong progress form.</p>
 <p>Open <code>hold_check.sv</code> and complete two properties:</p>
 <ul>
   <li><strong>p_valid_holds</strong>: once <code>valid</code> goes high it must stay high until <code>done</code> arrives — and <code>done</code> must eventually arrive.</li>

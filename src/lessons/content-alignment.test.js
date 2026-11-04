@@ -667,6 +667,22 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('lock |-> always lock');
   });
 
+  it('keeps until variants aligned with the inclusive completion edge', () => {
+    const description = read('sva/until/description.html');
+    const starter = read('sva/until/hold_check.sv');
+    const testbench = read('sva/until/tb.sv');
+    const solution = read('sva/until/hold_check.sol.sv');
+    expect(description).toContain('<code>t1</code>');
+    expect(description).toContain('<code>valid s_until done</code>');
+    expect(description).toContain('<code>until_with</code> includes the completion edge');
+    expect(description).toContain('s_until</code> rejects that deadlock');
+    expect(starter).toContain('TODO: valid must stay high until done arrives, and done must eventually arrive');
+    expect(starter).toContain('TODO: from valid going high, data_ok must hold on every cycle including the done cycle');
+    expect(testbench).toContain('completion: valid=%0b done=%0b data_ok=%0b (expect 1,1,1)');
+    expect(solution).toContain('valid |-> valid s_until done');
+    expect(solution).toContain('valid |-> data_ok until_with done');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

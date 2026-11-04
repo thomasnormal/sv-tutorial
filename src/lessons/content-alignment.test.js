@@ -108,6 +108,17 @@ describe('browser-audit lesson alignment', () => {
     expect(alwaysFf).toContain('active region');
   });
 
+  it('keeps the always_ff SRAM explanation aligned with NBA read timing', () => {
+    const description = read('sv/always-ff/description.html');
+    const starter = read('sv/always-ff/sram_core.sv');
+    const solution = read('sv/always-ff/sram_core.sol.sv');
+    expect(description).toContain('read-during-write behavior');
+    expect(description).toContain('samples the old byte');
+    expect(description).toContain('A later read of that address');
+    expect(starter).toContain('this creates 1-cycle read latency');
+    expect(solution).toContain('rdata <= mem[addr];');
+  });
+
   it('keeps the shift-register exercise aligned with its concatenation behavior', () => {
     const description = read('sv/shift-reg/description.html');
     const starter = read('sv/shift-reg/shift_reg.sv');

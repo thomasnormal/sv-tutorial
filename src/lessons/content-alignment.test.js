@@ -361,6 +361,20 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('$fell(cs_n) |=> ##[0:1] ack_rise');
   });
 
+  it('keeps request/ack windows explicit about non-overlap timing', () => {
+    const description = read('sva/req-ack/description.html');
+    const starter = read('sva/req-ack/req_ack.sv');
+    const testbench = read('sva/req-ack/tb.sv');
+    const solution = read('sva/req-ack/req_ack.sol.sv');
+    expect(description).toContain('<code>t+1</code>');
+    expect(description).toContain('latest legal acknowledgement');
+    expect(description).toContain('an acknowledgement here is too late');
+    expect(description).toContain('Use <code>$rose(ack)</code> when the protocol requires a new transition');
+    expect(starter).toContain('TODO: match one sampled acknowledgement level');
+    expect(testbench).toContain('third legal edge');
+    expect(solution).toContain('$rose(req) |=> ##[0:2] ack_window');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

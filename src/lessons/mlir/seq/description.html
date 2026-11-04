@@ -34,3 +34,10 @@ seq.write %mem[%addr], %wdata, %we : &lt;i8, 16&gt;
   seq   — stores it across clock edges
 </pre>
 <p>Open <code>sram_core.mlir</code>. The <code>sram_core</code> module at the top uses all three. The <code>dff</code> module at the bottom is the simplest possible seq example — one register, three lines.</p>
+<h2>Clocked value timing</h2>
+<table><thead><tr><th>Simulation time</th><th>Clock / data</th><th><code>seq.compreg</code> state</th></tr></thead><tbody>
+<tr><td><code>0 ns</code></td><td><code>clk=0</code>, <code>d=0x42</code></td><td><code>q</code> still has its initial value; no rising edge has occurred</td></tr>
+<tr><td><code>5 ns</code></td><td>clock toggles <code>0 → 1</code></td><td>the register captures <code>d</code>; <code>q</code> becomes <code>0x42</code></td></tr>
+<tr><td><code>11 ns</code></td><td>the check process probes after the first edge</td><td>the observed <code>q</code> is still <code>0x42</code>, so the testbench prints <code>PASS</code></td></tr>
+</tbody></table>
+<p>The clock is represented as a <code>!seq.clock</code> value produced by <code>seq.to_clock</code>. LLHD drives the Boolean clock signal, while <code>seq.compreg</code> owns the edge-sensitive state. The SRAM example adds <code>seq.hlmem</code> and a registered read result, so its read data appears one cycle after the address is sampled.</p>

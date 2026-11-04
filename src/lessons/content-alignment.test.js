@@ -787,6 +787,22 @@ describe('browser-audit lesson alignment', () => {
     expect(testbench).toContain('sim.fmt.literal "PASS\\0A"');
   });
 
+  it('keeps the seq dialect aligned with clocked register timing', () => {
+    const description = read('mlir/seq/description.html');
+    const source = read('mlir/seq/sram_core.mlir');
+    const testbench = read('mlir/seq/sram_core_tb.mlir');
+    expect(description).toContain('<code>5 ns</code>');
+    expect(description).toContain('<code>q</code> becomes <code>0x42</code>');
+    expect(description).toContain('one cycle after the address is sampled');
+    expect(source).toContain('seq.hlmem @sram_core %clk, %false : <16xi8>');
+    expect(source).toContain('seq.write %mem[%addr] %wdata wren %we');
+    expect(source).toContain('%rdata      = seq.compreg %rdata_comb, %clk : i8');
+    expect(source).toContain('%q = seq.compreg %d, %clk : i8');
+    expect(testbench).toContain('%c42    = hw.constant 66  : i8');
+    expect(testbench).toContain('%c11ns  = hw.constant 11000000');
+    expect(testbench).toContain('sim.fmt.literal "PASS\\0A"');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

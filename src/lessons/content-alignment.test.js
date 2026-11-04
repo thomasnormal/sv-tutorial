@@ -238,6 +238,17 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('FIFO order expected');
   });
 
+  it('keeps fork variants aligned with child lifetime and parent timing', () => {
+    const description = read('sv/fork-join/description.html');
+    const starter = read('sv/fork-join/concurrent.sv');
+    const solution = read('sv/fork-join/concurrent.sol.sv');
+    expect(description).toContain('join_any</code> only controls when the parent resumes');
+    expect(description).toContain('<code>disable fork</code>');
+    expect(description).toContain('leaves them alive so you can see their later messages');
+    expect(starter).toContain('join_none: parent should continue at t=40ns');
+    expect(solution).toContain('assert ($time == 40)');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

@@ -27,6 +27,7 @@ module concurrent_tb;
       delay_print(2, "background (20 ns)");
     join_none
     $display("parent continues at %0t ns", $time);
+    assert ($time == 40) else $fatal(0, "join_none: parent should continue at t=40ns, got %0t ns", $time);
 
     #50;
     $display("PASS");

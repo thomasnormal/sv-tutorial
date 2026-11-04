@@ -33,6 +33,7 @@ module concurrent_tb;
     //       Then immediately $display "parent continues at <time> ns"
     //       (should print before the background thread finishes).
     $display("--- fork...join_none ---");
+    if ($time != 40) $fatal(0, "join_none: parent should continue at t=40ns, got %0t ns", $time);
 
     #50;  // let background threads finish
     $display("PASS");

@@ -8,6 +8,7 @@ join_any      // parent resumes when the FIRST thread finishes
 join_none     // parent resumes immediately; threads run in background</pre>
 
 <p>Each entry in the fork block is an independent thread. Tasks marked <code>automatic</code> get their own local stack — without <code>automatic</code>, all calls share the same variables.</p>
+<p><code>join_any</code> only controls when the parent resumes; it does <strong>not</strong> stop the slower children. In a real timeout race, follow it with <code>disable fork</code> when those remaining threads must be cancelled. This exercise leaves them alive so you can see their later messages, then starts a separate <code>join_none</code> background task.</p>
 
 <h3>Choosing the variant</h3>
 <table style="border-collapse:collapse;width:100%;font-size:0.9em">

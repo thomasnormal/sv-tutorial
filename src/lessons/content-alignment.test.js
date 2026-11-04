@@ -56,6 +56,14 @@ describe('browser-audit lesson alignment', () => {
     expect(starter).toContain('4-state 4-bit type for an RTL status nibble');
   });
 
+  it('keeps static-array arithmetic width visible in the exercise', () => {
+    const description = read('sv/arrays-static/description.html');
+    const testbench = read('sv/arrays-static/tb.sv');
+    expect(description).toContain('8\'hFF');
+    expect(description).toContain('8-bit <code>unpacked_total</code> wraps to zero');
+    expect(testbench).toContain('0xFF + 1 wraps at 8 bits');
+  });
+
   it('keeps the priority encoder exercise aligned with its casez patterns', () => {
     const description = read('sv/priority-enc/description.html');
     const starter = read('sv/priority-enc/priority_enc.sv');

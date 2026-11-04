@@ -44,6 +44,9 @@ assign data  = select ? a : b;      // conditional choice</pre>
 </svg>
 
 <p><strong>Bitwise</strong> <code>&amp;</code> and <code>|</code> preserve a vector's width. A <strong>reduction</strong> <code>|a</code> combines every bit of <code>a</code> into one result, useful for a “any request?” flag. The <strong>ternary</strong> <code>condition ? when_true : when_false</code> is a compact 2:1 multiplexer.</p>
+<pre class="diagram">4'b1010 &amp; 4'b0110  →  4'b0010   (bitwise: one result bit per input bit)
+(a != 0) &amp;&amp; (b != 0) →  1'b1     (logical: one Boolean result)</pre>
+<p>Use <code>&amp;</code> and <code>|</code> when the operands are buses and you need to preserve their bit positions. Use <code>&amp;&amp;</code> and <code>||</code> for conditions that should produce one true/false value; substituting one family for the other can silently change both the width and the meaning of the expression.</p>
 
 <h2>What the live expression preserves</h2>
 <p>Arithmetic does not magically grow to hold a carry. The 4-bit values <code>4'b1010</code> and <code>4'b0110</code> add to 16, but a 4-bit destination keeps only <code>4'b0000</code>. Widening both operands first with <code>{1'b0, a}</code> preserves the carry in a 5-bit result. That is <strong>overflow</strong>: the mathematical answer exists, but the chosen width cannot represent it.</p>

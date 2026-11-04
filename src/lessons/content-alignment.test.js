@@ -63,6 +63,8 @@ describe('browser-audit lesson alignment', () => {
     expect(description).toContain('signed addition for <code>signed_sum</code>');
     expect(starter).toContain('bitwise, reduction, ternary,');
     expect(starter).toContain('unsigned-sum, and signed-sum outputs');
+    expect(description).toContain('bitwise: one result bit per input bit');
+    expect(description).toContain('Use <code>&amp;</code> and <code>|</code> when the operands are buses');
     for (const output of ['bitwise_and', 'bitwise_or', 'any_set', 'chosen', 'wrapped_sum', 'full_sum', 'signed_sum']) {
       expect(starter).toContain(output);
     }

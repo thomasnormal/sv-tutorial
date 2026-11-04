@@ -249,7 +249,7 @@ describe('generic package artifact loading', () => {
             name: 'lowered_pkg',
             path: '/mox/packages/lowered_pkg-test.vlib',
             url: 'lowered_pkg-test.vlib',
-            flags: ['--read-vlib-lowered-library-ir'],
+            flags: ['--read-vlib-lowered-library-ir={path}'],
             detect: ['\\bimport\\s+lowered_pkg::']
           }]
         })

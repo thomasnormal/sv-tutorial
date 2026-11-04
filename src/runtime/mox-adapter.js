@@ -81,9 +81,12 @@ function packageCompileArgs(artifact, toolName = 'verilog') {
     // --read-vlib filename option. mox-run keeps a string-valued option, so
     // retain the path-qualified form there.
     if (toolName !== 'run') {
-      return ['--read-vlib', artifact.path, ...flags
-        .filter((flag) => !String(flag).startsWith('--read-vlib-lowered-library-ir='))
-        .map((flag) => String(flag).replaceAll('{path}', artifact.path))];
+      return ['--read-vlib', artifact.path, ...flags.flatMap((flag) => {
+        const text = String(flag);
+        if (text.startsWith('--read-vlib-lowered-library-ir='))
+          return ['--read-vlib-lowered-library-ir'];
+        return [text.replaceAll('{path}', artifact.path)];
+      })];
     }
     return flags.map((flag) => String(flag) === '--read-vlib-lowered-library-ir'
       ? `${flag}=${artifact.path}`

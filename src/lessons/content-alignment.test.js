@@ -293,6 +293,17 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('!$isunknown(addr)');
   });
 
+  it('keeps immediate assertion examples aligned with their sampled FIFO cycles', () => {
+    const description = read('sva/immediate-assert/description.html');
+    const starter = read('sva/immediate-assert/tb.sv');
+    const solution = read('sva/immediate-assert/fifo_checker.sol.sv');
+    expect(description).toContain('cycle 1');
+    expect(description).toContain('count=9</code> for <code>DEPTH=8');
+    expect(description).toContain('assertion sees it on the following edge');
+    expect(starter).toContain('Four deliberate violations');
+    expect(solution).toContain('Write to full FIFO');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

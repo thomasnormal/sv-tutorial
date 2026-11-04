@@ -803,6 +803,24 @@ describe('browser-audit lesson alignment', () => {
     expect(testbench).toContain('sim.fmt.literal "PASS\\0A"');
   });
 
+  it('keeps lowering stages aligned with the two output paths', () => {
+    const description = read('mlir/lowering/description.html');
+    const source = read('mlir/lowering/lowering.mlir');
+    const testbench = read('mlir/lowering/lowering_tb.mlir');
+    expect(description).toContain('<code>%q = seq.compreg %d, %clk : i8</code>');
+    expect(description).toContain('<code>sv.reg</code> + <code>sv.always</code> + <code>sv.passign</code>');
+    expect(description).toContain('<code>verif.bmc</code> → SMTLIB → Z3');
+    expect(description).toContain('Run lowers toward executable SystemVerilog');
+    expect(source).toContain('hw.module @dff_before');
+    expect(source).toContain('%q_reg = sv.reg name "q"');
+    expect(source).toContain('sv.always posedge %clk');
+    expect(source).toContain('q <= d;');
+    expect(source).toContain('LowerHWtoBMC');
+    expect(testbench).toContain('@dff_before');
+    expect(testbench).toContain('%cAA     = hw.constant 170');
+    expect(testbench).toContain('sim.fmt.literal "PASS\\0A"');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

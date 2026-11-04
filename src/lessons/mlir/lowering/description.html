@@ -30,3 +30,11 @@
 
 <h2>Passes are composable</h2>
 <p>A MOX pipeline is just a list of pass names. You can run only some passes, inspect the IR in between, or insert your own custom passes. This is MLIR's core promise: the framework handles the plumbing so tool builders can focus on the transformations.</p>
+<h2>Follow the register through the pipeline</h2>
+<table><thead><tr><th>Stage</th><th>Representative operation</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>hw + seq</td><td><code>%q = seq.compreg %d, %clk : i8</code></td><td>one abstract clocked state edge</td></tr>
+<tr><td>sv dialect</td><td><code>sv.reg</code> + <code>sv.always</code> + <code>sv.passign</code></td><td>the same state expressed as a register and nonblocking clocked assignment</td></tr>
+<tr><td>SystemVerilog</td><td><code>always @(posedge clk) q &lt;= d;</code></td><td>text that simulation and synthesis tools can consume</td></tr>
+<tr><td>formal branch</td><td><code>verif.bmc</code> → SMTLIB → Z3</td><td>the bounded state space becomes a satisfiability query; <code>sat</code> is a counterexample and <code>unsat</code> proves the bound</td></tr>
+</tbody></table>
+<p>The two branches share the same starting IR but have different destinations: Run lowers toward executable SystemVerilog, while Verify unrolls time into a solver formula. A pass changes representation, not the circuit behavior it represents.</p>

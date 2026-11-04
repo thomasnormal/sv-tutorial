@@ -739,6 +739,24 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('always_ff @(posedge clk) q <= d;');
   });
 
+  it('keeps synthesis gotchas aligned with complete decoder coverage', () => {
+    const description = read('rtl/synthesis-gotchas/description.html');
+    const starter = read('rtl/synthesis-gotchas/decoder.sv');
+    const testbench = read('rtl/synthesis-gotchas/tb.sv');
+    const solution = read('rtl/synthesis-gotchas/decoder.sol.sv');
+    expect(description).toContain('<code>sel=11</code>');
+    expect(description).toContain('<code>y=1000</code>');
+    expect(description).toContain('the added branch prevents an inferred latch');
+    expect(description).toContain('every 2-bit input a combinational result');
+    expect(starter).toContain('WARNING: this module currently infers a latch');
+    expect(starter).toContain('TODO: this case statement is missing a branch for 2\'b11.');
+    expect(starter).toContain('Then change `case` to `unique case`');
+    expect(testbench).toContain('sel = 2\'b11; #5;');
+    expect(testbench).toContain('FAIL 11: got %04b (latch?)');
+    expect(solution).toContain('unique case (sel)');
+    expect(solution).toContain('2\'b11: y = 4\'b1000;');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

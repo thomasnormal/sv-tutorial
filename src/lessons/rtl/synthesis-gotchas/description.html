@@ -53,6 +53,15 @@ endcase</pre>
 endcase</pre>
               <blockquote><p>In simulation, <code>unique case</code> also enables a runtime check: if two branches ever match simultaneously, or none matches, the simulator reports an error. This catches bugs the plain <code>case</code> would silently ignore.</p></blockquote>
 
+              <h2>Decoder coverage table</h2>
+              <table><thead><tr><th>Sampled input</th><th>Intended output</th><th>Complete <code>unique case</code></th></tr></thead><tbody>
+              <tr><td><code>sel=00</code></td><td><code>y=0001</code></td><td>one matching branch drives the output</td></tr>
+              <tr><td><code>sel=01</code></td><td><code>y=0010</code></td><td>one matching branch drives the output</td></tr>
+              <tr><td><code>sel=10</code></td><td><code>y=0100</code></td><td>one matching branch drives the output</td></tr>
+              <tr><td><code>sel=11</code></td><td><code>y=1000</code></td><td>the added branch prevents an inferred latch</td></tr>
+              </tbody></table>
+              <p>With the original incomplete <code>case</code>, the fourth input has no assignment and <code>y</code> must retain its old value. The complete table gives every 2-bit input a combinational result; <code>unique</code> then documents and checks that exactly one branch is selected.</p>
+
               <h2>Exercise</h2>
               <p>Open <code>decoder.sv</code>. The testbench checks all four values of <code>sel</code> — it will fail on <code>sel=2'b11</code> because the missing case produces an X output. Fix the decoder:</p>
               <ol>

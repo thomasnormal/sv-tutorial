@@ -874,6 +874,24 @@ describe('browser-audit lesson alignment', () => {
     expect(python).toContain('assert dut.q.value == 0x4');
   });
 
+  it('keeps cocotb ClockCycles patterns aligned with pulse counts', () => {
+    const description = read('cocotb/clockcycles-patterns/description.html');
+    const rtl = read('cocotb/clockcycles-patterns/pulse_counter.sv');
+    const solution = read('cocotb/clockcycles-patterns/pulse_counter.sol.sv');
+    const python = read('cocotb/clockcycles-patterns/test_pulse_counter.py');
+    expect(description).toContain('<code>1</code> (hold)');
+    expect(description).toContain('<code>5</code></td></tr>');
+    expect(description).toContain('changes <code>pulse</code> after a <code>FallingEdge</code>');
+    expect(description).toContain('initial and final <code>ClockCycles(..., 1)</code>');
+    expect(rtl).toContain('// TODO: clear on reset, otherwise increment when pulse is high.');
+    expect(solution).toContain('if (rst)        count <= 4\'d0;');
+    expect(solution).toContain('else if (pulse) count <= count + 4\'d1;');
+    expect(python).toContain('pattern = [1, 0, 1, 1, 0, 0, 1, 1]');
+    expect(python).toContain('await ClockCycles(dut.clk, 1)');
+    expect(python).toContain('await FallingEdge(dut.clk)');
+    expect(python).toContain('expected = (expected + 1) & 0xF');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

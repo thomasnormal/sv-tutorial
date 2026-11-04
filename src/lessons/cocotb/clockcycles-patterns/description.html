@@ -17,4 +17,16 @@
 <p>
   This is the same style used in larger cocotb environments: drive, await edge, assert.
 </p>
+<h2>Cycle-by-cycle pulse pattern</h2>
+<table><thead><tr><th>Pattern cycle</th><th><code>pulse</code></th><th>Expected count after <code>RisingEdge</code></th></tr></thead><tbody>
+<tr><td><code>0</code></td><td><code>1</code></td><td><code>1</code></td></tr>
+<tr><td><code>1</code></td><td><code>0</code></td><td><code>1</code> (hold)</td></tr>
+<tr><td><code>2</code></td><td><code>1</code></td><td><code>2</code></td></tr>
+<tr><td><code>3</code></td><td><code>1</code></td><td><code>3</code></td></tr>
+<tr><td><code>4</code></td><td><code>0</code></td><td><code>3</code> (hold)</td></tr>
+<tr><td><code>5</code></td><td><code>0</code></td><td><code>3</code> (hold)</td></tr>
+<tr><td><code>6</code></td><td><code>1</code></td><td><code>4</code></td></tr>
+<tr><td><code>7</code></td><td><code>1</code></td><td><code>5</code></td></tr>
+</tbody></table>
+<p>The coroutine changes <code>pulse</code> after a <code>FallingEdge</code>, then samples the registered result after the next <code>RisingEdge</code> and <code>ReadOnly</code>. The initial and final <code>ClockCycles(..., 1)</code> calls each provide one synchronous reset edge.</p>
 <p class="runtime-note"><strong>Known limitation:</strong> the pinned WASM VPI artifact does not deliver the §38.36.1 value-change callback after a cocotb clock write, so this ClockCycles run remains a documented Mox refusal. You can still run the same test with a native cocotb simulator.</p>

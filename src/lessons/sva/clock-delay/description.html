@@ -19,6 +19,12 @@
   <text x="235" y="163" text-anchor="middle" fill="#586469">a response at t1 or t6 would fail</text>
 </svg>
 <p>Open <code>delay_check.sv</code>. The spec is: <em>after a memory request (<code>mem_req</code>), the response (<code>mem_ack</code>) must arrive within 2 to 5 clock cycles.</em></p>
+<table><thead><tr><th>Edge after <code>mem_req</code></th><th>Window result</th></tr></thead><tbody>
+<tr><td><code>t+1</code></td><td>too early — fails</td></tr>
+<tr><td><code>t+2</code> through <code>t+5</code></td><td>inclusive legal window — passes</td></tr>
+<tr><td><code>t+6</code></td><td>too late — fails</td></tr>
+</tbody></table>
+<p>The brackets in <code>##[2:5]</code> include both endpoints. This is why the supplied trace chooses <code>t+2</code>, the earliest legal edge, rather than testing a vague “about two cycles” delay.</p>
 <p>The previous sequence lesson named multi-cycle patterns; here the delay itself is the rule. Complete the one-sample <code>delayed_ack</code> sequence, use <code>|-> ##[2:5]</code> in the property, and add its assertion before pressing <strong>verify</strong>.</p>
 <p>The starter includes <code>tb.sv</code> with an acknowledgement at the earliest legal edge. Run it before solving to see the trace; after solving, the same trace checks the expected edge and prints <code>PASS</code>. Verify still searches unconstrained requests and acknowledgements for an off-by-one counterexample.</p>
 <p>If the delay range is wrong, the Verify log reports <strong>COUNTEREXAMPLE FOUND</strong> and lists the model's signal assignments. BMC does not generate a Waves tab; use those assignments to spot off-by-one errors.</p>

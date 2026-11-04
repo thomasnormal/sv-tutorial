@@ -337,6 +337,17 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('reset_event |=> (cnt == 0)');
   });
 
+  it('keeps clock-delay ranges explicit about inclusive endpoints', () => {
+    const description = read('sva/clock-delay/description.html');
+    const starter = read('sva/clock-delay/delay_check.sv');
+    const testbench = read('sva/clock-delay/tb.sv');
+    const solution = read('sva/clock-delay/delay_check.sol.sv');
+    expect(description).toContain('<code>t+2</code> through <code>t+5</code>');
+    expect(description).toContain('brackets in <code>##[2:5]</code> include both endpoints');
+    expect(testbench).toContain('acknowledgement exactly two sampled edges later');
+    expect(solution).toContain('##[2:5] delayed_ack');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

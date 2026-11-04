@@ -1,5 +1,7 @@
 <p>A memory controller often needs to answer a request as soon as it sees one. The one new idea here is the <strong>Mealy output path</strong>: an output depends on both the current state and an input, so a request can assert <code>grant</code> before the next clock edge. That saves a cycle, but the output can also change whenever the input changes. The enum state and clocked state update are the familiar scaffolding around that path.</p>
 
+<p>Read the timing in two stages: while <code>state == IDLE</code>, raising <code>req</code> makes <code>grant</code> high immediately; at the next rising edge, the state becomes <code>BUSY</code>, so <code>grant</code> drops and the Moore-style <code>busy</code> output rises. While busy, raising <code>ack</code> similarly makes <code>done</code> visible before the edge that returns to <code>IDLE</code>.</p>
+
 <h2>The pattern</h2>
 <pre>typedef enum logic { &lt;STATE_A&gt;, &lt;STATE_B&gt; } state_t;
 state_t state;
@@ -11,6 +13,12 @@ end
 
 assign &lt;mealy_output&gt; = (state == &lt;STATE_A&gt;) &amp;&amp; &lt;input&gt;;</pre>
 <p>The state is stored on the clock edge — the same sequential pattern used in the earlier FSM lessons. The output expression is separate and combinational: it can see the current input immediately. This compact style keeps one procedural block for state and uses direct assignments for the Mealy outputs.</p>
+
+<table><thead><tr><th>Current state</th><th>Input</th><th>Mealy output</th><th>Next state</th></tr></thead><tbody>
+<tr><td><code>IDLE</code></td><td><code>req=1</code></td><td><code>grant=1</code></td><td><code>BUSY</code> at the edge</td></tr>
+<tr><td><code>BUSY</code></td><td><code>ack=1</code></td><td><code>done=1</code></td><td><code>IDLE</code> at the edge</td></tr>
+</tbody></table>
+<p>Because <code>grant</code> and <code>done</code> are combinational, a short input glitch can appear at the output. Register the output instead when downstream logic requires an edge-aligned, glitch-free signal.</p>
 
 <svg width="450" height="190" viewBox="0 0 450 190" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:12px auto">
   <defs><marker id="mealy-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#586469"/></marker></defs>

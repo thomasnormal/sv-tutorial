@@ -178,6 +178,16 @@ describe('browser-audit lesson alignment', () => {
     expect(testbench).toContain('FAIL: %0d Moore FSM checks were wrong');
   });
 
+  it('keeps the Mealy FSM explanation aligned with its immediate outputs', () => {
+    const description = read('sv/mealy-fsm/description.html');
+    const starter = read('sv/mealy-fsm/mealy_ctrl.sv');
+    expect(description).toContain('raising <code>req</code> makes <code>grant</code> high immediately');
+    expect(description).toContain('Current state');
+    expect(description).toContain('short input glitch');
+    expect(description).toContain('Register the output instead');
+    expect(starter).toContain('Drive grant/done/busy from the current state and inputs.');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

@@ -4,6 +4,8 @@ module mux4 (
   output logic [7:0] y
 );
   always_comb begin
+    // Give y a value before the case so every selector, including X, is covered.
+    y = '0;
     case (sel)
       // 2'b00 is the binary representation of 0.
       // We could also write 2'b0 or just 0

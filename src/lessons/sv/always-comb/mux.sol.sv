@@ -4,6 +4,7 @@ module mux4 (
   output logic [7:0] y
 );
   always_comb begin
+    y = '0;
     case (sel)
       2'b00: y = a;
       2'b01: y = b;

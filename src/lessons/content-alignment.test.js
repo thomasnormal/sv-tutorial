@@ -56,6 +56,16 @@ describe('browser-audit lesson alignment', () => {
     expect(starter).toContain('four branches in descending priority');
   });
 
+  it('keeps the always_comb exercise latch-safe', () => {
+    const description = read('sv/always-comb/description.html');
+    const starter = read('sv/always-comb/mux.sv');
+    const solution = read('sv/always-comb/mux.sol.sv');
+    expect(description).toContain('Give the output a default value before the <code>case</code>');
+    expect(description).toContain('synthesis can infer storage');
+    expect(starter).toContain("y = '0;");
+    expect(solution).toContain("y = '0;");
+  });
+
   it('keeps the operator exercise aligned with its seven expression outputs', () => {
     const description = read('sv/assign-operators/description.html');
     const starter = read('sv/assign-operators/operator_lab.sv');

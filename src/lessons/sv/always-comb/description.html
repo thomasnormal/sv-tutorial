@@ -48,6 +48,7 @@ case (sel)
    3: y = d;
 endcase
 </pre>
+<p>Give the output a default value before the <code>case</code>. That makes the combinational assignment complete even when <code>sel</code> contains an unknown bit and no exact branch matches; without a default, a simulator can leave the old <code>y</code> value in place and synthesis can infer storage.</p>
 <p>
 Pick one of the patterns
 and implement the missing code in <code>mux.sv</code>.

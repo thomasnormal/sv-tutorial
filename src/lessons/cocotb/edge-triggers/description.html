@@ -18,4 +18,12 @@
   <li>load behavior when <code>en=1</code></li>
   <li>edge-based waiting with <code>RisingEdge</code>, <code>FallingEdge</code>, and <code>ClockCycles</code></li>
 </ul>
+<h2>Edge-by-edge register trace</h2>
+<table><thead><tr><th>Edge</th><th>Inputs before the edge</th><th>Expected <code>q</code></th></tr></thead><tbody>
+<tr><td>first <code>RisingEdge</code></td><td><code>rst=1</code>, <code>en=0</code>, <code>d=0</code></td><td>reset clears <code>q</code> to <code>0</code></td></tr>
+<tr><td>next <code>RisingEdge</code></td><td><code>rst=0</code>, <code>en=1</code>, <code>d=A</code></td><td>enable loads <code>q=A</code>; <code>ReadOnly</code> observes the committed NBA</td></tr>
+<tr><td>next <code>RisingEdge</code></td><td><code>en=0</code>, <code>d=3</code></td><td>the register holds <code>q=A</code> because the enable is low</td></tr>
+<tr><td>two <code>ClockCycles</code> later</td><td><code>en=1</code>, <code>d=4</code></td><td>the final enabled edge loads <code>q=4</code></td></tr>
+</tbody></table>
+<p><code>Clock</code> drives a repeating 10 ns waveform, <code>FallingEdge</code> gives the coroutine a safe half-cycle to change inputs, and <code>RisingEdge</code> synchronizes the check to the register's sampling edge. <code>ReadOnly</code> is the observation phase after the nonblocking assignment has committed.</p>
 <p class="runtime-note"><strong>Known limitation:</strong> the pinned WASM VPI artifact does not deliver the §38.36.1 value-change callback after a cocotb clock write, so this edge-trigger run remains a documented Mox refusal. You can still run the same test with a native cocotb simulator.</p>

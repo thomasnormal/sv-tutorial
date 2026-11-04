@@ -856,6 +856,24 @@ describe('browser-audit lesson alignment', () => {
     expect(python).toContain('assert dut.count.value == 5');
   });
 
+  it('keeps cocotb edge triggers aligned with register sampling', () => {
+    const description = read('cocotb/edge-triggers/description.html');
+    const rtl = read('cocotb/edge-triggers/reg_en.sv');
+    const solution = read('cocotb/edge-triggers/reg_en.sol.sv');
+    const python = read('cocotb/edge-triggers/test_reg_en.py');
+    expect(description).toContain('first <code>RisingEdge</code>');
+    expect(description).toContain('<code>ReadOnly</code> observes the committed NBA');
+    expect(description).toContain('two <code>ClockCycles</code> later');
+    expect(description).toContain('safe half-cycle to change inputs');
+    expect(rtl).toContain('// TODO: clear q on reset, otherwise load d when en is high.');
+    expect(solution).toContain('if (rst)      q <= 4\'d0;');
+    expect(solution).toContain('else if (en)  q <= d;');
+    expect(python).toContain('Clock(dut.clk, 10, unit="ns")');
+    expect(python).toContain('await FallingEdge(dut.clk)');
+    expect(python).toContain('await ClockCycles(dut.clk, 2)');
+    expect(python).toContain('assert dut.q.value == 0x4');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

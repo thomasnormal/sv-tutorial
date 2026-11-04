@@ -25,5 +25,11 @@
   <text x="235" y="169" text-anchor="middle" fill="#586469">no req → both implications can pass vacuously</text>
 </svg>
 <p>Open <code>implication.sv</code> and complete both property bodies.</p>
+<table><thead><tr><th>Trace at a request edge</th><th><code>|-></code></th><th><code>|=&gt;</code></th></tr></thead><tbody>
+<tr><td><code>ack</code> only at the request edge</td><td>passes</td><td>fails</td></tr>
+<tr><td><code>ack</code> only on the next edge</td><td>fails</td><td>passes</td></tr>
+<tr><td><code>ack</code> held on both edges (the supplied trace)</td><td>passes</td><td>passes</td></tr>
+</tbody></table>
+<p>The supplied trace intentionally makes both properties pass. To expose the difference, remove one of the two <code>ack = 1</code> assignments and rerun; the assertion whose consequent starts at the missing edge reports the failure.</p>
 <p>The starter includes <code>tb.sv</code> with one request and an acknowledgement held for two sampled edges. Run before solving to see the timing trace; after solving, the two assertions inspect the same trace while Verify searches for counterexamples over unconstrained inputs.</p>
 <blockquote><p>If the antecedent never matches, the property passes <em>vacuously</em>. Use <code>cover property</code> to confirm the antecedent was actually exercised.</p></blockquote>

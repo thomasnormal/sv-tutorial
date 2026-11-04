@@ -315,6 +315,17 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('req ##2 gnt');
   });
 
+  it('keeps implication examples explicit about edge-sensitive failures', () => {
+    const description = read('sva/implication/description.html');
+    const starter = read('sva/implication/implication.sv');
+    const testbench = read('sva/implication/tb.sv');
+    expect(description).toContain('ack</code> only at the request edge');
+    expect(description).toContain('the supplied trace');
+    expect(description).toContain('remove one of the two <code>ack = 1</code> assignments');
+    expect(starter).toContain('TODO: use |->');
+    expect(testbench).toContain('same-edge/next-edge trace');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

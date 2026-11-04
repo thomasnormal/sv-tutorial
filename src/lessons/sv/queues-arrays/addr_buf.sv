@@ -16,6 +16,7 @@ module addr_buf_tb;
   logic [3:0] q[$];   // queue — already declared for you
 
   initial begin
+    int expected = 0;
     // TODO 2: allocate 8 elements in addrs using new[8]
 
     // Fill the dynamic array with addresses 0..7 (already done — shows the pattern)
@@ -35,6 +36,7 @@ module addr_buf_tb;
     //         A variable declared inside the loop needs 'automatic' for its
     //         initializer to run on every iteration:
     //           automatic logic [3:0] v = q.pop_front();
+    //         Check each value against expected, then increment expected.
 
     assert (q.size() == 0) else $fatal(1, "FAIL: queue should be empty");
     $display("PASS");

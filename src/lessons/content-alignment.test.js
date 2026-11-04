@@ -227,6 +227,17 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('this.rdata = 8\'h00;');
   });
 
+  it('keeps dynamic-array and queue work honest about FIFO order', () => {
+    const description = read('sv/queues-arrays/description.html');
+    const starter = read('sv/queues-arrays/addr_buf.sv');
+    const solution = read('sv/queues-arrays/addr_buf.sol.sv');
+    expect(description).toContain('form a FIFO');
+    expect(description).toContain('popped sequence (<code>0, 1, 2, 3</code>)');
+    expect(description).toContain('only when the four values come out in FIFO order');
+    expect(starter).toContain('Check each value against expected');
+    expect(solution).toContain('FIFO order expected');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

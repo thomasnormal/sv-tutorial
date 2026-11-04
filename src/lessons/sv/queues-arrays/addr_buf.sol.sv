@@ -4,6 +4,7 @@ module addr_buf_tb;
   logic [3:0] q[$];
 
   initial begin
+    int expected = 0;
     addrs = new[8];
 
     for (int i = 0; i < addrs.size(); i++)
@@ -21,6 +22,8 @@ module addr_buf_tb;
     while (q.size() > 0) begin
       automatic logic [3:0] v = q.pop_front();
       $display("pop: %0d", v);
+      assert (v == expected) else $fatal(1, "FAIL: FIFO order expected %0d, got %0d", expected, v);
+      expected++;
     end
 
     assert (q.size() == 0) else $fatal(1, "FAIL: queue should be empty");

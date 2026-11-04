@@ -50,6 +50,7 @@ name.push_back(v);     // append v to the tail
 name.pop_front();      // remove and return the head element
 name.size()            // number of elements currently in the queue</pre>
 <p>Queues are the standard data structure for scoreboards and FIFOs in UVM environments — the monitor pushes transactions onto the queue; the scoreboard pops and checks them.</p>
+<p><code>push_back</code> and <code>pop_front</code> form a FIFO: the first value appended is the first value returned. This ordering is part of the data structure's contract, so the supplied testbench checks the popped sequence (<code>0, 1, 2, 3</code>) as well as the final empty size.</p>
 
 <p>Open <code>addr_buf.sv</code> and complete four tasks:</p>
 <ol>
@@ -58,4 +59,4 @@ name.size()            // number of elements currently in the queue</pre>
   <li>Push the first four elements of <code>addrs</code> into <code>q</code> using <code>push_back</code>.</li>
   <li>Pop all elements from <code>q</code> using <code>pop_front</code> inside a <code>while</code> loop, printing each value.</li>
 </ol>
-<p>The test passes when <code>q.size() == 0</code> after all pops.</p>
+<p>The test passes only when the four values come out in FIFO order and <code>q.size() == 0</code> after all pops.</p>

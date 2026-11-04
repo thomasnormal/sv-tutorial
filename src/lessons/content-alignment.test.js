@@ -722,6 +722,23 @@ describe('browser-audit lesson alignment', () => {
     expect(solution).toContain('burst_start |=> data_ok');
   });
 
+  it('keeps RTL-to-gates timing aligned with mux and register behavior', () => {
+    const description = read('rtl/rtl-to-gates/description.html');
+    const starter = read('rtl/rtl-to-gates/mux_reg.sv');
+    const testbench = read('rtl/rtl-to-gates/tb.sv');
+    const solution = read('rtl/rtl-to-gates/mux_reg.sol.sv');
+    expect(description).toContain('<code>t1+</code>');
+    expect(description).toContain('the combinational mux drives <code>d=A5</code>');
+    expect(description).toContain('the register captures <code>5A</code>');
+    expect(description).toContain('one-cycle separation is the pipeline stage');
+    expect(starter).toContain('TODO: use always_comb to drive d');
+    expect(starter).toContain('TODO: use always_ff to register d into q');
+    expect(testbench).toContain('sel = 0;');
+    expect(testbench).toContain('sel = 1;');
+    expect(solution).toContain('always_comb d = sel ? b : a;');
+    expect(solution).toContain('always_ff @(posedge clk) q <= d;');
+  });
+
   it('keeps the typedef exercise aligned with its shared aliases', () => {
     const description = read('sv/typedef/description.html');
     const starter = read('sv/typedef/typedef_lab.sv');

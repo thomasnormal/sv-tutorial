@@ -47,6 +47,15 @@ always_ff @(posedge clk) &lt;reg&gt; &lt;= &lt;in&gt;;       // → D flip-flop<
               <p>Each conditional assignment in <code>always_comb</code> becomes a <dfn data-card="A multiplexer (MUX) is a combinational circuit that selects one of N inputs based on a select signal and routes it to the output. A 2:1 MUX has two data inputs (A, B), one select (S), and one output (Y = S ? B : A). In synthesis, if/else chains and ternary operators both map to MUX trees.">multiplexer</dfn>. The synthesis tool sees that <code>d</code> has two possible values and builds a 2:1 MUX. There is no storage — the output changes immediately when any input changes.</p>
               <blockquote><p>The <code>logic [W-1:0] d</code> wire between them is not a register — it is just a named connection. Only variables assigned in <code>always_ff</code> become flip-flops.</p></blockquote>
 
+              <h2>Pipeline timing</h2>
+              <table><thead><tr><th>Clock edge</th><th>Inputs</th><th>Registered output</th></tr></thead><tbody>
+              <tr><td><code>t0</code></td><td><code>sel=0</code>, <code>a=A5</code>, <code>b=5A</code></td><td>the combinational mux drives <code>d=A5</code>; <code>q</code> still holds its prior value</td></tr>
+              <tr><td><code>t1</code></td><td>rising <code>clk</code></td><td>the D flip-flop captures <code>d</code>, so <code>q=A5</code> after the edge</td></tr>
+              <tr><td><code>t1+</code></td><td><code>sel=1</code></td><td>the mux changes <code>d</code> to <code>b=5A</code> immediately; <code>q</code> remains <code>A5</code></td></tr>
+              <tr><td><code>t2</code></td><td>next rising <code>clk</code></td><td>the register captures <code>5A</code>, making <code>q=5A</code></td></tr>
+              </tbody></table>
+              <p>The mux is combinational, so changing <code>sel</code> changes <code>d</code> between edges. The flip-flop samples that value only at the rising clock edge; this one-cycle separation is the pipeline stage that synthesis preserves.</p>
+
               <h2>Exercise</h2>
               <p>Open <code>mux_reg.sv</code> and fill in the two TODO blocks:</p>
               <ol>

@@ -38,6 +38,15 @@ endmodule</pre>
 
 <p>The alias can be used in a port declaration, a local variable, or a testbench signal. If the package changes the width later, every use keeps the same named contract.</p>
 
+<h2>A package is a reusable boundary</h2>
+<p>The package is declared once, then each source file imports the names it needs:</p>
+<pre class="diagram">typedef_pkg.sv                 typedef_lab.sv                 tb.sv
+package typedef_pkg;           import typedef_pkg::*;         import typedef_pkg::*;
+  typedef logic [7:0] data_t;  module typedef_lab (...);     module tb;
+endpackage                    ... data_t result;             ... data_t left;
+                               endmodule                     endmodule</pre>
+<p><code>import typedef_pkg::*;</code> makes the aliases visible in that source file; it does not copy or redefine the package. A compiler can therefore build the package once and reuse its type declarations for the design and the testbench. Keeping a type in one package also prevents the two files from silently drifting to different widths.</p>
+
 <h2>Exercise</h2>
 <p>Open <code>typedef_lab.sv</code>. The package already defines <code>data_t</code> and <code>lane_t</code>. Use those aliases for the intermediate signals and connect the sum, XOR result, and copied lane with continuous assignments. The testbench uses the aliases too, so the design and its checks share the same type names.</p>
 

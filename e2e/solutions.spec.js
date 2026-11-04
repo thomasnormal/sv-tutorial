@@ -57,7 +57,7 @@ async function goToLesson(page, chapterName, lessonName) {
   }
 
   await lessonBtn.click();
-  await expect(page.getByRole('heading', { level: 2, name: lessonName })).toBeVisible();
+  await expect(page.getByTestId('lesson-title')).toHaveText(lessonName);
 }
 
 // ── Lesson registry ───────────────────────────────────────────────────────────
@@ -79,6 +79,7 @@ const LESSONS = [
   { chapter: 'Combinational Logic',     title: 'always_comb and case',                          runner: null },
   { chapter: 'Combinational Logic',     title: 'Priority Encoder',                              runner: null },
   { chapter: 'Combinational Logic',     title: 'Operators & Arithmetic',                        runner: null },
+  { chapter: 'Sequential Logic',        title: 'Events',                                        runner: null },
   { chapter: 'Sequential Logic',        title: 'Flip-Flops with always_ff',                     runner: null },
   { chapter: 'Sequential Logic',        title: 'Up-Counter',                                    runner: null },
   { chapter: 'Sequential Logic',        title: 'Shift Register',                                runner: null },

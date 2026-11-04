@@ -255,6 +255,8 @@ describe('browser-audit lesson alignment', () => {
     expect(events).toContain('wait(event_name.triggered)');
     expect(events).toContain('IEEE 1800-2023 §15.5');
     expect(events).toContain('This event is generated automatically');
+    expect(events).toContain('catches a future post only');
+    expect(events).toContain('the simpler <code>@(write_done)</code> is sufficient');
     expect(parameters).not.toContain('$bits(16) = 4');
     expect(parameters).toContain('IEEE 1800-2023 §20.6.2');
     expect(parameters).toContain('IEEE 1800-2023 §20.8.1');

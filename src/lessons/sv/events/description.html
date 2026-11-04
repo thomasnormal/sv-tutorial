@@ -26,6 +26,7 @@ The basic operations on events are: </p>
 <blockquote><p>Note: You can write either <code>@write_done</code> or <code>@(write_done)</code>. The parenthesized form is common and makes the event control especially easy to spot.</p></blockquote>
 
 <p>The post is instantaneous: every process suspended at <code>@(write_done)</code> resumes in the same simulation time step. Events carry no data and cannot be synthesised — they live only in testbenches and simulation models. That makes them especially useful for verification handoffs: a driver can announce that stimulus is ready, a monitor can announce that a response was observed, and a scoreboard can wait for both before checking it.</p>
+<p>There is one ordering detail to remember: <code>@(write_done)</code> catches a future post only. If another process may post before your wait starts, use <code>wait(write_done.triggered)</code>; the <code>triggered</code> state remains true for the rest of the current simulation time slot. In this exercise the reader starts waiting at time zero and the writer posts at time 10, so the simpler <code>@(write_done)</code> is sufficient.</p>
 
 <h2>A two-event pipeline</h2>
 <p><code>event_sync.sv</code> chains writer, reader, and checker using two events:</p>
@@ -76,4 +77,5 @@ Hint: You can follow the events status in the simulator waveform viewer, just li
 A very important built-in event is <code>posedge clk</code>.
 This event is generated automatically by the simulator whenever the signal <code>clk</code> transitions from 0 to 1.
 You don't post it yourself, but you can wait for it with <code>@(posedge clk)</code>.
+</p>
 <p>In the next lesson, <code>always_ff @(posedge clk)</code> uses exactly this: the block suspends at the rising-edge event and latches new values into the flip-flop array. Every register in our SRAM waits for that one recurring event.</p>

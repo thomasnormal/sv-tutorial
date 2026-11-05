@@ -37,3 +37,34 @@ creates a duplicate `uvm_pkg::uvm_test_done` definition. This proves the
 remaining issue is the generic declaration visibility boundary between the
 serialized lowered package and ordinary source import; it is not artifact
 fetch, identity validation, or MLIR materialization.
+
+## Class-provenance qualification (2026-11-05)
+
+Interp's generic class-handle provenance repair was built in the exact native
+packet `/scratch/thomas-ahle/tmp/interp/lowered-library-class-provenance-build-20261105T1640Z/` and the preserved lit qualification completed with `rc=0`:
+
+- `MOX :: Tools/mox-run/vlib-lowered-library-import.sv`: 1/1 PASS in 10.33 s.
+- Build identity: `e8da470ff4925a18df80d699dd0a65a664043ad6` (the build packet's
+  generated frontend identity is `mox-frontend-v1:c1fd623db492c794c76564b78801551f0eb9bbd17c913298191f89c20f3ac514`).
+- Lit receipt: `/scratch/thomas-ahle/tmp/interp/lowered-library-class-provenance-lit-20261105T173006Z/`.
+
+A matching lowered artifact was generated with that frontend:
+
+- `/scratch/thomas-ahle/tmp/interp/uvm_pkg-e8da470.vlib`
+- 60,427,047 bytes
+- SHA-256 `ea55018461d34071fb1da50099208b6a590ba27a847b177d507638e9d687bc60`
+
+The required 12-lesson native source-versus-lowered matrix was run against
+that exact artifact. All source-backed rows that are currently runnable still
+pass, but every lowered-artifact row fails quickly before producing MLIR:
+
+| rows | source result | lowered artifact result | lowered time |
+| --- | --- | --- | ---: |
+| `reporting`, `seq-item`, `sequence`, `driver`, `constrained-random`, `monitor`, `env`, `factory-override`, `ral` | PASS | FAIL(1) | 2.9–4.7 s |
+| `covergroup`, `cross-coverage`, `coverage-driven` | existing FAIL(1) | FAIL(1) | 3.1–3.2 s |
+
+Receipt: `/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-e8da470.md`.
+The lowered artifact is therefore not publishable yet: the generic declaration
+visibility/import boundary remains unresolved for ordinary lesson sources.
+The checked-in mapped artifact and `static/mox/packages/manifest.json` remain
+unchanged while the shared consumer is repaired.

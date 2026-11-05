@@ -101,3 +101,25 @@ This is a consumer-side lowered-library class/member receiver failure, rather
 than an artifact fetch or cache failure. The browser matrix and manifest switch
 remain gated on a repaired generic consumer; the mapped artifact and manifest
 are unchanged.
+
+## Repaired-consumer candidate matrix (2026-11-05)
+
+Interp's newer frontend at commit `94992b29c1646665a1883b9fad0f2d7f9f8dcbe4`
+passes the lowered-library lit test in its qualification packet
+`/scratch/thomas-ahle/tmp/interp/publication-amended-fixed-full-qual-20261105T2022Z/`.
+The packet has an unrelated red simulation row, so this is recorded as a
+consumer candidate rather than a fully green publication build. Its matching
+artifact was nevertheless generated successfully:
+
+- artifact: `/scratch/thomas-ahle/tmp/interp/uvm_pkg-94992b2.vlib`
+- artifact size: 60,465,829 bytes
+- artifact SHA-256: `ddd768237a63412fdfa6dfd3437a524d9fb2e09187fe83d63eabfeba539d4d8a`
+- generation receipt: `/scratch/thomas-ahle/tmp/interp/lowered-library-artifact-94992b2.log`
+
+The matching 12-row native receipt is
+`/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-94992b2.md`.
+The nine currently runnable source rows pass in 48–56 seconds (with `ral` at
+about 52 seconds), while the three existing source failures remain failures.
+All 12 lowered-artifact rows still fail in 2.9–5.1 seconds and emit zero MLIR
+bytes. The artifact therefore remains unpublished; no browser matrix or
+manifest switch was attempted.

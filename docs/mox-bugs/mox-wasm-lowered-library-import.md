@@ -123,3 +123,16 @@ about 52 seconds), while the three existing source failures remain failures.
 All 12 lowered-artifact rows still fail in 2.9–5.1 seconds and emit zero MLIR
 bytes. The artifact therefore remains unpublished; no browser matrix or
 manifest switch was attempted.
+
+An exact `reporting` replay with this frontend and artifact was queued through
+the shared FIFO and returned `rc=1` in
+`/tmp/svt-lowered-reporting-94992b2/out.log` with the same consumer diagnostic:
+
+```
+/tmp/svt-lowered-reporting-94992b2/tb_top.sv:7:5: error: method 'set_finish_on_completion' has non-class receiver type '!llvm.ptr'
+    uvm_root::get().set_finish_on_completion(0);
+    ^
+```
+
+Thus the repaired lit consumer does not yet cover the UVM class/member
+receiver path needed by ordinary lesson sources.

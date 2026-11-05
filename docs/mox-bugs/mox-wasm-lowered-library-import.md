@@ -68,3 +68,36 @@ The lowered artifact is therefore not publishable yet: the generic declaration
 visibility/import boundary remains unresolved for ordinary lesson sources.
 The checked-in mapped artifact and `static/mox/packages/manifest.json` remain
 unchanged while the shared consumer is repaired.
+
+## Exact qualified frontend matrix (2026-11-05)
+
+The exact qualified interpreter frontend from interp publication commit
+`5b393a211d2824c206f7da9e6b94cfcc50479f84` was used with the newly generated
+lowered artifact:
+
+- frontend: `/scratch/thomas-ahle/tmp/interp/qual-tree/build-opt/bin/mox-verilog`
+- artifact: `/scratch/thomas-ahle/tmp/interp/uvm_pkg-5b393a2.vlib`
+- artifact size: 60,452,473 bytes
+- artifact SHA-256: `f03cb97ddf5c7b7dd0f6ed3764393051aceea0a41ff0d74f25636c5bfc56af8a`
+- receipt: `/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-5b393a2.md`
+
+The 12-row receipt reports source-backed `PASS` for `reporting`, `seq-item`,
+`sequence`, `driver`, `constrained-random`, `monitor`, `env`,
+`factory-override`, and `ral` (about 49–61 seconds each). The three existing
+source failures (`covergroup`, `cross-coverage`, `coverage-driven`) remain
+failures. Every lowered-artifact row fails in about 2.8–4.1 seconds and emits
+zero MLIR bytes, so the lowered package is still not publishable.
+
+A direct replay of the `reporting` lowered invocation reaches the imported
+UVM declarations but then fails with this exact diagnostic:
+
+```
+/tmp/.../tb_top.sv:7:5: error: method 'set_finish_on_completion' has non-class receiver type '!llvm.ptr'
+    uvm_root::get().set_finish_on_completion(0);
+    ^
+```
+
+This is a consumer-side lowered-library class/member receiver failure, rather
+than an artifact fetch or cache failure. The browser matrix and manifest switch
+remain gated on a repaired generic consumer; the mapped artifact and manifest
+are unchanged.

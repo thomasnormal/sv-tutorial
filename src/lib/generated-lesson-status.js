@@ -498,15 +498,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/implication",
     "title": "Implication: |-> and |=>",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/implication",
-        "mode": "run, verify",
-        "construct": "overlapped and non-overlapped implication",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.10 (implication operators)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 33,
+  "PASS": 34,
   "tutorial": 0,
-  "Mox refusal": 38,
+  "Mox refusal": 37,
   "environment": 12
 };
 export const matrixHistory = {

@@ -12,7 +12,6 @@ This table is the build input for the reader-facing lesson status page. Rows are
 | `sv/classes` | run | class properties, object construction, and handle assignment | `no member named 'wdata' in 'mem_item'` (three uses in the solved handle-semantics testbench) | §§8.4–8.7 and §8.12 (class objects, properties, constructors, and assignment) | Mox refusal |
 | `sv/fsm` | run | unpacked SRAM array written by `always_ff` | `variable 'mem' driven by always_ff procedure` | §9.2.2.4 (`always_ff` procedures) | Mox refusal |
 | `sva/concurrent-sim` | run | concurrent `assert property` | `temporal-property-evaluator-not-admitted` | §16.2 (concurrent assertions) | Mox refusal |
-| `sva/isunknown` | run | sampled `$isunknown` assertion | `temporal-property-evaluator-not-admitted` | §20.9 (bit system functions) | Mox refusal |
 | `sva/immediate-assert` | run, verify (`PASS*`) | immediate assertion action | `temporal-property-evaluator-not-admitted` | §16.3 (immediate assertions) | Mox refusal |
 | `sva/sequence-basics` | run, verify | named sequence and property | `temporal-property-evaluator-not-admitted` | §§16.3 and 16.4 (sequence/property declarations) | Mox refusal |
 | `sva/implication` | run, verify | overlapped and non-overlapped implication | `temporal-property-evaluator-not-admitted` | §16.10 (implication operators) | Mox refusal |

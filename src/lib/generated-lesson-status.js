@@ -453,15 +453,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/isunknown",
     "title": "$isunknown — Detecting X and Z",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/isunknown",
-        "mode": "run",
-        "construct": "sampled $isunknown assertion",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§20.9 (bit system functions)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 31,
+  "PASS": 32,
   "tutorial": 0,
-  "Mox refusal": 40,
+  "Mox refusal": 39,
   "environment": 12
 };
 export const matrixHistory = {

@@ -6,10 +6,18 @@
  */
 
 import { test, expect } from '@playwright/test';
+import lessonMeta from '../src/lessons/meta.js';
 
 const BASE = 'https://thomasnormal.github.io/sv-tutorial/';
 
 async function goToLesson(page, chapterName, lessonName) {
+  const directSlug = Object.entries(lessonMeta).find(([slug, meta]) =>
+    slug.startsWith('cocotb/') && meta.title === lessonName)?.[0];
+  if (directSlug) {
+    await page.goto(`${BASE}lesson/${directSlug}`);
+    await expect(page.getByRole('heading', { level: 2, name: lessonName })).toBeVisible();
+    return;
+  }
   await page.goto(BASE);
   await page.evaluate(() => {
     for (const key of Object.keys(localStorage)) {

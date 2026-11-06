@@ -1,8 +1,10 @@
 import { test, expect } from '@playwright/test';
 
 async function goToLesson(page, lessonName) {
-  await page.getByRole('button', { name: 'cocotb Basics' }).click();
-  await page.getByRole('button', { name: new RegExp(lessonName) }).click();
+  // Cocotb lessons are browser-quarantined and intentionally absent from the
+  // published sidebar, so open their prerendered routes directly.
+  const slug = lessonName === 'Your First cocotb Test' ? 'first-test' : 'clock-and-timing';
+  await page.goto(`/lesson/cocotb/${slug}`);
   await expect(page.getByRole('heading', { level: 2, name: lessonName })).toBeVisible();
 }
 

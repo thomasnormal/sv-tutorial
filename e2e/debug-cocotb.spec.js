@@ -7,9 +7,8 @@ test('cocotb: debug - check wasmTable', async ({ page }) => {
     consoleLogs.push(text);
   });
 
-  await page.goto('/');
-  await page.getByRole('button', { name: 'cocotb Basics' }).click();
-  await page.getByRole('button', { name: /Your First cocotb Test/ }).click();
+  // Cocotb is quarantined from the sidebar; navigate to its direct route.
+  await page.goto('/lesson/cocotb/first-test');
   await page.getByTestId('options-button').click();
   await page.getByTestId('solve-button').click();
   await page.getByTestId('run-button').click();

@@ -26,6 +26,13 @@ import lessonMeta from '../src/lessons/meta.js';
 // ── Navigation helper ─────────────────────────────────────────────────────────
 
 async function goToLesson(page, chapterName, lessonName) {
+  const directSlug = Object.entries(lessonMeta).find(([slug, meta]) =>
+    slug.startsWith('cocotb/') && meta.title === lessonName)?.[0];
+  if (directSlug) {
+    await page.goto(`/lesson/${directSlug}`);
+    await expect(page.getByTestId('lesson-title')).toHaveText(lessonName);
+    return;
+  }
   // Navigate to the first lesson directly rather than '/' to avoid the
   // SPA-fallback → SvelteKit client-side redirect timing issue where
   // page.goto('/') returns before the redirect to /lesson/sv/welcome completes.

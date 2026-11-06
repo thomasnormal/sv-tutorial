@@ -513,15 +513,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/formal-intro",
     "title": "Bounded Model Checking",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/formal-intro",
-        "mode": "run, verify",
-        "construct": "assertion used for bounded proof",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.14 (assertion statements)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 34,
+  "PASS": 35,
   "tutorial": 0,
-  "Mox refusal": 37,
+  "Mox refusal": 36,
   "environment": 12
 };
 export const matrixHistory = {

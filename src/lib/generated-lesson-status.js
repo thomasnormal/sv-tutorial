@@ -663,15 +663,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/stable-past",
     "title": "$stable and $past",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/stable-past",
-        "mode": "run, verify",
-        "construct": "$stable and $past",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.9.3 (sampled-value functions)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 43,
+  "PASS": 44,
   "tutorial": 0,
-  "Mox refusal": 28,
+  "Mox refusal": 27,
   "environment": 12
 };
 export const matrixHistory = {

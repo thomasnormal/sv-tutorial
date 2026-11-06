@@ -573,15 +573,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/consecutive-rep",
     "title": "Consecutive Repetition [*m]",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/consecutive-rep",
-        "mode": "run, verify",
-        "construct": "consecutive repetition [*]",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.10.4 (repetition)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 38,
+  "PASS": 39,
   "tutorial": 0,
-  "Mox refusal": 33,
+  "Mox refusal": 32,
   "environment": 12
 };
 export const matrixHistory = {

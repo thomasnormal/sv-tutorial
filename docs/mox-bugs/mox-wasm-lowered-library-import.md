@@ -162,3 +162,76 @@ Even the exact green frontend qualification does not make the package usable
 by ordinary UVM lesson sources. The lowered artifact therefore remains
 unpublished; no browser matrix or manifest switch is justified until the
 generic class/member receiver path is repaired.
+
+## Exact review-fix frontend matrix (2026-11-06)
+
+Interp's review-fix publication commit
+`086fe928e05908d1562c30658be0dfa66dfb266f` has a complete green qualification
+seal: 21/21 rows, seven targets, `status: passed`, in
+`/scratch/thomas-ahle/tmp/interp/publication-review-fix-qual-20261106T0110Z/`.
+The exact frontend from that packet generated:
+
+- frontend: `/scratch/thomas-ahle/tmp/interp/qual-tree/build-opt/bin/mox-verilog`
+- artifact: `/scratch/thomas-ahle/tmp/interp/uvm_pkg-086fe92.vlib`
+- artifact size: 60,438,411 bytes
+- artifact SHA-256: `9588714f377c127df5aa1ce6fc0ae9735b79dc32309d5661bd13742478bc429d`
+- generation packet: `/scratch/thomas-ahle/tmp/interp/lowered-library-artifact-086fe92-20261106T0206Z/`
+- native receipt: `/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-086fe92.md`
+
+The complete 12-row native receipt reports source-backed `PASS` for
+`reporting`, `seq-item`, `sequence`, `driver`, `constrained-random`, `monitor`,
+`env`, `factory-override`, and `ral` in 48.9–62.3 seconds. The existing source
+failures for `covergroup`, `cross-coverage`, and `coverage-driven` remain
+failures. Every lowered-artifact row fails in 0.23–2.15 seconds and emits zero
+MLIR bytes:
+
+| rows | source result | lowered artifact result | lowered time |
+| --- | --- | --- | ---: |
+| `reporting`, `seq-item`, `sequence`, `driver`, `constrained-random`, `monitor`, `env`, `factory-override`, `ral` | PASS | FAIL(1) | 0.23–2.15 s |
+| `covergroup`, `cross-coverage`, `coverage-driven` | existing FAIL(1) | FAIL(1) | 0.23–0.24 s |
+
+This exact review-fix frontend therefore still does not make imported UVM
+class/member receivers usable by ordinary lesson sources. The lowered artifact
+is not publishable; the browser matrix, mapped artifact, and
+`static/mox/packages/manifest.json` remain unchanged.
+
+## Exact review-fix2 frontend matrix (2026-11-06)
+
+Interp's newer review-fix2 frontend at commit
+`4fd0072d831edc766a58c9e7620487c5532ae934` has a complete green qualification
+seal: 21/21 rows, seven targets, `status: passed`, in
+`/scratch/thomas-ahle/tmp/interp/publication-review-fix2-qual-20261106T0327Z/`.
+The matching frontend identity is
+`mox-frontend-v1:a896fc90bf5d57c0ce519c6fb2f2e6ce88b60027c482d8bb03a74637ac3108c4`.
+It generated:
+
+- artifact: `/scratch/thomas-ahle/tmp/interp/uvm_pkg-4fd0072.vlib`
+- artifact size: 60,438,151 bytes
+- artifact SHA-256: `6fd90d032913450578ac36014fe3db00c0ea688e6b800676968e2d26589e4315`
+- generation packet: `/scratch/thomas-ahle/tmp/interp/lowered-library-artifact-4fd0072-20261106T0450Z/`
+- native receipt: `/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-4fd0072.md`
+
+The exact 12-row receipt reports source-backed `PASS` for `reporting`,
+`seq-item`, `sequence`, `driver`, `constrained-random`, `monitor`, `env`,
+`factory-override`, and `ral` in 44.9–56.7 seconds. The existing source
+failures for `covergroup`, `cross-coverage`, and `coverage-driven` remain
+failures. Every lowered-artifact row fails in 2.8–3.0 seconds and emits zero
+MLIR bytes:
+
+| rows | source result | lowered artifact result | lowered time |
+| --- | --- | --- | ---: |
+| `reporting`, `seq-item`, `sequence`, `driver`, `constrained-random`, `monitor`, `env`, `factory-override`, `ral` | PASS | FAIL(1) | 2.8–3.0 s |
+| `covergroup`, `cross-coverage`, `coverage-driven` | existing FAIL(1) | FAIL(1) | 2.8–2.9 s |
+
+An exact `reporting` replay with this frontend and artifact still fails at the
+imported class/member receiver boundary. Receipt:
+`/scratch/thomas-ahle/tmp/interp/lowered-reporting-4fd0072-20261106T0520Z/`.
+The diagnostic is:
+
+```
+tb_top.sv:7:5: error: method 'set_finish_on_completion' has non-class receiver type '!llvm.ptr'
+```
+
+The lowered artifact remains unpublished; the browser matrix, mapped artifact,
+and `static/mox/packages/manifest.json` remain unchanged until this generic
+consumer path is repaired.

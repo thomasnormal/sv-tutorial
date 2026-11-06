@@ -693,15 +693,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/disable-iff",
     "title": "disable iff — Reset Handling",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/disable-iff",
-        "mode": "run, verify",
-        "construct": "disable iff property abort",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.12.1 (disable iff)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 45,
+  "PASS": 46,
   "tutorial": 0,
-  "Mox refusal": 26,
+  "Mox refusal": 25,
   "environment": 12
 };
 export const matrixHistory = {

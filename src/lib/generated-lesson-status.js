@@ -873,15 +873,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/until",
     "title": "until and s_until",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/until",
-        "mode": "run, verify",
-        "construct": "until and s_until",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.10.3 (until operators)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 55,
+  "PASS": 56,
   "tutorial": 0,
-  "Mox refusal": 16,
+  "Mox refusal": 15,
   "environment": 12
 };
 export const matrixHistory = {

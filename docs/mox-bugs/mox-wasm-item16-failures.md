@@ -14,7 +14,6 @@ This table is the build input for the reader-facing lesson status page. Rows are
 | `sva/concurrent-sim` | run | concurrent `assert property` | `temporal-property-evaluator-not-admitted` | §16.2 (concurrent assertions) | Mox refusal |
 | `sva/immediate-assert` | run, verify (`PASS*`) | immediate assertion action | `temporal-property-evaluator-not-admitted` | §16.3 (immediate assertions) | Mox refusal |
 | `sva/sequence-ops` | run, verify | `intersect`, `within`, `and`, `or` | `temporal-property-evaluator-not-admitted` | §16.9 (sequence operators) | Mox refusal |
-| `sva/onehot` | run, verify | `$onehot`, `$onehot0`, `$countones` | `temporal-property-evaluator-not-admitted` | §20.9 (bit system functions) | Mox refusal |
 | `sva/triggered` | run, verify | sequence `.triggered` method | `temporal-property-evaluator-not-admitted` | §16.9.11 (sequence methods) | Mox refusal |
 | `sva/checker` | run, verify | `checker` declaration | `temporal-property-evaluator-not-admitted` | §17.2 (checker declarations) | Mox refusal |
 | `sva/recursive` | run, verify | recursive property | `temporal-property-evaluator-not-admitted` | §16.8 (property/sequence declarations) | Mox refusal |

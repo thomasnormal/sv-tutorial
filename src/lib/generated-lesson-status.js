@@ -753,15 +753,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/onehot",
     "title": "$onehot, $onehot0, $countones",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/onehot",
-        "mode": "run, verify",
-        "construct": "$onehot, $onehot0, $countones",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§20.9 (bit system functions)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 49,
+  "PASS": 50,
   "tutorial": 0,
-  "Mox refusal": 22,
+  "Mox refusal": 21,
   "environment": 12
 };
 export const matrixHistory = {

@@ -93,15 +93,15 @@ export const lessonStatuses = [
   {
     "slug": "sv/events",
     "title": "Events",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sv/events",
-        "mode": "run",
-        "construct": "named event trigger and wait",
-        "diagnostic": "__moore_event_trigger unresolved",
-        "clause": "§15.5 (named events)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 29,
+  "PASS": 30,
   "tutorial": 0,
-  "Mox refusal": 42,
+  "Mox refusal": 41,
   "environment": 12
 };
 export const matrixHistory = {

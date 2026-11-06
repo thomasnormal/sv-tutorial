@@ -6,7 +6,6 @@ This table is the build input for the reader-facing lesson status page. Rows are
 
 | Lesson | Mode | Construct | Exact diagnostic | IEEE 1800-2023 clause | Current status |
 |---|---|---|---|---|---|
-| `sv/events` | run | named event trigger and wait | `__moore_event_trigger` unresolved | §15.5 (named events) | Mox refusal |
 | `sv/interfaces` | run | interface signal connection | `__mox_sim_notify_native_memory_write` unlinked | §25.3 (interface declarations) | Mox refusal |
 | `sv/modports` | run | modport direction view | `__mox_sim_notify_native_memory_write` unlinked | §25.5 (modports) | Mox refusal |
 | `sv/tasks-functions` | run | timing-aware task over interface | `continuous-evaluator-effect-ownership-not-admitted` | §10.3 (continuous assignment evaluator) | Mox refusal |

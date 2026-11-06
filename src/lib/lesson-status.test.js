@@ -23,6 +23,7 @@ describe('generated lesson status', () => {
   it('preserves the measured blockers and exposes exact diagnostics', () => {
     expect(statusForLesson('sva/nonconsec-rep').status).toBe('PASS');
     expect(statusForLesson('sva/nonconsec-rep').rows[0].status).toBe('PASS');
+    expect(statusForLesson('sva/nonconsec-eq').status).toBe('PASS');
     expect(statusForLesson('uvm/reporting').status).toBe('environment');
     expect(statusForLesson('cocotb/first-test').status).toBe('PASS');
     expect(statusForLesson('sv/welcome').status).toBe('PASS');

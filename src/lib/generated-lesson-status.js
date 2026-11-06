@@ -603,15 +603,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/nonconsec-eq",
     "title": "Non-Consecutive Equal Repetition [=m]",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/nonconsec-eq",
-        "mode": "run, verify",
-        "construct": "non-consecutive repetition [=]",
-        "diagnostic": "sequence-zero-delay-endpoint-overlap-not-representable",
-        "clause": "§16.10.7 (non-consecutive repetition)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 40,
+  "PASS": 41,
   "tutorial": 0,
-  "Mox refusal": 31,
+  "Mox refusal": 30,
   "environment": 12
 };
 export const matrixHistory = {

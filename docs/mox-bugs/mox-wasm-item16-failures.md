@@ -13,7 +13,6 @@ This table is the build input for the reader-facing lesson status page. Rows are
 | `sv/fsm` | run | unpacked SRAM array written by `always_ff` | `variable 'mem' driven by always_ff procedure` | §9.2.2.4 (`always_ff` procedures) | Mox refusal |
 | `sva/concurrent-sim` | run | concurrent `assert property` | `temporal-property-evaluator-not-admitted` | §16.2 (concurrent assertions) | Mox refusal |
 | `sva/immediate-assert` | run, verify (`PASS*`) | immediate assertion action | `temporal-property-evaluator-not-admitted` | §16.3 (immediate assertions) | Mox refusal |
-| `sva/nonconsec-eq` | run, verify | non-consecutive repetition `[=]` | `sequence-zero-delay-endpoint-overlap-not-representable` | §16.10.7 (non-consecutive repetition) | Mox refusal |
 | `sva/throughout` | run, verify | `throughout` sequence constraint | `temporal-property-evaluator-not-admitted` | §16.10.5 (throughout) | Mox refusal |
 | `sva/sequence-ops` | run, verify | `intersect`, `within`, `and`, `or` | `temporal-property-evaluator-not-admitted` | §16.9 (sequence operators) | Mox refusal |
 | `sva/seq-args` | run, verify | typed sequence formal arguments | `temporal-property-evaluator-not-admitted` | §16.8 (sequence declarations) | Mox refusal |

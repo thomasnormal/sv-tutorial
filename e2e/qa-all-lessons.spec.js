@@ -25,7 +25,6 @@ const KNOWN_FAILURES = {
   'sv/coverpoint-bins run': `${WASM_REFUSAL}: __mox_sim_register_host_allocation`,
   'sv/cross-coverage run': `${WASM_REFUSAL}: assertMooreCrossBinsofFilterStructABI`,
   'sv/queues-arrays run': `${WASM_REFUSAL}: __mox_sv_open_array_copy_or_register_bounds`,
-  'sv/generate run': `${WASM_REFUSAL}: generate-for lane assignments evaluate as X in the published WASM; native Mox passes`,
   'sv/protected-envelope-boundary run': `comment-form protected envelope support is not in the pinned WASM; native Mox passes: ${WASM_REBUILD}`,
   'sv/coverage-option-text run': 'pinned browser WASM lacks the coverage runtime host-allocation linkage; native Mox passes — needs a WASM rebuild',
   'sv/interface-method-receiver run': `interface-method receiver support is newer than the pinned WASM; native Mox passes: ${WASM_REBUILD}`,
@@ -78,6 +77,7 @@ for (const lesson of LESSONS) {
 // the QA suite fail while the reader-facing status is being refreshed.
 const PUBLISHED_PASSING = new Set([
   'sv/events run',
+  'sv/generate run',
   'sv/covergroup-basics run', 'sv/coverpoint-bins run', 'sv/cross-coverage run',
   'sv/queues-arrays run',
   'sva/vacuous-pass run', 'sva/isunknown run',

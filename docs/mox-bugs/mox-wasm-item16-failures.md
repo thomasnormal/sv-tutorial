@@ -14,7 +14,6 @@ This table is the build input for the reader-facing lesson status page. Rows are
 | `sv/coverpoint-bins` | run | coverpoint bins and ignore bins | `__mox_sim_register_host_allocation` unlinked | §19.4 and §19.6 (coverpoints and bins) | Mox refusal |
 | `sv/cross-coverage` | run | cross, binsof, and intersect | `assertMooreCrossBinsofFilterStructABI` | §19.5 (cross coverage) | Mox refusal |
 | `sv/queues-arrays` | run | dynamic array and queue values | `__mox_sv_open_array_copy_or_register_bounds` unlinked | §§7.5 and 7.10 (arrays and queues) | Mox refusal |
-| `sv/generate` | run | conditional generate-for lanes with continuous assignments | `4-bit XOR=xxxx (expect 0110), OR=xxxx (expect 1110); 8-bit XOR=xxxxxxxx (expect 1001_1001); FAIL: 3 generated-logic checks were wrong` | §§27.3–27.4 (loop and conditional generate constructs) | Mox refusal |
 | `sv/fsm` | run | unpacked SRAM array written by `always_ff` | `variable 'mem' driven by always_ff procedure` | §9.2.2.4 (`always_ff` procedures) | Mox refusal |
 | `sva/concurrent-sim` | run | concurrent `assert property` | `temporal-property-evaluator-not-admitted` | §16.2 (concurrent assertions) | Mox refusal |
 | `sva/vacuous-pass` | run | implication vacuity | `temporal-property-evaluator-not-admitted` | §16.14.8 (vacuous success) | Mox refusal |

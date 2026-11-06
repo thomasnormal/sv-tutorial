@@ -153,15 +153,15 @@ export const lessonStatuses = [
   {
     "slug": "sv/generate",
     "title": "Generate Loops and If",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sv/generate",
-        "mode": "run",
-        "construct": "conditional generate-for lanes with continuous assignments",
-        "diagnostic": "4-bit XOR=xxxx (expect 0110), OR=xxxx (expect 1110); 8-bit XOR=xxxxxxxx (expect 1001_1001); FAIL: 3 generated-logic checks were wrong",
-        "clause": "§§27.3–27.4 (loop and conditional generate constructs)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 25,
+  "PASS": 26,
   "tutorial": 0,
-  "Mox refusal": 46,
+  "Mox refusal": 45,
   "environment": 12
 };
 export const matrixHistory = {

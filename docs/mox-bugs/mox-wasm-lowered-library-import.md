@@ -370,3 +370,31 @@ deployed `mox-verilog` frontend. Until a matching package passes the native
 consumer gate, the manifest is intentionally empty and UVM lessons use the
 source-backed package path. The Pages workflow now deploys only after the main
 CI workflow succeeds, so a failed UVM smoke cannot publish a new site.
+
+## Context-qualified consumer candidate `4e109cb` matrix (2026-11-06)
+
+Interp's context-qualified consumer candidate is commit
+`4e109cb8319e1d8280831121df4992591162eeed`, whose green seven-row
+qualification packet is `/scratch/thomas-ahle/tmp/interp/vlib-context-qualification-20261106T1724Z`
+(`seal.json` reports `status=passed`, `qualification_rc=0`, and 7/7 rows).
+The lowered package was rebuilt with that exact frontend using the pinned UVM
+source:
+
+- artifact: `/scratch/thomas-ahle/tmp/interp/uvm_pkg-4e109cb-lowered.vlib`
+- artifact size: 60,467,192 bytes
+- artifact SHA-256: `94e2821b903cf7e06adace3af0acf9655bd2a0a8548c6f2851c7453429077438`
+- frontend SHA-256: `4edb6da6445e053047667f381ff9a1ffe30f9793ba519603f83f9799febfe6ca`
+- native receipt: `/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-4e109cb-lowered.md`
+
+The exact lowered-mode receipt reports source-backed `PASS` for `reporting`,
+`seq-item`, `sequence`, `driver`, `constrained-random`, `monitor`, `env`,
+`factory-override`, and `ral`; the three existing coverage rows remain source
+failures. Every lowered-artifact row fails in 2.867–7.482 seconds and emits
+zero MLIR bytes. The first diagnostic is unchanged:
+
+```
+method 'set_finish_on_completion' has non-class receiver type '!llvm.ptr'
+```
+
+The candidate therefore does not pass the native consumer gate. The package
+manifest remains empty and no lowered artifact is published.

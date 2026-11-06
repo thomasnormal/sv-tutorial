@@ -588,15 +588,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/nonconsec-rep",
     "title": "Goto Repetition [->m]",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/nonconsec-rep",
-        "mode": "run, verify",
-        "construct": "goto repetition [->]",
-        "diagnostic": "unbounded goto repetition has an unbounded sampled gap",
-        "clause": "§16.10.6 (goto repetition)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 39,
+  "PASS": 40,
   "tutorial": 0,
-  "Mox refusal": 32,
+  "Mox refusal": 31,
   "environment": 12
 };
 export const matrixHistory = {

@@ -768,15 +768,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/triggered",
     "title": ".triggered — Sequence Endpoint Detection",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/triggered",
-        "mode": "run, verify",
-        "construct": "sequence .triggered method",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.9.11 (sequence methods)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 50,
+  "PASS": 51,
   "tutorial": 0,
-  "Mox refusal": 21,
+  "Mox refusal": 20,
   "environment": 12
 };
 export const matrixHistory = {

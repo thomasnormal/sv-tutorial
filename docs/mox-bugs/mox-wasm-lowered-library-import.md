@@ -333,3 +333,31 @@ uvm_analysis_port.svh:2:4: error: invalid expression
 Even with the qualified receiver-recovery candidate, the full UVM package
 consumer gate is red. The artifact remains unpublished; the mapped artifact,
 package manifest, and browser matrix are unchanged.
+
+## Qualified consumer-fix candidate `2cf7bf0` matrix (2026-11-06)
+
+Interp's qualified generic lowered-library consumer fix is
+`2cf7bf0154ab14a567c038084b21af92371f6f90`, with frontend SHA-256
+`9d593d201ef6ec037c4133ff310923065424f892ce18b7613b7a9f11bc2b8cc4`.
+The matching lowered artifact is
+`/scratch/thomas-ahle/tmp/interp/uvm_pkg-2cf7bf0.vlib`, 60,435,324 bytes,
+SHA-256 `9378aec47a46b8f576f2034ebd045e04e8e78766187992740204e3300f1c1bd5`.
+The exact native receipt is
+`/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-2cf7bf0.md`,
+with durable logs under
+`/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-2cf7bf0.md.logs-xRkRNH/`.
+
+Seven runnable source rows pass in 49.4–57.9 seconds; the three existing
+coverage rows fail in both source and artifact with the pre-existing
+`virtual mem_if` class-property resolution diagnostic. All 12 lowered artifact
+rows fail in 2.9–7.4 seconds with zero MLIR bytes. The lowered consumer
+failure is:
+
+```
+<lesson>/tb_top.sv:...: error: method 'set_finish_on_completion' has non-class receiver type '!llvm.ptr'
+    uvm_root::get().set_finish_on_completion(0);
+```
+
+The candidate's qualification packet is green, but the full native UVM
+consumer gate remains red. The artifact is unpublished; the mapped artifact,
+package manifest, and browser matrix remain unchanged.

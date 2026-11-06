@@ -49,6 +49,7 @@ This table is the build input for the reader-facing lesson status page. Rows are
 | `sva/lec` | verify (`PASS*`) | property miter for LEC | `temporal-property-evaluator-not-admitted` | §16.14 (assertion statements) | Mox refusal |
 | `sva/followed-by` | verify | `#-#` and `#=#` followed-by | `temporal-property-evaluator-not-admitted` | §16.10.8 (followed-by operators) | Mox refusal |
 | `cocotb/edge-triggers` | run | VPI value-change callback after a cocotb clock write | `VPI value-change callback did not fire for cocotb edge trigger` | §38.36.1 (VPI value-change callbacks) | Mox refusal |
+| `cocotb/clock-and-timing` | run | cocotb clock writes driving an `always_ff` counter | `FAIL counter_test: Expected 5, got 0` (VPI clock writes did not trigger the DUT edge updates) | §38.36.1 (VPI value-change callbacks) | Mox refusal |
 | `cocotb/clockcycles-patterns` | run | VPI value-change callback after a cocotb clock write | `VPI value-change callback did not fire for cocotb clock cycle trigger` | §38.36.1 (VPI value-change callbacks) | Mox refusal |
 
 ## Environment gaps

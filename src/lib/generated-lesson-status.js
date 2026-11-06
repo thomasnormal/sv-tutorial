@@ -1203,15 +1203,15 @@ export const lessonStatuses = [
   {
     "slug": "cocotb/clock-and-timing",
     "title": "Clock and Timing",
-    "status": "PASS",
+    "status": "Mox refusal",
     "rows": [
       {
         "slug": "cocotb/clock-and-timing",
-        "mode": "browser",
-        "construct": "browser run/verify passed",
-        "diagnostic": "",
-        "clause": "—",
-        "status": "PASS"
+        "mode": "run",
+        "construct": "cocotb clock writes driving an always_ff counter",
+        "diagnostic": "FAIL counter_test: Expected 5, got 0 (VPI clock writes did not trigger the DUT edge updates)",
+        "clause": "§38.36.1 (VPI value-change callbacks)",
+        "status": "Mox refusal"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 27,
+  "PASS": 26,
   "tutorial": 0,
-  "Mox refusal": 44,
+  "Mox refusal": 45,
   "environment": 12
 };
 export const matrixHistory = {

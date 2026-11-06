@@ -31,6 +31,7 @@ const KNOWN_FAILURES = {
   'sva/sequence-basics verify': 'Mox BMC crashes on an assert with a pass action (llhd.process handoff)',
   'sva/formal-assume run': 'Mox evaluates an initial assume property at every clock edge, not once (§16.14.6)',
   'cocotb/edge-triggers run': `${WASM_REFUSAL}: VPI value-change callback did not fire for cocotb edge trigger`,
+  'cocotb/clock-and-timing run': `${WASM_REFUSAL}: VPI clock writes did not trigger always_ff edges; counter remained 0 instead of 5`,
   'cocotb/clockcycles-patterns run': `${WASM_REFUSAL}: VPI value-change callback did not fire for cocotb clock cycle trigger`
 };
 

@@ -235,3 +235,43 @@ tb_top.sv:7:5: error: method 'set_finish_on_completion' has non-class receiver t
 The lowered artifact remains unpublished; the browser matrix, mapped artifact,
 and `static/mox/packages/manifest.json` remain unchanged until this generic
 consumer path is repaired.
+
+## Consumer candidate `269f26c` matrix (2026-11-06)
+
+Interp's follow-up consumer patch built successfully from the dirty
+`interp-publish` worktree after the initial stale-header compile failure. Its
+binary reports:
+
+- Mox commit `269f26c190a4e9de7ab1560055f070e0691b63440`
+- frontend identity `mox-frontend-v1:100e48413209fca4f2a9559461302e0c3a2b3d43c08c13ffc1d8a3fa7551f62`
+- binary SHA-256 `edcff56504535acc85eeb8b6fa6716d4f408527cd89f956e1dc52c50eb0b0b62`
+
+The matching lowered artifact is
+`/scratch/thomas-ahle/tmp/interp/uvm_pkg-269f26c.vlib`, 60,487,823 bytes, SHA-256
+`5347bcc23bfc99d5976063987e06f33dbcb615fa3bf279410b5b587c64f79513`.
+The exact 12-row receipt is
+`/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-269f26c.md`.
+Nine source-backed rows pass in 44.9–56.5 seconds; the three existing coverage
+rows remain source failures; all 12 lowered rows fail in 2.8–3.3 seconds with
+zero MLIR bytes. The durable one-row replay receipt is
+`/scratch/thomas-ahle/tmp/interp/lowered-library-reporting-269f26c.md`, with
+per-leg logs and exact invocations under its `.logs-*` directory. Its lowered
+diagnostic is:
+
+```
+uvm_analysis_port.svh:2:4: error: invalid expression
+```
+
+The existing generic lowered-library static-provider test passes with this
+binary, so the candidate has no broad import regression; the full UVM package
+consumer remains incompatible. The new instance-method witness also exposes a
+class-valued static-return gap (`value of non-class type cannot be assigned to
+class handle`). The candidate artifact is unpublished and the mapped artifact
+and `static/mox/packages/manifest.json` remain unchanged.
+
+`scripts/measure-uvm-package.mjs` now keeps a durable receipt beside every
+matrix output: it records frontend and artifact hashes, the frontend version,
+exact source/artifact argument vectors, per-leg logs, and invalidates the
+receipt if either input changes during the run. Focused tests in
+`src/runtime/uvm-package-measurement.test.js` cover both diagnostic retention
+and input-identity invalidation.

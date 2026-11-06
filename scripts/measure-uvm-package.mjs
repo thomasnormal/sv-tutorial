@@ -8,7 +8,9 @@
  * frontend root (its includes pull in the lesson sources). The output is a
  * markdown receipt suitable for results/ or the Item 23 journal.
  */
-import { mkdtemp, mkdir, readdir, readFile, stat, writeFile, rm, cp } from 'node:fs/promises';
+import { mkdtemp, mkdir, readdir, stat, writeFile, rm, cp } from 'node:fs/promises';
+import { createReadStream } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
@@ -67,7 +69,7 @@ async function stageLesson(slug, tempRoot) {
 }
 
 function runFrontend(executable, args, timeoutMs, logPath) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const started = Date.now();
     const output = [];
     const child = spawn(executable, args, { cwd: REPO_ROOT });
@@ -80,12 +82,20 @@ function runFrontend(executable, args, timeoutMs, logPath) {
       child.kill('SIGTERM');
       setTimeout(() => child.kill('SIGKILL'), 1000).unref();
     }, timeoutMs);
+    child.on('error', reject);
     child.on('close', async (code, signal) => {
       clearTimeout(timer);
       const elapsedMs = Date.now() - started;
       const text = output.join('');
-      await writeFile(logPath, text);
+      try {
+        await writeFile(logPath, text);
+      } catch (error) {
+        reject(error);
+        return;
+      }
       resolve({
+        args,
+        log: path.basename(logPath),
         code: timedOut ? null : code,
         signal,
         timedOut,
@@ -94,6 +104,12 @@ function runFrontend(executable, args, timeoutMs, logPath) {
       });
     });
   });
+}
+
+async function sha256(filePath) {
+  const hash = createHash('sha256');
+  for await (const chunk of createReadStream(filePath)) hash.update(chunk);
+  return hash.digest('hex');
 }
 
 function bytesOrZero(filePath) {
@@ -111,16 +127,26 @@ function formatStatus(result) {
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
+  await mkdir(path.dirname(options.output), { recursive: true });
+  // Each receipt owns a distinct log directory so a later rerun cannot
+  // overwrite its diagnostics. Only large intermediate MLIR files are temporary.
+  const evidenceDir = await mkdtemp(`${options.output}.logs-`);
   const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'svt-uvm-package-'));
   const rows = [];
   try {
-    const artifactBytes = await bytesOrZero(options.artifact);
+    const started = new Date().toISOString();
+    const frontendSha256 = await sha256(options.moxVerilog);
+    const artifactSha256 = await sha256(options.artifact);
+    const artifactBytes = (await stat(options.artifact)).size;
+    const version = await runFrontend(options.moxVerilog, ['--version'],
+      options.timeoutMs, path.join(evidenceDir, 'frontend-version.log'));
+    if (version.code !== 0) throw new Error('Cannot read frontend version; see ' + evidenceDir);
     for (const slug of options.lessons) {
       const lessonDir = await stageLesson(slug, tempRoot);
       const sourceOutput = path.join(tempRoot, `${slug}.source.mlir`);
       const artifactOutput = path.join(tempRoot, `${slug}.artifact.mlir`);
-      const sourceLog = path.join(tempRoot, `${slug}.source.log`);
-      const artifactLog = path.join(tempRoot, `${slug}.artifact.log`);
+      const sourceLog = path.join(evidenceDir, `${slug}.source.log`);
+      const artifactLog = path.join(evidenceDir, `${slug}.artifact.log`);
       const artifactFlags = options.artifactMode === 'lowered'
         ? ['--read-vlib', options.artifact, '--read-vlib-lowered-library-ir']
         : ['--read-vlib', options.artifact, '--read-vlib-mapped-moore-ir'];
@@ -146,11 +172,30 @@ async function main() {
       });
       console.error(`${slug}: source=${formatStatus(source)} ${source.elapsedMs}ms; artifact=${formatStatus(artifact)} ${artifact.elapsedMs}ms`);
     }
+    // Shared fleet binaries can be replaced while a matrix is running. A
+    // mixed-identity run must never be mistaken for a qualified exact pair.
+    const inputsUnchanged = frontendSha256 === await sha256(options.moxVerilog) &&
+      artifactSha256 === await sha256(options.artifact);
+    await writeFile(path.join(evidenceDir, 'receipt.json'), JSON.stringify({
+      started, ended: new Date().toISOString(), options,
+      frontendSha256, frontendVersion: version.output.trim(), artifactSha256,
+      artifactBytes, inputsUnchanged,
+      rows: rows.map((row) => ({
+        ...row,
+        source: { ...row.source, output: undefined },
+        artifact: { ...row.artifact, output: undefined }
+      }))
+    }, null, 2) + '\n');
     const lines = [
       '# UVM package precompile receipt', '',
       `- Mox frontend: \`${options.moxVerilog}\``,
+      `- Frontend SHA-256: \`${frontendSha256}\``,
+      `- Frontend version: ${version.output.trim().replaceAll('\n', ' / ')}`,
       `- UVM source root: \`${options.uvmRoot}\``,
       `- Artifact: \`${options.artifact}\` (${artifactBytes} bytes; ${options.artifactMode} mode)`,
+      `- Artifact SHA-256: \`${artifactSha256}\``,
+      `- Inputs unchanged during matrix: ${inputsUnchanged ? 'yes' : 'NO — INVALID RECEIPT'}`,
+      `- Diagnostics and invocation arguments: [receipt.json](${path.basename(evidenceDir)}/receipt.json)`,
       `- Timeout per invocation: ${options.timeoutMs} ms`, '',
       '| lesson | source ms | artifact ms | source result | artifact result | source MLIR bytes | artifact MLIR bytes | artifact bytes |',
       '| --- | ---: | ---: | --- | --- | ---: | ---: | ---: |'
@@ -158,7 +203,15 @@ async function main() {
     for (const row of rows) {
       lines.push(`| ${row.slug} | ${formatMs(row.source.elapsedMs)} | ${formatMs(row.artifact.elapsedMs)} | ${formatStatus(row.source)} | ${formatStatus(row.artifact)} | ${row.sourceMlirBytes} | ${row.artifactMlirBytes} | ${row.artifactBytes} |`);
     }
+    lines.push('', '## Diagnostics', '');
+    for (const row of rows) {
+      for (const leg of ['source', 'artifact']) {
+        const result = row[leg];
+        lines.push(`- ${row.slug} ${leg}: [${formatStatus(result)}](${path.basename(evidenceDir)}/${result.log})`);
+      }
+    }
     await writeFile(options.output, `${lines.join('\n')}\n`);
+    if (!inputsUnchanged) throw new Error('Frontend or artifact changed during matrix; receipt is invalid');
   } finally {
     await rm(tempRoot, { recursive: true, force: true });
   }

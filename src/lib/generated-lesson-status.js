@@ -483,15 +483,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/sequence-basics",
     "title": "Sequences and Properties",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/sequence-basics",
-        "mode": "run, verify",
-        "construct": "named sequence and property",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§§16.3 and 16.4 (sequence/property declarations)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 32,
+  "PASS": 33,
   "tutorial": 0,
-  "Mox refusal": 39,
+  "Mox refusal": 38,
   "environment": 12
 };
 export const matrixHistory = {

@@ -398,3 +398,32 @@ method 'set_finish_on_completion' has non-class receiver type '!llvm.ptr'
 
 The candidate therefore does not pass the native consumer gate. The package
 manifest remains empty and no lowered artifact is published.
+
+## Complexity-qualified candidate `968f0c1` matrix (2026-11-06)
+
+Interp's complexity-qualified publication is
+`968f0c1a1fb664663cdf5bec1feceb0e7f204924`. Its exact qualification packet
+`/scratch/thomas-ahle/tmp/interp/publication-complexity-fix4-qualification-20261106T2119Z`
+sealed passed with 21/21 rows across seven targets and a clean tree. The
+matching lowered artifact was built with that frontend and the pinned UVM
+source:
+
+- frontend: `/scratch/thomas-ahle/tmp/interp/qual-tree/build-opt/bin/mox-verilog`
+- frontend SHA-256: `91fdb958e8b3eb9cebd16e5fca39d26cb584bf99911cd57b837dc4195d958d7b`
+- artifact: `/scratch/thomas-ahle/tmp/interp/uvm_pkg-968f0c-lowered.vlib`
+- artifact size: 60,435,270 bytes
+- artifact SHA-256: `7d6943e211747ab69322a6dcfbcc0a860af6e2ecf478e55652ebdd49b33ae402`
+- native receipt: `/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-968f0c.md`
+
+The exact 12-row native receipt reports source-backed `PASS` for
+`reporting`, `seq-item`, `sequence`, `driver`, `constrained-random`, `monitor`,
+`env`, `factory-override`, and `ral`; the three existing coverage rows remain
+source failures. Every lowered-artifact row fails in 2.850–6.003 seconds and
+emits zero MLIR bytes. The first diagnostic is unchanged:
+
+```
+method 'set_finish_on_completion' has non-class receiver type '!llvm.ptr'
+```
+
+The complexity-qualified frontend therefore does not pass the native consumer
+gate. The package manifest remains empty and no lowered artifact is published.

@@ -348,15 +348,15 @@ export const lessonStatuses = [
   {
     "slug": "sv/cross-coverage",
     "title": "Cross coverage",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sv/cross-coverage",
-        "mode": "run",
-        "construct": "cross, binsof, and intersect",
-        "diagnostic": "assertMooreCrossBinsofFilterStructABI",
-        "clause": "§19.5 (cross coverage)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 28,
+  "PASS": 29,
   "tutorial": 0,
-  "Mox refusal": 43,
+  "Mox refusal": 42,
   "environment": 12
 };
 export const matrixHistory = {

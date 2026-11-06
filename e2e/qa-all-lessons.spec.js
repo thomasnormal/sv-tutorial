@@ -23,7 +23,6 @@ const KNOWN_FAILURES = {
   'sv/tasks-functions run': `${WASM_REFUSAL}: continuous-evaluator-effect-ownership-not-admitted`,
   'sv/covergroup-basics run': `${WASM_REFUSAL}: __mox_sim_register_host_allocation`,
   'sv/coverpoint-bins run': `${WASM_REFUSAL}: __mox_sim_register_host_allocation`,
-  'sv/cross-coverage run': `${WASM_REFUSAL}: assertMooreCrossBinsofFilterStructABI`,
   'sv/classes run': `${WASM_REFUSAL}: published WASM drops class fields and reports no member named wdata; native Mox passes`,
   'sv/protected-envelope-boundary run': `comment-form protected envelope support is not in the pinned WASM; native Mox passes: ${WASM_REBUILD}`,
   'sv/coverage-option-text run': 'pinned browser WASM lacks the coverage runtime host-allocation linkage; native Mox passes — needs a WASM rebuild',

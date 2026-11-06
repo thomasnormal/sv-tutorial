@@ -116,7 +116,8 @@ const EXPECTED_ASSERTION_FAILURES = {
 
 async function openSolved(page, lesson) {
   const [part, name] = lesson.slug.split('/');
-  await page.goto(`${base}/lesson/${part}/${name}`);
+  const route = `lesson/${part}/${name}`;
+  await page.goto(base ? `${base}/${route}` : route);
   await expect(page.getByTestId('lesson-title')).toHaveText(lesson.title, { timeout: 10_000 });
   // The title is prerendered; the sidebar's lesson buttons appear only once
   // Svelte has hydrated, and clicks before that are lost.

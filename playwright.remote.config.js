@@ -18,7 +18,7 @@ export default defineConfig({
         '--ignore-gpu-blocklist'
       ]
     },
-    baseURL: 'https://thomasnormal.github.io/sv-tutorial',
+    baseURL: 'https://thomasnormal.github.io/sv-tutorial/',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure'
   },

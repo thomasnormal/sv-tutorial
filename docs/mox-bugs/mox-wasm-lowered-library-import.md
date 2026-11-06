@@ -304,3 +304,32 @@ The repaired instance-method regression is therefore narrower than the full
 UVM package consumer path. The artifact is not published; the mapped artifact,
 package manifest, and browser matrix remain unchanged pending a repair that
 makes the native lowered rows pass.
+
+## Qualified receiver-recovery candidate `abdc010` matrix (2026-11-06)
+
+Interp qualified the receiver-recovery change as
+`abdc010c6b7e4dc74f589da9f98cb65dd1a08f04`: 22/22 rows passed across seven
+targets, with a clean tree. The exact qualified frontend is
+`/scratch/thomas-ahle/tmp/interp/qual-tree/build-opt/bin/mox-verilog`, SHA-256
+`6141ae8e3a4452705bf7f6810c870947429bab0a64d7fc61352ffa370f36d180`, and its
+identity is
+`mox-frontend-v1:d0db50ec0f37320425aefa0e24d28b26f3e074e8d9fe9a70adaa03e459cb9fda`.
+
+The exact matching lowered artifact is
+`/scratch/thomas-ahle/tmp/interp/uvm_pkg-abdc010.vlib`, 60,474,380 bytes,
+SHA-256 `21218f9a066c213e337896c7e975244c64220037d149d70c817f271f71f62af6`.
+The native receipt is
+`/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-abdc010.md`,
+with durable logs under
+`/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-abdc010.md.logs-34rx6K/`.
+Nine runnable source rows pass in 45.3–62.2 seconds, three known coverage
+rows remain source failures, and all 12 lowered rows fail in 2.848–3.199 seconds
+with zero MLIR bytes. The lowered diagnostic is unchanged:
+
+```
+uvm_analysis_port.svh:2:4: error: invalid expression
+```
+
+Even with the qualified receiver-recovery candidate, the full UVM package
+consumer gate is red. The artifact remains unpublished; the mapped artifact,
+package manifest, and browser matrix are unchanged.

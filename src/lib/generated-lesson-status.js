@@ -333,15 +333,15 @@ export const lessonStatuses = [
   {
     "slug": "sv/coverpoint-bins",
     "title": "Bins and ignore_bins",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sv/coverpoint-bins",
-        "mode": "run",
-        "construct": "coverpoint bins and ignore bins",
-        "diagnostic": "__mox_sim_register_host_allocation unlinked",
-        "clause": "§19.4 and §19.6 (coverpoints and bins)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 27,
+  "PASS": 28,
   "tutorial": 0,
-  "Mox refusal": 44,
+  "Mox refusal": 43,
   "environment": 12
 };
 export const matrixHistory = {

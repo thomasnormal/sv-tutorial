@@ -10,7 +10,6 @@ This table is the build input for the reader-facing lesson status page. Rows are
 | `sv/interfaces` | run | interface signal connection | `__mox_sim_notify_native_memory_write` unlinked | §25.3 (interface declarations) | Mox refusal |
 | `sv/modports` | run | modport direction view | `__mox_sim_notify_native_memory_write` unlinked | §25.5 (modports) | Mox refusal |
 | `sv/tasks-functions` | run | timing-aware task over interface | `continuous-evaluator-effect-ownership-not-admitted` | §10.3 (continuous assignment evaluator) | Mox refusal |
-| `sv/coverpoint-bins` | run | coverpoint bins and ignore bins | `__mox_sim_register_host_allocation` unlinked | §19.4 and §19.6 (coverpoints and bins) | Mox refusal |
 | `sv/cross-coverage` | run | cross, binsof, and intersect | `assertMooreCrossBinsofFilterStructABI` | §19.5 (cross coverage) | Mox refusal |
 | `sv/classes` | run | class properties, object construction, and handle assignment | `no member named 'wdata' in 'mem_item'` (three uses in the solved handle-semantics testbench) | §§8.4–8.7 and §8.12 (class objects, properties, constructors, and assignment) | Mox refusal |
 | `sv/fsm` | run | unpacked SRAM array written by `always_ff` | `variable 'mem' driven by always_ff procedure` | §9.2.2.4 (`always_ff` procedures) | Mox refusal |

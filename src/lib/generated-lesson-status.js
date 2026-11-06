@@ -813,15 +813,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/bind",
     "title": "bind — Non-Invasive Assertion Attachment",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/bind",
-        "mode": "run",
-        "construct": "bind checker attachment",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§23.11 (bind)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 52,
+  "PASS": 53,
   "tutorial": 0,
-  "Mox refusal": 19,
+  "Mox refusal": 18,
   "environment": 12
 };
 export const matrixHistory = {

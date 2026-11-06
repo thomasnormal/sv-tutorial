@@ -15,7 +15,6 @@ const base = process.env.VITE_BASE?.replace(/\/$/, '') ?? '';
 const WASM_REFUSAL = 'published Mox WASM refusal; routed to coordinator with the exact construct';
 const ENVIRONMENT_BLOCKER = 'browser environment gap; documented in the lesson and coordinator census';
 const KNOWN_FAILURES = {
-  'sv/fsm run': `${WASM_REFUSAL}: published WASM rejects an unpacked memory variable written by always_ff`,
   'sv/interfaces run': `${WASM_REFUSAL}: __mox_sim_notify_native_memory_write unlinked`,
   'sv/modports run': `${WASM_REFUSAL}: __mox_sim_notify_native_memory_write unlinked`,
   'sv/tasks-functions run': `${WASM_REFUSAL}: continuous-evaluator-effect-ownership-not-admitted`,

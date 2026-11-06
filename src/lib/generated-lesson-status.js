@@ -288,15 +288,15 @@ export const lessonStatuses = [
   {
     "slug": "sv/fsm",
     "title": "Two-Always Moore FSM",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sv/fsm",
-        "mode": "run",
-        "construct": "unpacked SRAM array written by always_ff",
-        "diagnostic": "variable 'mem' driven by always_ff procedure",
-        "clause": "§9.2.2.4 (always_ff procedures)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 56,
+  "PASS": 57,
   "tutorial": 0,
-  "Mox refusal": 15,
+  "Mox refusal": 14,
   "environment": 12
 };
 export const matrixHistory = {

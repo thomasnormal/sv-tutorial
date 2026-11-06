@@ -14,7 +14,7 @@ always_comb begin
     default:   next = &lt;STATE_A&gt;;
   endcase
 end</pre>
-<p>The <code>always_ff</code> block is the only place that stores <code>state</code>. The <code>always_comb</code> block calculates <code>next</code> and decodes the current state into outputs. Starting with <code>next = state</code> means an unmentioned transition holds its state; assigning output defaults before the <code>case</code> means every branch drives a value instead of inferring storage.</p>
+<p>The <code>always_ff</code> block is the only place that stores <code>state</code>. The <code>always_comb</code> block calculates <code>next</code> and decodes the current state into outputs. Starting with <code>next = state</code> means an unmentioned transition holds its state; assigning output defaults before the <code>case</code> means every branch drives a value instead of inferring storage. The SRAM contents are unknown until a write, and the controller test deliberately checks its control outputs rather than assuming an initial memory value.</p>
 
               <svg width="380" height="130" viewBox="0 0 380 130" xmlns="http://www.w3.org/2000/svg" style="display:block;max-width:100%;font-family:'IBM Plex Mono',monospace;font-size:12px;margin:10px auto">
   <defs>

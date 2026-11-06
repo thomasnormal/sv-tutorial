@@ -10,7 +10,6 @@ This table is the build input for the reader-facing lesson status page. Rows are
 | `sv/modports` | run | modport direction view | `__mox_sim_notify_native_memory_write` unlinked | §25.5 (modports) | Mox refusal |
 | `sv/tasks-functions` | run | timing-aware task over interface | `continuous-evaluator-effect-ownership-not-admitted` | §10.3 (continuous assignment evaluator) | Mox refusal |
 | `sv/classes` | run | class properties, object construction, and handle assignment | `no member named 'wdata' in 'mem_item'` (three uses in the solved handle-semantics testbench) | §§8.4–8.7 and §8.12 (class objects, properties, constructors, and assignment) | Mox refusal |
-| `sv/fsm` | run | unpacked SRAM array written by `always_ff` | `variable 'mem' driven by always_ff procedure` | §9.2.2.4 (`always_ff` procedures) | Mox refusal |
 | `sva/concurrent-sim` | run | concurrent `assert property` | `temporal-property-evaluator-not-admitted` | §16.2 (concurrent assertions) | Mox refusal |
 | `sva/immediate-assert` | run, verify (`PASS*`) | immediate assertion action | `temporal-property-evaluator-not-admitted` | §16.3 (immediate assertions) | Mox refusal |
 | `sva/sequence-ops` | run, verify | `intersect`, `within`, `and`, `or` | `temporal-property-evaluator-not-admitted` | §16.9 (sequence operators) | Mox refusal |

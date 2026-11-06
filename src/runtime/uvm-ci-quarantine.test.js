@@ -49,8 +49,8 @@ describe('UVM CI known-failure quarantine', () => {
     ).toBe(false);
   });
 
-  it('quarantines only the reporting smoke in CI, not nightly parity', () => {
-    expect(CI_WORKFLOW).toContain('--known-failure pinned-wasm-uvm-abort');
+  it('makes the reporting smoke a required deployment gate', () => {
+    expect(CI_WORKFLOW).not.toContain('--known-failure pinned-wasm-uvm-abort');
     expect(CI_WORKFLOW).toContain('run-uvm-browser-worker-matrix.sh');
     expect(NIGHTLY_WORKFLOW).not.toContain('--known-failure');
   });
@@ -58,8 +58,8 @@ describe('UVM CI known-failure quarantine', () => {
   it('deploys Pages only after a successful main CI workflow', () => {
     expect(DEPLOY_WORKFLOW).toContain('workflow_run:');
     expect(DEPLOY_WORKFLOW).toContain('workflows: [ci]');
-    expect(DEPLOY_WORKFLOW).toContain('workflow_dispatch:');
-    expect(DEPLOY_WORKFLOW).toContain("github.event_name == 'workflow_dispatch'");
-    expect(DEPLOY_WORKFLOW).toContain('github.event_name == \'workflow_run\' && github.event.workflow_run.head_sha || github.sha');
+    expect(DEPLOY_WORKFLOW).not.toContain('workflow_dispatch:');
+    expect(DEPLOY_WORKFLOW).toContain("github.event.workflow_run.conclusion == 'success'");
+    expect(DEPLOY_WORKFLOW).toContain('ref: ${{ github.event.workflow_run.head_sha }}');
   });
 });

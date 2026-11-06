@@ -708,15 +708,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/abort",
     "title": "Aborting Properties: reject_on and accept_on",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/abort",
-        "mode": "run, verify",
-        "construct": "reject_on and accept_on",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.12.2 (abort operators)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 46,
+  "PASS": 47,
   "tutorial": 0,
-  "Mox refusal": 25,
+  "Mox refusal": 24,
   "environment": 12
 };
 export const matrixHistory = {

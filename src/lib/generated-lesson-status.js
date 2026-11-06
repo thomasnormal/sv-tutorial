@@ -618,15 +618,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/throughout",
     "title": "throughout — Stability During a Sequence",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/throughout",
-        "mode": "run, verify",
-        "construct": "throughout sequence constraint",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.10.5 (throughout)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 41,
+  "PASS": 42,
   "tutorial": 0,
-  "Mox refusal": 30,
+  "Mox refusal": 29,
   "environment": 12
 };
 export const matrixHistory = {

@@ -738,15 +738,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/local-vars",
     "title": "Local Variables in Sequences",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/local-vars",
-        "mode": "run, verify",
-        "construct": "local variables in sequences",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.8.2 (sequence local variables)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 48,
+  "PASS": 49,
   "tutorial": 0,
-  "Mox refusal": 23,
+  "Mox refusal": 22,
   "environment": 12
 };
 export const matrixHistory = {

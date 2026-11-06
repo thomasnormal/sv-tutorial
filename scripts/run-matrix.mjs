@@ -206,7 +206,10 @@ async function runCase(browser, item, index, total, catalog) {
       if (process.env.MATRIX_DEBUG) console.error(`${item.slug} ${item.mode} error`, e?.stack || e);
       log = await page.getByTestId('runtime-logs').innerText().catch(() => '');
     }
-    const transient = /runtime did not become ready|net::ERR_ABORTED|frame was detached|Target page, context or browser has been closed/i.test(error);
+    // A click can arrive before Svelte hydration attaches the run handler.
+    // In that case the log stays at its initial prompt instead of reporting a
+    // runtime error; reload once before classifying the lesson as failed.
+    const transient = /runtime did not become ready|net::ERR_ABORTED|frame was detached|Target page, context or browser has been closed|press ▶ to run/i.test(`${error}\n${log}`);
     if (!transient || attempt === 1) break;
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 1000));
     }
@@ -345,8 +348,10 @@ const allCases = casesFromMetadata();
 const selectedCases = requestedSlugs.length
   ? allCases.filter(({ slug }) => requestedSlugs.includes(slug))
   : allCases;
-if (requestedSlugs.length && selectedCases.length !== requestedSlugs.length) {
-  const missing = requestedSlugs.filter((slug) => !allCases.some((item) => item.slug === slug));
+const requestedSlugSet = new Set(requestedSlugs);
+const missingRequestedSlugs = [...requestedSlugSet].filter((slug) => !allCases.some((item) => item.slug === slug));
+if (missingRequestedSlugs.length) {
+  const missing = missingRequestedSlugs;
   throw new Error(`Unknown matrix lesson slug(s): ${missing.join(', ')}`);
 }
 const cases = caseLimit > 0 ? selectedCases.slice(0, caseLimit) : selectedCases;

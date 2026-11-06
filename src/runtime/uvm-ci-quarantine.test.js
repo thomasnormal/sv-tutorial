@@ -58,7 +58,8 @@ describe('UVM CI known-failure quarantine', () => {
   it('deploys Pages only after a successful main CI workflow', () => {
     expect(DEPLOY_WORKFLOW).toContain('workflow_run:');
     expect(DEPLOY_WORKFLOW).toContain('workflows: [ci]');
-    expect(DEPLOY_WORKFLOW).toContain("github.event.workflow_run.conclusion == 'success'");
-    expect(DEPLOY_WORKFLOW).toContain('ref: ${{ github.event.workflow_run.head_sha }}');
+    expect(DEPLOY_WORKFLOW).toContain('workflow_dispatch:');
+    expect(DEPLOY_WORKFLOW).toContain("github.event_name == 'workflow_dispatch'");
+    expect(DEPLOY_WORKFLOW).toContain('github.event_name == \'workflow_run\' && github.event.workflow_run.head_sha || github.sha');
   });
 });

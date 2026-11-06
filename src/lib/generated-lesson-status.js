@@ -723,15 +723,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/cover-property",
     "title": "cover property",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/cover-property",
-        "mode": "run, verify",
-        "construct": "cover property",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.14.3 (property coverage)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 47,
+  "PASS": 48,
   "tutorial": 0,
-  "Mox refusal": 24,
+  "Mox refusal": 23,
   "environment": 12
 };
 export const matrixHistory = {

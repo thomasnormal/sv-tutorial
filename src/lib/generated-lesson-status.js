@@ -648,15 +648,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/seq-args",
     "title": "Sequence Formal Arguments",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/seq-args",
-        "mode": "run, verify",
-        "construct": "typed sequence formal arguments",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.8 (sequence declarations)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 42,
+  "PASS": 43,
   "tutorial": 0,
-  "Mox refusal": 29,
+  "Mox refusal": 28,
   "environment": 12
 };
 export const matrixHistory = {

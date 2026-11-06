@@ -14,7 +14,6 @@ This table is the build input for the reader-facing lesson status page. Rows are
 | `sva/concurrent-sim` | run | concurrent `assert property` | `temporal-property-evaluator-not-admitted` | §16.2 (concurrent assertions) | Mox refusal |
 | `sva/immediate-assert` | run, verify (`PASS*`) | immediate assertion action | `temporal-property-evaluator-not-admitted` | §16.3 (immediate assertions) | Mox refusal |
 | `sva/sequence-ops` | run, verify | `intersect`, `within`, `and`, `or` | `temporal-property-evaluator-not-admitted` | §16.9 (sequence operators) | Mox refusal |
-| `sva/seq-args` | run, verify | typed sequence formal arguments | `temporal-property-evaluator-not-admitted` | §16.8 (sequence declarations) | Mox refusal |
 | `sva/stable-past` | run, verify | `$stable` and `$past` | `temporal-property-evaluator-not-admitted` | §16.9.3 (sampled-value functions) | Mox refusal |
 | `sva/changed` | run, verify | `$changed` and `$sampled` | `temporal-property-evaluator-not-admitted` | §16.9.3 (sampled-value functions) | Mox refusal |
 | `sva/disable-iff` | run, verify | `disable iff` property abort | `temporal-property-evaluator-not-admitted` | §16.12.1 (`disable iff`) | Mox refusal |

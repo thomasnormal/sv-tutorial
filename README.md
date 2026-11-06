@@ -126,10 +126,11 @@ writes it into the worker filesystem, and invokes Mox with
 then lowered normally. If no matching artifact is available, the existing
 source-backed package path remains in use.
 
-Artifacts are immutable and named with the producing Mox SHA, for example
-`uvm_pkg-b90b3a5.vlib` (58,912,612 bytes, about 57 MiB). The manifest is short
-cached; `.vlib` files receive a one-year immutable cache policy. Build a
-sectioned artifact for any package with:
+Artifacts are immutable and named with the producing Mox SHA. A package is
+listed only after its artifact has been checked against the exact Mox frontend
+that the site deploys. The checked-in manifest is currently empty while the
+UVM package artifact is requalified, so UVM lessons use the source-backed path.
+Build a sectioned artifact for any package with:
 
 ```bash
 scripts/build-package-artifact.sh \

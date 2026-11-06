@@ -14,6 +14,10 @@ const NIGHTLY_WORKFLOW = readFileSync(
   path.resolve(process.cwd(), '.github/workflows/uvm-nightly.yml'),
   'utf8'
 );
+const DEPLOY_WORKFLOW = readFileSync(
+  path.resolve(process.cwd(), '.github/workflows/deploy.yml'),
+  'utf8'
+);
 
 const PINNED_UVM_ABORT_LOG = [
   '$ mox-verilog --resource-guard=false --ir-llhd --uvm-path /mox/uvm-core',
@@ -49,5 +53,12 @@ describe('UVM CI known-failure quarantine', () => {
     expect(CI_WORKFLOW).toContain('--known-failure pinned-wasm-uvm-abort');
     expect(CI_WORKFLOW).toContain('run-uvm-browser-worker-matrix.sh');
     expect(NIGHTLY_WORKFLOW).not.toContain('--known-failure');
+  });
+
+  it('deploys Pages only after a successful main CI workflow', () => {
+    expect(DEPLOY_WORKFLOW).toContain('workflow_run:');
+    expect(DEPLOY_WORKFLOW).toContain('workflows: [ci]');
+    expect(DEPLOY_WORKFLOW).toContain("github.event.workflow_run.conclusion == 'success'");
+    expect(DEPLOY_WORKFLOW).toContain('ref: ${{ github.event.workflow_run.head_sha }}');
   });
 });

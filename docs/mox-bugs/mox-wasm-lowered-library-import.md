@@ -361,3 +361,12 @@ failure is:
 The candidate's qualification packet is green, but the full native UVM
 consumer gate remains red. The artifact is unpublished; the mapped artifact,
 package manifest, and browser matrix remain unchanged.
+
+## Mapped artifact quarantine (2026-11-06)
+
+The earlier mapped artifact was removed from the checked-in package manifest and
+the `.vlib` file was deleted because its recorded producer did not match the
+deployed `mox-verilog` frontend. Until a matching package passes the native
+consumer gate, the manifest is intentionally empty and UVM lessons use the
+source-backed package path. The Pages workflow now deploys only after the main
+CI workflow succeeds, so a failed UVM smoke cannot publish a new site.

@@ -378,15 +378,15 @@ export const lessonStatuses = [
   {
     "slug": "sv/queues-arrays",
     "title": "Dynamic Arrays and Queues",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sv/queues-arrays",
-        "mode": "run",
-        "construct": "dynamic array and queue values",
-        "diagnostic": "__mox_sv_open_array_copy_or_register_bounds unlinked",
-        "clause": "§§7.5 and 7.10 (arrays and queues)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 25,
+  "PASS": 26,
   "tutorial": 0,
-  "Mox refusal": 46,
+  "Mox refusal": 45,
   "environment": 12
 };
 export const matrixHistory = {

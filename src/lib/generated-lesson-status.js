@@ -528,15 +528,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/clock-delay",
     "title": "Clock Delay ##m and ##[m:n]",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/clock-delay",
-        "mode": "run, verify",
-        "construct": "##m and ##[m:n] delays",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.10.1 (cycle delay)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 35,
+  "PASS": 36,
   "tutorial": 0,
-  "Mox refusal": 36,
+  "Mox refusal": 35,
   "environment": 12
 };
 export const matrixHistory = {

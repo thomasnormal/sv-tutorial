@@ -543,15 +543,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/rose-fell",
     "title": "$rose and $fell",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/rose-fell",
-        "mode": "run, verify",
-        "construct": "$rose and $fell",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.9.3 (sampled-value functions)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 36,
+  "PASS": 37,
   "tutorial": 0,
-  "Mox refusal": 35,
+  "Mox refusal": 34,
   "environment": 12
 };
 export const matrixHistory = {

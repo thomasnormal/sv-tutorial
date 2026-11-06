@@ -17,6 +17,7 @@ const WASM_REFUSAL = 'published Mox WASM refusal; routed to coordinator with the
 const ENVIRONMENT_BLOCKER = 'browser environment gap; documented in the lesson and coordinator census';
 const KNOWN_FAILURES = {
   'sv/events run': `${WASM_REFUSAL}: __moore_event_trigger is unresolved in mox-sim`,
+  'sv/fsm run': `${WASM_REFUSAL}: published WASM rejects an unpacked memory variable written by always_ff`,
   'sv/interfaces run': `${WASM_REFUSAL}: __mox_sim_notify_native_memory_write unlinked`,
   'sv/modports run': `${WASM_REFUSAL}: __mox_sim_notify_native_memory_write unlinked`,
   'sv/tasks-functions run': `${WASM_REFUSAL}: continuous-evaluator-effect-ownership-not-admitted`,
@@ -69,6 +70,44 @@ for (const lesson of LESSONS) {
   }
 }
 
+// The 2026-11-06 published-site matrix showed these formerly-dispositioned
+// rows passing on the deployed Mox build. Keep the exact row keys here until
+// the next matrix receipt updates the census; an unexpected pass must not make
+// the QA suite fail while the reader-facing status is being refreshed.
+const PUBLISHED_PASSING = new Set([
+  'sv/events run',
+  'sv/covergroup-basics run', 'sv/coverpoint-bins run', 'sv/cross-coverage run',
+  'sv/queues-arrays run',
+  'sva/vacuous-pass run', 'sva/isunknown run',
+  'sva/sequence-basics run', 'sva/sequence-basics verify',
+  'sva/implication run', 'sva/implication verify',
+  'sva/formal-intro run', 'sva/formal-intro verify',
+  'sva/clock-delay run', 'sva/clock-delay verify',
+  'sva/rose-fell run', 'sva/rose-fell verify',
+  'sva/req-ack run', 'sva/req-ack verify',
+  'sva/consecutive-rep run', 'sva/consecutive-rep verify',
+  'sva/nonconsec-rep run', 'sva/nonconsec-rep verify',
+  'sva/nonconsec-eq run', 'sva/nonconsec-eq verify',
+  'sva/throughout run', 'sva/throughout verify',
+  'sva/sequence-ops verify',
+  'sva/seq-args run', 'sva/seq-args verify',
+  'sva/stable-past run', 'sva/stable-past verify',
+  'sva/changed run', 'sva/changed verify',
+  'sva/disable-iff run', 'sva/disable-iff verify',
+  'sva/abort run', 'sva/abort verify',
+  'sva/cover-property run', 'sva/cover-property verify',
+  'sva/local-vars run', 'sva/local-vars verify',
+  'sva/onehot run', 'sva/onehot verify',
+  'sva/triggered run', 'sva/triggered verify',
+  'sva/checker verify',
+  'sva/recursive run', 'sva/recursive verify',
+  'sva/bind run', 'sva/let run',
+  'sva/formal-assume verify',
+  'sva/always-eventually run', 'sva/always-eventually verify',
+  'sva/until run', 'sva/until verify',
+  'sva/followed-by verify'
+]);
+
 // Lessons whose testbench deliberately violates the assertions it teaches.
 const EXPECTED_ASSERTION_FAILURES = {
   'sva/concurrent-sim': ['req_gnt_check'],
@@ -81,7 +120,7 @@ async function openSolved(page, lesson) {
   await expect(page.getByTestId('lesson-title')).toHaveText(lesson.title, { timeout: 10_000 });
   // The title is prerendered; the sidebar's lesson buttons appear only once
   // Svelte has hydrated, and clicks before that are lost.
-  await page.locator('button[data-active]').first().waitFor({ timeout: 10_000 });
+  await page.getByTestId('options-button').waitFor({ timeout: 10_000 });
 
   await page.getByTestId('options-button').click();
   const solveBtn = page.getByTestId('solve-button');
@@ -102,7 +141,7 @@ for (const [index, lesson] of LESSONS.entries()) {
   if (runs) {
     test(`${name} › run`, async ({ page }) => {
       const known = KNOWN_FAILURES[`${lesson.slug} run`];
-      test.fail(!!known, known);
+      test.fail(!!known && !PUBLISHED_PASSING.has(`${lesson.slug} run`), known);
       await openSolved(page, lesson);
       const log = await runAndWait(page, 'run-button');
       const expectedFailures = EXPECTED_ASSERTION_FAILURES[lesson.slug];
@@ -123,7 +162,7 @@ for (const [index, lesson] of LESSONS.entries()) {
   if (verifies) {
     test(`${name} › verify`, async ({ page }) => {
       const known = KNOWN_FAILURES[`${lesson.slug} verify`];
-      test.fail(!!known, known);
+      test.fail(!!known && !PUBLISHED_PASSING.has(`${lesson.slug} verify`), known);
       await openSolved(page, lesson);
       expect(await runAndWait(page, 'verify-button')).not.toMatch(FAILURE_RE);
     });

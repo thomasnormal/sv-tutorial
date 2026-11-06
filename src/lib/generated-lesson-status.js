@@ -858,15 +858,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/always-eventually",
     "title": "always and s_eventually",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/always-eventually",
-        "mode": "run, verify",
-        "construct": "always and s_eventually",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.13 (liveness operators)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 54,
+  "PASS": 55,
   "tutorial": 0,
-  "Mox refusal": 17,
+  "Mox refusal": 16,
   "environment": 12
 };
 export const matrixHistory = {

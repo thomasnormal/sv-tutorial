@@ -16,7 +16,6 @@ This table is the build input for the reader-facing lesson status page. Rows are
 | `sva/sequence-ops` | run, verify | `intersect`, `within`, `and`, `or` | `temporal-property-evaluator-not-admitted` | §16.9 (sequence operators) | Mox refusal |
 | `sva/checker` | run, verify | `checker` declaration | `temporal-property-evaluator-not-admitted` | §17.2 (checker declarations) | Mox refusal |
 | `sva/formal-assume` | run, verify | `assume property` | `temporal-property-evaluator-not-admitted` | §16.14.2 (assumption statements) | Mox refusal |
-| `sva/always-eventually` | run, verify | `always` and `s_eventually` | `temporal-property-evaluator-not-admitted` | §16.13 (liveness operators) | Mox refusal |
 | `sva/until` | run, verify | `until` and `s_until` | `temporal-property-evaluator-not-admitted` | §16.10.3 (until operators) | Mox refusal |
 | `sva/lec` | verify (`PASS*`) | property miter for LEC | `temporal-property-evaluator-not-admitted` | §16.14 (assertion statements) | Mox refusal |
 | `sva/followed-by` | verify | `#-#` and `#=#` followed-by | `temporal-property-evaluator-not-admitted` | §16.10.8 (followed-by operators) | Mox refusal |

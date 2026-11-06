@@ -828,15 +828,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/let",
     "title": "let Declarations",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/let",
-        "mode": "run",
-        "construct": "let sequence expression",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.8.4 (let declarations)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 53,
+  "PASS": 54,
   "tutorial": 0,
-  "Mox refusal": 18,
+  "Mox refusal": 17,
   "environment": 12
 };
 export const matrixHistory = {

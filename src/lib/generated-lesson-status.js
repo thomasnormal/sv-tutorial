@@ -318,15 +318,15 @@ export const lessonStatuses = [
   {
     "slug": "sv/covergroup-basics",
     "title": "covergroup and coverpoint",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sv/covergroup-basics",
-        "mode": "run",
-        "construct": "covergroup allocation and sampling",
-        "diagnostic": "__mox_sim_register_host_allocation unlinked",
-        "clause": "§19.2 (covergroup declarations)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 26,
+  "PASS": 27,
   "tutorial": 0,
-  "Mox refusal": 45,
+  "Mox refusal": 44,
   "environment": 12
 };
 export const matrixHistory = {

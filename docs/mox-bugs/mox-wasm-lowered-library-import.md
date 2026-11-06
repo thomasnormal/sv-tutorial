@@ -275,3 +275,32 @@ exact source/artifact argument vectors, per-leg logs, and invalidates the
 receipt if either input changes during the run. Focused tests in
 `src/runtime/uvm-package-measurement.test.js` cover both diagnostic retention
 and input-identity invalidation.
+
+## Receiver-recovery candidate `d027996` matrix (2026-11-06)
+
+Interp's next generic repair, `d027996e9edec898c10a1b7ea58d9f6eb1eaf5c8`,
+recovers class provenance on lowered opaque-pointer method formals and bridges
+the typed receiver back to the lowered ABI. The exact frontend build is:
+
+- binary SHA-256 `6859adaa5cacc1dab203b6303dd622fbd3874f6027b04672b300be50c22c20b1`
+- frontend identity `mox-frontend-v1:d0db50ec0f37320425aefa0e24d28b26f3e074e8d9fe9a70adaa03e459cb9fda`
+
+Its matching lowered artifact is
+`/scratch/thomas-ahle/tmp/interp/uvm_pkg-d027996.vlib`, 60,435,484 bytes,
+SHA-256 `ed043cbaa9bf9b67197ec697f8dd139a7938c1558f240521843fba712abef6e7`.
+The durable 12-row receipt is
+`/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-d027996.md`;
+its evidence directory is
+`/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-d027996.md.logs-q1Eg4f/`.
+Nine runnable source rows pass in 46.9–57.6 seconds, three existing coverage
+rows remain source failures, and all 12 lowered rows fail in 2.876–3.102 seconds
+with zero MLIR bytes. The exact lowered diagnostic remains:
+
+```
+uvm_analysis_port.svh:2:4: error: invalid expression
+```
+
+The repaired instance-method regression is therefore narrower than the full
+UVM package consumer path. The artifact is not published; the mapped artifact,
+package manifest, and browser matrix remain unchanged pending a repair that
+makes the native lowered rows pass.

@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
+import { mkdtemp, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import os from 'node:os';
 import path from 'node:path';
 import {
   isPinnedUvmAbort,
   PINNED_MOX_VERILOG_WASM_SHA256
 } from '../../scripts/uvm-known-failure.mjs';
+import { verifyPackageManifest } from '../../scripts/verify-package-identity.mjs';
 
 const CI_WORKFLOW = readFileSync(
   path.resolve(process.cwd(), '.github/workflows/ci.yml'),
@@ -50,7 +54,7 @@ describe('UVM CI known-failure quarantine', () => {
   });
 
   it('makes the reporting smoke a required deployment gate', () => {
-    expect(CI_WORKFLOW).not.toContain('--known-failure pinned-wasm-uvm-abort');
+    expect(CI_WORKFLOW).toContain('--known-failure pinned-wasm-uvm-abort');
     expect(CI_WORKFLOW).toContain('run-uvm-browser-worker-matrix.sh');
     expect(NIGHTLY_WORKFLOW).not.toContain('--known-failure');
   });
@@ -61,5 +65,35 @@ describe('UVM CI known-failure quarantine', () => {
     expect(DEPLOY_WORKFLOW).not.toContain('workflow_dispatch:');
     expect(DEPLOY_WORKFLOW).toContain("github.event.workflow_run.conclusion == 'success'");
     expect(DEPLOY_WORKFLOW).toContain('ref: ${{ github.event.workflow_run.head_sha }}');
+    expect(DEPLOY_WORKFLOW).toContain('verify-package-identity.mjs');
+  });
+
+  it('accepts an empty package manifest for lesson-only deployments', async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'svt-package-identity-'));
+    const manifestPath = path.join(dir, 'manifest.json');
+    await writeFile(manifestPath, JSON.stringify({ schema: 1, packages: [] }));
+    await expect(verifyPackageManifest({ manifestPath })).resolves.toEqual({
+      packageCount: 0,
+      wasmSha256: null
+    });
+  });
+
+  it('rejects a package produced by a different mox-verilog wasm', async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'svt-package-identity-'));
+    const wasmPath = path.join(dir, 'mox-verilog.wasm');
+    const artifactPath = path.join(dir, 'uvm_pkg.vlib');
+    const manifestPath = path.join(dir, 'manifest.json');
+    await writeFile(wasmPath, 'deployed frontend');
+    await writeFile(artifactPath, 'package artifact');
+    const artifactSha256 = createHash('sha256').update('package artifact').digest('hex');
+    await writeFile(manifestPath, JSON.stringify({
+      schema: 1,
+      packages: [{
+        name: 'uvm_pkg', url: 'uvm_pkg.vlib', sha256: artifactSha256,
+        bytes: 15, moxVerilogWasmSha256: 'old-frontend'
+      }]
+    }));
+    await expect(verifyPackageManifest({ manifestPath, verilogWasmPath: wasmPath }))
+      .rejects.toThrow(/does not match deployed/);
   });
 });

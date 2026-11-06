@@ -118,7 +118,10 @@ updates from invalidating an already cached package.
 The browser runner can load package-level frontend artifacts before compiling a
 lesson. `static/mox/packages/manifest.json` contains one entry per package,
 including detection regexes, the artifact URL, frontend flags, source files,
-and the Mox SHA that produced it. Artifact URLs are resolved relative to the
+and the Mox SHA that produced it. A nonempty manifest must also record
+`moxVerilogWasmSha256`, the SHA-256 of the exact `mox-verilog.wasm` that
+produced every artifact; the Pages workflow rejects any package whose producer
+hash differs from the deployed frontend. Artifact URLs are resolved relative to the
 manifest, so the same bundle works at `/` and under a GitHub Pages base path.
 When a lesson matches an entry, the runner downloads the binary `.vlib` once,
 writes it into the worker filesystem, and invokes Mox with

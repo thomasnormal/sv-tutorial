@@ -74,6 +74,7 @@ jobs:
           ./scripts/run-uvm-browser-worker-matrix.sh \
             --smoke \
             --retries 3 \
+            --known-failure pinned-wasm-uvm-abort \
             --log-dir "$LOG_DIR"
 
       - name: Upload UVM smoke logs

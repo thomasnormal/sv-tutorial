@@ -798,15 +798,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/recursive",
     "title": "Recursive Properties",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/recursive",
-        "mode": "run, verify",
-        "construct": "recursive property",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.8 (property/sequence declarations)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 51,
+  "PASS": 52,
   "tutorial": 0,
-  "Mox refusal": 20,
+  "Mox refusal": 19,
   "environment": 12
 };
 export const matrixHistory = {

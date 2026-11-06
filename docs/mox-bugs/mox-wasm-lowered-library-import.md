@@ -347,7 +347,7 @@ The exact native receipt is
 with durable logs under
 `/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-2cf7bf0.md.logs-xRkRNH/`.
 
-Seven runnable source rows pass in 49.4–57.9 seconds; the three existing
+Nine runnable source rows pass in 49.4–57.9 seconds; the three existing
 coverage rows fail in both source and artifact with the pre-existing
 `virtual mem_if` class-property resolution diagnostic. All 12 lowered artifact
 rows fail in 2.9–7.4 seconds with zero MLIR bytes. The lowered consumer

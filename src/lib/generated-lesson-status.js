@@ -438,15 +438,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/vacuous-pass",
     "title": "Vacuous Pass",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/vacuous-pass",
-        "mode": "run",
-        "construct": "implication vacuity",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§16.14.8 (vacuous success)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 30,
+  "PASS": 31,
   "tutorial": 0,
-  "Mox refusal": 41,
+  "Mox refusal": 40,
   "environment": 12
 };
 export const matrixHistory = {

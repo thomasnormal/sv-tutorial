@@ -363,15 +363,15 @@ export const lessonStatuses = [
   {
     "slug": "sv/classes",
     "title": "Classes and Objects",
-    "status": "PASS",
+    "status": "Mox refusal",
     "rows": [
       {
         "slug": "sv/classes",
-        "mode": "browser",
-        "construct": "browser run/verify passed",
-        "diagnostic": "",
-        "clause": "—",
-        "status": "PASS"
+        "mode": "run",
+        "construct": "class properties, object construction, and handle assignment",
+        "diagnostic": "no member named 'wdata' in 'mem_item' (three uses in the solved handle-semantics testbench)",
+        "clause": "§§8.4–8.7 and §8.12 (class objects, properties, constructors, and assignment)",
+        "status": "Mox refusal"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 26,
+  "PASS": 25,
   "tutorial": 0,
-  "Mox refusal": 45,
+  "Mox refusal": 46,
   "environment": 12
 };
 export const matrixHistory = {

@@ -558,15 +558,15 @@ export const lessonStatuses = [
   {
     "slug": "sva/req-ack",
     "title": "Request / Acknowledge",
-    "status": "Mox refusal",
+    "status": "PASS",
     "rows": [
       {
         "slug": "sva/req-ack",
-        "mode": "run, verify",
-        "construct": "request/acknowledge implication",
-        "diagnostic": "temporal-property-evaluator-not-admitted",
-        "clause": "§§16.9 and 16.10 (sequence and implication)",
-        "status": "Mox refusal"
+        "mode": "browser",
+        "construct": "browser run/verify passed",
+        "diagnostic": "",
+        "clause": "—",
+        "status": "PASS"
       }
     ]
   },
@@ -1247,9 +1247,9 @@ export const lessonStatuses = [
   }
 ];
 export const statusSummary = {
-  "PASS": 37,
+  "PASS": 38,
   "tutorial": 0,
-  "Mox refusal": 34,
+  "Mox refusal": 33,
   "environment": 12
 };
 export const matrixHistory = {

@@ -136,3 +136,29 @@ the shared FIFO and returned `rc=1` in
 
 Thus the repaired lit consumer does not yet cover the UVM class/member
 receiver path needed by ordinary lesson sources.
+
+## Exact green frontend qualification (2026-11-06)
+
+Interp's amended publication commit
+`95571933e9f9028c20391e3302c1ed3f89a04d1a` has a complete green qualification
+seal: 21/21 rows, seven targets, `status: passed`, in
+`/scratch/thomas-ahle/tmp/interp/publication-provenance-qual-20261105T2337Z/`.
+The exact frontend from that packet generated:
+
+- artifact: `/scratch/thomas-ahle/tmp/interp/uvm_pkg-9557193.vlib`
+- artifact size: 60,469,170 bytes
+- artifact SHA-256: `267638ea75c429f72d5b09fce099fbee8efda60be16524cdecf9738990ca1d3f`
+- generation receipt: `/scratch/thomas-ahle/tmp/interp/lowered-library-artifact-9557193.log`
+
+The matching 12-row receipt is
+`/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-9557193.md`.
+Source-backed `PASS` rows remain `reporting`, `seq-item`, `sequence`, `driver`,
+`constrained-random`, `monitor`, `env`, `factory-override`, and `ral`, taking
+about 48–58 seconds each. `covergroup`, `cross-coverage`, and
+`coverage-driven` retain their existing source failures. Every lowered row
+still fails in 2.8–6.9 seconds and emits zero MLIR bytes.
+
+Even the exact green frontend qualification does not make the package usable
+by ordinary UVM lesson sources. The lowered artifact therefore remains
+unpublished; no browser matrix or manifest switch is justified until the
+generic class/member receiver path is repaired.

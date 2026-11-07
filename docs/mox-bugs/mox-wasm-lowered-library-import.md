@@ -511,3 +511,34 @@ The three coverage lowered rows report the existing `virtual mem_if` class
 property resolution diagnostic. The receipt is therefore valid identity-matched
 evidence, but the generic lowered-library consumer gate remains red. The package
 manifest stays empty and no lowered artifact is published.
+
+## Identity-matched accepted-child `c495adfe` consumer matrix (2026-11-07)
+
+Publication `7078a6a7e0dc40f467e58aec33e17910731cd262` was accepted after
+the exact 22-row publication qualification. Its replayed child
+`c495adfe13ffa52a4430c6b50d8f4c20cf86a256` generated the matching lowered
+artifact with the child frontend:
+
+- frontend: `/scratch/thomas-ahle/tmp/interp/qual-tree-2/build-opt/bin/mox-verilog`
+- frontend SHA-256: `6a41bd6feb13a79fcd81477c7835417ea2196529bdcf935df547842e8c1f8a6d`
+- frontend identity: `mox-frontend-v1:bebc394bdef4d60a6ed070a0e7a166d6ea282866e569c90b145dcc7245b044d8`
+- artifact: `/scratch/thomas-ahle/tmp/interp/uvm_pkg-c495adfe-lowered.vlib`
+- artifact size: 60,462,564 bytes
+- artifact SHA-256: `b5e21f02bf54bc88a0a11ac7c50e8f353257cb9ecef946f19192db522d1414a1`
+
+The exact 12-row native receipt is
+`/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-c495adfe13f-20261107T1408Z.md`,
+with durable logs under
+`lowered-library-native-matrix-c495adfe13f-20261107T1408Z.md.logs-dRdLsS/`.
+The receipt records `inputsUnchanged: true`. Nine source-backed rows pass
+(`reporting`, `seq-item`, `sequence`, `driver`, `constrained-random`,
+`monitor`, `env`, `factory-override`, and `ral`); the three existing coverage
+source rows remain failures. Every lowered-artifact row fails before producing
+MLIR: the nine runnable rows report
+`method 'set_finish_on_completion' has non-class receiver type '!llvm.ptr'`,
+and `covergroup`, `cross-coverage`, and `coverage-driven` report
+`type of class property 'vif' could not be resolved`.
+
+This is valid identity-matched evidence that the generic consumer repair is
+still incomplete. The artifact remains unpublished, the package manifest
+remains empty, and no browser matrix is justified.

@@ -482,3 +482,32 @@ The consumer correctly rejected all 12 lowered rows with
 any lesson-specific diagnostic was reached. A dedicated `3d42dcd` worktree
 and rebuild are in progress; the artifact remains unpublished and the package
 manifest remains empty.
+
+## Identity-matched `3d42dcd` consumer matrix (2026-11-07)
+
+The dedicated consumer rebuild for interp candidate
+`3d42dcd6f3a53cfd87666c65eb689c569592a039` completed successfully with
+`rc=0`. Its binary SHA-256 is `03b7fa2758b2b8e04393e831c172e00acaee9ca13bfc1fd2157cdabc6023ce49`,
+which is the same producer identity used to create the matching lowered
+artifact. The artifact is `/scratch/thomas-ahle/tmp/interp/uvm_pkg-3d42dcd-lowered.vlib`,
+60,451,947 bytes, SHA-256
+`20612d84fe8d67db6ed13e5649f05ff588509a76e0bc6daf540643948403df44`.
+
+The complete native 12-row source-versus-lowered receipt is
+`/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-3d42dcd-r2.md`;
+its durable diagnostics and invocation arguments are under
+`lowered-library-native-matrix-3d42dcd-r2.md.logs-G4VNIy/`. Inputs remained
+unchanged during the run. Nine source-backed rows pass (`reporting`, `seq-item`,
+`sequence`, `driver`, `constrained-random`, `monitor`, `env`,
+`factory-override`, and `ral`); the three coverage rows retain their known
+source failure. Every lowered-artifact row fails before producing MLIR. The
+nine runnable lowered rows report:
+
+```text
+method 'set_finish_on_completion' has non-class receiver type '!llvm.ptr'
+```
+
+The three coverage lowered rows report the existing `virtual mem_if` class
+property resolution diagnostic. The receipt is therefore valid identity-matched
+evidence, but the generic lowered-library consumer gate remains red. The package
+manifest stays empty and no lowered artifact is published.

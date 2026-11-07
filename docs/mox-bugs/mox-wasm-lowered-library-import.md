@@ -458,3 +458,27 @@ while `covergroup`, `cross-coverage`, and `coverage-driven` retain the known
 The exact fix8 frontend therefore still does not pass the native lowered UVM
 consumer gate. The artifact remains unpublished, the package manifest remains
 empty, and the browser matrix is unchanged.
+
+## Candidate `3d42dcd` identity-isolated consumer attempt (2026-11-07)
+
+Interp candidate `3d42dcd6f3a53cfd87666c65eb689c569592a039` (parent
+`4fe21f9b4b4e873607ff2f1b8f716d3f029313f8`) passed its exact seven-row,
+four-target qualification in
+`/scratch/thomas-ahle/tmp/interp/vlib-context-child-qualification-20261107T0044Z/`.
+The matching artifact build completed with SHA-256
+`20612d84fe8d67db6ed13e5649f05ff588509a76e0bc6daf540643948403df44` and
+size 60,451,947 bytes.
+
+The first native 12-row attempt at
+`/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-3d42dcd.md`
+is invalid evidence for the candidate: its receipt records consumer frontend
+SHA-256
+`c241fc11ac5ee9ea97231c8a07d9b56b346a6c830fb00bbc03564b3a38738642`
+(MOX `5b1cb493a64d124c8d7dca674897d7b4f32122a5`), while the artifact was
+produced by the qualified `3d42dcd` frontend (binary SHA-256
+`03b7fa2758b2b8e04393e831c172e00acaee9ca13bfc1fd2157cdabc6023ce49`).
+The consumer correctly rejected all 12 lowered rows with
+`compiler identity does not match this consumer; rebuild the .vlib` before
+any lesson-specific diagnostic was reached. A dedicated `3d42dcd` worktree
+and rebuild are in progress; the artifact remains unpublished and the package
+manifest remains empty.

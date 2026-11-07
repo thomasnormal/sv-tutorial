@@ -106,7 +106,7 @@ jobs:
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          artifact-name: github-pages-${{ github.run_id }}
+          name: github-pages-${{ github.run_id }}
           path: build
 
       - name: Deploy to GitHub Pages

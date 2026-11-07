@@ -427,3 +427,34 @@ method 'set_finish_on_completion' has non-class receiver type '!llvm.ptr'
 
 The complexity-qualified frontend therefore does not pass the native consumer
 gate. The package manifest remains empty and no lowered artifact is published.
+
+## Exact fix8 frontend matrix (2026-11-07)
+
+Interp's complexity-fix8 frontend `4fe21f9b4b4e873607ff2f1b8f716d3f029313f8`
+has a complete green qualification seal: 21/21 rows across seven targets,
+`status: passed`, in
+`/scratch/thomas-ahle/tmp/interp/publication-complexity-fix8-qualification-20261106T2341Z/`.
+The exact qualified frontend is
+`/scratch/thomas-ahle/tmp/interp/qual-tree/build-opt/bin/mox-verilog`, SHA-256
+`6cd39389eddfa4cb9e1a5316d557fd336901d26e772fd225a9e74c48e0558b22`, with
+identity `mox-frontend-v1:475b3d9298f51e42a597cc806fbfca59ec7be9420a865ca8638c34a0e2837760`.
+
+The matching lowered package was built from the pinned UVM source:
+
+- artifact: `/scratch/thomas-ahle/tmp/interp/uvm_pkg-4fe21f9-lowered.vlib`
+- artifact size: 60,423,451 bytes
+- artifact SHA-256: `52e1aacc766348dbb6681a0e9828c7ff5d6e2fdee572cfa5dd8fae624bc6be4a`
+- native receipt: `/scratch/thomas-ahle/tmp/interp/lowered-library-native-matrix-4fe21f9.md`
+
+The complete 12-row native receipt reports source-backed `PASS` for `reporting`,
+`seq-item`, `sequence`, `driver`, `constrained-random`, `monitor`, `env`,
+`factory-override`, and `ral` (46.4–61.8 seconds). The three existing coverage
+source failures remain failures. Every lowered-artifact row fails before
+producing MLIR (2.8–3.7 seconds): the nine runnable rows report
+`method 'set_finish_on_completion' has non-class receiver type '!llvm.ptr'`,
+while `covergroup`, `cross-coverage`, and `coverage-driven` retain the known
+`virtual mem_if` class-property resolution diagnostic.
+
+The exact fix8 frontend therefore still does not pass the native lowered UVM
+consumer gate. The artifact remains unpublished, the package manifest remains
+empty, and the browser matrix is unchanged.
